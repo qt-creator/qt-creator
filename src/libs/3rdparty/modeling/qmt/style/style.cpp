@@ -33,7 +33,7 @@
 namespace qmt {
 
 Style::Style(Type type)
-    : _type(type)
+    : m_type(type)
 {
 }
 
@@ -43,52 +43,52 @@ Style::~Style()
 
 void Style::setLinePen(const QPen &pen)
 {
-    _line_pen = pen;
+    m_linePen = pen;
 }
 
 void Style::setOuterLinePen(const QPen &pen)
 {
-    _outer_line_pen = pen;
+    m_outerLinePen = pen;
 }
 
 void Style::setInnerLinePen(const QPen &pen)
 {
-    _inner_line_pen = pen;
+    m_innerLinePen = pen;
 }
 
 void Style::setExtraLinePen(const QPen &pen)
 {
-    _extra_line_pen = pen;
+    m_extraLinePen = pen;
 }
 
 void Style::setTextBrush(const QBrush &brush)
 {
-    _text_brush = brush;
+    m_textBrush = brush;
 }
 
 void Style::setFillBrush(const QBrush &brush)
 {
-    _fill_brush = brush;
+    m_fillBrush = brush;
 }
 
 void Style::setExtraFillBrush(const QBrush &brush)
 {
-    _extra_fill_brush = brush;
+    m_extraFillBrush = brush;
 }
 
 void Style::setNormalFont(const QFont &font)
 {
-    _normal_font = font;
+    m_normalFont = font;
 }
 
 void Style::setSmallFont(const QFont &font)
 {
-    _small_font = font;
+    m_smallFont = font;
 }
 
 void Style::setHeaderFont(const QFont &font)
 {
-    _header_font = font;
+    m_headerFont = font;
 }
 
 }

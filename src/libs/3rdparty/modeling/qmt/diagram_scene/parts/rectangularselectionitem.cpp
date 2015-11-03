@@ -50,9 +50,9 @@ public:
 
     GraphicsHandleItem(Handle handle, RectangularSelectionItem *parent)
         : QGraphicsRectItem(parent),
-          _owner(parent),
-          _handle(handle),
-          _secondary_selected(false)
+          m_owner(parent),
+          m_handle(handle),
+          m_secondarySelected(false)
     {
         setPen(QPen(Qt::black));
         setBrush(QBrush(Qt::black));
@@ -60,8 +60,8 @@ public:
 
     void setSecondarySelected(bool secondary_selected)
     {
-        if (secondary_selected != _secondary_selected) {
-            _secondary_selected = secondary_selected;
+        if (secondary_selected != m_secondarySelected) {
+            m_secondarySelected = secondary_selected;
             if (secondary_selected) {
                 setPen(QPen(Qt::lightGray));
                 setBrush(Qt::NoBrush);
@@ -77,50 +77,50 @@ protected:
 
     void mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
-        _start_pos = mapToScene(event->pos());
-        if (!_secondary_selected) {
-            _owner->moveHandle(_handle, QPointF(0.0, 0.0), PRESS, NONE);
+        m_startPos = mapToScene(event->pos());
+        if (!m_secondarySelected) {
+            m_owner->moveHandle(m_handle, QPointF(0.0, 0.0), PRESS, NONE);
         }
     }
 
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     {
-        QPointF pos = mapToScene(event->pos()) - _start_pos;
-        if (!_secondary_selected) {
-            _owner->moveHandle(_handle, pos, MOVE, NONE);
+        QPointF pos = mapToScene(event->pos()) - m_startPos;
+        if (!m_secondarySelected) {
+            m_owner->moveHandle(m_handle, pos, MOVE, NONE);
         }
 
     }
 
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     {
-        QPointF pos = mapToScene(event->pos()) - _start_pos;
-        if (!_secondary_selected) {
-            _owner->moveHandle(_handle, pos, RELEASE, NONE);
+        QPointF pos = mapToScene(event->pos()) - m_startPos;
+        if (!m_secondarySelected) {
+            m_owner->moveHandle(m_handle, pos, RELEASE, NONE);
         }
     }
 
 private:
 
-    RectangularSelectionItem *_owner;
+    RectangularSelectionItem *m_owner;
 
-    Handle _handle;
+    Handle m_handle;
 
-    bool _secondary_selected;
+    bool m_secondarySelected;
 
-    QPointF _start_pos;
+    QPointF m_startPos;
 };
 
 
 RectangularSelectionItem::RectangularSelectionItem(IResizable *item_resizer, QGraphicsItem *parent)
     : QGraphicsItem(parent),
-      _item_resizer(item_resizer),
-      _point_size(QSizeF(9.0, 9.0)),
-      _points(8),
-      _show_border(false),
-      _border_item(0),
-      _freedom(FREEDOM_ANY),
-      _secondary_selected(false)
+      m_itemResizer(item_resizer),
+      m_pointSize(QSizeF(9.0, 9.0)),
+      m_points(8),
+      m_showBorder(false),
+      m_borderItem(0),
+      m_freedom(FREEDOM_ANY),
+      m_secondarySelected(false)
 {
 }
 
@@ -142,8 +142,8 @@ void RectangularSelectionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
 void RectangularSelectionItem::setRect(const QRectF &rectangle)
 {
-    if (rectangle != _rect) {
-        _rect = rectangle;
+    if (rectangle != m_rect) {
+        m_rect = rectangle;
         update();
     }
 }
@@ -155,26 +155,26 @@ void RectangularSelectionItem::setRect(qreal x, qreal y, qreal width, qreal heig
 
 void RectangularSelectionItem::setPointSize(const QSizeF &size)
 {
-    if (size != _point_size) {
-        _point_size = size;
+    if (size != m_pointSize) {
+        m_pointSize = size;
         update();
     }
 }
 
 void RectangularSelectionItem::setShowBorder(bool show_border)
 {
-    _show_border = show_border;
+    m_showBorder = show_border;
 }
 
 void RectangularSelectionItem::setFreedom(Freedom freedom)
 {
-    _freedom = freedom;
+    m_freedom = freedom;
 }
 
 void RectangularSelectionItem::setSecondarySelected(bool secondary_selected)
 {
-    if (secondary_selected != _secondary_selected) {
-        _secondary_selected = secondary_selected;
+    if (secondary_selected != m_secondarySelected) {
+        m_secondarySelected = secondary_selected;
         update();
     }
 }
@@ -185,67 +185,67 @@ void RectangularSelectionItem::update()
     prepareGeometryChange();
 
     for (int i = 0; i <= 7; ++i) {
-        if (!_points[i]) {
-            _points[i] = new GraphicsHandleItem((Handle) i, this);
+        if (!m_points[i]) {
+            m_points[i] = new GraphicsHandleItem((Handle) i, this);
         }
-        _points[i]->setRect(-_point_size.width() / 2.0, -_point_size.height() / 2.0, _point_size.width(), _point_size.height());
+        m_points[i]->setRect(-m_pointSize.width() / 2.0, -m_pointSize.height() / 2.0, m_pointSize.width(), m_pointSize.height());
         bool visible = false;
         switch ((Handle) i) {
         case HANDLE_TOP_LEFT:
-            visible = _freedom == FREEDOM_ANY || _freedom == FREEDOM_KEEP_RATIO;
+            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
             break;
         case HANDLE_TOP:
-            visible = _freedom == FREEDOM_ANY || _freedom == FREEDOM_VERTICAL_ONLY;
+            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_VERTICAL_ONLY;
             break;
         case HANDLE_TOP_RIGHT:
-            visible = _freedom == FREEDOM_ANY || _freedom == FREEDOM_KEEP_RATIO;
+            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
             break;
         case HANDLE_LEFT:
-            visible = _freedom == FREEDOM_ANY || _freedom == FREEDOM_HORIZONTAL_ONLY;
+            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_HORIZONTAL_ONLY;
             break;
         case HANDLE_RIGHT:
-            visible = _freedom == FREEDOM_ANY || _freedom == FREEDOM_HORIZONTAL_ONLY;
+            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_HORIZONTAL_ONLY;
             break;
         case HANDLE_BOTTOM_LEFT:
-            visible = _freedom == FREEDOM_ANY || _freedom == FREEDOM_KEEP_RATIO;
+            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
             break;
         case HANDLE_BOTTOM:
-            visible = _freedom == FREEDOM_ANY || _freedom == FREEDOM_VERTICAL_ONLY;
+            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_VERTICAL_ONLY;
             break;
         case HANDLE_BOTTOM_RIGHT:
-            visible = _freedom == FREEDOM_ANY || _freedom == FREEDOM_KEEP_RATIO;
+            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
             break;
         }
-        _points[i]->setSecondarySelected(_secondary_selected);
-        _points[i]->setVisible(visible);
+        m_points[i]->setSecondarySelected(m_secondarySelected);
+        m_points[i]->setVisible(visible);
     }
-    double horiz_center = (_rect.left() + _rect.right()) * 0.5;
-    double vert_center = (_rect.top() + _rect.bottom()) * 0.5;
-    _points[0]->setPos(pos() + _rect.topLeft());
-    _points[1]->setPos(pos() + QPointF(horiz_center, _rect.top()));
-    _points[2]->setPos(pos() + _rect.topRight());
-    _points[3]->setPos(pos() + QPointF(_rect.left(), vert_center));
-    _points[4]->setPos(pos() + QPointF(_rect.right(), vert_center));
-    _points[5]->setPos(pos() + _rect.bottomLeft());
-    _points[6]->setPos(pos() + QPointF(horiz_center, _rect.bottom()));
-    _points[7]->setPos(pos() + _rect.bottomRight());
+    double horiz_center = (m_rect.left() + m_rect.right()) * 0.5;
+    double vert_center = (m_rect.top() + m_rect.bottom()) * 0.5;
+    m_points[0]->setPos(pos() + m_rect.topLeft());
+    m_points[1]->setPos(pos() + QPointF(horiz_center, m_rect.top()));
+    m_points[2]->setPos(pos() + m_rect.topRight());
+    m_points[3]->setPos(pos() + QPointF(m_rect.left(), vert_center));
+    m_points[4]->setPos(pos() + QPointF(m_rect.right(), vert_center));
+    m_points[5]->setPos(pos() + m_rect.bottomLeft());
+    m_points[6]->setPos(pos() + QPointF(horiz_center, m_rect.bottom()));
+    m_points[7]->setPos(pos() + m_rect.bottomRight());
 
-    if (_show_border) {
-        if (!_border_item) {
-            _border_item = new QGraphicsRectItem(this);
+    if (m_showBorder) {
+        if (!m_borderItem) {
+            m_borderItem = new QGraphicsRectItem(this);
         }
-        _border_item->setRect(_rect);
-        if (_secondary_selected) {
-            _border_item->setPen(QPen(QBrush(Qt::lightGray), 0.0, Qt::DashDotLine));
+        m_borderItem->setRect(m_rect);
+        if (m_secondarySelected) {
+            m_borderItem->setPen(QPen(QBrush(Qt::lightGray), 0.0, Qt::DashDotLine));
         } else {
-            _border_item->setPen(QPen(QBrush(Qt::black), 0.0, Qt::DashDotLine));
+            m_borderItem->setPen(QPen(QBrush(Qt::black), 0.0, Qt::DashDotLine));
         }
-    } else if (_border_item) {
-        if (_border_item->scene()) {
-            _border_item->scene()->removeItem(_border_item);
+    } else if (m_borderItem) {
+        if (m_borderItem->scene()) {
+            m_borderItem->scene()->removeItem(m_borderItem);
         }
-        delete _border_item;
-        _border_item = 0;
+        delete m_borderItem;
+        m_borderItem = 0;
     }
 }
 
@@ -254,48 +254,48 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &delta_mo
     Q_UNUSED(handle_qualifier);
 
     if (handle_status == PRESS) {
-        _original_resize_pos = _item_resizer->getPos();
-        _original_resize_rect = _item_resizer->getRect();
+        m_originalResizePos = m_itemResizer->getPos();
+        m_originalResizeRect = m_itemResizer->getRect();
     }
 
     bool moveable = false;
     switch (handle) {
     case HANDLE_TOP_LEFT:
-        moveable = _freedom == FREEDOM_ANY || _freedom == FREEDOM_KEEP_RATIO;
+        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
         break;
     case HANDLE_TOP:
-        moveable = _freedom == FREEDOM_ANY || _freedom == FREEDOM_VERTICAL_ONLY;
+        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_VERTICAL_ONLY;
         break;
     case HANDLE_TOP_RIGHT:
-        moveable = _freedom == FREEDOM_ANY || _freedom == FREEDOM_KEEP_RATIO;
+        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
         break;
     case HANDLE_LEFT:
-        moveable = _freedom == FREEDOM_ANY || _freedom == FREEDOM_HORIZONTAL_ONLY;
+        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_HORIZONTAL_ONLY;
         break;
     case HANDLE_RIGHT:
-        moveable = _freedom == FREEDOM_ANY || _freedom == FREEDOM_HORIZONTAL_ONLY;
+        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_HORIZONTAL_ONLY;
         break;
     case HANDLE_BOTTOM_LEFT:
-        moveable = _freedom == FREEDOM_ANY || _freedom == FREEDOM_KEEP_RATIO;
+        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
         break;
     case HANDLE_BOTTOM:
-        moveable = _freedom == FREEDOM_ANY || _freedom == FREEDOM_VERTICAL_ONLY;
+        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_VERTICAL_ONLY;
         break;
     case HANDLE_BOTTOM_RIGHT:
-        moveable = _freedom == FREEDOM_ANY || _freedom == FREEDOM_KEEP_RATIO;
+        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
         break;
     }
     if (!moveable) {
         return;
     }
 
-    QSizeF minimum_size = _item_resizer->getMinimumSize();
+    QSizeF minimum_size = m_itemResizer->getMinimumSize();
 
     QPointF top_left_delta;
     QPointF bottom_right_delta;
 
     // calculate movements of corners
-    if (_freedom == FREEDOM_KEEP_RATIO) {
+    if (m_freedom == FREEDOM_KEEP_RATIO) {
         qreal minimum_length = qSqrt(minimum_size.width() * minimum_size.width() + minimum_size.height() * minimum_size.height());
         QPointF v(minimum_size.width() / minimum_length, minimum_size.height() / minimum_length);
         qreal delta_length = qSqrt(delta_move.x() * delta_move.x() + delta_move.y() * delta_move.y());
@@ -376,7 +376,7 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &delta_mo
         }
     }
 
-    QRectF new_rect = _original_resize_rect.adjusted(top_left_delta.x(), top_left_delta.y(), bottom_right_delta.x(), bottom_right_delta.y());
+    QRectF new_rect = m_originalResizeRect.adjusted(top_left_delta.x(), top_left_delta.y(), bottom_right_delta.x(), bottom_right_delta.y());
     QSizeF size_delta = minimum_size - new_rect.size();
 
     // correct horizontal resize against minimum width
@@ -421,7 +421,7 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &delta_mo
         break;
     }
 
-    _item_resizer->setPosAndRect(_original_resize_pos, _original_resize_rect, top_left_delta, bottom_right_delta);
+    m_itemResizer->setPosAndRect(m_originalResizePos, m_originalResizeRect, top_left_delta, bottom_right_delta);
 
     if (handle_status == RELEASE) {
         IResizable::Side horiz = IResizable::SIDE_NONE;
@@ -458,7 +458,7 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &delta_mo
             // nothing
             break;
         }
-        _item_resizer->alignItemSizeToRaster(horiz, vert, 2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
+        m_itemResizer->alignItemSizeToRaster(horiz, vert, 2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
     }
 }
 

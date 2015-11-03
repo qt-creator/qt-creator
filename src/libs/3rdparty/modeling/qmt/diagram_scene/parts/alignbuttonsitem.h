@@ -78,9 +78,9 @@ public:
 
 private:
 
-    IAlignable *_alignable;
+    IAlignable *m_alignable;
 
-    QList<AlignButtonItem *> _align_items;
+    QList<AlignButtonItem *> m_alignItems;
 
 };
 

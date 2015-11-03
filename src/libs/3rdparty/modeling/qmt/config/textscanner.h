@@ -54,10 +54,10 @@ public:
 
 public:
 
-    SourcePos getSourcePos() const { return _source_pos; }
+    SourcePos getSourcePos() const { return m_sourcePos; }
 
 private:
-    SourcePos _source_pos;
+    SourcePos m_sourcePos;
 };
 
 

@@ -93,7 +93,7 @@ protected:
 
 private:
 
-    DiagramSceneModel *_diagram_scene_model;
+    DiagramSceneModel *m_diagramSceneModel;
 
 };
 

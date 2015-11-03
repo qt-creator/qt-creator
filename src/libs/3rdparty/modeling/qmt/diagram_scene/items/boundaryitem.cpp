@@ -81,16 +81,16 @@ public:
 
 BoundaryItem::BoundaryItem(DBoundary *boundary, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent)
     : QGraphicsItem(parent),
-      _boundary(boundary),
-      _diagram_scene_model(diagram_scene_model),
-      _secondary_selected(false),
-      _focus_selected(false),
-      _selection_marker(0),
-      _border_item(0),
-      _no_text_item(0),
-      _text_item(0),
-      _on_update(false),
-      _on_changed(false)
+      m_boundary(boundary),
+      m_diagramSceneModel(diagram_scene_model),
+      m_secondarySelected(false),
+      m_focusSelected(false),
+      m_selectionMarker(0),
+      m_borderItem(0),
+      m_noTextItem(0),
+      m_textItem(0),
+      m_onUpdate(false),
+      m_onChanged(false)
 {
     setFlags(QGraphicsItem::ItemIsSelectable);
 }
@@ -113,45 +113,45 @@ void BoundaryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
 void BoundaryItem::update()
 {
-    QMT_CHECK(!_on_update);
-    _on_update = true;
+    QMT_CHECK(!m_onUpdate);
+    m_onUpdate = true;
 
     prepareGeometryChange();
 
     const Style *style = getAdaptedStyle();
 
     // text
-    if (!_text_item) {
-        _text_item = new BoundaryTextItem(this);
-        _text_item->setTextInteractionFlags(Qt::TextEditorInteraction);
-        _text_item->installSceneEventFilter(this);
-        QObject::connect(_text_item->document(), &QTextDocument::contentsChanged, _text_item,
+    if (!m_textItem) {
+        m_textItem = new BoundaryTextItem(this);
+        m_textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
+        m_textItem->installSceneEventFilter(this);
+        QObject::connect(m_textItem->document(), &QTextDocument::contentsChanged, m_textItem,
                          [=]() { this->onContentsChanged(); } );
     }
-    _text_item->setFont(style->getNormalFont());
-    _text_item->setDefaultTextColor(style->getTextBrush().color());
-    if (!_on_changed) {
-        _text_item->setTextWidth(-1);
-        _text_item->setPlainText(_boundary->getText());
+    m_textItem->setFont(style->getNormalFont());
+    m_textItem->setDefaultTextColor(style->getTextBrush().color());
+    if (!m_onChanged) {
+        m_textItem->setTextWidth(-1);
+        m_textItem->setPlainText(m_boundary->getText());
     }
 
     // item shown if annotation has no text and is not selected
-    if (_text_item->document()->isEmpty() && isSelected()) {
-        if (!_no_text_item) {
-            _no_text_item = new QGraphicsRectItem(this);
+    if (m_textItem->document()->isEmpty() && isSelected()) {
+        if (!m_noTextItem) {
+            m_noTextItem = new QGraphicsRectItem(this);
         }
-        _no_text_item->setPen(QPen(QBrush(QColor(192, 192, 192)), 1, Qt::DashDotLine));
-    } else if (_no_text_item) {
-        _no_text_item->scene()->removeItem(_no_text_item);
-        delete _no_text_item;
-        _no_text_item = 0;
+        m_noTextItem->setPen(QPen(QBrush(QColor(192, 192, 192)), 1, Qt::DashDotLine));
+    } else if (m_noTextItem) {
+        m_noTextItem->scene()->removeItem(m_noTextItem);
+        delete m_noTextItem;
+        m_noTextItem = 0;
     }
 
     // item shown if annotation has no text and is not selected
-    if (!_border_item) {
-        _border_item = new QGraphicsRectItem(this);
+    if (!m_borderItem) {
+        m_borderItem = new QGraphicsRectItem(this);
     }
-    _border_item->setPen(QPen(QBrush(Qt::black), 1, Qt::DashLine));
+    m_borderItem->setPen(QPen(QBrush(Qt::black), 1, Qt::DashLine));
 
     updateSelectionMarker();
 
@@ -159,17 +159,17 @@ void BoundaryItem::update()
 
     setZValue(BOUNDARY_ITEMS_ZVALUE);
 
-    _on_update = false;
+    m_onUpdate = false;
 }
 
 QPointF BoundaryItem::getPos() const
 {
-    return _boundary->getPos();
+    return m_boundary->getPos();
 }
 
 QRectF BoundaryItem::getRect() const
 {
-    return _boundary->getRect();
+    return m_boundary->getRect();
 }
 
 QSizeF BoundaryItem::getMinimumSize() const
@@ -182,18 +182,18 @@ void BoundaryItem::setPosAndRect(const QPointF &original_pos, const QRectF &orig
     QPointF new_pos = original_pos;
     QRectF new_rect = original_rect;
     GeometryUtilities::adjustPosAndRect(&new_pos, &new_rect, top_left_delta, bottom_right_delta, QPointF(0.5, 0.5));
-    if (new_pos != _boundary->getPos() || new_rect != _boundary->getRect()) {
-        _diagram_scene_model->getDiagramController()->startUpdateElement(_boundary, _diagram_scene_model->getDiagram(), DiagramController::UPDATE_GEOMETRY);
-        _boundary->setPos(new_pos);
-        _boundary->setRect(new_rect);
-        _diagram_scene_model->getDiagramController()->finishUpdateElement(_boundary, _diagram_scene_model->getDiagram(), false);
+    if (new_pos != m_boundary->getPos() || new_rect != m_boundary->getRect()) {
+        m_diagramSceneModel->getDiagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
+        m_boundary->setPos(new_pos);
+        m_boundary->setRect(new_rect);
+        m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), false);
     }
 }
 
 void BoundaryItem::alignItemSizeToRaster(IResizable::Side adjust_horizontal_side, IResizable::Side adjust_vertical_side, double raster_width, double raster_height)
 {
-    QPointF pos = _boundary->getPos();
-    QRectF rect = _boundary->getRect();
+    QPointF pos = m_boundary->getPos();
+    QRectF rect = m_boundary->getRect();
 
     double horiz_delta = rect.width() - qRound(rect.width() / raster_width) * raster_width;
     double vert_delta = rect.height() - qRound(rect.height() / raster_height) * raster_height;
@@ -241,15 +241,15 @@ void BoundaryItem::alignItemSizeToRaster(IResizable::Side adjust_horizontal_side
 
 void BoundaryItem::moveDelta(const QPointF &delta)
 {
-    _diagram_scene_model->getDiagramController()->startUpdateElement(_boundary, _diagram_scene_model->getDiagram(), DiagramController::UPDATE_GEOMETRY);
-    _boundary->setPos(_boundary->getPos() + delta);
-    _diagram_scene_model->getDiagramController()->finishUpdateElement(_boundary, _diagram_scene_model->getDiagram(), false);
+    m_diagramSceneModel->getDiagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
+    m_boundary->setPos(m_boundary->getPos() + delta);
+    m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), false);
 }
 
 void BoundaryItem::alignItemPositionToRaster(double raster_width, double raster_height)
 {
-    QPointF pos = _boundary->getPos();
-    QRectF rect = _boundary->getRect();
+    QPointF pos = m_boundary->getPos();
+    QRectF rect = m_boundary->getRect();
     QPointF top_left = pos + rect.topLeft();
 
     double left_delta = qRound(top_left.x() / raster_width) * raster_width - top_left.x();
@@ -261,26 +261,26 @@ void BoundaryItem::alignItemPositionToRaster(double raster_width, double raster_
 
 bool BoundaryItem::isSecondarySelected() const
 {
-    return _secondary_selected;
+    return m_secondarySelected;
 }
 
 void BoundaryItem::setSecondarySelected(bool secondary_selected)
 {
-    if (_secondary_selected != secondary_selected) {
-        _secondary_selected = secondary_selected;
+    if (m_secondarySelected != secondary_selected) {
+        m_secondarySelected = secondary_selected;
         update();
     }
 }
 
 bool BoundaryItem::isFocusSelected() const
 {
-    return _focus_selected;
+    return m_focusSelected;
 }
 
 void BoundaryItem::setFocusSelected(bool focus_selected)
 {
-    if (_focus_selected != focus_selected) {
-        _focus_selected = focus_selected;
+    if (m_focusSelected != focus_selected) {
+        m_focusSelected = focus_selected;
         update();
     }
 }
@@ -292,69 +292,69 @@ bool BoundaryItem::isEditable() const
 
 void BoundaryItem::edit()
 {
-    if (_text_item) {
-        _text_item->setFocus();
+    if (m_textItem) {
+        m_textItem->setFocus();
     }
 }
 
 void BoundaryItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton) {
-        _diagram_scene_model->selectItem(this, event->modifiers() & Qt::ControlModifier);
+        m_diagramSceneModel->selectItem(this, event->modifiers() & Qt::ControlModifier);
     }
     if (event->buttons() & Qt::LeftButton) {
-        _diagram_scene_model->moveSelectedItems(this, QPointF(0.0, 0.0));
+        m_diagramSceneModel->moveSelectedItems(this, QPointF(0.0, 0.0));
     }
 }
 
 void BoundaryItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton) {
-        _diagram_scene_model->moveSelectedItems(this, event->scenePos() - event->lastScenePos());
+        m_diagramSceneModel->moveSelectedItems(this, event->scenePos() - event->lastScenePos());
     }
 }
 
 void BoundaryItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        _diagram_scene_model->moveSelectedItems(this, event->scenePos() - event->lastScenePos());
+        m_diagramSceneModel->moveSelectedItems(this, event->scenePos() - event->lastScenePos());
         if (event->scenePos() != event->buttonDownScenePos(Qt::LeftButton)) {
-            _diagram_scene_model->alignSelectedItemsPositionOnRaster();
+            m_diagramSceneModel->alignSelectedItemsPositionOnRaster();
         }
     }
 }
 
 void BoundaryItem::updateSelectionMarker()
 {
-    if (isSelected() || _secondary_selected) {
-        if (!_selection_marker) {
-            _selection_marker = new RectangularSelectionItem(this, this);
+    if (isSelected() || m_secondarySelected) {
+        if (!m_selectionMarker) {
+            m_selectionMarker = new RectangularSelectionItem(this, this);
         }
-        _selection_marker->setSecondarySelected(isSelected() ? false : _secondary_selected);
-    } else if (_selection_marker) {
-        if (_selection_marker->scene()) {
-            _selection_marker->scene()->removeItem(_selection_marker);
+        m_selectionMarker->setSecondarySelected(isSelected() ? false : m_secondarySelected);
+    } else if (m_selectionMarker) {
+        if (m_selectionMarker->scene()) {
+            m_selectionMarker->scene()->removeItem(m_selectionMarker);
         }
-        delete _selection_marker;
-        _selection_marker = 0;
+        delete m_selectionMarker;
+        m_selectionMarker = 0;
     }
 }
 
 void BoundaryItem::updateSelectionMarkerGeometry(const QRectF &boundary_rect)
 {
-    if (_selection_marker) {
-        _selection_marker->setRect(boundary_rect);
+    if (m_selectionMarker) {
+        m_selectionMarker->setRect(boundary_rect);
     }
 }
 
 const Style *BoundaryItem::getAdaptedStyle()
 {
-    return _diagram_scene_model->getStyleController()->adaptBoundaryStyle(_boundary);
+    return m_diagramSceneModel->getStyleController()->adaptBoundaryStyle(m_boundary);
 }
 
 bool BoundaryItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 {
-    if (watched == _text_item) {
+    if (watched == m_textItem) {
         if (event->type() == QEvent::FocusIn) {
             scene()->clearSelection();
             setSelected(true);
@@ -365,19 +365,19 @@ bool BoundaryItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 
 void BoundaryItem::onContentsChanged()
 {
-    QMT_CHECK(!_on_changed);
-    _on_changed = true;
+    QMT_CHECK(!m_onChanged);
+    m_onChanged = true;
 
-    if (!_on_update) {
-        QString plain_text = _text_item->toPlainText();
-        if (_boundary->getText() != plain_text) {
-            _diagram_scene_model->getDiagramController()->startUpdateElement(_boundary, _diagram_scene_model->getDiagram(), DiagramController::UPDATE_MINOR);
-            _boundary->setText(plain_text);
-            _diagram_scene_model->getDiagramController()->finishUpdateElement(_boundary, _diagram_scene_model->getDiagram(), false);
+    if (!m_onUpdate) {
+        QString plain_text = m_textItem->toPlainText();
+        if (m_boundary->getText() != plain_text) {
+            m_diagramSceneModel->getDiagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_MINOR);
+            m_boundary->setText(plain_text);
+            m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), false);
         }
     }
 
-    _on_changed = false;
+    m_onChanged = false;
 }
 
 QSizeF BoundaryItem::calcMinimumGeometry() const
@@ -385,9 +385,9 @@ QSizeF BoundaryItem::calcMinimumGeometry() const
     qreal width = MINIMUM_INNER_WIDTH + 2 * CONTENTS_BORDER_HORIZONTAL;
     qreal height = MINIMUM_INNER_HEIGHT + 2 * CONTENTS_BORDER_VERTICAL;
 
-    if (_text_item) {
-        _text_item->setTextWidth(-1);
-        QSizeF text_size = _text_item->document()->size();
+    if (m_textItem) {
+        m_textItem->setTextWidth(-1);
+        QSizeF text_size = m_textItem->document()->size();
         qreal text_width = text_size.width() + 2 * CONTENTS_BORDER_HORIZONTAL;
         if (text_width > width) {
             width = text_width;
@@ -410,14 +410,14 @@ void BoundaryItem::updateGeometry()
 
     qreal text_width = 0.0;
     qreal text_height = 0.0;
-    if (_text_item) {
-        _text_item->setTextWidth(-1);
-        QSizeF text_size = _text_item->document()->size();
+    if (m_textItem) {
+        m_textItem->setTextWidth(-1);
+        QSizeF text_size = m_textItem->document()->size();
         text_width = text_size.width();
         text_height = text_size.height();
     }
 
-    QRectF boundary_rect = _boundary->getRect();
+    QRectF boundary_rect = m_boundary->getRect();
     if (boundary_rect.width() > width) {
         width = boundary_rect.width();
     }
@@ -429,25 +429,25 @@ void BoundaryItem::updateGeometry()
     double left = -width / 2.0;
     double top = -height / 2.0;
 
-    setPos(_boundary->getPos());
+    setPos(m_boundary->getPos());
 
     QRectF rect(left, top, width, height);
 
     // the object is updated without calling DiagramController intentionally.
     // attribute rect is not a real attribute stored on DObject but
     // a backup for the graphics item used for manual resized and persistency.
-    _boundary->setRect(rect);
+    m_boundary->setRect(rect);
 
-    if (_border_item) {
-        _border_item->setRect(rect);
+    if (m_borderItem) {
+        m_borderItem->setRect(rect);
     }
 
-    if (_no_text_item) {
-        _no_text_item->setRect(QRectF(-text_width / 2, top + CONTENTS_BORDER_VERTICAL, text_width, text_height));
+    if (m_noTextItem) {
+        m_noTextItem->setRect(QRectF(-text_width / 2, top + CONTENTS_BORDER_VERTICAL, text_width, text_height));
     }
 
-    if (_text_item) {
-        _text_item->setPos(-text_width / 2.0, top + CONTENTS_BORDER_VERTICAL);
+    if (m_textItem) {
+        m_textItem->setPos(-text_width / 2.0, top + CONTENTS_BORDER_VERTICAL);
     }
 
     updateSelectionMarkerGeometry(rect);

@@ -37,30 +37,30 @@ namespace qmt {
 
 DObject::DObject()
     : DElement(),
-      _model_uid(Uid::getInvalidUid()),
-      _depth(0),
-      _visual_primary_role(PRIMARY_ROLE_NORMAL),
-      _visual_secondary_role(SECONDARY_ROLE_NONE),
-      _stereotype_display(STEREOTYPE_SMART),
-      _auto_sized(true),
-      _visual_emphasized(false)
+      m_modelUid(Uid::getInvalidUid()),
+      m_depth(0),
+      m_visualPrimaryRole(PRIMARY_ROLE_NORMAL),
+      m_visualSecondaryRole(SECONDARY_ROLE_NONE),
+      m_stereotypeDisplay(STEREOTYPE_SMART),
+      m_autoSized(true),
+      m_visualEmphasized(false)
 {
 }
 
 DObject::DObject(const DObject &rhs)
     : DElement(rhs),
-      _model_uid(rhs._model_uid),
-      _stereotypes(rhs._stereotypes),
-      _context(rhs._context),
-      _name(rhs._name),
-      _pos(rhs._pos),
-      _rect(rhs._rect),
-      _depth(rhs._depth),
-      _visual_primary_role(rhs._visual_primary_role),
-      _visual_secondary_role(rhs._visual_secondary_role),
-      _stereotype_display(rhs._stereotype_display),
-      _auto_sized(rhs._auto_sized),
-      _visual_emphasized(rhs._visual_emphasized)
+      m_modelUid(rhs.m_modelUid),
+      m_stereotypes(rhs.m_stereotypes),
+      m_context(rhs.m_context),
+      m_name(rhs.m_name),
+      m_pos(rhs.m_pos),
+      m_rect(rhs.m_rect),
+      m_depth(rhs.m_depth),
+      m_visualPrimaryRole(rhs.m_visualPrimaryRole),
+      m_visualSecondaryRole(rhs.m_visualSecondaryRole),
+      m_stereotypeDisplay(rhs.m_stereotypeDisplay),
+      m_autoSized(rhs.m_autoSized),
+      m_visualEmphasized(rhs.m_visualEmphasized)
 {
 }
 
@@ -72,80 +72,80 @@ DObject &DObject::operator =(const DObject &rhs)
 {
     if (this != &rhs) {
         DElement::operator=(rhs);
-        _model_uid = rhs._model_uid;
-        _stereotypes = rhs._stereotypes;
-        _context = rhs._context;
-        _name = rhs._name;
-        _pos = rhs._pos;
-        _rect = rhs._rect;
-        _depth = rhs._depth;
-        _visual_primary_role = rhs._visual_primary_role;
-        _visual_secondary_role = rhs._visual_secondary_role;
-        _stereotype_display = rhs._stereotype_display;
-        _auto_sized = rhs._auto_sized;
-        _visual_emphasized = rhs._visual_emphasized;
+        m_modelUid = rhs.m_modelUid;
+        m_stereotypes = rhs.m_stereotypes;
+        m_context = rhs.m_context;
+        m_name = rhs.m_name;
+        m_pos = rhs.m_pos;
+        m_rect = rhs.m_rect;
+        m_depth = rhs.m_depth;
+        m_visualPrimaryRole = rhs.m_visualPrimaryRole;
+        m_visualSecondaryRole = rhs.m_visualSecondaryRole;
+        m_stereotypeDisplay = rhs.m_stereotypeDisplay;
+        m_autoSized = rhs.m_autoSized;
+        m_visualEmphasized = rhs.m_visualEmphasized;
     }
     return *this;
 }
 
 void DObject::setModelUid(const Uid &uid)
 {
-    _model_uid = uid;
+    m_modelUid = uid;
 }
 
 void DObject::setStereotypes(const QList<QString> &stereotypes)
 {
-    _stereotypes = stereotypes;
+    m_stereotypes = stereotypes;
 }
 
 void DObject::setContext(const QString &context)
 {
-    _context = context;
+    m_context = context;
 }
 
 void DObject::setName(const QString &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 void DObject::setPos(const QPointF &pos)
 {
-    _pos = pos;
+    m_pos = pos;
 }
 
 void DObject::setRect(const QRectF &rect)
 {
-    _rect = rect;
+    m_rect = rect;
 }
 
 void DObject::setDepth(int depth)
 {
-    _depth = depth;
+    m_depth = depth;
 }
 
 void DObject::setVisualPrimaryRole(DObject::VisualPrimaryRole visual_primary_role)
 {
-    _visual_primary_role = visual_primary_role;
+    m_visualPrimaryRole = visual_primary_role;
 }
 
 void DObject::setVisualSecondaryRole(DObject::VisualSecondaryRole visual_secondary_role)
 {
-    _visual_secondary_role = visual_secondary_role;
+    m_visualSecondaryRole = visual_secondary_role;
 }
 
 void DObject::setStereotypeDisplay(DObject::StereotypeDisplay stereotype_display)
 {
-    _stereotype_display = stereotype_display;
+    m_stereotypeDisplay = stereotype_display;
 }
 
 void DObject::setAutoSize(bool auto_sized)
 {
-    _auto_sized = auto_sized;
+    m_autoSized = auto_sized;
 }
 
 void DObject::setVisualEmphasized(bool visual_emphasized)
 {
-    _visual_emphasized = visual_emphasized;
+    m_visualEmphasized = visual_emphasized;
 }
 
 void DObject::accept(DVisitor *visitor)

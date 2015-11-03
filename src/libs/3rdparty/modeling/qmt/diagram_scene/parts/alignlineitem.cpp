@@ -38,13 +38,13 @@ namespace qmt {
 
 AlignLineItem::AlignLineItem(Direction direction, QGraphicsItem *parent)
     : QGraphicsItem(parent),
-      _direction(direction),
-      _align_line(new QGraphicsLineItem(this)),
-      _highlight_line(new QGraphicsLineItem(this))
+      m_direction(direction),
+      m_alignLine(new QGraphicsLineItem(this)),
+      m_highlightLine(new QGraphicsLineItem(this))
 {
-    _align_line->setPen(QPen(QBrush(Qt::blue), 1.0, Qt::DotLine));
-    _highlight_line->setPen(QPen(QBrush(Qt::red), 2.0, Qt::DotLine));
-    _highlight_line->setZValue(1);
+    m_alignLine->setPen(QPen(QBrush(Qt::blue), 1.0, Qt::DotLine));
+    m_highlightLine->setPen(QPen(QBrush(Qt::red), 2.0, Qt::DotLine));
+    m_highlightLine->setZValue(1);
 }
 
 AlignLineItem::~AlignLineItem()
@@ -59,17 +59,17 @@ void AlignLineItem::setLine(qreal pos)
 void AlignLineItem::setLine(qreal pos, qreal other_pos1, qreal other_pos2)
 {
     QRectF scene_rect = scene()->sceneRect();
-    switch (_direction) {
+    switch (m_direction) {
     case HORIZONTAL:
-        _align_line->setLine(scene_rect.left() + 1.0, pos, scene_rect.right() - 1.0, pos);
-        _highlight_line->setLine(other_pos1, pos, other_pos2, pos);
+        m_alignLine->setLine(scene_rect.left() + 1.0, pos, scene_rect.right() - 1.0, pos);
+        m_highlightLine->setLine(other_pos1, pos, other_pos2, pos);
         break;
     case VERTICAL:
-        _align_line->setLine(pos, scene_rect.top() + 1.0, pos, scene_rect.bottom() - 1.0);
-        _highlight_line->setLine(pos, other_pos1, pos, other_pos2);
+        m_alignLine->setLine(pos, scene_rect.top() + 1.0, pos, scene_rect.bottom() - 1.0);
+        m_highlightLine->setLine(pos, other_pos1, pos, other_pos2);
         break;
     }
-    _highlight_line->setVisible(other_pos1 - other_pos2 != 0);
+    m_highlightLine->setVisible(other_pos1 - other_pos2 != 0);
 }
 
 QRectF AlignLineItem::boundingRect() const

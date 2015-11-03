@@ -40,21 +40,21 @@ namespace qmt {
 MDiagram::MDiagram()
     : MObject(),
       // modification date is set to null value for performance reasons
-      _last_modified()
+      m_lastModified()
 {
 }
 
 MDiagram::MDiagram(const MDiagram &rhs)
     : MObject(rhs),
-      _elements(),
+      m_elements(),
       // modification date is copied (instead of set to current time) to allow exact copies of the diagram
-      _last_modified(rhs._last_modified)
+      m_lastModified(rhs.m_lastModified)
 {
 }
 
 MDiagram::~MDiagram()
 {
-    qDeleteAll(_elements);
+    qDeleteAll(m_elements);
 }
 
 MDiagram &MDiagram::operator=(const MDiagram &rhs)
@@ -63,7 +63,7 @@ MDiagram &MDiagram::operator=(const MDiagram &rhs)
         MObject::operator=(rhs);
         // no deep copy; list of elements remains unchanged
         // modification date is copied (instead of set to current time) to allow exact copies of the diagram
-        _last_modified = rhs._last_modified;
+        m_lastModified = rhs.m_lastModified;
     }
     return *this;
 }
@@ -71,7 +71,7 @@ MDiagram &MDiagram::operator=(const MDiagram &rhs)
 DElement *MDiagram::findDiagramElement(const Uid &key) const
 {
     // PERFORM introduce map for better performance
-    foreach (DElement *element, _elements) {
+    foreach (DElement *element, m_elements) {
         if (element->getUid() == key) {
             return element;
         }
@@ -81,46 +81,46 @@ DElement *MDiagram::findDiagramElement(const Uid &key) const
 
 void MDiagram::setDiagramElements(const QList<DElement *> &elements)
 {
-    _elements = elements;
+    m_elements = elements;
 }
 
 void MDiagram::addDiagramElement(DElement *element)
 {
     QMT_CHECK(element);
 
-    _elements.append(element);
+    m_elements.append(element);
 }
 
 void MDiagram::insertDiagramElement(int before_element, DElement *element)
 {
-    QMT_CHECK(before_element >= 0 && before_element <= _elements.size());
+    QMT_CHECK(before_element >= 0 && before_element <= m_elements.size());
 
-    _elements.insert(before_element, element);
+    m_elements.insert(before_element, element);
 }
 
 void MDiagram::removeDiagramElement(int index)
 {
-    QMT_CHECK(index >= 0 && index < _elements.size());
+    QMT_CHECK(index >= 0 && index < m_elements.size());
 
-    delete _elements.at(index);
-    _elements.removeAt(index);
+    delete m_elements.at(index);
+    m_elements.removeAt(index);
 }
 
 void MDiagram::removeDiagramElement(DElement *element)
 {
     QMT_CHECK(element);
 
-    removeDiagramElement(_elements.indexOf(element));
+    removeDiagramElement(m_elements.indexOf(element));
 }
 
 void MDiagram::setLastModified(const QDateTime &last_modified)
 {
-    _last_modified = last_modified;
+    m_lastModified = last_modified;
 }
 
 void MDiagram::setLastModifiedToNow()
 {
-    _last_modified = QDateTime::currentDateTime();
+    m_lastModified = QDateTime::currentDateTime();
 }
 
 void MDiagram::accept(MVisitor *visitor)

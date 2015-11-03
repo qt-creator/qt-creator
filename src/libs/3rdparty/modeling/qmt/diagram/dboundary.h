@@ -57,15 +57,15 @@ public:
 
     Uid getModelUid() const { return Uid::getInvalidUid(); }
 
-    QString getText() const { return _text; }
+    QString getText() const { return m_text; }
 
     void setText(const QString &text);
 
-    QPointF getPos() const { return _pos; }
+    QPointF getPos() const { return m_pos; }
 
     void setPos(const QPointF &pos);
 
-    QRectF getRect() const { return _rect; }
+    QRectF getRect() const { return m_rect; }
 
     void setRect(const QRectF &rect);
 
@@ -77,11 +77,11 @@ public:
 
 private:
 
-    QString _text;
+    QString m_text;
 
-    QPointF _pos;
+    QPointF m_pos;
 
-    QRectF _rect;
+    QRectF m_rect;
 
 };
 

@@ -33,7 +33,7 @@
 namespace qmt {
 
 Toolbar::Toolbar()
-    : _priority(-1)
+    : m_priority(-1)
 {
 }
 
@@ -43,17 +43,17 @@ Toolbar::~Toolbar()
 
 void Toolbar::setId(const QString &id)
 {
-    _id = id;
+    m_id = id;
 }
 
 void Toolbar::setPriority(int priority)
 {
-    _priority = priority;
+    m_priority = priority;
 }
 
 void Toolbar::setTools(const QList<Toolbar::Tool> &tools)
 {
-    _tools = tools;
+    m_tools = tools;
 }
 
 }

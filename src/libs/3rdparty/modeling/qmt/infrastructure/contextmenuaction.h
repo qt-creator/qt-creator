@@ -48,11 +48,11 @@ public:
 
 public:
 
-    QString getId() const { return _id; }
+    QString getId() const { return m_id; }
 
 private:
 
-    QString _id;
+    QString m_id;
 };
 
 }

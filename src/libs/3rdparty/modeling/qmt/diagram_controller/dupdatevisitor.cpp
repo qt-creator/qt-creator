@@ -55,35 +55,35 @@
 namespace qmt {
 
 DUpdateVisitor::DUpdateVisitor(DElement *target, const MDiagram *diagram, bool check_needs_update)
-    : _target(target),
-      _diagram(diagram),
-      _check_needs_update(check_needs_update),
-      _update_needed(!check_needs_update)
+    : m_target(target),
+      m_diagram(diagram),
+      m_checkNeedsUpdate(check_needs_update),
+      m_updateNeeded(!check_needs_update)
 {
 }
 
 void DUpdateVisitor::setCheckNeedsUpdate(bool check_needs_update)
 {
-    _check_needs_update = check_needs_update;
-    _update_needed = !check_needs_update;
+    m_checkNeedsUpdate = check_needs_update;
+    m_updateNeeded = !check_needs_update;
 }
 
 void DUpdateVisitor::visitMElement(const MElement *element)
 {
     Q_UNUSED(element);
 
-    QMT_CHECK(_target);
+    QMT_CHECK(m_target);
 }
 
 void DUpdateVisitor::visitMObject(const MObject *object)
 {
-    DObject *dobject = dynamic_cast<DObject *>(_target);
+    DObject *dobject = dynamic_cast<DObject *>(m_target);
     QMT_CHECK(dobject);
     if (isUpdating(object->getStereotypes() != dobject->getStereotypes())) {
         dobject->setStereotypes(object->getStereotypes());
     }
     const MObject *object_owner = object->getOwner();
-    const MObject *diagram_owner = _diagram->getOwner();
+    const MObject *diagram_owner = m_diagram->getOwner();
     if (object_owner && diagram_owner && object_owner->getUid() != diagram_owner->getUid()) {
         if (isUpdating(object_owner->getName() != dobject->getContext())) {
             dobject->setContext(object_owner->getName());
@@ -117,7 +117,7 @@ void DUpdateVisitor::visitMPackage(const MPackage *package)
 
 void DUpdateVisitor::visitMClass(const MClass *klass)
 {
-    DClass *dclass = dynamic_cast<DClass *>(_target);
+    DClass *dclass = dynamic_cast<DClass *>(m_target);
     QMT_CHECK(dclass);
     if (isUpdating(klass->getNamespace() != dclass->getNamespace())) {
         dclass->setNamespace(klass->getNamespace());
@@ -148,7 +148,7 @@ void DUpdateVisitor::visitMCanvasDiagram(const MCanvasDiagram *diagram)
 
 void DUpdateVisitor::visitMItem(const MItem *item)
 {
-    DItem *ditem = dynamic_cast<DItem *>(_target);
+    DItem *ditem = dynamic_cast<DItem *>(m_target);
     QMT_CHECK(ditem);
     if (isUpdating(item->isShapeEditable() != ditem->isShapeEditable())) {
         ditem->setShapeEditable(item->isShapeEditable());
@@ -161,7 +161,7 @@ void DUpdateVisitor::visitMItem(const MItem *item)
 
 void DUpdateVisitor::visitMRelation(const MRelation *relation)
 {
-    DRelation *drelation = dynamic_cast<DRelation *>(_target);
+    DRelation *drelation = dynamic_cast<DRelation *>(m_target);
     QMT_CHECK(drelation);
     if (isUpdating(relation->getStereotypes() != drelation->getStereotypes())) {
         drelation->setStereotypes(relation->getStereotypes());
@@ -174,7 +174,7 @@ void DUpdateVisitor::visitMRelation(const MRelation *relation)
 
 void DUpdateVisitor::visitMDependency(const MDependency *dependency)
 {
-    DDependency *ddependency = dynamic_cast<DDependency *>(_target);
+    DDependency *ddependency = dynamic_cast<DDependency *>(m_target);
     QMT_CHECK(ddependency);
     if (isUpdating(dependency->getDirection() != ddependency->getDirection())) {
         ddependency->setDirection(dependency->getDirection());
@@ -189,7 +189,7 @@ void DUpdateVisitor::visitMInheritance(const MInheritance *inheritance)
 
 void DUpdateVisitor::visitMAssociation(const MAssociation *association)
 {
-    DAssociation *dassociation = dynamic_cast<DAssociation *>(_target);
+    DAssociation *dassociation = dynamic_cast<DAssociation *>(m_target);
     QMT_CHECK(dassociation);
     DAssociationEnd end_a;
     end_a.setName(association->getA().getName());
@@ -212,9 +212,9 @@ void DUpdateVisitor::visitMAssociation(const MAssociation *association)
 
 bool DUpdateVisitor::isUpdating(bool value_changed)
 {
-    if (_check_needs_update) {
+    if (m_checkNeedsUpdate) {
         if (value_changed) {
-            _update_needed = true;
+            m_updateNeeded = true;
         }
         return false;
     }

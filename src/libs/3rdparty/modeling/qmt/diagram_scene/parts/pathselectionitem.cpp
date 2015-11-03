@@ -63,9 +63,9 @@ public:
 
     GraphicsHandleItem(int point_index, PathSelectionItem *parent)
         : QGraphicsRectItem(parent),
-          _owner(parent),
-          _point_index(point_index),
-          _selection(NOT_SELECTED)
+          m_owner(parent),
+          m_pointIndex(point_index),
+          m_selection(NOT_SELECTED)
     {
     }
 
@@ -73,16 +73,16 @@ public:
 
     void setPointSize(const QSizeF &point_size)
     {
-        if (_point_size != point_size) {
-            _point_size = point_size;
+        if (m_pointSize != point_size) {
+            m_pointSize = point_size;
             update();
         }
     }
 
     void setSelection(Selection selection)
     {
-        if (_selection != selection) {
-            _selection = selection;
+        if (m_selection != selection) {
+            m_selection = selection;
             update();
         }
     }
@@ -91,21 +91,21 @@ protected:
 
     void mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
-        _start_pos = mapToScene(event->pos());
-        _qualifier = event->modifiers() & Qt::ControlModifier ? DELETE_HANDLE : NONE;
-        _owner->moveHandle(_point_index, QPointF(0.0, 0.0), PRESS, _qualifier);
+        m_startPos = mapToScene(event->pos());
+        m_qualifier = event->modifiers() & Qt::ControlModifier ? DELETE_HANDLE : NONE;
+        m_owner->moveHandle(m_pointIndex, QPointF(0.0, 0.0), PRESS, m_qualifier);
     }
 
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     {
-        QPointF delta = mapToScene(event->pos()) - _start_pos;
-        _owner->moveHandle(_point_index, delta, MOVE, _qualifier);
+        QPointF delta = mapToScene(event->pos()) - m_startPos;
+        m_owner->moveHandle(m_pointIndex, delta, MOVE, m_qualifier);
     }
 
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     {
-        QPointF delta = mapToScene(event->pos()) - _start_pos;
-        _owner->moveHandle(_point_index, delta, RELEASE, _qualifier);
+        QPointF delta = mapToScene(event->pos()) - m_startPos;
+        m_owner->moveHandle(m_pointIndex, delta, RELEASE, m_qualifier);
     }
 
 private:
@@ -113,8 +113,8 @@ private:
     void update()
     {
         prepareGeometryChange();
-        setRect(-_point_size.width() / 2.0, -_point_size.height() / 2.0, _point_size.width(), _point_size.height());
-        switch (_selection) {
+        setRect(-m_pointSize.width() / 2.0, -m_pointSize.height() / 2.0, m_pointSize.width(), m_pointSize.height());
+        switch (m_selection) {
         case NOT_SELECTED:
             setPen(Qt::NoPen);
             setBrush(Qt::NoBrush);
@@ -132,17 +132,17 @@ private:
 
 private:
 
-    PathSelectionItem *_owner;
+    PathSelectionItem *m_owner;
 
-    int _point_index;
+    int m_pointIndex;
 
-    QSizeF _point_size;
+    QSizeF m_pointSize;
 
-    Selection _selection;
+    Selection m_selection;
 
-    QPointF _start_pos;
+    QPointF m_startPos;
 
-    PathSelectionItem::HandleQualifier _qualifier;
+    PathSelectionItem::HandleQualifier m_qualifier;
 
 };
 
@@ -150,9 +150,9 @@ private:
 
 PathSelectionItem::PathSelectionItem(IWindable *windable, QGraphicsItem *parent)
     : QGraphicsItem(parent),
-      _windable(windable),
-      _point_size(QSizeF(8.0, 8.0)),
-      _secondary_selected(false)
+      m_windable(windable),
+      m_pointSize(QSizeF(8.0, 8.0)),
+      m_secondarySelected(false)
 {
 }
 
@@ -184,13 +184,13 @@ QPainterPath PathSelectionItem::shape() const
 {
     QPainterPath shape;
     shape.setFillRule(Qt::WindingFill);
-    foreach (const GraphicsHandleItem *handle, _handles) {
+    foreach (const GraphicsHandleItem *handle, m_handles) {
         shape.addPath(handle->shape());
     }
     // TODO duplicate of ArrowItem::GraphicsShaftItem's shape
     QPolygonF polygon;
-    for (int i = 0; i < _handles.size(); ++i) {
-        polygon.append(_handles.at(i)->pos());
+    for (int i = 0; i < m_handles.size(); ++i) {
+        polygon.append(m_handles.at(i)->pos());
     }
     QPainterPath polygon_path;
     polygon_path.addPolygon(polygon);
@@ -203,8 +203,8 @@ QPainterPath PathSelectionItem::shape() const
 
 void PathSelectionItem::setPointSize(const QSizeF &size)
 {
-    if (size != _point_size) {
-        _point_size = size;
+    if (size != m_pointSize) {
+        m_pointSize = size;
         update();
     }
 }
@@ -212,7 +212,7 @@ void PathSelectionItem::setPointSize(const QSizeF &size)
 QList<QPointF> PathSelectionItem::getPoints() const
 {
     QList<QPointF> points;
-    foreach (GraphicsHandleItem *handle, _handles) {
+    foreach (GraphicsHandleItem *handle, m_handles) {
         points.append(handle->pos());
     }
     return points;
@@ -224,28 +224,28 @@ void PathSelectionItem::setPoints(const QList<QPointF> &points)
     int point_index = 0;
     foreach (const QPointF &point, points) {
         GraphicsHandleItem *handle;
-        if (point_index >= _handles.size()) {
+        if (point_index >= m_handles.size()) {
             handle = new GraphicsHandleItem(point_index, this);
-            handle->setPointSize(_point_size);
-            _handles.append(handle);
+            handle->setPointSize(m_pointSize);
+            m_handles.append(handle);
         } else {
-            handle = _handles.at(point_index);
+            handle = m_handles.at(point_index);
         }
         handle->setPos(point);
         ++point_index;
     }
-    while (_handles.size() > point_index) {
-        _handles.last()->scene()->removeItem(_handles.last());
-        delete _handles.last();
-        _handles.removeLast();
+    while (m_handles.size() > point_index) {
+        m_handles.last()->scene()->removeItem(m_handles.last());
+        delete m_handles.last();
+        m_handles.removeLast();
     }
     update();
 }
 
 void PathSelectionItem::setSecondarySelected(bool secondary_selected)
 {
-    if (_secondary_selected != secondary_selected) {
-        _secondary_selected = secondary_selected;
+    if (m_secondarySelected != secondary_selected) {
+        m_secondarySelected = secondary_selected;
         update();
     }
 }
@@ -253,10 +253,10 @@ void PathSelectionItem::setSecondarySelected(bool secondary_selected)
 void PathSelectionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->modifiers() & Qt::ShiftModifier) {
-        for (int i = 0; i < _handles.size() - 1; ++i) {
-            qreal distance = GeometryUtilities::calcDistancePointToLine(event->pos(), QLineF(_handles.at(i)->pos(), _handles.at(i+1)->pos()));
+        for (int i = 0; i < m_handles.size() - 1; ++i) {
+            qreal distance = GeometryUtilities::calcDistancePointToLine(event->pos(), QLineF(m_handles.at(i)->pos(), m_handles.at(i+1)->pos()));
             if (distance < MAX_SELECTION_DISTANCE_FROM_PATH) {
-                _windable->insertHandle(i + 1, event->scenePos());
+                m_windable->insertHandle(i + 1, event->scenePos());
                 event->accept();
                 return;
             }
@@ -270,10 +270,10 @@ void PathSelectionItem::update()
 {
     prepareGeometryChange();
     int i = 0;
-    foreach (GraphicsHandleItem *handle, _handles) {
-        handle->setPointSize(_point_size);
-        bool is_end_point = (i == 0 || i == _handles.size() - 1);
-        handle->setSelection(_secondary_selected
+    foreach (GraphicsHandleItem *handle, m_handles) {
+        handle->setPointSize(m_pointSize);
+        bool is_end_point = (i == 0 || i == m_handles.size() - 1);
+        handle->setSelection(m_secondarySelected
                              ? (is_end_point ? GraphicsHandleItem::NOT_SELECTED : GraphicsHandleItem::SECONDARY_SELECTED)
                              : GraphicsHandleItem::SELECTED);
         ++i;
@@ -288,18 +288,18 @@ void PathSelectionItem::moveHandle(int point_index, const QPointF &delta_move, H
     case NONE:
     {
         if (handle_status == PRESS) {
-            _original_handle_pos = _windable->getHandlePos(point_index);
+            m_originalHandlePos = m_windable->getHandlePos(point_index);
         }
-        QPointF new_pos = _original_handle_pos + delta_move;
-        _windable->setHandlePos(point_index, new_pos);
+        QPointF new_pos = m_originalHandlePos + delta_move;
+        m_windable->setHandlePos(point_index, new_pos);
         if (handle_status == RELEASE) {
-            _windable->alignHandleToRaster(point_index, RASTER_WIDTH, RASTER_HEIGHT);
+            m_windable->alignHandleToRaster(point_index, RASTER_WIDTH, RASTER_HEIGHT);
         }
         break;
     }
     case DELETE_HANDLE:
         if (handle_status == PRESS) {
-            _windable->deleteHandle(point_index);
+            m_windable->deleteHandle(point_index);
         }
         break;
     }

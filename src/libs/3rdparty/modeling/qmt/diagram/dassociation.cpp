@@ -37,8 +37,8 @@
 namespace qmt {
 
 DAssociationEnd::DAssociationEnd()
-    : _kind(MAssociationEnd::ASSOCIATION),
-      _navigable(false)
+    : m_kind(MAssociationEnd::ASSOCIATION),
+      m_navigable(false)
 {
 }
 
@@ -48,22 +48,22 @@ DAssociationEnd::~DAssociationEnd()
 
 void DAssociationEnd::setName(const QString &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 void DAssociationEnd::setCardinatlity(const QString &cardinality)
 {
-    _cardinality = cardinality;
+    m_cardinality = cardinality;
 }
 
 void DAssociationEnd::setNavigable(bool navigable)
 {
-    _navigable = navigable;
+    m_navigable = navigable;
 }
 
 void DAssociationEnd::setKind(MAssociationEnd::Kind kind)
 {
-    _kind = kind;
+    m_kind = kind;
 }
 
 bool operator==(const DAssociationEnd &lhs, const DAssociationEnd &rhs)
@@ -85,7 +85,7 @@ bool operator!=(const DAssociationEnd &lhs, const DAssociationEnd &rhs)
 
 
 DAssociation::DAssociation()
-    : _association_class_uid(Uid::getInvalidUid())
+    : m_associationClassUid(Uid::getInvalidUid())
 {
 }
 
@@ -95,17 +95,17 @@ DAssociation::~DAssociation()
 
 void DAssociation::setA(const DAssociationEnd &end_a)
 {
-    _end_a = end_a;
+    m_endA = end_a;
 }
 
 void DAssociation::setB(const DAssociationEnd &end_b)
 {
-    _end_b = end_b;
+    m_endB = end_b;
 }
 
 void DAssociation::setAssociationClassUid(const Uid &uid)
 {
-    _association_class_uid = uid;
+    m_associationClassUid = uid;
 }
 
 void DAssociation::accept(DVisitor *visitor)

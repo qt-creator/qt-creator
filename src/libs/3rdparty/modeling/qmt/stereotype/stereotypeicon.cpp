@@ -33,13 +33,13 @@
 namespace qmt {
 
 StereotypeIcon::StereotypeIcon()
-    : _width(100.0),
-      _height(100.0),
-      _min_width(-1),
-      _min_height(-1),
-      _size_lock(LOCK_NONE),
-      _display(DISPLAY_SMART),
-      _text_alignment(TEXTALIGN_BELOW)
+    : m_width(100.0),
+      m_height(100.0),
+      m_minWidth(-1),
+      m_minHeight(-1),
+      m_sizeLock(LOCK_NONE),
+      m_display(DISPLAY_SMART),
+      m_textAlignment(TEXTALIGN_BELOW)
 {
 }
 
@@ -49,75 +49,75 @@ StereotypeIcon::~StereotypeIcon()
 
 void StereotypeIcon::setId(const QString &id)
 {
-    _id = id;
+    m_id = id;
 }
 
 QString StereotypeIcon::getTitle() const
 {
-    if (_title.isEmpty()) {
-        return _id;
+    if (m_title.isEmpty()) {
+        return m_id;
     }
-    return _title;
+    return m_title;
 }
 
 void StereotypeIcon::setTitle(const QString &title)
 {
-    _title = title;
+    m_title = title;
 }
 
 void StereotypeIcon::setElements(const QSet<Element> &elements)
 {
-    _elements = elements;
+    m_elements = elements;
 }
 
 void StereotypeIcon::setStereotypes(const QSet<QString> &stereotypes)
 {
-    _stereotypes = stereotypes;
+    m_stereotypes = stereotypes;
 }
 
 void StereotypeIcon::setWidth(qreal width)
 {
-    _width = width;
+    m_width = width;
 }
 
 void StereotypeIcon::setHeight(qreal height)
 {
-    _height = height;
+    m_height = height;
 }
 
 void StereotypeIcon::setMinWidth(qreal min_width)
 {
-    _min_width = min_width;
+    m_minWidth = min_width;
 }
 
 void StereotypeIcon::setMinHeight(qreal min_height)
 {
-    _min_height = min_height;
+    m_minHeight = min_height;
 }
 
 void StereotypeIcon::setSizeLock(StereotypeIcon::SizeLock size_lock)
 {
-    _size_lock = size_lock;
+    m_sizeLock = size_lock;
 }
 
 void StereotypeIcon::setDisplay(StereotypeIcon::Display display)
 {
-    _display = display;
+    m_display = display;
 }
 
 void StereotypeIcon::setTextAlignment(StereotypeIcon::TextAlignment text_alignment)
 {
-    _text_alignment = text_alignment;
+    m_textAlignment = text_alignment;
 }
 
 void StereotypeIcon::setBaseColor(const QColor &base_color)
 {
-    _base_color = base_color;
+    m_baseColor = base_color;
 }
 
 void StereotypeIcon::setIconShape(const IconShape &icon_shape)
 {
-    _icon_shape = icon_shape;
+    m_iconShape = icon_shape;
 }
 
 } // namespace qmt

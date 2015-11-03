@@ -48,7 +48,7 @@ public:
 
 public:
 
-    DElement *getProduct() const { return _product; }
+    DElement *getProduct() const { return m_product; }
 
 public:
 
@@ -78,7 +78,7 @@ public:
 
 private:
 
-    DElement *_product;
+    DElement *m_product;
 };
 
 }

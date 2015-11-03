@@ -92,51 +92,51 @@ public:
 
 public:
 
-    Uid getModelUid() const { return _model_uid; }
+    Uid getModelUid() const { return m_modelUid; }
 
     void setModelUid(const Uid &uid);
 
-    QList<QString> getStereotypes() const { return _stereotypes; }
+    QList<QString> getStereotypes() const { return m_stereotypes; }
 
     void setStereotypes(const QList<QString> &stereotypes);
 
-    QString getContext() const { return _context; }
+    QString getContext() const { return m_context; }
 
     void setContext(const QString &context);
 
-    QString getName() const { return _name; }
+    QString getName() const { return m_name; }
 
     void setName(const QString &name);
 
-    QPointF getPos() const { return _pos; }
+    QPointF getPos() const { return m_pos; }
 
     void setPos(const QPointF &pos);
 
-    QRectF getRect() const { return _rect; }
+    QRectF getRect() const { return m_rect; }
 
     void setRect(const QRectF &rect);
 
-    int getDepth() const { return _depth; }
+    int getDepth() const { return m_depth; }
 
     void setDepth(int depth);
 
-    VisualPrimaryRole getVisualPrimaryRole() const { return _visual_primary_role; }
+    VisualPrimaryRole getVisualPrimaryRole() const { return m_visualPrimaryRole; }
 
     void setVisualPrimaryRole(VisualPrimaryRole visual_primary_role);
 
-    VisualSecondaryRole getVisualSecondaryRole() const { return _visual_secondary_role; }
+    VisualSecondaryRole getVisualSecondaryRole() const { return m_visualSecondaryRole; }
 
     void setVisualSecondaryRole(VisualSecondaryRole visual_secondary_role);
 
-    StereotypeDisplay getStereotypeDisplay() const { return _stereotype_display; }
+    StereotypeDisplay getStereotypeDisplay() const { return m_stereotypeDisplay; }
 
     void setStereotypeDisplay(StereotypeDisplay stereotype_display);
 
-    bool hasAutoSize() const { return _auto_sized; }
+    bool hasAutoSize() const { return m_autoSized; }
 
     void setAutoSize(bool auto_sized);
 
-    bool isVisualEmphasized() const { return _visual_emphasized; }
+    bool isVisualEmphasized() const { return m_visualEmphasized; }
 
     void setVisualEmphasized(bool visual_emphasized);
 
@@ -148,29 +148,29 @@ public:
 
 private:
 
-    Uid _model_uid;
+    Uid m_modelUid;
 
-    QList<QString> _stereotypes;
+    QList<QString> m_stereotypes;
 
-    QString _context;
+    QString m_context;
 
-    QString _name;
+    QString m_name;
 
-    QPointF _pos;
+    QPointF m_pos;
 
-    QRectF _rect;
+    QRectF m_rect;
 
-    int _depth;
+    int m_depth;
 
-    VisualPrimaryRole _visual_primary_role;
+    VisualPrimaryRole m_visualPrimaryRole;
 
-    VisualSecondaryRole _visual_secondary_role;
+    VisualSecondaryRole m_visualSecondaryRole;
 
-    StereotypeDisplay _stereotype_display;
+    StereotypeDisplay m_stereotypeDisplay;
 
-    bool _auto_sized;
+    bool m_autoSized;
 
-    bool _visual_emphasized;
+    bool m_visualEmphasized;
 };
 
 }

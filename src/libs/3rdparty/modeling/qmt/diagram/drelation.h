@@ -54,12 +54,12 @@ public:
 
         explicit IntermediatePoint(const QPointF &pos = QPointF());
 
-        QPointF getPos() const { return _pos; }
+        QPointF getPos() const { return m_pos; }
 
         void setPos(const QPointF &pos);
 
     private:
-        QPointF _pos;
+        QPointF m_pos;
     };
 
 public:
@@ -69,43 +69,43 @@ public:
 
 public:
 
-    Uid getModelUid() const { return _model_uid; }
+    Uid getModelUid() const { return m_modelUid; }
 
     void setModelUid(const Uid &uid);
 
-    QList<QString> getStereotypes() const { return _stereotypes; }
+    QList<QString> getStereotypes() const { return m_stereotypes; }
 
     void setStereotypes(const QList<QString> &stereotypes);
 
-    Uid getEndA() const { return _end_a_uid; }
+    Uid getEndA() const { return m_endAUid; }
 
     void setEndA(const Uid &uid);
 
-    Uid getEndB() const { return _end_b_uid; }
+    Uid getEndB() const { return m_endBUid; }
 
     void setEndB(const Uid &uid);
 
-    QString getName() const { return _name; }
+    QString getName() const { return m_name; }
 
     void setName(const QString &name);
 
-    QList<IntermediatePoint> getIntermediatePoints() const { return _intermediate_points; }
+    QList<IntermediatePoint> getIntermediatePoints() const { return m_intermediatePoints; }
 
     void setIntermediatePoints(const QList<IntermediatePoint> &intermediate_points);
 
 private:
 
-    Uid _model_uid;
+    Uid m_modelUid;
 
-    QList<QString> _stereotypes;
+    QList<QString> m_stereotypes;
 
-    Uid _end_a_uid;
+    Uid m_endAUid;
 
-    Uid _end_b_uid;
+    Uid m_endBUid;
 
-    QString _name;
+    QString m_name;
 
-    QList<IntermediatePoint> _intermediate_points;
+    QList<IntermediatePoint> m_intermediatePoints;
 
 };
 

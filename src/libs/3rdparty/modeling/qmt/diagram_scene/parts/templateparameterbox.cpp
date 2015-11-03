@@ -37,8 +37,8 @@ namespace qmt {
 
 TemplateParameterBox::TemplateParameterBox(QGraphicsItem *parent)
     : QGraphicsRectItem(parent),
-      _break_lines(false),
-      _parameters_text(new QGraphicsSimpleTextItem(this))
+      m_breakLines(false),
+      m_parametersText(new QGraphicsSimpleTextItem(this))
 {
     update();
 }
@@ -49,32 +49,32 @@ TemplateParameterBox::~TemplateParameterBox()
 
 void TemplateParameterBox::setFont(const QFont &font)
 {
-    if (font != _parameters_text->font()) {
-        _parameters_text->setFont(font);
+    if (font != m_parametersText->font()) {
+        m_parametersText->setFont(font);
         update();
     }
 }
 
 void TemplateParameterBox::setTextBrush(const QBrush &brush)
 {
-    if (brush != _parameters_text->brush()) {
-        _parameters_text->setBrush(brush);
+    if (brush != m_parametersText->brush()) {
+        m_parametersText->setBrush(brush);
         update();
     }
 }
 
 void TemplateParameterBox::setTemplateParameters(const QList<QString> &template_parameters)
 {
-    if (_template_parameters != template_parameters) {
-        _template_parameters = template_parameters;
+    if (m_templateParameters != template_parameters) {
+        m_templateParameters = template_parameters;
         updateText();
     }
 }
 
 void TemplateParameterBox::setBreakLines(bool break_lines)
 {
-    if (break_lines != _break_lines) {
-        _break_lines = break_lines;
+    if (break_lines != m_breakLines) {
+        m_breakLines = break_lines;
         updateText();
     }
 }
@@ -83,9 +83,9 @@ void TemplateParameterBox::updateText()
 {
     QString template_text;
     bool first = true;
-    foreach (const QString &parameter, _template_parameters) {
+    foreach (const QString &parameter, m_templateParameters) {
         if (!first) {
-            if (_break_lines) {
+            if (m_breakLines) {
                 template_text += QLatin1Char('\n');
             } else {
                 template_text += QStringLiteral(", ");
@@ -94,17 +94,17 @@ void TemplateParameterBox::updateText()
         template_text += parameter;
         first = false;
     }
-    if (template_text != _parameters_text->text()) {
-        _parameters_text->setText(template_text);
+    if (template_text != m_parametersText->text()) {
+        m_parametersText->setText(template_text);
         update();
     }
 }
 
 void TemplateParameterBox::update()
 {
-    QRectF rect = _parameters_text->boundingRect();
+    QRectF rect = m_parametersText->boundingRect();
     setRect(0, 0, rect.width() + 4, rect.height() + 3);
-    _parameters_text->setPos(2, 2);
+    m_parametersText->setPos(2, 2);
 }
 
 } // namespace qmt

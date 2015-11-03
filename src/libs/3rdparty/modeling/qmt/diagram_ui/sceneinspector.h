@@ -63,7 +63,7 @@ public:
 
 private:
 
-    DiagramsManager *_diagrams_manager;
+    DiagramsManager *m_diagramsManager;
 };
 
 }

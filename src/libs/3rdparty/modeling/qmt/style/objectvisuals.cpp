@@ -35,21 +35,21 @@
 namespace qmt {
 
 ObjectVisuals::ObjectVisuals()
-    : _visual_primary_role(DObject::PRIMARY_ROLE_NORMAL),
-      _visual_secondary_role(DObject::SECONDARY_ROLE_NONE),
-      _emphasized(false),
-      _depth(0)
+    : m_visualPrimaryRole(DObject::PRIMARY_ROLE_NORMAL),
+      m_visualSecondaryRole(DObject::SECONDARY_ROLE_NONE),
+      m_emphasized(false),
+      m_depth(0)
 {
 }
 
 ObjectVisuals::ObjectVisuals(DObject::VisualPrimaryRole visual_primary_role,
                              DObject::VisualSecondaryRole visual_secondary_role,
                              bool emphasized, const QColor &base_color, int depth)
-    : _visual_primary_role(visual_primary_role),
-      _visual_secondary_role(visual_secondary_role),
-      _emphasized(emphasized),
-      _base_color(base_color),
-      _depth(depth)
+    : m_visualPrimaryRole(visual_primary_role),
+      m_visualSecondaryRole(visual_secondary_role),
+      m_emphasized(emphasized),
+      m_baseColor(base_color),
+      m_depth(depth)
 {
 }
 
@@ -59,27 +59,27 @@ ObjectVisuals::~ObjectVisuals()
 
 void ObjectVisuals::setVisualPrimaryRole(DObject::VisualPrimaryRole visual_primary_role)
 {
-    _visual_primary_role = visual_primary_role;
+    m_visualPrimaryRole = visual_primary_role;
 }
 
 void ObjectVisuals::setVisualSecondaryRole(DObject::VisualSecondaryRole visual_secondary_role)
 {
-    _visual_secondary_role = visual_secondary_role;
+    m_visualSecondaryRole = visual_secondary_role;
 }
 
 void ObjectVisuals::setEmphasized(bool emphasized)
 {
-    _emphasized = emphasized;
+    m_emphasized = emphasized;
 }
 
 void ObjectVisuals::setBaseColor(const QColor &base_color)
 {
-    _base_color = base_color;
+    m_baseColor = base_color;
 }
 
 void ObjectVisuals::setDepth(int depth)
 {
-    _depth = depth;
+    m_depth = depth;
 }
 
 bool operator==(const ObjectVisuals &lhs, const ObjectVisuals &rhs)

@@ -45,20 +45,20 @@ public:
 
 public:
 
-    bool isValid() const { return _source_id >= 0 && _line_number >= 0; }
+    bool isValid() const { return m_sourceId >= 0 && m_lineNumber >= 0; }
 
-    int getSourceId() const { return _source_id; }
+    int getSourceId() const { return m_sourceId; }
 
-    int getLineNumber() const { return _line_number; }
+    int getLineNumber() const { return m_lineNumber; }
 
-    bool hasColumnNumber() const { return _column_number >= 0; }
+    bool hasColumnNumber() const { return m_columnNumber >= 0; }
 
-    int getColumnNumber() const { return _column_number; }
+    int getColumnNumber() const { return m_columnNumber; }
 
 private:
-    int _source_id;
-    int _line_number;
-    int _column_number;
+    int m_sourceId;
+    int m_lineNumber;
+    int m_columnNumber;
 };
 
 } // namespace qmt

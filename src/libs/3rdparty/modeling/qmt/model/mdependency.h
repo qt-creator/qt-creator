@@ -64,7 +64,7 @@ public:
 
 public:
 
-    Direction getDirection() const { return _direction; }
+    Direction getDirection() const { return m_direction; }
 
     void setDirection(Direction direction);
 
@@ -84,7 +84,7 @@ public:
 
 private:
 
-    Direction _direction;
+    Direction m_direction;
 
 };
 

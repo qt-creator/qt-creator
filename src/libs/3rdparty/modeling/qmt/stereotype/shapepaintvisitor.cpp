@@ -35,105 +35,105 @@
 namespace qmt {
 
 ShapePaintVisitor::ShapePaintVisitor(QPainter *painter, const QPointF &scaled_origin, const QSizeF &original_size, const QSizeF &base_size, const QSizeF &size)
-    : _painter(painter),
-      _scaled_origin(scaled_origin),
-      _original_size(original_size),
-      _base_size(base_size),
-      _size(size)
+    : m_painter(painter),
+      m_scaledOrigin(scaled_origin),
+      m_originalSize(original_size),
+      m_baseSize(base_size),
+      m_size(size)
 {
 }
 
 void ShapePaintVisitor::visitLine(const LineShape *shape_line)
 {
-    QPointF p1 = shape_line->getPos1().mapScaledTo(_scaled_origin, _original_size, _base_size, _size);
-    QPointF p2 = shape_line->getPos2().mapScaledTo(_scaled_origin, _original_size, _base_size, _size);
-    _painter->save();
-    _painter->setRenderHint(QPainter::Antialiasing, p1.x() != p2.x() && p1.y() != p2.y());
-    _painter->drawLine(p1, p2);
-    _painter->restore();
+    QPointF p1 = shape_line->getPos1().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+    QPointF p2 = shape_line->getPos2().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+    m_painter->save();
+    m_painter->setRenderHint(QPainter::Antialiasing, p1.x() != p2.x() && p1.y() != p2.y());
+    m_painter->drawLine(p1, p2);
+    m_painter->restore();
 }
 
 void ShapePaintVisitor::visitRect(const RectShape *shape_rect)
 {
-    _painter->save();
-    _painter->setRenderHint(QPainter::Antialiasing, false);
-    _painter->drawRect(QRectF(shape_rect->getPos().mapScaledTo(_scaled_origin, _original_size, _base_size, _size),
-                              shape_rect->getSize().mapScaledTo(_scaled_origin, _original_size, _base_size, _size)));
-    _painter->restore();
+    m_painter->save();
+    m_painter->setRenderHint(QPainter::Antialiasing, false);
+    m_painter->drawRect(QRectF(shape_rect->getPos().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size),
+                              shape_rect->getSize().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size)));
+    m_painter->restore();
 }
 
 void ShapePaintVisitor::visitRoundedRect(const RoundedRectShape *shape_rounded_rect)
 {
-    qreal radius_x = shape_rounded_rect->getRadius().mapScaledTo(0, _original_size.width(), _base_size.width(), _size.width());
-    qreal radius_y = shape_rounded_rect->getRadius().mapScaledTo(0, _original_size.height(), _base_size.height(), _size.height());
-    _painter->save();
-    _painter->setRenderHint(QPainter::Antialiasing, true);
-    _painter->drawRoundedRect(QRectF(shape_rounded_rect->getPos().mapScaledTo(_scaled_origin, _original_size, _base_size, _size),
-                                     shape_rounded_rect->getSize().mapScaledTo(_scaled_origin, _original_size, _base_size, _size)),
+    qreal radius_x = shape_rounded_rect->getRadius().mapScaledTo(0, m_originalSize.width(), m_baseSize.width(), m_size.width());
+    qreal radius_y = shape_rounded_rect->getRadius().mapScaledTo(0, m_originalSize.height(), m_baseSize.height(), m_size.height());
+    m_painter->save();
+    m_painter->setRenderHint(QPainter::Antialiasing, true);
+    m_painter->drawRoundedRect(QRectF(shape_rounded_rect->getPos().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size),
+                                     shape_rounded_rect->getSize().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size)),
                               radius_x, radius_y);
-    _painter->restore();
+    m_painter->restore();
 }
 
 void ShapePaintVisitor::visitCircle(const CircleShape *shape_circle)
 {
-    _painter->save();
-    _painter->setRenderHint(QPainter::Antialiasing, true);
-    _painter->drawEllipse(shape_circle->getCenter().mapScaledTo(_scaled_origin, _original_size, _base_size, _size),
-                          shape_circle->getRadius().mapScaledTo(_scaled_origin.x(), _original_size.width(), _base_size.width(), _size.width()),
-                          shape_circle->getRadius().mapScaledTo(_scaled_origin.y(), _original_size.height(), _base_size.height(), _size.height()));
-    _painter->restore();
+    m_painter->save();
+    m_painter->setRenderHint(QPainter::Antialiasing, true);
+    m_painter->drawEllipse(shape_circle->getCenter().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size),
+                          shape_circle->getRadius().mapScaledTo(m_scaledOrigin.x(), m_originalSize.width(), m_baseSize.width(), m_size.width()),
+                          shape_circle->getRadius().mapScaledTo(m_scaledOrigin.y(), m_originalSize.height(), m_baseSize.height(), m_size.height()));
+    m_painter->restore();
 }
 
 void ShapePaintVisitor::visitEllipse(const EllipseShape *shape_ellipse)
 {
-    QSizeF radius = shape_ellipse->getRadius().mapScaledTo(_scaled_origin, _original_size, _base_size, _size);
-    _painter->save();
-    _painter->setRenderHint(QPainter::Antialiasing, true);
-    _painter->drawEllipse(shape_ellipse->getCenter().mapScaledTo(_scaled_origin, _original_size, _base_size, _size),
+    QSizeF radius = shape_ellipse->getRadius().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+    m_painter->save();
+    m_painter->setRenderHint(QPainter::Antialiasing, true);
+    m_painter->drawEllipse(shape_ellipse->getCenter().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size),
                           radius.width(), radius.height());
-    _painter->restore();
+    m_painter->restore();
 }
 
 void ShapePaintVisitor::visitArc(const ArcShape *shape_arc)
 {
-    QSizeF radius = shape_arc->getRadius().mapScaledTo(_scaled_origin, _original_size, _base_size, _size);
-    _painter->save();
-    _painter->setRenderHint(QPainter::Antialiasing, true);
-    _painter->drawArc(QRectF(shape_arc->getCenter().mapScaledTo(_scaled_origin, _original_size, _base_size, _size) - QPointF(radius.width(), radius.height()), radius * 2.0),
+    QSizeF radius = shape_arc->getRadius().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+    m_painter->save();
+    m_painter->setRenderHint(QPainter::Antialiasing, true);
+    m_painter->drawArc(QRectF(shape_arc->getCenter().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size) - QPointF(radius.width(), radius.height()), radius * 2.0),
                       shape_arc->getStartAngle() * 16, shape_arc->getSpanAngle() * 16);
-    _painter->restore();
+    m_painter->restore();
 }
 
 void ShapePaintVisitor::visitPath(const PathShape *shape_path)
 {
-    _painter->save();
-    _painter->setRenderHint(QPainter::Antialiasing, true);
+    m_painter->save();
+    m_painter->setRenderHint(QPainter::Antialiasing, true);
     QPainterPath path;
     foreach (const PathShape::Element &element, shape_path->getElements()) {
-        switch (element._element_type) {
+        switch (element.m_elementType) {
         case PathShape::TYPE_NONE:
             // nothing to do
             break;
         case PathShape::TYPE_MOVETO:
-            path.moveTo(element._position.mapScaledTo(_scaled_origin, _original_size, _base_size, _size));
+            path.moveTo(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size));
             break;
         case PathShape::TYPE_LINETO:
-            path.lineTo(element._position.mapScaledTo(_scaled_origin, _original_size, _base_size, _size));
+            path.lineTo(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size));
             break;
         case PathShape::TYPE_ARCMOVETO:
         {
-            QSizeF radius = element._size.mapScaledTo(_scaled_origin, _original_size, _base_size, _size);
-            path.arcMoveTo(QRectF(element._position.mapScaledTo(_scaled_origin, _original_size, _base_size, _size) - QPointF(radius.width(), radius.height()),
+            QSizeF radius = element.m_size.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+            path.arcMoveTo(QRectF(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size) - QPointF(radius.width(), radius.height()),
                                   radius * 2.0),
-                           element._angle1);
+                           element.m_angle1);
             break;
         }
         case PathShape::TYPE_ARCTO:
         {
-            QSizeF radius = element._size.mapScaledTo(_scaled_origin, _original_size, _base_size, _size);
-            path.arcTo(QRectF(element._position.mapScaledTo(_scaled_origin, _original_size, _base_size, _size) - QPointF(radius.width(), radius.height()),
+            QSizeF radius = element.m_size.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+            path.arcTo(QRectF(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size) - QPointF(radius.width(), radius.height()),
                               radius * 2.0),
-                       element._angle1, element._angle2);
+                       element.m_angle1, element.m_angle2);
             break;
         }
         case PathShape::TYPE_CLOSE:
@@ -141,85 +141,85 @@ void ShapePaintVisitor::visitPath(const PathShape *shape_path)
             break;
         }
     }
-    _painter->drawPath(path);
-    _painter->restore();
+    m_painter->drawPath(path);
+    m_painter->restore();
 }
 
 
 ShapeSizeVisitor::ShapeSizeVisitor(const QPointF &scaled_origin, const QSizeF &original_size, const QSizeF &base_size, const QSizeF &size)
-    : _scaled_origin(scaled_origin),
-      _original_size(original_size),
-      _base_size(base_size),
-      _size(size)
+    : m_scaledOrigin(scaled_origin),
+      m_originalSize(original_size),
+      m_baseSize(base_size),
+      m_size(size)
 {
 }
 
 void ShapeSizeVisitor::visitLine(const LineShape *shape_line)
 {
-    _bounding_rect |= QRectF(shape_line->getPos1().mapScaledTo(_scaled_origin, _original_size, _base_size, _size),
-                             shape_line->getPos2().mapScaledTo(_scaled_origin, _original_size, _base_size, _size));
+    m_boundingRect |= QRectF(shape_line->getPos1().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size),
+                             shape_line->getPos2().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size));
 }
 
 void ShapeSizeVisitor::visitRect(const RectShape *shape_rect)
 {
-    _bounding_rect |= QRectF(shape_rect->getPos().mapScaledTo(_scaled_origin, _original_size, _base_size, _size),
-                             shape_rect->getSize().mapScaledTo(_scaled_origin, _original_size, _base_size, _size));
+    m_boundingRect |= QRectF(shape_rect->getPos().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size),
+                             shape_rect->getSize().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size));
 }
 
 void ShapeSizeVisitor::visitRoundedRect(const RoundedRectShape *shape_rounded_rect)
 {
-    _bounding_rect |= QRectF(shape_rounded_rect->getPos().mapScaledTo(_scaled_origin, _original_size, _base_size, _size),
-                             shape_rounded_rect->getSize().mapScaledTo(_scaled_origin, _original_size, _base_size, _size));
+    m_boundingRect |= QRectF(shape_rounded_rect->getPos().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size),
+                             shape_rounded_rect->getSize().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size));
 }
 
 void ShapeSizeVisitor::visitCircle(const CircleShape *shape_circle)
 {
-    QSizeF radius = QSizeF(shape_circle->getRadius().mapScaledTo(_scaled_origin.x(), _original_size.width(), _base_size.width(), _size.width()),
-                           shape_circle->getRadius().mapScaledTo(_scaled_origin.y(), _original_size.height(), _base_size.height(), _size.height()));
-    _bounding_rect |= QRectF(shape_circle->getCenter().mapScaledTo(_scaled_origin, _original_size, _base_size, _size) - QPointF(radius.width(), radius.height()), radius * 2.0);
+    QSizeF radius = QSizeF(shape_circle->getRadius().mapScaledTo(m_scaledOrigin.x(), m_originalSize.width(), m_baseSize.width(), m_size.width()),
+                           shape_circle->getRadius().mapScaledTo(m_scaledOrigin.y(), m_originalSize.height(), m_baseSize.height(), m_size.height()));
+    m_boundingRect |= QRectF(shape_circle->getCenter().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size) - QPointF(radius.width(), radius.height()), radius * 2.0);
 }
 
 void ShapeSizeVisitor::visitEllipse(const EllipseShape *shape_ellipse)
 {
-    QSizeF radius = shape_ellipse->getRadius().mapScaledTo(_scaled_origin, _original_size, _base_size, _size);
-    _bounding_rect |= QRectF(shape_ellipse->getCenter().mapScaledTo(_scaled_origin, _original_size, _base_size, _size) - QPointF(radius.width(), radius.height()), radius * 2.0);
+    QSizeF radius = shape_ellipse->getRadius().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+    m_boundingRect |= QRectF(shape_ellipse->getCenter().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size) - QPointF(radius.width(), radius.height()), radius * 2.0);
 }
 
 void ShapeSizeVisitor::visitArc(const ArcShape *shape_arc)
 {
     // TODO this is the max bound rect; not the minimal one
-    QSizeF radius = shape_arc->getRadius().mapScaledTo(_scaled_origin, _original_size, _base_size, _size);
-    _bounding_rect |= QRectF(shape_arc->getCenter().mapScaledTo(_scaled_origin, _original_size, _base_size, _size) - QPointF(radius.width(), radius.height()), radius * 2.0);
+    QSizeF radius = shape_arc->getRadius().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+    m_boundingRect |= QRectF(shape_arc->getCenter().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size) - QPointF(radius.width(), radius.height()), radius * 2.0);
 }
 
 void ShapeSizeVisitor::visitPath(const PathShape *shape_path)
 {
     QPainterPath path;
     foreach (const PathShape::Element &element, shape_path->getElements()) {
-        switch (element._element_type) {
+        switch (element.m_elementType) {
         case PathShape::TYPE_NONE:
             // nothing to do
             break;
         case PathShape::TYPE_MOVETO:
-            path.moveTo(element._position.mapScaledTo(_scaled_origin, _original_size, _base_size, _size));
+            path.moveTo(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size));
             break;
         case PathShape::TYPE_LINETO:
-            path.lineTo(element._position.mapScaledTo(_scaled_origin, _original_size, _base_size, _size));
+            path.lineTo(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size));
             break;
         case PathShape::TYPE_ARCMOVETO:
         {
-            QSizeF radius = element._size.mapScaledTo(_scaled_origin, _original_size, _base_size, _size);
-            path.arcMoveTo(QRectF(element._position.mapScaledTo(_scaled_origin, _original_size, _base_size, _size) - QPointF(radius.width(), radius.height()),
+            QSizeF radius = element.m_size.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+            path.arcMoveTo(QRectF(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size) - QPointF(radius.width(), radius.height()),
                                   radius * 2.0),
-                           element._angle1);
+                           element.m_angle1);
             break;
         }
         case PathShape::TYPE_ARCTO:
         {
-            QSizeF radius = element._size.mapScaledTo(_scaled_origin, _original_size, _base_size, _size);
-            path.arcTo(QRectF(element._position.mapScaledTo(_scaled_origin, _original_size, _base_size, _size) - QPointF(radius.width(), radius.height()),
+            QSizeF radius = element.m_size.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+            path.arcTo(QRectF(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size) - QPointF(radius.width(), radius.height()),
                               radius * 2.0),
-                       element._angle1, element._angle2);
+                       element.m_angle1, element.m_angle2);
             break;
         }
         case PathShape::TYPE_CLOSE:
@@ -227,7 +227,7 @@ void ShapeSizeVisitor::visitPath(const PathShape *shape_path)
             break;
         }
     }
-    _bounding_rect |= path.boundingRect();
+    m_boundingRect |= path.boundingRect();
 }
 
 

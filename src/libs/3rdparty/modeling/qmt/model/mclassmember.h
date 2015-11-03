@@ -87,51 +87,51 @@ public:
 
 public:
 
-    Uid getUid() const { return _uid; }
+    Uid getUid() const { return m_uid; }
 
     void setUid(const Uid &uid);
 
     void renewUid();
 
-    QList<QString> getStereotypes() const { return _stereotypes; }
+    QList<QString> getStereotypes() const { return m_stereotypes; }
 
     void setStereotypes(const QList<QString> &stereotypes);
 
-    QString getGroup() const { return _group; }
+    QString getGroup() const { return m_group; }
 
     void setGroup(const QString &group);
 
-    QString getDeclaration() const { return _declaration; }
+    QString getDeclaration() const { return m_declaration; }
 
     void setDeclaration(const QString &declaration);
 
-    Visibility getVisibility() const { return _visibility; }
+    Visibility getVisibility() const { return m_visibility; }
 
     void setVisibility(Visibility visibility);
 
-    MemberType getMemberType() const { return _member_type; }
+    MemberType getMemberType() const { return m_memberType; }
 
     void setMemberType(MemberType member_type);
 
-    Properties getProperties() const { return _properties; }
+    Properties getProperties() const { return m_properties; }
 
     void setProperties(Properties properties);
 
 private:
 
-    Uid _uid;
+    Uid m_uid;
 
-    QList<QString> _stereotypes;
+    QList<QString> m_stereotypes;
 
-    QString _group;
+    QString m_group;
 
-    QString _declaration;
+    QString m_declaration;
 
-    Visibility _visibility;
+    Visibility m_visibility;
 
-    MemberType _member_type;
+    MemberType m_memberType;
 
-    Properties _properties;
+    Properties m_properties;
 };
 
 bool operator==(const MClassMember &lhs, const MClassMember &rhs);

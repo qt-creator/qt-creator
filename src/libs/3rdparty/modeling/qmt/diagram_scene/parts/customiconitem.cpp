@@ -42,9 +42,9 @@ namespace qmt {
 
 CustomIconItem::CustomIconItem(DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent)
     : QGraphicsItem(parent),
-      _diagram_scene_model(diagram_scene_model),
-      _base_size(20, 20),
-      _actual_size(20, 20)
+      m_diagramSceneModel(diagram_scene_model),
+      m_baseSize(20, 20),
+      m_actualSize(20, 20)
 {
 }
 
@@ -54,48 +54,48 @@ CustomIconItem::~CustomIconItem()
 
 void CustomIconItem::setStereotypeIconId(const QString &stereotype_icon_id)
 {
-    if (_stereotype_icon_id != stereotype_icon_id) {
-        _stereotype_icon_id = stereotype_icon_id;
-        _stereotype_icon = _diagram_scene_model->getStereotypeController()->findStereotypeIcon(_stereotype_icon_id);
-        _base_size = QSizeF(_stereotype_icon.getWidth(), _stereotype_icon.getHeight());
-        _actual_size = _base_size;
+    if (m_stereotypeIconId != stereotype_icon_id) {
+        m_stereotypeIconId = stereotype_icon_id;
+        m_stereotypeIcon = m_diagramSceneModel->getStereotypeController()->findStereotypeIcon(m_stereotypeIconId);
+        m_baseSize = QSizeF(m_stereotypeIcon.getWidth(), m_stereotypeIcon.getHeight());
+        m_actualSize = m_baseSize;
     }
 }
 
 void CustomIconItem::setBaseSize(const QSizeF &base_size)
 {
-    _base_size = base_size;
+    m_baseSize = base_size;
 }
 
 void CustomIconItem::setActualSize(const QSizeF &actual_size)
 {
-    _actual_size = actual_size;
+    m_actualSize = actual_size;
 }
 
 void CustomIconItem::setBrush(const QBrush &brush)
 {
-    _brush = brush;
+    m_brush = brush;
 }
 
 void CustomIconItem::setPen(const QPen &pen)
 {
-    _pen = pen;
+    m_pen = pen;
 }
 
 double CustomIconItem::getShapeWidth() const
 {
-    return _stereotype_icon.getWidth();
+    return m_stereotypeIcon.getWidth();
 }
 
 double CustomIconItem::getShapeHeight() const
 {
-    return _stereotype_icon.getHeight();
+    return m_stereotypeIcon.getHeight();
 }
 
 QRectF CustomIconItem::boundingRect() const
 {
-    ShapeSizeVisitor visitor(QPointF(0.0, 0.0), QSizeF(_stereotype_icon.getWidth(), _stereotype_icon.getHeight()), _base_size, _actual_size);
-    _stereotype_icon.getIconShape().visitShapes(&visitor);
+    ShapeSizeVisitor visitor(QPointF(0.0, 0.0), QSizeF(m_stereotypeIcon.getWidth(), m_stereotypeIcon.getHeight()), m_baseSize, m_actualSize);
+    m_stereotypeIcon.getIconShape().visitShapes(&visitor);
     return visitor.getBoundingRect() | childrenBoundingRect();
 }
 
@@ -105,10 +105,10 @@ void CustomIconItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     Q_UNUSED(widget);
 
     painter->save();
-    painter->setBrush(_brush);
-    painter->setPen(_pen);
-    ShapePaintVisitor visitor(painter, QPointF(0.0, 0.0), QSizeF(_stereotype_icon.getWidth(), _stereotype_icon.getHeight()), _base_size, _actual_size);
-    _stereotype_icon.getIconShape().visitShapes(&visitor);
+    painter->setBrush(m_brush);
+    painter->setPen(m_pen);
+    ShapePaintVisitor visitor(painter, QPointF(0.0, 0.0), QSizeF(m_stereotypeIcon.getWidth(), m_stereotypeIcon.getHeight()), m_baseSize, m_actualSize);
+    m_stereotypeIcon.getIconShape().visitShapes(&visitor);
     //painter->setBrush(Qt::NoBrush);
     //painter->setPen(Qt::red);
     //painter->drawRect(boundingRect());

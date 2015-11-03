@@ -51,7 +51,7 @@ public:
 
 public:
 
-    QIODevice *targetDevice() const { return _target_device; }
+    QIODevice *targetDevice() const { return m_targetDevice; }
 
     void setTargetDevice(QIODevice *target_device);
 
@@ -71,13 +71,13 @@ public:
 
 private:
 
-    QIODevice *_target_device;
+    QIODevice *m_targetDevice;
 
-    QByteArray _buffer;
+    QByteArray m_buffer;
 
-    qint64 _bytes_in_buffer;
+    qint64 m_bytesInBuffer;
 
-    qint64 _index_in_buffer;
+    qint64 m_indexInBuffer;
 
 };
 

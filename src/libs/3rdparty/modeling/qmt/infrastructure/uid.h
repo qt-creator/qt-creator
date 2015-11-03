@@ -47,26 +47,26 @@ public:
     static const Uid getInvalidUid() { return Uid(QUuid()); }
 
 public:
-    Uid() : _uuid(QUuid::createUuid()) { }
+    Uid() : m_uuid(QUuid::createUuid()) { }
 
-    explicit Uid(const QUuid &uuid) : _uuid(uuid) { }
+    explicit Uid(const QUuid &uuid) : m_uuid(uuid) { }
 
-    bool isValid() const { return !_uuid.isNull(); }
+    bool isValid() const { return !m_uuid.isNull(); }
 
-    QUuid get() const { return _uuid; }
+    QUuid get() const { return m_uuid; }
 
-    void setUuid(const QUuid &uuid) { _uuid = uuid; }
+    void setUuid(const QUuid &uuid) { m_uuid = uuid; }
 
-    void clear() { _uuid = QUuid(); }
+    void clear() { m_uuid = QUuid(); }
 
-    void renew() { _uuid = QUuid::createUuid(); }
+    void renew() { m_uuid = QUuid::createUuid(); }
 
-    QString toString() const { return _uuid.toString(); }
+    QString toString() const { return m_uuid.toString(); }
 
-    void fromString(const QString &s) { _uuid = QUuid(s); }
+    void fromString(const QString &s) { m_uuid = QUuid(s); }
 
 private:
-    QUuid _uuid;
+    QUuid m_uuid;
 };
 
 inline uint qHash(const Uid &uid)

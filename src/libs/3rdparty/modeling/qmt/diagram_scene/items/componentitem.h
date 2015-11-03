@@ -94,19 +94,19 @@ private:
 
 private:
 
-    CustomIconItem *_custom_icon;
+    CustomIconItem *m_customIcon;
 
-    QGraphicsRectItem *_shape;
+    QGraphicsRectItem *m_shape;
 
-    QGraphicsRectItem *_upper_rect;
+    QGraphicsRectItem *m_upperRect;
 
-    QGraphicsRectItem *_lower_rect;
+    QGraphicsRectItem *m_lowerRect;
 
-    QGraphicsSimpleTextItem *_component_name;
+    QGraphicsSimpleTextItem *m_componentName;
 
-    ContextLabelItem *_context_label;
+    ContextLabelItem *m_contextLabel;
 
-    RelationStarter *_relation_starter;
+    RelationStarter *m_relationStarter;
 
 };
 

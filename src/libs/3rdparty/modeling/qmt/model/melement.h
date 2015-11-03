@@ -84,25 +84,25 @@ public:
 
 public:
 
-    Uid getUid() const { return _uid; }
+    Uid getUid() const { return m_uid; }
 
     void setUid(const Uid &uid);
 
     void renewUid();
 
-    MObject *getOwner() const { return _owner; }
+    MObject *getOwner() const { return m_owner; }
 
     void setOwner(MObject *owner);
 
-    MExpansion *getExpansion() const { return _expansion; }
+    MExpansion *getExpansion() const { return m_expansion; }
 
     void setExpansion(MExpansion *expansion);
 
-    QList<QString> getStereotypes() const { return _stereotypes; }
+    QList<QString> getStereotypes() const { return m_stereotypes; }
 
     void setStereotypes(const QList<QString> &stereotypes);
 
-    Flags getFlags() const { return _flags; }
+    Flags getFlags() const { return m_flags; }
 
     void setFlags(const Flags &flags);
 
@@ -114,15 +114,15 @@ public:
 
 private:
 
-    Uid _uid;
+    Uid m_uid;
 
-    MObject *_owner;
+    MObject *m_owner;
 
-    MExpansion *_expansion;
+    MExpansion *m_expansion;
 
-    QList<QString> _stereotypes;
+    QList<QString> m_stereotypes;
 
-    Flags _flags;
+    Flags m_flags;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(MElement::Flags)

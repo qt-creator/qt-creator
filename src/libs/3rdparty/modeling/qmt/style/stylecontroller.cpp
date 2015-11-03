@@ -44,27 +44,27 @@ class StyleController::Parameters :
 {
 public:
     Parameters(StyleController *style_controller)
-        : _style_controller(style_controller)
+        : m_styleController(style_controller)
     {
     }
 
     bool suppressGradients() const {
-        return _style_controller->getSuppressGradients();
+        return m_styleController->getSuppressGradients();
     }
 
 private:
 
-    StyleController *_style_controller;
+    StyleController *m_styleController;
 
 };
 
 
 StyleController::StyleController(QObject *parent)
     : QObject(parent),
-      _default_style(new DefaultStyle),
-      _relation_starter_style(new RelationStarterStyle),
-      _default_style_engine(new DefaultStyleEngine),
-      _suppress_gradients(false)
+      m_defaultStyle(new DefaultStyle),
+      m_relationStarterStyle(new RelationStarterStyle),
+      m_defaultStyleEngine(new DefaultStyleEngine),
+      m_suppressGradients(false)
 {
 }
 
@@ -74,48 +74,48 @@ StyleController::~StyleController()
 
 void StyleController::setSuppressGradients(bool suppress_gradients)
 {
-    _suppress_gradients = suppress_gradients;
+    m_suppressGradients = suppress_gradients;
 }
 
 const Style *StyleController::adaptStyle(StyleEngine::ElementType element_type)
 {
     Parameters parameters(this);
-    return _default_style_engine->applyStyle(_default_style.data(), element_type, &parameters);
+    return m_defaultStyleEngine->applyStyle(m_defaultStyle.data(), element_type, &parameters);
 }
 
 const Style *StyleController::adaptObjectStyle(StyleEngine::ElementType element_type, const ObjectVisuals &object_visuals)
 {
     Parameters parameters(this);
-    return _default_style_engine->applyObjectStyle(_default_style.data(), element_type, object_visuals, &parameters);
+    return m_defaultStyleEngine->applyObjectStyle(m_defaultStyle.data(), element_type, object_visuals, &parameters);
 }
 
 const Style *StyleController::adaptObjectStyle(const StyledObject &object)
 {
     Parameters parameters(this);
-    return _default_style_engine->applyObjectStyle(_default_style.data(), object, &parameters);
+    return m_defaultStyleEngine->applyObjectStyle(m_defaultStyle.data(), object, &parameters);
 }
 
 const Style *StyleController::adaptRelationStyle(const StyledRelation &relation)
 {
     Parameters parameters(this);
-    return _default_style_engine->applyRelationStyle(_default_style.data(), relation, &parameters);
+    return m_defaultStyleEngine->applyRelationStyle(m_defaultStyle.data(), relation, &parameters);
 }
 
 const Style *StyleController::adaptAnnotationStyle(const DAnnotation *annotation)
 {
     Parameters parameters(this);
-    return _default_style_engine->applyAnnotationStyle(_default_style.data(), annotation, &parameters);
+    return m_defaultStyleEngine->applyAnnotationStyle(m_defaultStyle.data(), annotation, &parameters);
 }
 
 const Style *StyleController::adaptBoundaryStyle(const DBoundary *boundary)
 {
     Parameters parameters(this);
-    return _default_style_engine->applyBoundaryStyle(_default_style.data(), boundary, &parameters);
+    return m_defaultStyleEngine->applyBoundaryStyle(m_defaultStyle.data(), boundary, &parameters);
 }
 
 const Style *StyleController::getRelationStarterStyle()
 {
-    return _relation_starter_style.data();
+    return m_relationStarterStyle.data();
 }
 
 }

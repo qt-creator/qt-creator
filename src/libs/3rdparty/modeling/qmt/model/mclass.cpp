@@ -44,9 +44,9 @@ MClass::MClass()
 
 MClass::MClass(const MClass &rhs)
     : MObject(rhs),
-      _namespace(rhs._namespace),
-      _template_parameters(rhs._template_parameters),
-      _members(rhs._members)
+      m_namespace(rhs.m_namespace),
+      m_templateParameters(rhs.m_templateParameters),
+      m_members(rhs.m_members)
 {
 }
 
@@ -58,44 +58,44 @@ MClass &MClass::operator=(const MClass &rhs)
 {
     if (this != &rhs) {
         MObject::operator =(rhs);
-        _namespace = rhs._namespace;
-        _template_parameters = rhs._template_parameters;
-        _members = rhs._members;
+        m_namespace = rhs.m_namespace;
+        m_templateParameters = rhs.m_templateParameters;
+        m_members = rhs.m_members;
     }
     return *this;
 }
 
 void MClass::setNamespace(const QString &name_space)
 {
-    _namespace = name_space;
+    m_namespace = name_space;
 }
 
 void MClass::setTemplateParameters(const QList<QString> &template_parameters)
 {
-    _template_parameters = template_parameters;
+    m_templateParameters = template_parameters;
 }
 
 void MClass::setMembers(const QList<MClassMember> &members)
 {
-    _members = members;
+    m_members = members;
 }
 
 void MClass::addMember(const MClassMember &member)
 {
-    _members.append(member);
+    m_members.append(member);
 }
 
 void MClass::insertMember(int before_index, const MClassMember &member)
 {
-    _members.insert(before_index, member);
+    m_members.insert(before_index, member);
 }
 
 void MClass::removeMember(const Uid &uid)
 {
     QMT_CHECK(uid.isValid());
-    for (int i = 0; i < _members.count(); ++i) {
-        if (_members.at(i).getUid() == uid) {
-            _members.removeAt(i);
+    for (int i = 0; i < m_members.count(); ++i) {
+        if (m_members.at(i).getUid() == uid) {
+            m_members.removeAt(i);
             return;
         }
     }

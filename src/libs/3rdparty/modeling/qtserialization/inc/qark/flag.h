@@ -37,13 +37,13 @@ class Flag {
 public:
     typedef unsigned int mask_type;
 
-    explicit Flag() : _mask(_next_mask) { _next_mask *= 2; }
+    explicit Flag() : m_mask(m_nextMask) { m_nextMask *= 2; }
 
-    mask_type getMask() const { return _mask; }
+    mask_type getMask() const { return m_mask; }
 
 private:
-    static mask_type _next_mask;
-    mask_type _mask;
+    static mask_type m_nextMask;
+    mask_type m_mask;
 };
 
 }

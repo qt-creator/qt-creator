@@ -54,7 +54,7 @@ public:
 
 public:
 
-    TreeModel *getTreeModel() const { return _tree_model; }
+    TreeModel *getTreeModel() const { return m_treeModel; }
 
     void setTreeModel(TreeModel *tree_model);
 
@@ -76,9 +76,9 @@ private:
 
 private:
 
-    TreeModel *_tree_model;
+    TreeModel *m_treeModel;
 
-    QTimer _delayed_sort_timer;
+    QTimer m_delayedSortTimer;
 };
 
 }

@@ -41,28 +41,28 @@ class Parameters
 public:
 
     Parameters()
-        : _flags(0)
+        : m_flags(0)
     {
     }
 
     Parameters(const Flag &flag)
-        : _flags(flag.getMask())
+        : m_flags(flag.getMask())
     {
     }
 
 public:
 
-    void setFlag(const Flag &flag) { _flags |= flag.getMask(); }
+    void setFlag(const Flag &flag) { m_flags |= flag.getMask(); }
 
-    void clearFlag(const Flag &flag) { _flags &= ~flag.getMask(); }
+    void clearFlag(const Flag &flag) { m_flags &= ~flag.getMask(); }
 
-    bool hasFlag(const Flag &flag) const { return (_flags & flag.getMask()) != 0; }
+    bool hasFlag(const Flag &flag) const { return (m_flags & flag.getMask()) != 0; }
 
-    bool takeFlag(const Flag &flag) { bool f = (_flags & flag.getMask()) != 0; _flags &= ~flag.getMask(); return f; }
+    bool takeFlag(const Flag &flag) { bool f = (m_flags & flag.getMask()) != 0; m_flags &= ~flag.getMask(); return f; }
 
 private:
 
-    Flag::mask_type _flags;
+    Flag::mask_type m_flags;
 };
 
 }

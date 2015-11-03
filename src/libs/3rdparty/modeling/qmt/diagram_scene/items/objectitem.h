@@ -90,9 +90,9 @@ public:
 
 public:
 
-    DObject *getObject() const { return _object; }
+    DObject *getObject() const { return m_object; }
 
-    DiagramSceneModel *getDiagramSceneModel() const { return _diagram_scene_model; }
+    DiagramSceneModel *getDiagramSceneModel() const { return m_diagramSceneModel; }
 
 public:
 
@@ -150,17 +150,17 @@ protected:
 
     void updateStereotypeIconDisplay();
 
-    QString getStereotypeIconId() const { return _stereotype_icon_id; }
+    QString getStereotypeIconId() const { return m_stereotypeIconId; }
 
-    QString getShapeIconId() const { return _shape_icon_id; }
+    QString getShapeIconId() const { return m_shapeIconId; }
 
-    StereotypeIcon::Display getStereotypeIconDisplay() const { return _stereotype_icon_display; }
+    StereotypeIcon::Display getStereotypeIconDisplay() const { return m_stereotypeIconDisplay; }
 
     void updateStereotypes(const QString &stereotype_icon_id, StereotypeIcon::Display stereotype_display, const Style *style);
 
-    StereotypesItem *getStereotypesItem() const { return _stereotypes; }
+    StereotypesItem *getStereotypesItem() const { return m_stereotypes; }
 
-    CustomIconItem *getStereotypeIconItem() const { return _stereotype_icon; }
+    CustomIconItem *getStereotypeIconItem() const { return m_stereotypeIcon; }
 
     QSizeF getStereotypeIconMinimumSize(const StereotypeIcon &stereotype_icon, qreal minimum_width, qreal minimum_height) const;
 
@@ -204,29 +204,29 @@ private:
 
 private:
 
-    DObject *_object;
+    DObject *m_object;
 
-    DiagramSceneModel *_diagram_scene_model;
+    DiagramSceneModel *m_diagramSceneModel;
 
-    bool _secondary_selected;
+    bool m_secondarySelected;
 
-    bool _focus_selected;
+    bool m_focusSelected;
 
-    QString _stereotype_icon_id;
+    QString m_stereotypeIconId;
 
-    QString _shape_icon_id;
+    QString m_shapeIconId;
 
-    StereotypeIcon::Display _stereotype_icon_display;
+    StereotypeIcon::Display m_stereotypeIconDisplay;
 
-    StereotypesItem *_stereotypes;
+    StereotypesItem *m_stereotypes;
 
-    CustomIconItem *_stereotype_icon;
+    CustomIconItem *m_stereotypeIcon;
 
-    RectangularSelectionItem *_selection_marker;
+    RectangularSelectionItem *m_selectionMarker;
 
-    AlignButtonsItem *_horizontal_align_buttons;
+    AlignButtonsItem *m_horizontalAlignButtons;
 
-    AlignButtonsItem *_vertical_align_buttons;
+    AlignButtonsItem *m_verticalAlignButtons;
 
 };
 

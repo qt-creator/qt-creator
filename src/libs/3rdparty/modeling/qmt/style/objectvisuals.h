@@ -48,37 +48,37 @@ public:
 
 public:
 
-    DObject::VisualPrimaryRole getVisualPrimaryRole() const { return _visual_primary_role; }
+    DObject::VisualPrimaryRole getVisualPrimaryRole() const { return m_visualPrimaryRole; }
 
     void setVisualPrimaryRole(DObject::VisualPrimaryRole visual_primary_role);
 
-    DObject::VisualSecondaryRole getVisualSecondaryRole() const { return _visual_secondary_role; }
+    DObject::VisualSecondaryRole getVisualSecondaryRole() const { return m_visualSecondaryRole; }
 
     void setVisualSecondaryRole(DObject::VisualSecondaryRole visual_secondary_role);
 
-    bool isEmphasized() const { return _emphasized; }
+    bool isEmphasized() const { return m_emphasized; }
 
     void setEmphasized(bool emphasized);
 
-    QColor getBaseColor() const { return _base_color; }
+    QColor getBaseColor() const { return m_baseColor; }
 
     void setBaseColor(const QColor &base_color);
 
-    int getDepth() const { return _depth; }
+    int getDepth() const { return m_depth; }
 
     void setDepth(int depth);
 
 private:
 
-    DObject::VisualPrimaryRole _visual_primary_role;
+    DObject::VisualPrimaryRole m_visualPrimaryRole;
 
-    DObject::VisualSecondaryRole _visual_secondary_role;
+    DObject::VisualSecondaryRole m_visualSecondaryRole;
 
-    bool _emphasized;
+    bool m_emphasized;
 
-    QColor _base_color;
+    QColor m_baseColor;
 
-    int _depth;
+    int m_depth;
 };
 
 bool operator==(const ObjectVisuals &lhs, const ObjectVisuals &rhs);

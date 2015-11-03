@@ -63,9 +63,9 @@ public:
 
 public:
 
-    DBoundary *getBoundary() const { return _boundary; }
+    DBoundary *getBoundary() const { return m_boundary; }
 
-    DiagramSceneModel *getDiagramSceneModel() const { return _diagram_scene_model; }
+    DiagramSceneModel *getDiagramSceneModel() const { return m_diagramSceneModel; }
 
 public:
 
@@ -141,25 +141,25 @@ private:
 
 private:
 
-    DBoundary *_boundary;
+    DBoundary *m_boundary;
 
-    DiagramSceneModel *_diagram_scene_model;
+    DiagramSceneModel *m_diagramSceneModel;
 
-    bool _secondary_selected;
+    bool m_secondarySelected;
 
-    bool _focus_selected;
+    bool m_focusSelected;
 
-    RectangularSelectionItem *_selection_marker;
+    RectangularSelectionItem *m_selectionMarker;
 
-    QGraphicsRectItem *_border_item;
+    QGraphicsRectItem *m_borderItem;
 
-    QGraphicsRectItem *_no_text_item;
+    QGraphicsRectItem *m_noTextItem;
 
-    BoundaryTextItem *_text_item;
+    BoundaryTextItem *m_textItem;
 
-    bool _on_update;
+    bool m_onUpdate;
 
-    bool _on_changed;
+    bool m_onChanged;
 };
 
 }

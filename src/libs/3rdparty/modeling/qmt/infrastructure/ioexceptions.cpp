@@ -39,8 +39,8 @@ IOException::IOException(const QString &error_msg)
 
 FileIOException::FileIOException(const QString &error_msg, const QString &file_name, int line_number)
     : IOException(error_msg),
-      _file_name(file_name),
-      _line_number(line_number)
+      m_fileName(file_name),
+      m_lineNumber(line_number)
 {
 }
 

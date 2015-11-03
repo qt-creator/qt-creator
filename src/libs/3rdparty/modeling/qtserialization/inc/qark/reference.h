@@ -41,28 +41,28 @@ template<typename T>
 class Ref {
 public:
     Ref(const QString &qualified_name, T *value)
-        : _qualified_name(qualified_name),
-          _value(value)
+        : m_qualifiedName(qualified_name),
+          m_value(value)
     {
     }
 
     Ref(const QString &qualified_name, T *value, const Parameters &parameters)
-        : _qualified_name(qualified_name),
-          _value(value),
-          _parameters(parameters)
+        : m_qualifiedName(qualified_name),
+          m_value(value),
+          m_parameters(parameters)
     {
     }
 
-    const QString &getQualifiedName() const { return _qualified_name; }
+    const QString &getQualifiedName() const { return m_qualifiedName; }
 
-    T *getValue() const { return _value; }
+    T *getValue() const { return m_value; }
 
-    Parameters getParameters() const { return _parameters; }
+    Parameters getParameters() const { return m_parameters; }
 
 private:
-    QString _qualified_name;
-    T *_value;
-    Parameters _parameters;
+    QString m_qualifiedName;
+    T *m_value;
+    Parameters m_parameters;
 };
 
 template<typename T>
@@ -94,33 +94,33 @@ template<class U, typename T>
 class GetterRef {
 public:
     GetterRef(const QString &qualified_name, const U &u, T (U::*getter)() const)
-        : _qualified_name(qualified_name),
-          _u(u),
-          _getter(getter)
+        : m_qualifiedName(qualified_name),
+          m_u(u),
+          m_getter(getter)
     {
     }
 
     GetterRef(const QString &qualified_name, const U &u, T (U::*getter)() const, const Parameters &parameters)
-        : _qualified_name(qualified_name),
-          _u(u),
-          _getter(getter),
-          _parameters(parameters)
+        : m_qualifiedName(qualified_name),
+          m_u(u),
+          m_getter(getter),
+          m_parameters(parameters)
     {
     }
 
-    const QString &getQualifiedName() const { return _qualified_name; }
+    const QString &getQualifiedName() const { return m_qualifiedName; }
 
-    const U &getObject() const { return _u; }
+    const U &getObject() const { return m_u; }
 
-    T (U::*getGetter() const)() const { return _getter; }
+    T (U::*getGetter() const)() const { return m_getter; }
 
-    Parameters getParameters() const { return _parameters; }
+    Parameters getParameters() const { return m_parameters; }
 
 private:
-    QString _qualified_name;
-    const U &_u;
-    T (U::*_getter)() const;
-    Parameters _parameters;
+    QString m_qualifiedName;
+    const U &m_u;
+    T (U::*m_getter)() const;
+    Parameters m_parameters;
 };
 
 template<class U, typename T>
@@ -140,33 +140,33 @@ template<class U, typename T>
 class SetterRef {
 public:
     SetterRef(const QString &qualified_name, U &u, void (U::*setter)(T))
-        : _qualified_name(qualified_name),
-          _u(u),
-          _setter(setter)
+        : m_qualifiedName(qualified_name),
+          m_u(u),
+          m_setter(setter)
     {
     }
 
     SetterRef(const QString &qualified_name, U &u, void (U::*setter)(T), const Parameters &parameters)
-        : _qualified_name(qualified_name),
-          _u(u),
-          _setter(setter),
-          _parameters(parameters)
+        : m_qualifiedName(qualified_name),
+          m_u(u),
+          m_setter(setter),
+          m_parameters(parameters)
     {
     }
 
-    const QString &getQualifiedName() const { return _qualified_name; }
+    const QString &getQualifiedName() const { return m_qualifiedName; }
 
-    U &getObject() const { return _u; }
+    U &getObject() const { return m_u; }
 
-    void (U::*getSetter() const)(T) { return _setter; }
+    void (U::*getSetter() const)(T) { return m_setter; }
 
-    Parameters getParameters() const { return _parameters; }
+    Parameters getParameters() const { return m_parameters; }
 
 private:
-    QString _qualified_name;
-    U &_u;
-    void (U::*_setter)(T);
-    Parameters _parameters;
+    QString m_qualifiedName;
+    U &m_u;
+    void (U::*m_setter)(T);
+    Parameters m_parameters;
 };
 
 template<class U, class T>
@@ -198,38 +198,38 @@ template<class U, typename T, typename V>
 class GetterSetterRef {
 public:
     GetterSetterRef(const QString &qualified_name, U &u, T (U::*getter)() const, void (U::*setter)(V))
-        : _qualified_name(qualified_name),
-          _u(u),
-          _getter(getter),
-          _setter(setter)
+        : m_qualifiedName(qualified_name),
+          m_u(u),
+          m_getter(getter),
+          m_setter(setter)
     {
     }
 
     GetterSetterRef(const QString &qualified_name, U &u, T (U::*getter)() const, void (U::*setter)(V), const Parameters &parameters)
-        : _qualified_name(qualified_name),
-          _u(u),
-          _getter(getter),
-          _setter(setter),
-          _parameters(parameters)
+        : m_qualifiedName(qualified_name),
+          m_u(u),
+          m_getter(getter),
+          m_setter(setter),
+          m_parameters(parameters)
     {
     }
 
-    const QString &getQualifiedName() const { return _qualified_name; }
+    const QString &getQualifiedName() const { return m_qualifiedName; }
 
-    U &getObject() const { return _u; }
+    U &getObject() const { return m_u; }
 
-    T (U::*getGetter() const)() const { return _getter; }
+    T (U::*getGetter() const)() const { return m_getter; }
 
-    void (U::*getSetter() const)(V) { return _setter; }
+    void (U::*getSetter() const)(V) { return m_setter; }
 
-    Parameters getParameters() const { return _parameters; }
+    Parameters getParameters() const { return m_parameters; }
 
 private:
-    QString _qualified_name;
-    U &_u;
-    T (U::*_getter)() const;
-    void (U::*_setter)(V);
-    Parameters _parameters;
+    QString m_qualifiedName;
+    U &m_u;
+    T (U::*m_getter)() const;
+    void (U::*m_setter)(V);
+    Parameters m_parameters;
 };
 
 template<class  U, typename T, typename V>
@@ -261,33 +261,33 @@ template<class U, typename T>
 class GetFuncRef {
 public:
     GetFuncRef(const QString &qualified_name, const U &u, T (*get_func)(const U &))
-        : _qualified_name(qualified_name),
-          _u(u),
-          _get_func(get_func)
+        : m_qualifiedName(qualified_name),
+          m_u(u),
+          m_getFunc(get_func)
     {
     }
 
     GetFuncRef(const QString &qualified_name, const U &u, T (*get_func)(const U &), const Parameters &parameters)
-        : _qualified_name(qualified_name),
-          _u(u),
-          _get_func(get_func),
-          _parameters(parameters)
+        : m_qualifiedName(qualified_name),
+          m_u(u),
+          m_getFunc(get_func),
+          m_parameters(parameters)
     {
     }
 
-    const QString &getQualifiedName() const { return _qualified_name; }
+    const QString &getQualifiedName() const { return m_qualifiedName; }
 
-    const U &getObject() const { return _u; }
+    const U &getObject() const { return m_u; }
 
-    T (*getGetFunc() const)(const U &) { return _get_func; }
+    T (*getGetFunc() const)(const U &) { return m_getFunc; }
 
-    Parameters getParameters() const { return _parameters; }
+    Parameters getParameters() const { return m_parameters; }
 
 private:
-    QString _qualified_name;
-    const U &_u;
-    T (*_get_func)(const U &);
-    Parameters _parameters;
+    QString m_qualifiedName;
+    const U &m_u;
+    T (*m_getFunc)(const U &);
+    Parameters m_parameters;
 };
 
 template<class U, typename T>
@@ -307,33 +307,33 @@ template<class U, typename T>
 class SetFuncRef {
 public:
     SetFuncRef(const QString &qualified_name, U &u, void (*set_func)(U &, T))
-        : _qualified_name(qualified_name),
-          _u(u),
-          _set_func(set_func)
+        : m_qualifiedName(qualified_name),
+          m_u(u),
+          m_setFunc(set_func)
     {
     }
 
     SetFuncRef(const QString &qualified_name, U &u, void (*set_func)(U &, T), const Parameters &parameters)
-        : _qualified_name(qualified_name),
-          _u(u),
-          _set_func(set_func),
-          _parameters(parameters)
+        : m_qualifiedName(qualified_name),
+          m_u(u),
+          m_setFunc(set_func),
+          m_parameters(parameters)
     {
     }
 
-    const QString &getQualifiedName() const { return _qualified_name; }
+    const QString &getQualifiedName() const { return m_qualifiedName; }
 
-    U &getObject() const { return _u; }
+    U &getObject() const { return m_u; }
 
-    void (*getSetFunc() const)(U &, T) { return _set_func; }
+    void (*getSetFunc() const)(U &, T) { return m_setFunc; }
 
-    Parameters getParameters() const { return _parameters; }
+    Parameters getParameters() const { return m_parameters; }
 
 private:
-    QString _qualified_name;
-    U &_u;
-    void (*_set_func)(U &, T);
-    Parameters _parameters;
+    QString m_qualifiedName;
+    U &m_u;
+    void (*m_setFunc)(U &, T);
+    Parameters m_parameters;
 };
 
 template<class U, class T>
@@ -365,38 +365,38 @@ template<class U, typename T, typename V>
 class GetSetFuncRef {
 public:
     GetSetFuncRef(const QString &qualified_name, U &u, T (*get_func)(const U &), void (*set_func)(U &, V))
-        : _qualified_name(qualified_name),
-          _u(u),
-          _get_func(get_func),
-          _set_func(set_func)
+        : m_qualifiedName(qualified_name),
+          m_u(u),
+          m_getFunc(get_func),
+          m_setFunc(set_func)
     {
     }
 
     GetSetFuncRef(const QString &qualified_name, U &u, T (*get_func)(const U &), void (*set_func)(U &, V), const Parameters &parameters)
-        : _qualified_name(qualified_name),
-          _u(u),
-          _get_func(get_func),
-          _set_func(set_func),
-          _parameters(parameters)
+        : m_qualifiedName(qualified_name),
+          m_u(u),
+          m_getFunc(get_func),
+          m_setFunc(set_func),
+          m_parameters(parameters)
     {
     }
 
-    const QString &getQualifiedName() const { return _qualified_name; }
+    const QString &getQualifiedName() const { return m_qualifiedName; }
 
-    U &getObject() const { return _u; }
+    U &getObject() const { return m_u; }
 
-    T (*getGetFunc() const)(const U &) { return _get_func; }
+    T (*getGetFunc() const)(const U &) { return m_getFunc; }
 
-    void (*getSetFunc() const)(U &, V) { return _set_func; }
+    void (*getSetFunc() const)(U &, V) { return m_setFunc; }
 
-    Parameters getParameters() const { return _parameters; }
+    Parameters getParameters() const { return m_parameters; }
 
 private:
-    QString _qualified_name;
-    U &_u;
-    T (*_get_func)(const U &);
-    void (*_set_func)(U &, V);
-    Parameters _parameters;
+    QString m_qualifiedName;
+    U &m_u;
+    T (*m_getFunc)(const U &);
+    void (*m_setFunc)(U &, V);
+    Parameters m_parameters;
 };
 
 template<class  U, typename T, typename V>

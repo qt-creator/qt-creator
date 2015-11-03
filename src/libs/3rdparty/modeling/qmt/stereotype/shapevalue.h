@@ -64,32 +64,32 @@ public:
 public:
 
     ShapeValueF()
-        : _value(0.0),
-          _unit(UNIT_RELATIVE),
-          _origin(ORIGIN_SMART)
+        : m_value(0.0),
+          m_unit(UNIT_RELATIVE),
+          m_origin(ORIGIN_SMART)
     {
     }
 
     ShapeValueF(qreal value, Unit unit = UNIT_RELATIVE, Origin origin = ORIGIN_SMART)
-        : _value(value),
-          _unit(unit),
-          _origin(origin)
+        : m_value(value),
+          m_unit(unit),
+          m_origin(origin)
     {
     }
 
 public:
 
-    qreal getValue() const { return _value; }
+    qreal getValue() const { return m_value; }
 
-    void setValue(qreal value) { _value = value; }
+    void setValue(qreal value) { m_value = value; }
 
-    Unit getUnit() const { return _unit; }
+    Unit getUnit() const { return m_unit; }
 
-    void setUnit(Unit unit) { _unit = unit; }
+    void setUnit(Unit unit) { m_unit = unit; }
 
-    Origin getOrigin() const { return _origin; }
+    Origin getOrigin() const { return m_origin; }
 
-    void setOrigin(Origin origin) { _origin = origin; }
+    void setOrigin(Origin origin) { m_origin = origin; }
 
 public:
 
@@ -101,11 +101,11 @@ public:
 
 private:
 
-    qreal _value;
+    qreal m_value;
 
-    Unit _unit;
+    Unit m_unit;
 
-    Origin _origin;
+    Origin m_origin;
 };
 
 
@@ -117,20 +117,20 @@ public:
     }
 
     ShapePointF(const ShapeValueF &x, const ShapeValueF &y)
-        : _x(x),
-          _y(y)
+        : m_x(x),
+          m_y(y)
     {
     }
 
 public:
 
-    ShapeValueF getX() const { return _x; }
+    ShapeValueF getX() const { return m_x; }
 
-    void setX(const ShapeValueF &x) { _x = x; }
+    void setX(const ShapeValueF &x) { m_x = x; }
 
-    ShapeValueF getY() const { return _y; }
+    ShapeValueF getY() const { return m_y; }
 
-    void setY(const ShapeValueF &y) { _y = y; }
+    void setY(const ShapeValueF &y) { m_y = y; }
 
 public:
 
@@ -142,9 +142,9 @@ public:
 
 private:
 
-    ShapeValueF _x;
+    ShapeValueF m_x;
 
-    ShapeValueF _y;
+    ShapeValueF m_y;
 };
 
 
@@ -156,20 +156,20 @@ public:
     }
 
     ShapeSizeF(const ShapeValueF &width, const ShapeValueF &height)
-        : _width(width),
-          _height(height)
+        : m_width(width),
+          m_height(height)
     {
     }
 
 public:
 
-    ShapeValueF getWidth() const { return _width; }
+    ShapeValueF getWidth() const { return m_width; }
 
-    void setWidth(const ShapeValueF &width) { _width = width; }
+    void setWidth(const ShapeValueF &width) { m_width = width; }
 
-    ShapeValueF getHeight() const { return _height; }
+    ShapeValueF getHeight() const { return m_height; }
 
-    void setHeight(const ShapeValueF &height) { _height = height; }
+    void setHeight(const ShapeValueF &height) { m_height = height; }
 
 public:
 
@@ -181,9 +181,9 @@ public:
 
 private:
 
-    ShapeValueF _width;
+    ShapeValueF m_width;
 
-    ShapeValueF _height;
+    ShapeValueF m_height;
 };
 
 } // namespace qmt

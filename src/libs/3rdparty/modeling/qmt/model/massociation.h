@@ -66,31 +66,31 @@ public:
 
 public:
 
-    QString getName() const { return _name; }
+    QString getName() const { return m_name; }
 
     void setName(const QString &name);
 
-    QString getCardinality() const { return _cardinality; }
+    QString getCardinality() const { return m_cardinality; }
 
     void setCardinality(const QString &cardinality);
 
-    Kind getKind() const { return _kind; }
+    Kind getKind() const { return m_kind; }
 
     void setKind(Kind kind);
 
-    bool isNavigable() const { return _navigable; }
+    bool isNavigable() const { return m_navigable; }
 
     void setNavigable(bool navigable);
 
 private:
 
-    QString _name;
+    QString m_name;
 
-    QString _cardinality;
+    QString m_cardinality;
 
-    Kind _kind;
+    Kind m_kind;
 
-    bool _navigable;
+    bool m_navigable;
 };
 
 bool operator==(const MAssociationEnd &lhs, const MAssociationEnd &rhs);
@@ -109,15 +109,15 @@ public:
 
 public:
 
-    MAssociationEnd getA() const { return _a; }
+    MAssociationEnd getA() const { return m_a; }
 
     void setA(const MAssociationEnd &end);
 
-    MAssociationEnd getB() const { return _b; }
+    MAssociationEnd getB() const { return m_b; }
 
     void setB(const MAssociationEnd &end);
 
-    Uid getAssoicationClassUid() const { return _association_class_uid; }
+    Uid getAssoicationClassUid() const { return m_associationClassUid; }
 
     void setAssociationClassUid(const Uid &uid);
 
@@ -129,11 +129,11 @@ public:
 
 private:
 
-    MAssociationEnd _a;
+    MAssociationEnd m_a;
 
-    MAssociationEnd _b;
+    MAssociationEnd m_b;
 
-    Uid _association_class_uid;
+    Uid m_associationClassUid;
 };
 
 }

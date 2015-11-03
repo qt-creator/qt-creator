@@ -43,30 +43,30 @@ template<class BASE, class DERIVED>
 class Base {
 public:
     Base(const QString &qualified_name, DERIVED &obj)
-        : _qualified_name(qualified_name),
-          _base(obj)
+        : m_qualifiedName(qualified_name),
+          m_base(obj)
     {
     }
 
     Base(const QString &qualified_name, DERIVED &obj, const Parameters &parameters)
-        : _qualified_name(qualified_name),
-          _base(obj),
-          _parameters(parameters)
+        : m_qualifiedName(qualified_name),
+          m_base(obj),
+          m_parameters(parameters)
     {
     }
 
-    const QString &getQualifiedName() const { return _qualified_name; }
+    const QString &getQualifiedName() const { return m_qualifiedName; }
 
-    const BASE &getBase() const { return _base; }
+    const BASE &getBase() const { return m_base; }
 
-    BASE &getBase() { return _base; }
+    BASE &getBase() { return m_base; }
 
-    Parameters getParameters() const { return _parameters; }
+    Parameters getParameters() const { return m_parameters; }
 
 private:
-    QString _qualified_name;
-    BASE &_base;
-    Parameters _parameters;
+    QString m_qualifiedName;
+    BASE &m_base;
+    Parameters m_parameters;
 };
 
 template<class BASE, class DERIVED>

@@ -73,7 +73,7 @@ public:
 
 private:
 
-    MElement *_target;
+    MElement *m_target;
 };
 
 

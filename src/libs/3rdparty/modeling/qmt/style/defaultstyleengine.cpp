@@ -51,69 +51,69 @@ namespace qmt {
 
 struct ObjectStyleKey {
     ObjectStyleKey()
-        : _element_type(StyleEngine::TYPE_OTHER)
+        : m_elementType(StyleEngine::TYPE_OTHER)
     {
     }
 
     ObjectStyleKey(StyleEngine::ElementType element_type, const ObjectVisuals &object_visuals)
-        : _element_type(element_type),
-          _object_visuals(object_visuals)
+        : m_elementType(element_type),
+          m_objectVisuals(object_visuals)
     {
     }
 
-    StyleEngine::ElementType _element_type;
-    ObjectVisuals _object_visuals;
+    StyleEngine::ElementType m_elementType;
+    ObjectVisuals m_objectVisuals;
 };
 
 uint qHash(const ObjectStyleKey &style_key)
 {
-    return ::qHash(style_key._element_type) ^ qHash(style_key._object_visuals);
+    return ::qHash(style_key.m_elementType) ^ qHash(style_key.m_objectVisuals);
 }
 
 bool operator==(const ObjectStyleKey &lhs, const ObjectStyleKey &rhs)
 {
-    return lhs._element_type == rhs._element_type && lhs._object_visuals == rhs._object_visuals;
+    return lhs.m_elementType == rhs.m_elementType && lhs.m_objectVisuals == rhs.m_objectVisuals;
 }
 
 
 struct RelationStyleKey {
     RelationStyleKey(StyleEngine::ElementType element_type = StyleEngine::TYPE_OTHER,
                      DObject::VisualPrimaryRole visual_primary_role = DObject::PRIMARY_ROLE_NORMAL)
-        : _element_type(element_type),
-          _visual_primary_role(visual_primary_role)
+        : m_elementType(element_type),
+          m_visualPrimaryRole(visual_primary_role)
     {
     }
 
-    StyleEngine::ElementType _element_type;
-    DObject::VisualPrimaryRole _visual_primary_role;
+    StyleEngine::ElementType m_elementType;
+    DObject::VisualPrimaryRole m_visualPrimaryRole;
 };
 
 uint qHash(const RelationStyleKey &style_key) {
-    return ::qHash(style_key._element_type) ^ ::qHash(style_key._visual_primary_role);
+    return ::qHash(style_key.m_elementType) ^ ::qHash(style_key.m_visualPrimaryRole);
 }
 
 bool operator==(const RelationStyleKey &lhs, const RelationStyleKey &rhs)
 {
-    return lhs._element_type == rhs._element_type && lhs._visual_primary_role == rhs._visual_primary_role;
+    return lhs.m_elementType == rhs.m_elementType && lhs.m_visualPrimaryRole == rhs.m_visualPrimaryRole;
 }
 
 
 struct AnnotationStyleKey {
     AnnotationStyleKey(DAnnotation::VisualRole visual_role = DAnnotation::ROLE_NORMAL)
-        : _visual_role(visual_role)
+        : m_visualRole(visual_role)
     {
     }
 
-    DAnnotation::VisualRole _visual_role;
+    DAnnotation::VisualRole m_visualRole;
 };
 
 uint qHash(const AnnotationStyleKey &style_key) {
-    return ::qHash(style_key._visual_role);
+    return ::qHash(style_key.m_visualRole);
 }
 
 bool operator==(const AnnotationStyleKey &lhs, const AnnotationStyleKey &rhs)
 {
-    return lhs._visual_role == rhs._visual_role;
+    return lhs.m_visualRole == rhs.m_visualRole;
 }
 
 
@@ -144,10 +144,10 @@ DefaultStyleEngine::DefaultStyleEngine()
 
 DefaultStyleEngine::~DefaultStyleEngine()
 {
-    qDeleteAll(_object_style_map);
-    qDeleteAll(_relation_style_map);
-    qDeleteAll(_annotation_style_map);
-    qDeleteAll(_boundary_style_map);
+    qDeleteAll(m_objectStyleMap);
+    qDeleteAll(m_relationStyleMap);
+    qDeleteAll(m_annotationStyleMap);
+    qDeleteAll(m_boundaryStyleMap);
 }
 
 const Style *DefaultStyleEngine::applyStyle(const Style *base_style, StyleEngine::ElementType element_type, const StyleEngine::Parameters *parameters)
@@ -173,7 +173,7 @@ const Style *DefaultStyleEngine::applyStyle(const Style *base_style, StyleEngine
 const Style *DefaultStyleEngine::applyObjectStyle(const Style *base_style, StyleEngine::ElementType element_type, const ObjectVisuals &object_visuals, const StyleEngine::Parameters *parameters)
 {
     ObjectStyleKey key(element_type, object_visuals);
-    const Style *derived_style = _object_style_map.value(key);
+    const Style *derived_style = m_objectStyleMap.value(key);
     if (!derived_style) {
         int line_width = 1;
 
@@ -218,7 +218,7 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *base_style, Style
         style->setNormalFont(normal_font);
         style->setSmallFont(base_style->getSmallFont());
         style->setHeaderFont(header_font);
-        _object_style_map.insert(key, style);
+        m_objectStyleMap.insert(key, style);
         derived_style = style;
     }
 
@@ -231,22 +231,22 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *base_style, const
 
     struct DepthProperties {
         DepthProperties()
-            : _element_type(TYPE_OTHER),
-              _visual_primary_role(DObject::PRIMARY_ROLE_NORMAL),
-              _visual_secondary_role(DObject::SECONDARY_ROLE_NONE)
+            : m_elementType(TYPE_OTHER),
+              m_visualPrimaryRole(DObject::PRIMARY_ROLE_NORMAL),
+              m_visualSecondaryRole(DObject::SECONDARY_ROLE_NONE)
         {
         }
 
         DepthProperties(ElementType element_type, DObject::VisualPrimaryRole visual_primary_role, DObject::VisualSecondaryRole visual_secondary_role)
-            : _element_type(element_type),
-              _visual_primary_role(visual_primary_role),
-              _visual_secondary_role(visual_secondary_role)
+            : m_elementType(element_type),
+              m_visualPrimaryRole(visual_primary_role),
+              m_visualSecondaryRole(visual_secondary_role)
         {
         }
 
-        ElementType _element_type;
-        DObject::VisualPrimaryRole _visual_primary_role;
-        DObject::VisualSecondaryRole _visual_secondary_role;
+        ElementType m_elementType;
+        DObject::VisualPrimaryRole m_visualPrimaryRole;
+        DObject::VisualSecondaryRole m_visualSecondaryRole;
     };
 
     // find colliding elements which best match visual appearance of styled object
@@ -264,16 +264,16 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *base_style, const
             } else {
                 bool update_properties = false;
                 DepthProperties properties = depths.value(colliding_depth);
-                if (properties._element_type != element_type && colliding_element_type == element_type) {
-                    properties._element_type = colliding_element_type;
-                    properties._visual_primary_role = colliding_visual_primary_role;
-                    properties._visual_secondary_role = colliding_visual_secondary_role;
+                if (properties.m_elementType != element_type && colliding_element_type == element_type) {
+                    properties.m_elementType = colliding_element_type;
+                    properties.m_visualPrimaryRole = colliding_visual_primary_role;
+                    properties.m_visualSecondaryRole = colliding_visual_secondary_role;
                     update_properties = true;
-                } else if (properties._element_type == element_type && colliding_element_type == element_type) {
-                    if ((properties._visual_primary_role != styled_visual_primary_role || properties._visual_secondary_role != styled_visual_secondary_role)
+                } else if (properties.m_elementType == element_type && colliding_element_type == element_type) {
+                    if ((properties.m_visualPrimaryRole != styled_visual_primary_role || properties.m_visualSecondaryRole != styled_visual_secondary_role)
                             && colliding_visual_primary_role == styled_visual_primary_role && colliding_visual_secondary_role == styled_visual_secondary_role) {
-                        properties._visual_primary_role = colliding_visual_primary_role;
-                        properties._visual_secondary_role = colliding_visual_secondary_role;
+                        properties.m_visualPrimaryRole = colliding_visual_primary_role;
+                        properties.m_visualSecondaryRole = colliding_visual_secondary_role;
                         update_properties = true;
                     }
                 }
@@ -289,7 +289,7 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *base_style, const
         qSort(keys);
         foreach (int d, keys) {
             DepthProperties properties = depths.value(d);
-            if (properties._element_type == element_type && areStackingRoles(properties._visual_primary_role, properties._visual_secondary_role, styled_visual_primary_role, styled_visual_secondary_role)) {
+            if (properties.m_elementType == element_type && areStackingRoles(properties.m_visualPrimaryRole, properties.m_visualSecondaryRole, styled_visual_primary_role, styled_visual_secondary_role)) {
                 ++depth;
             } else {
                 depth = 0;
@@ -312,7 +312,7 @@ const Style *DefaultStyleEngine::applyRelationStyle(const Style *base_style, con
 
     ElementType element_type = getObjectType(styled_relation.getEndA());
     RelationStyleKey key(element_type, styled_relation.getEndA() ? styled_relation.getEndA()->getVisualPrimaryRole() : DObject::PRIMARY_ROLE_NORMAL);
-    const Style *derived_style = _relation_style_map.value(key);
+    const Style *derived_style = m_relationStyleMap.value(key);
     if (!derived_style) {
         Style *style = new Style(base_style->getType());
 
@@ -339,7 +339,7 @@ const Style *DefaultStyleEngine::applyRelationStyle(const Style *base_style, con
         style->setNormalFont(base_style->getNormalFont());
         style->setSmallFont(base_style->getSmallFont());
         style->setHeaderFont(base_style->getHeaderFont());
-        _relation_style_map.insert(key, style);
+        m_relationStyleMap.insert(key, style);
         derived_style = style;
     }
     return derived_style;
@@ -363,7 +363,7 @@ const Style *DefaultStyleEngine::applyAnnotationStyle(const Style *base_style, D
     Q_UNUSED(parameters);
 
     AnnotationStyleKey key(visual_role);
-    const Style *derived_style = _annotation_style_map.value(key);
+    const Style *derived_style = m_annotationStyleMap.value(key);
     if (!derived_style) {
         Style *style = new Style(base_style->getType());
         QFont normal_font;
@@ -393,7 +393,7 @@ const Style *DefaultStyleEngine::applyAnnotationStyle(const Style *base_style, D
         }
         style->setNormalFont(normal_font);
         style->setTextBrush(text_brush);
-        _annotation_style_map.insert(key, style);
+        m_annotationStyleMap.insert(key, style);
         derived_style = style;
     }
     return derived_style;
@@ -404,12 +404,12 @@ const Style *DefaultStyleEngine::applyBoundaryStyle(const Style *base_style, con
     Q_UNUSED(parameters);
 
     BoundaryStyleKey key;
-    const Style *derived_style = _boundary_style_map.value(key);
+    const Style *derived_style = m_boundaryStyleMap.value(key);
     if (!derived_style) {
         Style *style = new Style(base_style->getType());
         style->setNormalFont(base_style->getNormalFont());
         style->setTextBrush(base_style->getTextBrush());
-        _boundary_style_map.insert(key, style);
+        m_boundaryStyleMap.insert(key, style);
         derived_style = style;
     }
     return derived_style;

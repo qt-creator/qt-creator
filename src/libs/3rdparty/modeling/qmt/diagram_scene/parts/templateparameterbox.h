@@ -61,11 +61,11 @@ private:
 
 private:
 
-    QList<QString> _template_parameters;
+    QList<QString> m_templateParameters;
 
-    bool _break_lines;
+    bool m_breakLines;
 
-    QGraphicsSimpleTextItem *_parameters_text;
+    QGraphicsSimpleTextItem *m_parametersText;
 };
 
 } // namespace qmt

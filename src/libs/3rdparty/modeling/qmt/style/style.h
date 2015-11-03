@@ -58,71 +58,71 @@ public:
 
 public:
 
-    Type getType() const { return _type; }
+    Type getType() const { return m_type; }
 
-    QPen getLinePen() const { return _line_pen; }
+    QPen getLinePen() const { return m_linePen; }
 
     void setLinePen(const QPen &pen);
 
-    QPen getOuterLinePen() const { return _outer_line_pen; }
+    QPen getOuterLinePen() const { return m_outerLinePen; }
 
     void setOuterLinePen(const QPen &pen);
 
-    QPen getInnerLinePen() const { return _inner_line_pen; }
+    QPen getInnerLinePen() const { return m_innerLinePen; }
 
     void setInnerLinePen(const QPen &pen);
 
-    QPen getExtraLinePen() const { return _extra_line_pen; }
+    QPen getExtraLinePen() const { return m_extraLinePen; }
 
     void setExtraLinePen(const QPen &pen);
 
-    QBrush getTextBrush() const { return _text_brush; }
+    QBrush getTextBrush() const { return m_textBrush; }
 
     void setTextBrush(const QBrush &brush);
 
-    QBrush getFillBrush() const { return _fill_brush; }
+    QBrush getFillBrush() const { return m_fillBrush; }
 
     void setFillBrush(const QBrush &brush);
 
-    QBrush getExtraFillBrush() const { return _extra_fill_brush; }
+    QBrush getExtraFillBrush() const { return m_extraFillBrush; }
 
     void setExtraFillBrush(const QBrush &brush);
 
-    QFont getNormalFont() const { return _normal_font; }
+    QFont getNormalFont() const { return m_normalFont; }
 
     void setNormalFont(const QFont &font);
 
-    QFont getSmallFont() const { return _small_font; }
+    QFont getSmallFont() const { return m_smallFont; }
 
     void setSmallFont(const QFont &font);
 
-    QFont getHeaderFont() const { return _header_font; }
+    QFont getHeaderFont() const { return m_headerFont; }
 
     void setHeaderFont(const QFont &font);
 
 private:
 
-    Type _type;
+    Type m_type;
 
-    QPen _line_pen;
+    QPen m_linePen;
 
-    QPen _outer_line_pen;
+    QPen m_outerLinePen;
 
-    QPen _inner_line_pen;
+    QPen m_innerLinePen;
 
-    QPen _extra_line_pen;
+    QPen m_extraLinePen;
 
-    QBrush _text_brush;
+    QBrush m_textBrush;
 
-    QBrush _fill_brush;
+    QBrush m_fillBrush;
 
-    QBrush _extra_fill_brush;
+    QBrush m_extraFillBrush;
 
-    QFont _normal_font;
+    QFont m_normalFont;
 
-    QFont _small_font;
+    QFont m_smallFont;
 
-    QFont _header_font;
+    QFont m_headerFont;
 
 };
 

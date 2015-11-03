@@ -52,7 +52,7 @@ ProjectIsModifiedException::ProjectIsModifiedException()
 
 ProjectController::ProjectController(QObject *parent)
     : QObject(parent),
-      _is_modified(false)
+      m_isModified(false)
 {
 }
 
@@ -62,29 +62,29 @@ ProjectController::~ProjectController()
 
 void ProjectController::newProject(const QString &file_name)
 {
-    _project.reset(new Project());
+    m_project.reset(new Project());
     MPackage *root_package = new MPackage();
     root_package->setName(tr("Model"));
-    _project->setRootPackage(root_package);
-    _project->setFileName(file_name);
-    _is_modified = false;
-    emit fileNameChanged(_project->getFileName());
+    m_project->setRootPackage(root_package);
+    m_project->setFileName(file_name);
+    m_isModified = false;
+    emit fileNameChanged(m_project->getFileName());
     emit changed();
 }
 
 void ProjectController::setFileName(const QString &file_name)
 {
-    if (file_name != _project->getFileName()) {
-        _project->setFileName(file_name);
+    if (file_name != m_project->getFileName()) {
+        m_project->setFileName(file_name);
         setModified();
-        emit fileNameChanged(_project->getFileName());
+        emit fileNameChanged(m_project->getFileName());
     }
 }
 
 void ProjectController::setModified()
 {
-    if (!_is_modified) {
-        _is_modified = true;
+    if (!m_isModified) {
+        m_isModified = true;
         emit changed();
     }
 }
@@ -94,23 +94,23 @@ void ProjectController::load()
     if (isModified()) {
         throw ProjectIsModifiedException();
     }
-    if (!_project->hasFileName()) {
+    if (!m_project->hasFileName()) {
         throw NoFileNameException();
     }
     ProjectSerializer serializer;
-    serializer.load(_project->getFileName(), _project.data());
-    _is_modified = false;
+    serializer.load(m_project->getFileName(), m_project.data());
+    m_isModified = false;
     emit changed();
 }
 
 void ProjectController::save()
 {
-    if (!_project->hasFileName()) {
+    if (!m_project->hasFileName()) {
         throw NoFileNameException();
     }
     ProjectSerializer serializer;
-    serializer.save(_project->getFileName(), _project.data());
-    _is_modified = false;
+    serializer.save(m_project->getFileName(), m_project.data());
+    m_isModified = false;
     emit changed();
 }
 

@@ -53,9 +53,9 @@
 namespace qmt {
 
 AlignOnRasterVisitor::AlignOnRasterVisitor()
-    : _diagram_controller(0),
-      _scene_inspector(0),
-      _diagram(0)
+    : m_diagramController(0),
+      m_sceneInspector(0),
+      m_diagram(0)
 {
 }
 
@@ -65,17 +65,17 @@ AlignOnRasterVisitor::~AlignOnRasterVisitor()
 
 void AlignOnRasterVisitor::setDiagramController(DiagramController *diagram_controller)
 {
-    _diagram_controller = diagram_controller;
+    m_diagramController = diagram_controller;
 }
 
 void AlignOnRasterVisitor::setSceneInspector(ISceneInspector *scene_inspector)
 {
-    _scene_inspector = scene_inspector;
+    m_sceneInspector = scene_inspector;
 }
 
 void AlignOnRasterVisitor::setDiagram(MDiagram *diagram)
 {
-    _diagram = diagram;
+    m_diagram = diagram;
 }
 
 void AlignOnRasterVisitor::visitDElement(DElement *element)
@@ -87,11 +87,11 @@ void AlignOnRasterVisitor::visitDElement(DElement *element)
 
 void AlignOnRasterVisitor::visitDObject(DObject *object)
 {
-    IResizable *resizable = _scene_inspector->getResizable(object, _diagram);
+    IResizable *resizable = m_sceneInspector->getResizable(object, m_diagram);
     if (resizable) {
         resizable->alignItemSizeToRaster(IResizable::SIDE_RIGHT_OR_BOTTOM, IResizable::SIDE_RIGHT_OR_BOTTOM, 2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
     }
-    IMoveable *moveable = _scene_inspector->getMoveable(object, _diagram);
+    IMoveable *moveable = m_sceneInspector->getMoveable(object, m_diagram);
     if (moveable) {
         moveable->alignItemPositionToRaster(RASTER_WIDTH, RASTER_HEIGHT);
     }
@@ -144,7 +144,7 @@ void AlignOnRasterVisitor::visitDAssociation(DAssociation *association)
 
 void AlignOnRasterVisitor::visitDAnnotation(DAnnotation *annotation)
 {
-    IMoveable *moveable = _scene_inspector->getMoveable(annotation, _diagram);
+    IMoveable *moveable = m_sceneInspector->getMoveable(annotation, m_diagram);
     if (moveable) {
         moveable->alignItemPositionToRaster(RASTER_WIDTH, RASTER_HEIGHT);
     }
@@ -152,11 +152,11 @@ void AlignOnRasterVisitor::visitDAnnotation(DAnnotation *annotation)
 
 void AlignOnRasterVisitor::visitDBoundary(DBoundary *boundary)
 {
-    IResizable *resizable = _scene_inspector->getResizable(boundary, _diagram);
+    IResizable *resizable = m_sceneInspector->getResizable(boundary, m_diagram);
     if (resizable) {
         resizable->alignItemSizeToRaster(IResizable::SIDE_RIGHT_OR_BOTTOM, IResizable::SIDE_RIGHT_OR_BOTTOM, 2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
     }
-    IMoveable *moveable = _scene_inspector->getMoveable(boundary, _diagram);
+    IMoveable *moveable = m_sceneInspector->getMoveable(boundary, m_diagram);
     if (moveable) {
         moveable->alignItemPositionToRaster(RASTER_WIDTH, RASTER_HEIGHT);
     }

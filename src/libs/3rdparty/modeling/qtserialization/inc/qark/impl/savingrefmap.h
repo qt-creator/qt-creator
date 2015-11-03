@@ -47,8 +47,8 @@ class SavingRefMap {
 public:
 
     SavingRefMap()
-        : _references(),
-          _next_ref(1)
+        : m_references(),
+          m_nextRef(1)
     {
     }
 
@@ -88,8 +88,8 @@ private:
 
 private:
 
-    map_type _references;
-    ObjectId _next_ref;
+    map_type m_references;
+    ObjectId m_nextRef;
 };
 
 }

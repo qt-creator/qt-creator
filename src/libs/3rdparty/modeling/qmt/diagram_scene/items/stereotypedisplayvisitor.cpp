@@ -44,11 +44,11 @@ namespace qmt {
 
 StereotypeDisplayVisitor::StereotypeDisplayVisitor()
     : DConstVoidVisitor(),
-      _model_controller(0),
-      _stereotype_controller(0),
-      _stereotype_display(DObject::STEREOTYPE_NONE),
-      _stereotype_icon_element(StereotypeIcon::ELEMENT_ANY),
-      _stereotype_smart_display(DObject::STEREOTYPE_DECORATION)
+      m_modelController(0),
+      m_stereotypeController(0),
+      m_stereotypeDisplay(DObject::STEREOTYPE_NONE),
+      m_stereotypeIconElement(StereotypeIcon::ELEMENT_ANY),
+      m_stereotypeSmartDisplay(DObject::STEREOTYPE_DECORATION)
 {
 }
 
@@ -59,17 +59,17 @@ StereotypeDisplayVisitor::~StereotypeDisplayVisitor()
 
 void StereotypeDisplayVisitor::setModelController(ModelController *model_controller)
 {
-    _model_controller = model_controller;
+    m_modelController = model_controller;
 }
 
 void StereotypeDisplayVisitor::setStereotypeController(StereotypeController *stereotype_controller)
 {
-    _stereotype_controller = stereotype_controller;
+    m_stereotypeController = stereotype_controller;
 }
 
 StereotypeIcon::Display StereotypeDisplayVisitor::getStereotypeIconDisplay() const
 {
-    switch (_stereotype_display) {
+    switch (m_stereotypeDisplay) {
     case DObject::STEREOTYPE_NONE:
         return StereotypeIcon::DISPLAY_NONE;
     case DObject::STEREOTYPE_LABEL:
@@ -88,12 +88,12 @@ StereotypeIcon::Display StereotypeDisplayVisitor::getStereotypeIconDisplay() con
 void StereotypeDisplayVisitor::visitDObject(const DObject *object)
 {
     DObject::StereotypeDisplay stereotype_display = object->getStereotypeDisplay();
-    _stereotype_icon_id = _stereotype_controller->findStereotypeIconId(_stereotype_icon_element, object->getStereotypes());
+    m_stereotypeIconId = m_stereotypeController->findStereotypeIconId(m_stereotypeIconElement, object->getStereotypes());
 
-    if (_stereotype_icon_id.isEmpty() && stereotype_display == DObject::STEREOTYPE_ICON) {
+    if (m_stereotypeIconId.isEmpty() && stereotype_display == DObject::STEREOTYPE_ICON) {
         stereotype_display = DObject::STEREOTYPE_LABEL;
-    } else if (!_stereotype_icon_id.isEmpty() && stereotype_display == DObject::STEREOTYPE_SMART) {
-        StereotypeIcon stereotype_icon = _stereotype_controller->findStereotypeIcon(_stereotype_icon_id);
+    } else if (!m_stereotypeIconId.isEmpty() && stereotype_display == DObject::STEREOTYPE_SMART) {
+        StereotypeIcon stereotype_icon = m_stereotypeController->findStereotypeIcon(m_stereotypeIconId);
         StereotypeIcon::Display icon_display = stereotype_icon.getDisplay();
         switch (icon_display) {
         case StereotypeIcon::DISPLAY_NONE:
@@ -109,62 +109,62 @@ void StereotypeDisplayVisitor::visitDObject(const DObject *object)
             stereotype_display = DObject::STEREOTYPE_ICON;
             break;
         case StereotypeIcon::DISPLAY_SMART:
-            stereotype_display = _stereotype_smart_display;
+            stereotype_display = m_stereotypeSmartDisplay;
             break;
         }
     }
     if (stereotype_display == DObject::STEREOTYPE_SMART) {
         stereotype_display = DObject::STEREOTYPE_LABEL;
     }
-    if (stereotype_display == DObject::STEREOTYPE_ICON && _shape_icon_id.isEmpty()) {
-        _shape_icon_id = _stereotype_icon_id;
+    if (stereotype_display == DObject::STEREOTYPE_ICON && m_shapeIconId.isEmpty()) {
+        m_shapeIconId = m_stereotypeIconId;
     }
-    _stereotype_display = stereotype_display;
+    m_stereotypeDisplay = stereotype_display;
 }
 
 void StereotypeDisplayVisitor::visitDPackage(const DPackage *package)
 {
-    _stereotype_icon_element = StereotypeIcon::ELEMENT_PACKAGE;
-    _stereotype_smart_display = DObject::STEREOTYPE_DECORATION;
+    m_stereotypeIconElement = StereotypeIcon::ELEMENT_PACKAGE;
+    m_stereotypeSmartDisplay = DObject::STEREOTYPE_DECORATION;
     visitDObject(package);
 }
 
 void StereotypeDisplayVisitor::visitDClass(const DClass *klass)
 {
-    _stereotype_icon_element = StereotypeIcon::ELEMENT_CLASS;
-    MClass *model_klass = _model_controller->findObject<MClass>(klass->getModelUid());
+    m_stereotypeIconElement = StereotypeIcon::ELEMENT_CLASS;
+    MClass *model_klass = m_modelController->findObject<MClass>(klass->getModelUid());
     bool has_members = false;
     if (!model_klass->getMembers().isEmpty() && klass->getShowAllMembers()) {
         has_members = true;
     }
-    _stereotype_smart_display = has_members ? DObject::STEREOTYPE_DECORATION : DObject::STEREOTYPE_ICON;
+    m_stereotypeSmartDisplay = has_members ? DObject::STEREOTYPE_DECORATION : DObject::STEREOTYPE_ICON;
     visitDObject(klass);
 }
 
 void StereotypeDisplayVisitor::visitDComponent(const DComponent *component)
 {
-    _stereotype_icon_element = StereotypeIcon::ELEMENT_COMPONENT;
-    _stereotype_smart_display = DObject::STEREOTYPE_ICON;
+    m_stereotypeIconElement = StereotypeIcon::ELEMENT_COMPONENT;
+    m_stereotypeSmartDisplay = DObject::STEREOTYPE_ICON;
     visitDObject(component);
 }
 
 void StereotypeDisplayVisitor::visitDDiagram(const DDiagram *diagram)
 {
-    _stereotype_icon_element = StereotypeIcon::ELEMENT_DIAGRAM;
-    _stereotype_smart_display = DObject::STEREOTYPE_DECORATION;
+    m_stereotypeIconElement = StereotypeIcon::ELEMENT_DIAGRAM;
+    m_stereotypeSmartDisplay = DObject::STEREOTYPE_DECORATION;
     visitDObject(diagram);
 }
 
 void StereotypeDisplayVisitor::visitDItem(const DItem *item)
 {
-    _stereotype_icon_element = StereotypeIcon::ELEMENT_ITEM;
-    _stereotype_smart_display = DObject::STEREOTYPE_ICON;
+    m_stereotypeIconElement = StereotypeIcon::ELEMENT_ITEM;
+    m_stereotypeSmartDisplay = DObject::STEREOTYPE_ICON;
     visitDObject(item);
-    if (_stereotype_icon_id.isEmpty() && !item->getShape().isEmpty()) {
-        _shape_icon_id = _stereotype_controller->findStereotypeIconId(StereotypeIcon::ELEMENT_ITEM, QStringList() << item->getShape());
+    if (m_stereotypeIconId.isEmpty() && !item->getShape().isEmpty()) {
+        m_shapeIconId = m_stereotypeController->findStereotypeIconId(StereotypeIcon::ELEMENT_ITEM, QStringList() << item->getShape());
     }
-    if (_shape_icon_id.isEmpty() && !item->getVariety().isEmpty()) {
-        _shape_icon_id = _stereotype_controller->findStereotypeIconId(StereotypeIcon::ELEMENT_ITEM, QStringList() << item->getVariety());
+    if (m_shapeIconId.isEmpty() && !item->getVariety().isEmpty()) {
+        m_shapeIconId = m_stereotypeController->findStereotypeIconId(StereotypeIcon::ELEMENT_ITEM, QStringList() << item->getVariety());
     }
 }
 

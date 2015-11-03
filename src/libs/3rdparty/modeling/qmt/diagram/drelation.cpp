@@ -37,13 +37,13 @@
 namespace qmt {
 
 DRelation::IntermediatePoint::IntermediatePoint(const QPointF &pos)
-    : _pos(pos)
+    : m_pos(pos)
 {
 }
 
 void DRelation::IntermediatePoint::setPos(const QPointF &pos)
 {
-    _pos = pos;
+    m_pos = pos;
 }
 
 bool operator==(const DRelation::IntermediatePoint &lhs, const DRelation::IntermediatePoint &rhs)
@@ -54,9 +54,9 @@ bool operator==(const DRelation::IntermediatePoint &lhs, const DRelation::Interm
 
 DRelation::DRelation()
     : DElement(),
-      _model_uid(Uid::getInvalidUid()),
-      _end_a_uid(Uid::getInvalidUid()),
-      _end_b_uid(Uid::getInvalidUid())
+      m_modelUid(Uid::getInvalidUid()),
+      m_endAUid(Uid::getInvalidUid()),
+      m_endBUid(Uid::getInvalidUid())
 {
 }
 
@@ -66,32 +66,32 @@ DRelation::~DRelation()
 
 void DRelation::setModelUid(const Uid &uid)
 {
-    _model_uid = uid;
+    m_modelUid = uid;
 }
 
 void DRelation::setStereotypes(const QList<QString> &stereotypes)
 {
-    _stereotypes = stereotypes;
+    m_stereotypes = stereotypes;
 }
 
 void DRelation::setEndA(const Uid &uid)
 {
-    _end_a_uid = uid;
+    m_endAUid = uid;
 }
 
 void DRelation::setEndB(const Uid &uid)
 {
-    _end_b_uid = uid;
+    m_endBUid = uid;
 }
 
 void DRelation::setName(const QString &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 void DRelation::setIntermediatePoints(const QList<DRelation::IntermediatePoint> &intermediate_points)
 {
-    _intermediate_points = intermediate_points;
+    m_intermediatePoints = intermediate_points;
 }
 
 }

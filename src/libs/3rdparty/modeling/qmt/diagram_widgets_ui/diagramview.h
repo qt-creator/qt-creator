@@ -69,7 +69,7 @@ protected:
 
 private:
 
-    QPointer<DiagramSceneModel> _diagram_scene_model;
+    QPointer<DiagramSceneModel> m_diagramSceneModel;
 
 };
 

@@ -47,10 +47,10 @@ class AlignButtonsItem::AlignButtonItem :
 public:
     AlignButtonItem(IAlignable::AlignType align_type, const QString &identifier, IAlignable *alignable, QGraphicsItem *parent)
         : QGraphicsRectItem(parent),
-          _align_type(align_type),
-          _identifier(identifier),
-          _alignable(alignable),
-          _pixmap_item(new QGraphicsPixmapItem(this))
+          m_alignType(align_type),
+          m_identifier(identifier),
+          m_alignable(alignable),
+          m_pixmapItem(new QGraphicsPixmapItem(this))
     {
         setBrush(QBrush(QColor(192, 192, 192)));
         setPen(QPen(QColor(64, 64, 64)));
@@ -58,7 +58,7 @@ public:
 
 public:
 
-    QString getIdentifier() const { return _identifier; }
+    QString getIdentifier() const { return m_identifier; }
 
 public:
 
@@ -83,7 +83,7 @@ public:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     {
         if (contains(event->pos())) {
-            _alignable->align(_align_type, _identifier);
+            m_alignable->align(m_alignType, m_identifier);
         }
     }
 
@@ -92,32 +92,32 @@ public:
     void setPixmap(const QPixmap &pixmap)
     {
         setRect(0.0, 0.0, pixmap.width() + 2 * INNER_BORDER, pixmap.height() + 2 * INNER_BORDER);
-        _pixmap_item->setPos(INNER_BORDER, INNER_BORDER);
-        _pixmap_item->setPixmap(pixmap);
+        m_pixmapItem->setPos(INNER_BORDER, INNER_BORDER);
+        m_pixmapItem->setPixmap(pixmap);
     }
 
 private:
 
-    IAlignable::AlignType _align_type;
+    IAlignable::AlignType m_alignType;
 
-    QString _identifier;
+    QString m_identifier;
 
-    IAlignable *_alignable;
+    IAlignable *m_alignable;
 
-    QGraphicsPixmapItem *_pixmap_item;
+    QGraphicsPixmapItem *m_pixmapItem;
 
 };
 
 
 AlignButtonsItem::AlignButtonsItem(IAlignable *alignable, QGraphicsItem *parent)
     : QGraphicsItem(parent),
-      _alignable(alignable)
+      m_alignable(alignable)
 {
 }
 
 AlignButtonsItem::~AlignButtonsItem()
 {
-    qDeleteAll(_align_items);
+    qDeleteAll(m_alignItems);
 }
 
 QRectF AlignButtonsItem::boundingRect() const
@@ -134,13 +134,13 @@ void AlignButtonsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
 void AlignButtonsItem::clear()
 {
-    qDeleteAll(_align_items);
-    _align_items.clear();
+    qDeleteAll(m_alignItems);
+    m_alignItems.clear();
 }
 
 void AlignButtonsItem::addButton(IAlignable::AlignType align_type, const QString &identifier, qreal pos)
 {
-    AlignButtonItem *item = new AlignButtonItem(align_type, identifier, _alignable, this);
+    AlignButtonItem *item = new AlignButtonItem(align_type, identifier, m_alignable, this);
     switch (align_type) {
     case IAlignable::ALIGN_LEFT:
     {
@@ -190,7 +190,7 @@ void AlignButtonsItem::addButton(IAlignable::AlignType align_type, const QString
         QMT_CHECK(false);
         break;
     }
-    _align_items.append(item);
+    m_alignItems.append(item);
 }
 
 }

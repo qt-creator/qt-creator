@@ -41,12 +41,12 @@ class Exception
 public:
     Exception(const QString &err_msg);
 
-    QString getErrorMsg() const { return _error_message; }
+    QString getErrorMsg() const { return m_errorMessage; }
 
-    void setErrorMsg(const QString &err_msg) { _error_message = err_msg; }
+    void setErrorMsg(const QString &err_msg) { m_errorMessage = err_msg; }
 
 private:
-    QString _error_message;
+    QString m_errorMessage;
 };
 
 

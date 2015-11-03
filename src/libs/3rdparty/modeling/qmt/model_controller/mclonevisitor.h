@@ -44,7 +44,7 @@ class QMT_EXPORT MCloneVisitor :
 public:
     MCloneVisitor();
 
-    MElement *getCloned() const { return _cloned; }
+    MElement *getCloned() const { return m_cloned; }
 
     void visitMElement(const MElement *element);
 
@@ -71,7 +71,7 @@ public:
     void visitMAssociation(const MAssociation *association);
 
 private:
-    MElement *_cloned;
+    MElement *m_cloned;
 };
 
 class QMT_EXPORT MCloneDeepVisitor :
@@ -80,7 +80,7 @@ class QMT_EXPORT MCloneDeepVisitor :
 public:
     MCloneDeepVisitor();
 
-    MElement *getCloned() const { return _cloned; }
+    MElement *getCloned() const { return m_cloned; }
 
     void visitMElement(const MElement *element);
 
@@ -107,7 +107,7 @@ public:
     void visitMAssociation(const MAssociation *association);
 
 private:
-    MElement *_cloned;
+    MElement *m_cloned;
 };
 
 }

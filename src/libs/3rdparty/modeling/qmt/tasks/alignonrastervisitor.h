@@ -86,11 +86,11 @@ public:
 
 private:
 
-    DiagramController *_diagram_controller;
+    DiagramController *m_diagramController;
 
-    ISceneInspector *_scene_inspector;
+    ISceneInspector *m_sceneInspector;
 
-    MDiagram *_diagram;
+    MDiagram *m_diagram;
 
 };
 

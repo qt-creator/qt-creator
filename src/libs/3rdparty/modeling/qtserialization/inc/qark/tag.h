@@ -42,23 +42,23 @@ namespace qark {
 class Tag {
 public:
     explicit Tag(const QString &qualified_name)
-        : _qualified_name(qualified_name)
+        : m_qualifiedName(qualified_name)
     {
     }
 
     Tag(const QString &qualified_name, const Parameters &parameters)
-        : _qualified_name(qualified_name),
-          _parameters(parameters)
+        : m_qualifiedName(qualified_name),
+          m_parameters(parameters)
     {
     }
 
-    const QString &getQualifiedName() const { return _qualified_name; }
+    const QString &getQualifiedName() const { return m_qualifiedName; }
 
-    Parameters getParameters() const { return _parameters; }
+    Parameters getParameters() const { return m_parameters; }
 
 private:
-    QString _qualified_name;
-    Parameters _parameters;
+    QString m_qualifiedName;
+    Parameters m_parameters;
 };
 
 
@@ -69,20 +69,20 @@ class Object :
 public:
     Object(const QString &qualified_name, T *object)
         : Tag(qualified_name),
-          _object(object)
+          m_object(object)
     {
     }
 
     Object(const QString &qualified_name, T *object, const Parameters &parameters)
         : Tag(qualified_name, parameters),
-          _object(object)
+          m_object(object)
     {
     }
 
-    T *getObject() const { return _object; }
+    T *getObject() const { return m_object; }
 
 private:
-    T *_object;
+    T *m_object;
 };
 
 
@@ -138,14 +138,14 @@ public:
     }
 
     explicit End(const Parameters &parameters)
-        : _parameters(parameters)
+        : m_parameters(parameters)
     {
     }
 
-    Parameters getParameters() const { return _parameters; }
+    Parameters getParameters() const { return m_parameters; }
 
 private:
-    Parameters _parameters;
+    Parameters m_parameters;
 };
 
 inline End end()

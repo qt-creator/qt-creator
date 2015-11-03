@@ -38,7 +38,7 @@ namespace qmt {
 
 DItem::DItem()
     : DObject(),
-      _shape_editable(true)
+      m_shapeEditable(true)
 {
 }
 
@@ -48,17 +48,17 @@ DItem::~DItem()
 
 void DItem::setVariety(const QString &variety)
 {
-    _variety = variety;
+    m_variety = variety;
 }
 
 void DItem::setShape(const QString &shape)
 {
-    _shape = shape;
+    m_shape = shape;
 }
 
 void DItem::setShapeEditable(bool shape_editable)
 {
-    _shape_editable = shape_editable;
+    m_shapeEditable = shape_editable;
 }
 
 void DItem::accept(DVisitor *visitor)

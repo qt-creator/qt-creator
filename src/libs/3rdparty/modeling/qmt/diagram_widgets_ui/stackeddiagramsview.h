@@ -94,9 +94,9 @@ private:
 
 private:
 
-    DiagramsManager *_diagrams_manager;
+    DiagramsManager *m_diagramsManager;
 
-    QHash<Uid, DiagramView *> _diagram_views;
+    QHash<Uid, DiagramView *> m_diagramViews;
 };
 
 }

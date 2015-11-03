@@ -38,16 +38,16 @@ namespace qmt {
 
 MRelation::MRelation()
     : MElement(),
-      _end_a_uid(Uid::getInvalidUid()),
-      _end_b_uid(Uid::getInvalidUid())
+      m_endAUid(Uid::getInvalidUid()),
+      m_endBUid(Uid::getInvalidUid())
 {
 }
 
 MRelation::MRelation(const MRelation &rhs)
     : MElement(rhs),
-      _name(rhs._name),
-      _end_a_uid(rhs._end_a_uid),
-      _end_b_uid(rhs._end_b_uid)
+      m_name(rhs.m_name),
+      m_endAUid(rhs.m_endAUid),
+      m_endBUid(rhs.m_endBUid)
 {
 }
 
@@ -59,26 +59,26 @@ MRelation &MRelation::operator =(const MRelation &rhs)
 {
     if (this != &rhs) {
         MElement::operator =(rhs);
-        _name = rhs._name;
-        _end_a_uid = rhs._end_a_uid;
-        _end_b_uid = rhs._end_b_uid;
+        m_name = rhs.m_name;
+        m_endAUid = rhs.m_endAUid;
+        m_endBUid = rhs.m_endBUid;
     }
     return *this;
 }
 
 void MRelation::setName(const QString &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 void MRelation::setEndA(const Uid &uid)
 {
-    _end_a_uid = uid;
+    m_endAUid = uid;
 }
 
 void MRelation::setEndB(const Uid &uid)
 {
-    _end_b_uid = uid;
+    m_endBUid = uid;
 }
 
 void MRelation::accept(MVisitor *visitor)

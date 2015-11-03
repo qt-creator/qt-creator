@@ -33,9 +33,9 @@
 namespace qmt {
 
 StyledRelation::StyledRelation(const DRelation *relation, const DObject *end_a, const DObject *end_b)
-    : _relation(relation),
-      _end_a(end_a),
-      _end_b(end_b)
+    : m_relation(relation),
+      m_endA(end_a),
+      m_endB(end_b)
 {
 
 }

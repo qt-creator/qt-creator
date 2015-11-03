@@ -36,7 +36,7 @@ namespace qmt {
 
 FindRootDiagramVisitor::FindRootDiagramVisitor()
     : MVoidVisitor(),
-      _diagram(0)
+      m_diagram(0)
 {
 }
 
@@ -51,7 +51,7 @@ void FindRootDiagramVisitor::visitMObject(MObject *object)
         if (child.hasTarget()) {
             MDiagram *diagram = dynamic_cast<MDiagram *>(child.getTarget());
             if (diagram) {
-                _diagram = diagram;
+                m_diagram = diagram;
                 return;
             }
         }
@@ -60,7 +60,7 @@ void FindRootDiagramVisitor::visitMObject(MObject *object)
     foreach(const Handle<MObject> &child, object->getChildren()) {
         if (child.hasTarget()) {
             child.getTarget()->accept(this);
-            if (_diagram) {
+            if (m_diagram) {
                 return;
             }
         }

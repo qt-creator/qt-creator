@@ -94,15 +94,15 @@ private:
 
 private:
 
-    CustomIconItem *_custom_icon;
+    CustomIconItem *m_customIcon;
 
-    QGraphicsPolygonItem *_shape;
+    QGraphicsPolygonItem *m_shape;
 
-    QGraphicsSimpleTextItem *_package_name;
+    QGraphicsSimpleTextItem *m_packageName;
 
-    ContextLabelItem *_context_label;
+    ContextLabelItem *m_contextLabel;
 
-    RelationStarter *_relation_starter;
+    RelationStarter *m_relationStarter;
 
 };
 

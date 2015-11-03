@@ -33,19 +33,19 @@
 namespace qmt {
 
 MClassMember::MClassMember(MemberType member_type)
-    : _visibility(VISIBILITY_UNDEFINED),
-      _member_type(member_type)
+    : m_visibility(VISIBILITY_UNDEFINED),
+      m_memberType(member_type)
 {
 }
 
 MClassMember::MClassMember(const MClassMember &rhs)
-    : _uid(rhs._uid),
-      _stereotypes(rhs._stereotypes),
-      _group(rhs._group),
-      _declaration(rhs._declaration),
-      _visibility(rhs._visibility),
-      _member_type(rhs._member_type),
-      _properties(rhs._properties)
+    : m_uid(rhs.m_uid),
+      m_stereotypes(rhs.m_stereotypes),
+      m_group(rhs.m_group),
+      m_declaration(rhs.m_declaration),
+      m_visibility(rhs.m_visibility),
+      m_memberType(rhs.m_memberType),
+      m_properties(rhs.m_properties)
 {
 }
 
@@ -56,55 +56,55 @@ MClassMember::~MClassMember()
 MClassMember &MClassMember::operator=(const MClassMember &rhs)
 {
     if (this != &rhs) {
-        _uid = rhs._uid;
-        _stereotypes = rhs._stereotypes;
-        _group = rhs._group;
-        _declaration = rhs._declaration;
-        _visibility = rhs._visibility;
-        _member_type = rhs._member_type;
-        _properties = rhs._properties;
+        m_uid = rhs.m_uid;
+        m_stereotypes = rhs.m_stereotypes;
+        m_group = rhs.m_group;
+        m_declaration = rhs.m_declaration;
+        m_visibility = rhs.m_visibility;
+        m_memberType = rhs.m_memberType;
+        m_properties = rhs.m_properties;
     }
     return *this;
 }
 
 void MClassMember::setUid(const Uid &uid)
 {
-    _uid = uid;
+    m_uid = uid;
 }
 
 void MClassMember::renewUid()
 {
-    _uid.renew();
+    m_uid.renew();
 }
 
 void MClassMember::setStereotypes(const QList<QString> &stereotypes)
 {
-    _stereotypes = stereotypes;
+    m_stereotypes = stereotypes;
 }
 
 void MClassMember::setGroup(const QString &group)
 {
-    _group = group;
+    m_group = group;
 }
 
 void MClassMember::setDeclaration(const QString &declaration)
 {
-    _declaration = declaration;
+    m_declaration = declaration;
 }
 
 void MClassMember::setVisibility(MClassMember::Visibility visibility)
 {
-    _visibility = visibility;
+    m_visibility = visibility;
 }
 
 void MClassMember::setMemberType(MClassMember::MemberType member_type)
 {
-    _member_type = member_type;
+    m_memberType = member_type;
 }
 
 void MClassMember::setProperties(Properties properties)
 {
-    _properties = properties;
+    m_properties = properties;
 }
 
 bool operator==(const MClassMember &lhs, const MClassMember &rhs)

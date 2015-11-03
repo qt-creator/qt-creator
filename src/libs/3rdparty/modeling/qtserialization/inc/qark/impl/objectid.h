@@ -37,18 +37,18 @@ namespace impl {
 
 class ObjectId {
 public:
-    explicit ObjectId(int id = -1) : _id(id) { }
+    explicit ObjectId(int id = -1) : m_id(id) { }
 
-    int get() const { return _id; }
+    int get() const { return m_id; }
 
-    void set(int id) { _id = id; }
+    void set(int id) { m_id = id; }
 
-    bool isValid() const { return _id >= 0; }
+    bool isValid() const { return m_id >= 0; }
 
-    ObjectId operator++(int) { ObjectId id(*this); ++_id; return id; }
+    ObjectId operator++(int) { ObjectId id(*this); ++m_id; return id; }
 
 private:
-    int _id;
+    int m_id;
 };
 
 inline bool operator<(const ObjectId &lhs, const ObjectId &rhs)

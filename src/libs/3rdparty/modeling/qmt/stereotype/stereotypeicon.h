@@ -83,7 +83,7 @@ public:
 
 public:
 
-    QString getId() const { return _id; }
+    QString getId() const { return m_id; }
 
     void setId(const QString &id);
 
@@ -91,81 +91,81 @@ public:
 
     void setTitle(const QString &title);
 
-    QSet<Element> getElements() const { return _elements; }
+    QSet<Element> getElements() const { return m_elements; }
 
     void setElements(const QSet<Element> &elements);
 
-    QSet<QString> getStereotypes() const { return _stereotypes; }
+    QSet<QString> getStereotypes() const { return m_stereotypes; }
 
     void setStereotypes(const QSet<QString> &stereotypes);
 
-    qreal getWidth() const { return _width; }
+    qreal getWidth() const { return m_width; }
 
     void setWidth(qreal width);
 
-    qreal getHeight() const { return _height; }
+    qreal getHeight() const { return m_height; }
 
     void setHeight(qreal height);
 
-    bool hasMinWidth() const { return _min_width > 0; }
+    bool hasMinWidth() const { return m_minWidth > 0; }
 
-    qreal getMinWidth() const { return _min_width; }
+    qreal getMinWidth() const { return m_minWidth; }
 
     void setMinWidth(qreal min_width);
 
-    bool hasMinHeight() const { return _min_height > 0; }
+    bool hasMinHeight() const { return m_minHeight > 0; }
 
-    qreal getMinHeight() const { return _min_height; }
+    qreal getMinHeight() const { return m_minHeight; }
 
     void setMinHeight(qreal min_height);
 
-    SizeLock getSizeLock() const { return _size_lock; }
+    SizeLock getSizeLock() const { return m_sizeLock; }
 
     void setSizeLock(SizeLock size_lock);
 
-    Display getDisplay() const { return _display; }
+    Display getDisplay() const { return m_display; }
 
     void setDisplay(Display display);
 
-    TextAlignment getTextAlignment() const { return _text_alignment; }
+    TextAlignment getTextAlignment() const { return m_textAlignment; }
 
     void setTextAlignment(TextAlignment text_alignment);
 
-    QColor getBaseColor() const { return _base_color; }
+    QColor getBaseColor() const { return m_baseColor; }
 
     void setBaseColor(const QColor &base_color);
 
-    IconShape getIconShape() const { return _icon_shape; }
+    IconShape getIconShape() const { return m_iconShape; }
 
     void setIconShape(const IconShape &icon_shape);
 
 private:
 
-    QString _id;
+    QString m_id;
 
-    QString _title;
+    QString m_title;
 
-    QSet<Element> _elements;
+    QSet<Element> m_elements;
 
-    QSet<QString> _stereotypes;
+    QSet<QString> m_stereotypes;
 
-    qreal _width;
+    qreal m_width;
 
-    qreal _height;
+    qreal m_height;
 
-    qreal _min_width;
+    qreal m_minWidth;
 
-    qreal _min_height;
+    qreal m_minHeight;
 
-    SizeLock _size_lock;
+    SizeLock m_sizeLock;
 
-    Display _display;
+    Display m_display;
 
-    TextAlignment _text_alignment;
+    TextAlignment m_textAlignment;
 
-    QColor _base_color;
+    QColor m_baseColor;
 
-    IconShape _icon_shape;
+    IconShape m_iconShape;
 };
 
 } // namespace qmt

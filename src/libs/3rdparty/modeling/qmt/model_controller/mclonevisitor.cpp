@@ -50,50 +50,50 @@
 namespace qmt {
 
 MCloneVisitor::MCloneVisitor()
-    : _cloned(0)
+    : m_cloned(0)
 {
 }
 
 void MCloneVisitor::visitMElement(const MElement *element)
 {
     Q_UNUSED(element);
-    QMT_CHECK(_cloned);
+    QMT_CHECK(m_cloned);
 }
 
 void MCloneVisitor::visitMObject(const MObject *object)
 {
-    QMT_CHECK(_cloned);
+    QMT_CHECK(m_cloned);
     visitMElement(object);
 }
 
 void MCloneVisitor::visitMPackage(const MPackage *package)
 {
-    if (!_cloned) {
-        _cloned = new MPackage(*package);
+    if (!m_cloned) {
+        m_cloned = new MPackage(*package);
     }
     visitMObject(package);
 }
 
 void MCloneVisitor::visitMClass(const MClass *klass)
 {
-    if (!_cloned) {
-        _cloned = new MClass(*klass);
+    if (!m_cloned) {
+        m_cloned = new MClass(*klass);
     }
     visitMObject(klass);
 }
 
 void MCloneVisitor::visitMComponent(const MComponent *component)
 {
-    if (!_cloned) {
-        _cloned = new MComponent(*component);
+    if (!m_cloned) {
+        m_cloned = new MComponent(*component);
     }
     visitMObject(component);
 }
 
 void MCloneVisitor::visitMDiagram(const MDiagram *diagram)
 {
-    QMT_CHECK(_cloned);
-    MDiagram *cloned = dynamic_cast<MDiagram *>(_cloned);
+    QMT_CHECK(m_cloned);
+    MDiagram *cloned = dynamic_cast<MDiagram *>(m_cloned);
     QMT_CHECK(cloned);
     foreach (const DElement *element, diagram->getDiagramElements()) {
         DCloneDeepVisitor visitor;
@@ -106,67 +106,67 @@ void MCloneVisitor::visitMDiagram(const MDiagram *diagram)
 
 void MCloneVisitor::visitMCanvasDiagram(const MCanvasDiagram *diagram)
 {
-    if (!_cloned) {
-        _cloned = new MCanvasDiagram(*diagram);
+    if (!m_cloned) {
+        m_cloned = new MCanvasDiagram(*diagram);
     }
     visitMDiagram(diagram);
 }
 
 void MCloneVisitor::visitMItem(const MItem *item)
 {
-    if (!_cloned) {
-        _cloned = new MItem(*item);
+    if (!m_cloned) {
+        m_cloned = new MItem(*item);
     }
     visitMObject(item);
 }
 
 void MCloneVisitor::visitMRelation(const MRelation *relation)
 {
-    QMT_CHECK(_cloned);
+    QMT_CHECK(m_cloned);
     visitMElement(relation);
 }
 
 void MCloneVisitor::visitMDependency(const MDependency *dependency)
 {
-    if (!_cloned) {
-        _cloned = new MDependency(*dependency);
+    if (!m_cloned) {
+        m_cloned = new MDependency(*dependency);
     }
     visitMRelation(dependency);
 }
 
 void MCloneVisitor::visitMInheritance(const MInheritance *inheritance)
 {
-    if (!_cloned) {
-        _cloned = new MInheritance(*inheritance);
+    if (!m_cloned) {
+        m_cloned = new MInheritance(*inheritance);
     }
     visitMRelation(inheritance);
 }
 
 void MCloneVisitor::visitMAssociation(const MAssociation *association)
 {
-    if (!_cloned) {
-        _cloned = new MAssociation(*association);
+    if (!m_cloned) {
+        m_cloned = new MAssociation(*association);
     }
     visitMRelation(association);
 }
 
 
 MCloneDeepVisitor::MCloneDeepVisitor()
-    : _cloned(0)
+    : m_cloned(0)
 {
 }
 
 void MCloneDeepVisitor::visitMElement(const MElement *element)
 {
     Q_UNUSED(element);
-    QMT_CHECK(_cloned);
+    QMT_CHECK(m_cloned);
 }
 
 void MCloneDeepVisitor::visitMObject(const MObject *object)
 {
-    QMT_CHECK(_cloned);
+    QMT_CHECK(m_cloned);
     visitMElement(object);
-    MObject *cloned = dynamic_cast<MObject *>(_cloned);
+    MObject *cloned = dynamic_cast<MObject *>(m_cloned);
     QMT_CHECK(cloned);
     foreach (const Handle<MObject> &handle, object->getChildren()) {
         if (handle.hasTarget()) {
@@ -194,32 +194,32 @@ void MCloneDeepVisitor::visitMObject(const MObject *object)
 
 void MCloneDeepVisitor::visitMPackage(const MPackage *package)
 {
-    if (!_cloned) {
-        _cloned = new MPackage(*package);
+    if (!m_cloned) {
+        m_cloned = new MPackage(*package);
     }
     visitMObject(package);
 }
 
 void MCloneDeepVisitor::visitMClass(const MClass *klass)
 {
-    if (!_cloned) {
-        _cloned = new MClass(*klass);
+    if (!m_cloned) {
+        m_cloned = new MClass(*klass);
     }
     visitMObject(klass);
 }
 
 void MCloneDeepVisitor::visitMComponent(const MComponent *component)
 {
-    if (!_cloned) {
-        _cloned = new MComponent(*component);
+    if (!m_cloned) {
+        m_cloned = new MComponent(*component);
     }
     visitMObject(component);
 }
 
 void MCloneDeepVisitor::visitMDiagram(const MDiagram *diagram)
 {
-    QMT_CHECK(_cloned);
-    MDiagram *cloned = dynamic_cast<MDiagram *>(_cloned);
+    QMT_CHECK(m_cloned);
+    MDiagram *cloned = dynamic_cast<MDiagram *>(m_cloned);
     QMT_CHECK(cloned);
     foreach (const DElement *element, diagram->getDiagramElements()) {
         DCloneDeepVisitor visitor;
@@ -232,25 +232,25 @@ void MCloneDeepVisitor::visitMDiagram(const MDiagram *diagram)
 
 void MCloneDeepVisitor::visitMCanvasDiagram(const MCanvasDiagram *diagram)
 {
-    if (!_cloned) {
-        _cloned = new MCanvasDiagram(*diagram);
+    if (!m_cloned) {
+        m_cloned = new MCanvasDiagram(*diagram);
     }
     visitMDiagram(diagram);
 }
 
 void MCloneDeepVisitor::visitMItem(const MItem *item)
 {
-    if (!_cloned) {
-        _cloned = new MItem(*item);
+    if (!m_cloned) {
+        m_cloned = new MItem(*item);
     }
     visitMObject(item);
 }
 
 void MCloneDeepVisitor::visitMRelation(const MRelation *relation)
 {
-    QMT_CHECK(_cloned);
+    QMT_CHECK(m_cloned);
     visitMElement(relation);
-    MRelation *cloned = dynamic_cast<MRelation *>(_cloned);
+    MRelation *cloned = dynamic_cast<MRelation *>(m_cloned);
     QMT_CHECK(cloned);
     cloned->setEndA(relation->getEndA());
     cloned->setEndB(relation->getEndB());
@@ -258,24 +258,24 @@ void MCloneDeepVisitor::visitMRelation(const MRelation *relation)
 
 void MCloneDeepVisitor::visitMDependency(const MDependency *dependency)
 {
-    if (!_cloned) {
-        _cloned = new MDependency(*dependency);
+    if (!m_cloned) {
+        m_cloned = new MDependency(*dependency);
     }
     visitMRelation(dependency);
 }
 
 void MCloneDeepVisitor::visitMInheritance(const MInheritance *inheritance)
 {
-    if (!_cloned) {
-        _cloned = new MInheritance(*inheritance);
+    if (!m_cloned) {
+        m_cloned = new MInheritance(*inheritance);
     }
     visitMRelation(inheritance);
 }
 
 void MCloneDeepVisitor::visitMAssociation(const MAssociation *association)
 {
-    if (!_cloned) {
-        _cloned = new MAssociation(*association);
+    if (!m_cloned) {
+        m_cloned = new MAssociation(*association);
     }
     visitMRelation(association);
 }

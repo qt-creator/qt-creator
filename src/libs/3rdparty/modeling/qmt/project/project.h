@@ -48,27 +48,27 @@ public:
 
     ~Project();
 
-    Uid getUid() const { return _uid; }
+    Uid getUid() const { return m_uid; }
 
     void setUid(const Uid &uid);
 
     bool hasFileName() const;
 
-    QString getFileName() const { return _file_name; }
+    QString getFileName() const { return m_fileName; }
 
     void setFileName(const QString &file_name);
 
-    MPackage *getRootPackage() const { return _root_package; }
+    MPackage *getRootPackage() const { return m_rootPackage; }
 
     void setRootPackage(MPackage *root_package);
 
 private:
 
-    Uid _uid;
+    Uid m_uid;
 
-    QString _file_name;
+    QString m_fileName;
 
-    MPackage *_root_package;
+    MPackage *m_rootPackage;
 };
 
 }

@@ -64,9 +64,9 @@ public:
 
 public:
 
-    DAnnotation *getAnnotation() const { return _annotation; }
+    DAnnotation *getAnnotation() const { return m_annotation; }
 
-    DiagramSceneModel *getDiagramSceneModel() const { return _diagram_scene_model; }
+    DiagramSceneModel *getDiagramSceneModel() const { return m_diagramSceneModel; }
 
 public:
 
@@ -142,23 +142,23 @@ private:
 
 private:
 
-    DAnnotation *_annotation;
+    DAnnotation *m_annotation;
 
-    DiagramSceneModel *_diagram_scene_model;
+    DiagramSceneModel *m_diagramSceneModel;
 
-    bool _secondary_selected;
+    bool m_secondarySelected;
 
-    bool _focus_selected;
+    bool m_focusSelected;
 
-    RectangularSelectionItem *_selection_marker;
+    RectangularSelectionItem *m_selectionMarker;
 
-    QGraphicsRectItem *_no_text_item;
+    QGraphicsRectItem *m_noTextItem;
 
-    AnnotationTextItem *_text_item;
+    AnnotationTextItem *m_textItem;
 
-    bool _on_update;
+    bool m_onUpdate;
 
-    bool _on_changed;
+    bool m_onChanged;
 };
 
 }

@@ -59,7 +59,7 @@ public:
 
     void setTarget(const Uid &target);
 
-    MDependency::Direction getDirection() const { return _direction; }
+    MDependency::Direction getDirection() const { return m_direction; }
 
     void setDirection(MDependency::Direction direction);
 
@@ -71,7 +71,7 @@ public:
 
 private:
 
-    MDependency::Direction _direction;
+    MDependency::Direction m_direction;
 
 };
 

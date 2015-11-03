@@ -37,16 +37,16 @@
 namespace qmt {
 
 MAssociationEnd::MAssociationEnd()
-    : _kind(ASSOCIATION),
-      _navigable(false)
+    : m_kind(ASSOCIATION),
+      m_navigable(false)
 {
 }
 
 MAssociationEnd::MAssociationEnd(const MAssociationEnd &rhs)
-    : _name(rhs._name),
-      _cardinality(rhs._cardinality),
-      _kind(rhs._kind),
-      _navigable(rhs._navigable)
+    : m_name(rhs.m_name),
+      m_cardinality(rhs.m_cardinality),
+      m_kind(rhs.m_kind),
+      m_navigable(rhs.m_navigable)
 {
 }
 
@@ -57,32 +57,32 @@ MAssociationEnd::~MAssociationEnd()
 MAssociationEnd &MAssociationEnd::operator =(const MAssociationEnd &rhs)
 {
     if (this != &rhs) {
-        _name = rhs._name;
-        _cardinality = rhs._cardinality;
-        _kind = rhs._kind;
-        _navigable = rhs._navigable;
+        m_name = rhs.m_name;
+        m_cardinality = rhs.m_cardinality;
+        m_kind = rhs.m_kind;
+        m_navigable = rhs.m_navigable;
     }
     return *this;
 }
 
 void MAssociationEnd::setName(const QString &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 void MAssociationEnd::setCardinality(const QString &cardinality)
 {
-    _cardinality = cardinality;
+    m_cardinality = cardinality;
 }
 
 void MAssociationEnd::setKind(MAssociationEnd::Kind kind)
 {
-    _kind = kind;
+    m_kind = kind;
 }
 
 void MAssociationEnd::setNavigable(bool navigable)
 {
-    _navigable = navigable;
+    m_navigable = navigable;
 }
 
 bool operator==(const MAssociationEnd &lhs, const MAssociationEnd &rhs)
@@ -96,7 +96,7 @@ bool operator==(const MAssociationEnd &lhs, const MAssociationEnd &rhs)
 
 MAssociation::MAssociation()
     : MRelation(),
-      _association_class_uid(Uid::getInvalidUid())
+      m_associationClassUid(Uid::getInvalidUid())
 {
 }
 
@@ -106,17 +106,17 @@ MAssociation::~MAssociation()
 
 void MAssociation::setA(const MAssociationEnd &end)
 {
-    _a = end;
+    m_a = end;
 }
 
 void MAssociation::setB(const MAssociationEnd &end)
 {
-    _b = end;
+    m_b = end;
 }
 
 void MAssociation::setAssociationClassUid(const Uid &uid)
 {
-    _association_class_uid = uid;
+    m_associationClassUid = uid;
 }
 
 void MAssociation::accept(MVisitor *visitor)

@@ -114,11 +114,11 @@ signals:
 
 public:
 
-    ModelController *getModelController() const { return _model_controller; }
+    ModelController *getModelController() const { return m_modelController; }
 
     void setModelController(ModelController *model_controller);
 
-    UndoController *getUndoController() const { return _undo_controller; }
+    UndoController *getUndoController() const { return m_undoController; }
 
     void setUndoController(UndoController *undo_controller);
 
@@ -229,11 +229,11 @@ private:
 
 private:
 
-    ModelController *_model_controller;
+    ModelController *m_modelController;
 
-    UndoController *_undo_controller;
+    UndoController *m_undoController;
 
-    QList<MDiagram *> _all_diagrams;
+    QList<MDiagram *> m_allDiagrams;
 };
 
 }

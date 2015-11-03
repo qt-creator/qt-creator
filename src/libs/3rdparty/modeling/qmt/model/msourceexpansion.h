@@ -54,19 +54,19 @@ public:
 
 public:
 
-    QString getSourceId() const { return _source_id; }
+    QString getSourceId() const { return m_sourceId; }
 
     void setSourceId(const QString &source_id);
 
-    bool isTransient() const { return _transient; }
+    bool isTransient() const { return m_transient; }
 
     void setTransient(bool transient);
 
 private:
 
-    QString _source_id;
+    QString m_sourceId;
 
-    bool _transient;
+    bool m_transient;
 };
 
 }

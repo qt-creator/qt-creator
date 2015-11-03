@@ -36,8 +36,8 @@ namespace qmt {
 
 UndoCommand::UndoCommand(const QString &text)
     : QUndoCommand(text),
-      _can_redo(false),
-      _do_not_merge(false)
+      m_canRedo(false),
+      m_doNotMerge(false)
 {
 }
 
@@ -52,7 +52,7 @@ int UndoCommand::id() const
 
 void UndoCommand::setDoNotMerge(bool do_not_merge)
 {
-    _do_not_merge = do_not_merge;
+    m_doNotMerge = do_not_merge;
 }
 
 bool UndoCommand::mergeWith(const QUndoCommand *other)
@@ -61,7 +61,7 @@ bool UndoCommand::mergeWith(const QUndoCommand *other)
     if (!other_command) {
         return false;
     }
-    if (other_command->_do_not_merge) {
+    if (other_command->m_doNotMerge) {
         return false;
     }
     return mergeWith(other_command);
@@ -76,14 +76,14 @@ bool UndoCommand::mergeWith(const UndoCommand *other)
 
 void UndoCommand::undo()
 {
-    QMT_CHECK(!_can_redo);
-    _can_redo = true;
+    QMT_CHECK(!m_canRedo);
+    m_canRedo = true;
 }
 
 void UndoCommand::redo()
 {
-    QMT_CHECK(_can_redo);
-    _can_redo = false;
+    QMT_CHECK(m_canRedo);
+    m_canRedo = false;
 }
 
 }

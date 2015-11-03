@@ -45,11 +45,11 @@ public:
 
 public:
 
-    bool isValid() const { return _valid; }
+    bool isValid() const { return m_valid; }
 
-    bool atEnd() const { return _pos == _text.length(); }
+    bool atEnd() const { return m_pos == m_text.length(); }
 
-    int getPosition() const { return _pos; }
+    int getPosition() const { return m_pos; }
 
     void setPosition(int pos);
 
@@ -85,28 +85,28 @@ private:
 
 private:
 
-    QString _text;
+    QString m_text;
 
-    bool _valid;
+    bool m_valid;
 
-    int _pos;
+    int m_pos;
 
-    int _last_pos;
+    int m_lastPos;
 
 };
 
 ClassMembersEdit::Cursor::Cursor(const QString &text)
-    : _text(preparse(text)),
-      _valid(true),
-      _pos(0),
-      _last_pos(-1)
+    : m_text(preparse(text)),
+      m_valid(true),
+      m_pos(0),
+      m_lastPos(-1)
 {
 }
 
 void ClassMembersEdit::Cursor::setPosition(int pos)
 {
-    if (_valid) {
-        _pos = pos;
+    if (m_valid) {
+        m_pos = pos;
     }
 }
 
@@ -114,29 +114,29 @@ QString ClassMembersEdit::Cursor::readWord()
 {
     skipWhitespaces();
     QString word;
-    if (_valid && _pos < _text.length()) {
-        _last_pos = _pos;
-        QChar c = _text.at(_pos);
-        ++_pos;
+    if (m_valid && m_pos < m_text.length()) {
+        m_lastPos = m_pos;
+        QChar c = m_text.at(m_pos);
+        ++m_pos;
         if (c.isLetterOrNumber() ||c == QLatin1Char('_')) {
             word = c;
-            while (_valid && _pos < _text.length() && (_text.at(_pos).isLetterOrNumber() || _text.at(_pos) == QLatin1Char('_'))) {
-                word += _text.at(_pos);
-                ++_pos;
+            while (m_valid && m_pos < m_text.length() && (m_text.at(m_pos).isLetterOrNumber() || m_text.at(m_pos) == QLatin1Char('_'))) {
+                word += m_text.at(m_pos);
+                ++m_pos;
             }
         } else {
-            if (c == QLatin1Char('<') && _pos < _text.length() && _text.at(_pos) == QLatin1Char('<')) {
-                ++_pos;
+            if (c == QLatin1Char('<') && m_pos < m_text.length() && m_text.at(m_pos) == QLatin1Char('<')) {
+                ++m_pos;
                 word = QStringLiteral("<<");
-            } else if (c == QLatin1Char('>') && _pos < _text.length() && _text.at(_pos) == QLatin1Char('>')) {
-                ++_pos;
+            } else if (c == QLatin1Char('>') && m_pos < m_text.length() && m_text.at(m_pos) == QLatin1Char('>')) {
+                ++m_pos;
                 word = QStringLiteral(">>");
             } else {
                 word = c;
             }
         }
     } else {
-        _valid = false;
+        m_valid = false;
     }
     return word;
 }
@@ -144,8 +144,8 @@ QString ClassMembersEdit::Cursor::readWord()
 bool ClassMembersEdit::Cursor::skip(const QString &s)
 {
     skipWhitespaces();
-    if (_valid && _pos + s.length() <= _text.length() && s.compare(_text.mid(_pos, s.length()), s, Qt::CaseInsensitive) == 0) {
-        _pos += s.length();
+    if (m_valid && m_pos + s.length() <= m_text.length() && s.compare(m_text.mid(m_pos, s.length()), s, Qt::CaseInsensitive) == 0) {
+        m_pos += s.length();
         return true;
     }
     return false;
@@ -154,47 +154,47 @@ bool ClassMembersEdit::Cursor::skip(const QString &s)
 QString ClassMembersEdit::Cursor::readUntil(const QString &delimiter)
 {
     QString s;
-    while (_valid) {
-        if (_pos >= _text.length() || _text.at(_pos) == QStringLiteral("\n")) {
-            _valid = false;
+    while (m_valid) {
+        if (m_pos >= m_text.length() || m_text.at(m_pos) == QStringLiteral("\n")) {
+            m_valid = false;
             return s;
         }
-        if (_pos + delimiter.length() <= _text.length() && s.compare(_text.mid(_pos, delimiter.length()), delimiter, Qt::CaseInsensitive) == 0) {
-            _pos += delimiter.length();
+        if (m_pos + delimiter.length() <= m_text.length() && s.compare(m_text.mid(m_pos, delimiter.length()), delimiter, Qt::CaseInsensitive) == 0) {
+            m_pos += delimiter.length();
             return s;
         }
-        s += _text.at(_pos);
-        ++_pos;
+        s += m_text.at(m_pos);
+        ++m_pos;
     }
     return s;
 }
 
 void ClassMembersEdit::Cursor::unreadWord()
 {
-    if (!_valid) {
+    if (!m_valid) {
         return;
     }
-    if (_last_pos < 0) {
-        _valid = false;
+    if (m_lastPos < 0) {
+        m_valid = false;
         return;
     }
-    _pos = _last_pos;
+    m_pos = m_lastPos;
 }
 
 void ClassMembersEdit::Cursor::skipUntilOrNewline(const QString &delimiter)
 {
-    while (_valid) {
-        if (_pos >= _text.length()) {
+    while (m_valid) {
+        if (m_pos >= m_text.length()) {
             return;
         }
-        if (_text.at(_pos) == QStringLiteral("\n")) {
+        if (m_text.at(m_pos) == QStringLiteral("\n")) {
             return;
         }
-        if (_pos + delimiter.length() <= _text.length() && QString::compare(_text.mid(_pos, delimiter.length()), delimiter, Qt::CaseInsensitive) == 0) {
-            _pos += delimiter.length();
+        if (m_pos + delimiter.length() <= m_text.length() && QString::compare(m_text.mid(m_pos, delimiter.length()), delimiter, Qt::CaseInsensitive) == 0) {
+            m_pos += delimiter.length();
             return;
         }
-        ++_pos;
+        ++m_pos;
     }
 }
 
@@ -202,29 +202,29 @@ QString ClassMembersEdit::Cursor::readWordFromRight()
 {
     skipWhitespacesFromRight();
     QString word;
-    if (_valid && _pos >= 0) {
-        _last_pos = _pos;
-        QChar c = _text.at(_pos);
-        --_pos;
+    if (m_valid && m_pos >= 0) {
+        m_lastPos = m_pos;
+        QChar c = m_text.at(m_pos);
+        --m_pos;
         if (c.isLetterOrNumber() || c == QLatin1Char('_')) {
             word = c;
-            while (_valid && _pos >= 0 && (_text.at(_pos).isLetterOrNumber() || _text.at(_pos) == QLatin1Char('_'))) {
-                word = _text.at(_pos) + word;
-                --_pos;
+            while (m_valid && m_pos >= 0 && (m_text.at(m_pos).isLetterOrNumber() || m_text.at(m_pos) == QLatin1Char('_'))) {
+                word = m_text.at(m_pos) + word;
+                --m_pos;
             }
         } else {
-            if (c == QLatin1Char('<') && _pos >= 0 && _text.at(_pos) == QLatin1Char('<')) {
-                --_pos;
+            if (c == QLatin1Char('<') && m_pos >= 0 && m_text.at(m_pos) == QLatin1Char('<')) {
+                --m_pos;
                 word = QStringLiteral("<<");
-            } else if (c == QLatin1Char('>') && _pos >= 0 && _text.at(_pos) == QLatin1Char('>')) {
-                --_pos;
+            } else if (c == QLatin1Char('>') && m_pos >= 0 && m_text.at(m_pos) == QLatin1Char('>')) {
+                --m_pos;
                 word = QStringLiteral(">>");
             } else {
                 word = c;
             }
         }
     } else {
-        _valid = false;
+        m_valid = false;
     }
     return word;
 
@@ -233,9 +233,9 @@ QString ClassMembersEdit::Cursor::readWordFromRight()
 bool ClassMembersEdit::Cursor::skipFromRight(const QString &s)
 {
     skipWhitespacesFromRight();
-    if (_valid && _pos - s.length() >= 0
-            && s.compare(_text.mid(_pos - s.length() + 1, s.length()), s, Qt::CaseInsensitive) == 0) {
-        _pos -= s.length();
+    if (m_valid && m_pos - s.length() >= 0
+            && s.compare(m_text.mid(m_pos - s.length() + 1, s.length()), s, Qt::CaseInsensitive) == 0) {
+        m_pos -= s.length();
         return true;
     }
     return false;
@@ -243,30 +243,30 @@ bool ClassMembersEdit::Cursor::skipFromRight(const QString &s)
 
 QString ClassMembersEdit::Cursor::extractSubstr(int start, int stop)
 {
-    if (_valid && start >= 0 && start < _text.length() && stop >= start && stop < _text.length()) {
-        return _text.mid(start, stop - start + 1);
+    if (m_valid && start >= 0 && start < m_text.length() && stop >= start && stop < m_text.length()) {
+        return m_text.mid(start, stop - start + 1);
     }
-    _valid = false;
+    m_valid = false;
     return QStringLiteral("");
 }
 
 void ClassMembersEdit::Cursor::skipWhitespaces()
 {
-    while (_valid && _pos < _text.length() && _text.at(_pos).isSpace() && _text.at(_pos) != QStringLiteral("\n")) {
-        ++_pos;
+    while (m_valid && m_pos < m_text.length() && m_text.at(m_pos).isSpace() && m_text.at(m_pos) != QStringLiteral("\n")) {
+        ++m_pos;
     }
-    if (_pos >= _text.length()) {
-        _valid = false;
+    if (m_pos >= m_text.length()) {
+        m_valid = false;
     }
 }
 
 void ClassMembersEdit::Cursor::skipWhitespacesFromRight()
 {
-    while (_valid && _pos >= 0 && _text.at(_pos).isSpace() && _text.at(_pos) != QStringLiteral("\n")) {
-        --_pos;
+    while (m_valid && m_pos >= 0 && m_text.at(m_pos).isSpace() && m_text.at(m_pos) != QStringLiteral("\n")) {
+        --m_pos;
     }
-    if (_pos < 0) {
-        _valid = false;
+    if (m_pos < 0) {
+        m_valid = false;
     }
 }
 
@@ -303,12 +303,12 @@ QString ClassMembersEdit::Cursor::preparse(const QString &text)
 
 struct ClassMembersEdit::ClassMembersEditPrivate {
     ClassMembersEditPrivate()
-        : _valid(true)
+        : m_valid(true)
     {
     }
 
-    bool _valid;
-    QList<MClassMember> _members;
+    bool m_valid;
+    QList<MClassMember> m_members;
 };
 
 ClassMembersEdit::ClassMembersEdit(QWidget *parent)
@@ -326,28 +326,28 @@ ClassMembersEdit::~ClassMembersEdit()
 
 QList<MClassMember> ClassMembersEdit::getMembers() const
 {
-    return d->_members;
+    return d->m_members;
 }
 
 void ClassMembersEdit::setMembers(const QList<MClassMember> &members)
 {
-    d->_members = members;
+    d->m_members = members;
 
-    setPlainText(build(d->_members));
+    setPlainText(build(d->m_members));
 }
 
 void ClassMembersEdit::reparse()
 {
     bool ok = false;
     QList<MClassMember> members = parse(toPlainText(), &ok);
-    if (ok != d->_valid) {
-        d->_valid = ok;
-        emit statusChanged(d->_valid);
+    if (ok != d->m_valid) {
+        d->m_valid = ok;
+        emit statusChanged(d->m_valid);
     }
     if (ok) {
-        if (members != d->_members) {
-            d->_members = members;
-            emit membersChanged(d->_members);
+        if (members != d->m_members) {
+            d->m_members = members;
+            emit membersChanged(d->m_members);
         }
         setPlainText(build(members));
     }
@@ -357,14 +357,14 @@ void ClassMembersEdit::onTextChanged()
 {
     bool ok = false;
     QList<MClassMember> members = parse(toPlainText(), &ok);
-    if (ok != d->_valid) {
-        d->_valid = ok;
-        emit statusChanged(d->_valid);
+    if (ok != d->m_valid) {
+        d->m_valid = ok;
+        emit statusChanged(d->m_valid);
     }
     if (ok) {
-        if (members != d->_members) {
-            d->_members = members;
-            emit membersChanged(d->_members);
+        if (members != d->m_members) {
+            d->m_members = members;
+            emit membersChanged(d->m_members);
         }
     }
 }

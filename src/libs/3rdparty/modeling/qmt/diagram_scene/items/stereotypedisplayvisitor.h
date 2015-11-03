@@ -56,13 +56,13 @@ public:
 
     void setStereotypeController(StereotypeController *stereotype_controller);
 
-    DObject::StereotypeDisplay getStereotypeDisplay() const { return _stereotype_display; }
+    DObject::StereotypeDisplay getStereotypeDisplay() const { return m_stereotypeDisplay; }
 
     StereotypeIcon::Display getStereotypeIconDisplay() const;
 
-    QString getStereotypeIconId() const { return _stereotype_icon_id; }
+    QString getStereotypeIconId() const { return m_stereotypeIconId; }
 
-    QString getShapeIconId() const { return _shape_icon_id; }
+    QString getShapeIconId() const { return m_shapeIconId; }
 
 public:
 
@@ -80,19 +80,19 @@ public:
 
 private:
 
-    ModelController *_model_controller;
+    ModelController *m_modelController;
 
-    StereotypeController *_stereotype_controller;
+    StereotypeController *m_stereotypeController;
 
-    DObject::StereotypeDisplay _stereotype_display;
+    DObject::StereotypeDisplay m_stereotypeDisplay;
 
-    QString _stereotype_icon_id;
+    QString m_stereotypeIconId;
 
-    QString _shape_icon_id;
+    QString m_shapeIconId;
 
-    StereotypeIcon::Element _stereotype_icon_element;
+    StereotypeIcon::Element m_stereotypeIconElement;
 
-    DObject::StereotypeDisplay _stereotype_smart_display;
+    DObject::StereotypeDisplay m_stereotypeSmartDisplay;
 
 };
 

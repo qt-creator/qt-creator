@@ -49,13 +49,13 @@ class FileIOException :
 public:
     explicit FileIOException(const QString &error_msg, const QString &file_name = QString::null, int line_number = -1);
 
-    QString getFileName() const { return _file_name; }
+    QString getFileName() const { return m_fileName; }
 
-    int getLineNumber() const { return _line_number; }
+    int getLineNumber() const { return m_lineNumber; }
 
 private:
-    QString _file_name;
-    int _line_number;
+    QString m_fileName;
+    int m_lineNumber;
 };
 
 class FileNotFoundException :

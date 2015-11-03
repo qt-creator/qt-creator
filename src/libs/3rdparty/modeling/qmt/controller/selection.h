@@ -45,20 +45,20 @@ public:
     public:
 
         Index(const Uid &element_key, const Uid &owner_key)
-            : _element_key(element_key),
-              _owner_key(owner_key)
+            : m_elementKey(element_key),
+              m_ownerKey(owner_key)
         {
         }
 
-        Uid getElementKey() const { return _element_key; }
+        Uid getElementKey() const { return m_elementKey; }
 
-        Uid getOwnerKey() const { return _owner_key; }
+        Uid getOwnerKey() const { return m_ownerKey; }
 
     private:
 
-        Uid _element_key;
+        Uid m_elementKey;
 
-        Uid _owner_key;
+        Uid m_ownerKey;
     };
 
 protected:
@@ -71,9 +71,9 @@ public:
 
 public:
 
-    bool isEmpty() const { return _indices.isEmpty(); }
+    bool isEmpty() const { return m_indices.isEmpty(); }
 
-    QList<Index> getIndices() const { return _indices; }
+    QList<Index> getIndices() const { return m_indices; }
 
     void setIndices(const QList<Index> &indices);
 
@@ -87,7 +87,7 @@ public:
 
 private:
 
-    QList<Index> _indices;
+    QList<Index> m_indices;
 };
 
 }

@@ -34,13 +34,13 @@ namespace qmt {
 
 ContextMenuAction::ContextMenuAction(const QString &label, const QString &id, QObject *parent)
     : QAction(label, parent),
-      _id(id)
+      m_id(id)
 {
 }
 
 ContextMenuAction::ContextMenuAction(const QString &label, const QString &id, const QKeySequence &shortcut, QObject *parent)
     : QAction(label, parent),
-      _id(id)
+      m_id(id)
 {
     setShortcut(shortcut);
 }

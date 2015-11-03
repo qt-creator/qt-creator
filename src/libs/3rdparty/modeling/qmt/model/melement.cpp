@@ -38,10 +38,10 @@ namespace qmt {
 
 void MExpansion::assign(MElement *lhs, const MElement &rhs)
 {
-    if (lhs->_expansion) {
-        lhs->_expansion->destroy(lhs);
+    if (lhs->m_expansion) {
+        lhs->m_expansion->destroy(lhs);
     }
-    lhs->_expansion = clone(rhs);
+    lhs->m_expansion = clone(rhs);
 }
 
 void MExpansion::destroy(MElement *element)
@@ -53,70 +53,70 @@ void MExpansion::destroy(MElement *element)
 
 
 MElement::MElement()
-    : _owner(0),
-      _expansion(0)
+    : m_owner(0),
+      m_expansion(0)
 {
 }
 
 MElement::MElement(const MElement &rhs)
-    : _uid(rhs._uid),
-      _owner(0),
-      _expansion(rhs._expansion ? rhs._expansion->clone(rhs) : 0),
-      _stereotypes(rhs._stereotypes)
+    : m_uid(rhs.m_uid),
+      m_owner(0),
+      m_expansion(rhs.m_expansion ? rhs.m_expansion->clone(rhs) : 0),
+      m_stereotypes(rhs.m_stereotypes)
 {
 }
 
 MElement::~MElement()
 {
-    if (_expansion) {
-        _expansion->destroy(this);
+    if (m_expansion) {
+        m_expansion->destroy(this);
     }
 }
 
 MElement &MElement::operator=(const MElement &rhs)
 {
     if (this != &rhs) {
-        _uid = rhs._uid;
+        m_uid = rhs.m_uid;
         // owner is intentionally left unchanged
-        if (rhs._expansion) {
-            rhs._expansion->assign(this, rhs);
+        if (rhs.m_expansion) {
+            rhs.m_expansion->assign(this, rhs);
         }
-        _stereotypes = rhs._stereotypes;
+        m_stereotypes = rhs.m_stereotypes;
     }
     return *this;
 }
 
 void MElement::setUid(const Uid &uid)
 {
-    _uid = uid;
+    m_uid = uid;
 }
 
 void MElement::renewUid()
 {
-    _uid.renew();
+    m_uid.renew();
 }
 
 void MElement::setOwner(MObject *owner)
 {
-    _owner = owner;
+    m_owner = owner;
 }
 
 void MElement::setExpansion(MExpansion *expansion)
 {
-    if (_expansion) {
-        _expansion->destroy(this);
+    if (m_expansion) {
+        m_expansion->destroy(this);
     }
-    _expansion = expansion;
+    m_expansion = expansion;
 }
 
 void MElement::setStereotypes(const QList<QString> &stereotypes)
 {
-    _stereotypes = stereotypes;
+    m_stereotypes = stereotypes;
 }
 
 void MElement::setFlags(const Flags &flags)
 {
-    _flags = flags;
+    m_flags = flags;
 }
 
 void MElement::accept(MVisitor *visitor)

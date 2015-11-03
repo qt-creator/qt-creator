@@ -39,7 +39,7 @@ namespace qmt {
 
 DiagramGraphicsScene::DiagramGraphicsScene(DiagramSceneModel *diagram_scene_model, QObject *parent)
     : QGraphicsScene(parent),
-      _diagram_scene_model(diagram_scene_model)
+      m_diagramSceneModel(diagram_scene_model)
 {
 }
 
@@ -109,21 +109,21 @@ void DiagramGraphicsScene::keyReleaseEvent(QKeyEvent *event)
 
 void DiagramGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    _diagram_scene_model->sceneActivated();
+    m_diagramSceneModel->sceneActivated();
     QGraphicsScene::mousePressEvent(event);
-    _diagram_scene_model->mousePressEvent(event);
+    m_diagramSceneModel->mousePressEvent(event);
 }
 
 void DiagramGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsScene::mouseMoveEvent(event);
-    _diagram_scene_model->mouseMoveEvent(event);
+    m_diagramSceneModel->mouseMoveEvent(event);
 }
 
 void DiagramGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsScene::mouseReleaseEvent(event);
-    _diagram_scene_model->mouseReleaseEvent(event);
+    m_diagramSceneModel->mouseReleaseEvent(event);
 }
 
 void DiagramGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)

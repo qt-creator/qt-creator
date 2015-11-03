@@ -53,20 +53,20 @@ public:
 
 public:
 
-    explicit Handles(bool take_ownership = false) : _take_ownership(take_ownership) { }
+    explicit Handles(bool take_ownership = false) : m_takeOwnership(take_ownership) { }
 
     Handles(const Handles<T> &rhs)
-        : _handle_list(rhs._handle_list),
-          _take_ownership(false)
+        : m_handleList(rhs.m_handleList),
+          m_takeOwnership(false)
     {
     }
 
     Handles(const Handles<T> &rhs, bool take_ownership)
-        : _handle_list(rhs._handle_list),
-          _take_ownership(take_ownership)
+        : m_handleList(rhs.m_handleList),
+          m_takeOwnership(take_ownership)
     {
-        if (_take_ownership && rhs._take_ownership) {
-            const_cast<Handles<T> &>(rhs)._handle_list.clear();
+        if (m_takeOwnership && rhs.m_takeOwnership) {
+            const_cast<Handles<T> &>(rhs).m_handleList.clear();
         }
     }
 
@@ -80,9 +80,9 @@ public:
     Handles<T> operator=(const Handles<T> &rhs)
     {
         if (this != &rhs) {
-            _handle_list = rhs._handle_list;
-            if (_take_ownership && rhs._take_ownership) {
-                const_cast<Handles<T> &>(rhs)._handle_list.clear();
+            m_handleList = rhs.m_handleList;
+            if (m_takeOwnership && rhs.m_takeOwnership) {
+                const_cast<Handles<T> &>(rhs).m_handleList.clear();
             }
         }
         return *this;
@@ -90,15 +90,15 @@ public:
 
 public:
 
-    bool takesOwnership() const { return _take_ownership; }
+    bool takesOwnership() const { return m_takeOwnership; }
 
-    bool isEmpty() const { return _handle_list.empty(); }
+    bool isEmpty() const { return m_handleList.empty(); }
 
-    int size() const { return _handle_list.size(); }
+    int size() const { return m_handleList.size(); }
 
     bool contains(const Uid &uid) const
     {
-        foreach (const Handle<T> &handle, _handle_list) {
+        foreach (const Handle<T> &handle, m_handleList) {
             if (handle.getUid() == uid) {
                 return true;
             }
@@ -114,7 +114,7 @@ public:
 
     T *find(const Uid &uid) const
     {
-        foreach (const Handle<T> &handle, _handle_list) {
+        foreach (const Handle<T> &handle, m_handleList) {
             if (handle.getUid() == uid) {
                 return handle.getTarget();
             }
@@ -124,20 +124,20 @@ public:
 
     T *at(int index) const
     {
-        QMT_CHECK(index >= 0 && index < _handle_list.size());
-        return _handle_list.at(index).getTarget();
+        QMT_CHECK(index >= 0 && index < m_handleList.size());
+        return m_handleList.at(index).getTarget();
     }
 
     T *at(int index)
     {
-        QMT_CHECK(index >= 0 && index < _handle_list.size());
-        return _handle_list.at(index);
+        QMT_CHECK(index >= 0 && index < m_handleList.size());
+        return m_handleList.at(index);
     }
 
     int indexOf(const Uid &uid) const
     {
         int index = 0;
-        foreach (const Handle<T> &handle, _handle_list) {
+        foreach (const Handle<T> &handle, m_handleList) {
             if (handle.getUid() == uid) {
                 return index;
             }
@@ -154,76 +154,76 @@ public:
 
 public:
 
-    const type &get() const { return _handle_list; }
+    const type &get() const { return m_handleList; }
 
     type take()
     {
-        type handles = _handle_list;
-        _handle_list.clear();
+        type handles = m_handleList;
+        m_handleList.clear();
         return handles;
     }
 
     void set(const type &handles) {
         reset();
-        _handle_list = handles;
+        m_handleList = handles;
     }
 
     void reset()
     {
-        if (_take_ownership) {
-            foreach (const Handle<T> &handle, _handle_list) {
+        if (m_takeOwnership) {
+            foreach (const Handle<T> &handle, m_handleList) {
                 delete handle.getTarget();
             }
         }
-        _handle_list.clear();
+        m_handleList.clear();
     }
 
 public:
-    iterator begin() { return _handle_list.begin(); }
+    iterator begin() { return m_handleList.begin(); }
 
-    iterator end() { return _handle_list.end(); }
+    iterator end() { return m_handleList.end(); }
 
-    const_iterator begin() const { return _handle_list.begin(); }
+    const_iterator begin() const { return m_handleList.begin(); }
 
-    const_iterator end() const { return _handle_list.end(); }
+    const_iterator end() const { return m_handleList.end(); }
 
 public:
 
     void add(const Uid &uid)
     {
         QMT_CHECK(uid.isValid());
-        _handle_list.append(Handle<T>(uid));
+        m_handleList.append(Handle<T>(uid));
     }
 
     void add(T *t)
     {
         QMT_CHECK(t);
-        _handle_list.append(Handle<T>(t));
+        m_handleList.append(Handle<T>(t));
     }
 
     void insert(int before_index, const Uid &uid)
     {
-        QMT_CHECK(before_index >= 0 && before_index <= _handle_list.size());
+        QMT_CHECK(before_index >= 0 && before_index <= m_handleList.size());
         QMT_CHECK(uid.isValid());
-        _handle_list.insert(before_index, Handle<T>(uid));
+        m_handleList.insert(before_index, Handle<T>(uid));
     }
 
     void insert(int before_index, T *t)
     {
-        QMT_CHECK(before_index >= 0 && before_index <= _handle_list.size());
+        QMT_CHECK(before_index >= 0 && before_index <= m_handleList.size());
         QMT_CHECK(t);
-        _handle_list.insert(before_index, Handle<T>(t));
+        m_handleList.insert(before_index, Handle<T>(t));
     }
 
     void remove(int index)
     {
         QMT_CHECK(index >= 0 && index < size());
-        if (_take_ownership) {
-            T *t = _handle_list.at(index).getTarget();
-            _handle_list.removeAt(index);
+        if (m_takeOwnership) {
+            T *t = m_handleList.at(index).getTarget();
+            m_handleList.removeAt(index);
             delete t;
         } else {
-            _handle_list.removeAt(index);
+            m_handleList.removeAt(index);
         }
     }
 
@@ -241,8 +241,8 @@ public:
     T * take(int index)
     {
         QMT_CHECK(index >= 0 && index < size());
-        T *t = _handle_list.at(index).getTarget();
-        _handle_list.removeAt(index);
+        T *t = m_handleList.at(index).getTarget();
+        m_handleList.removeAt(index);
         return t;
     }
 
@@ -259,9 +259,9 @@ public:
 
 private:
 
-    type _handle_list;
+    type m_handleList;
 
-    bool _take_ownership;
+    bool m_takeOwnership;
 };
 
 template<typename T>

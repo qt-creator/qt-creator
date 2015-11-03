@@ -57,38 +57,38 @@ struct IconShape::IconShapePrivate {
     }
 
     IconShapePrivate(const IconShapePrivate &rhs)
-        : _shapes(CloneAll(rhs._shapes))
+        : m_shapes(CloneAll(rhs.m_shapes))
     {
     }
 
     ~IconShapePrivate()
     {
-        qDeleteAll(_shapes);
+        qDeleteAll(m_shapes);
     }
 
     IconShapePrivate &operator=(const IconShapePrivate &rhs)
     {
         if (this != &rhs) {
-            qDeleteAll(_shapes);
-            _shapes = CloneAll(rhs._shapes);
+            qDeleteAll(m_shapes);
+            m_shapes = CloneAll(rhs.m_shapes);
         }
         return *this;
     }
 
     PathShape *getActivePath();
 
-    QList<IShape *> _shapes;
+    QList<IShape *> m_shapes;
 };
 
 PathShape *IconShape::IconShapePrivate::getActivePath()
 {
     PathShape *path_shape = 0;
-    if (_shapes.count() > 0) {
-        path_shape = dynamic_cast<PathShape *>(_shapes.last());
+    if (m_shapes.count() > 0) {
+        path_shape = dynamic_cast<PathShape *>(m_shapes.last());
     }
     if (path_shape == 0) {
         path_shape = new PathShape();
-        _shapes.append(path_shape);
+        m_shapes.append(path_shape);
     }
     return path_shape;
 }
@@ -119,32 +119,32 @@ IconShape &IconShape::operator=(const IconShape &rhs)
 
 void IconShape::addLine(const ShapePointF &pos1, const ShapePointF &pos2)
 {
-    d->_shapes.append(new LineShape(pos1, pos2));
+    d->m_shapes.append(new LineShape(pos1, pos2));
 }
 
 void IconShape::addRect(const ShapePointF &pos, const ShapeSizeF &size)
 {
-    d->_shapes.append(new RectShape(pos, size));
+    d->m_shapes.append(new RectShape(pos, size));
 }
 
 void IconShape::addRoundedRect(const ShapePointF &pos, const ShapeSizeF &size, const ShapeValueF &radius)
 {
-    d->_shapes.append(new RoundedRectShape(pos, size, radius));
+    d->m_shapes.append(new RoundedRectShape(pos, size, radius));
 }
 
 void IconShape::addCircle(const ShapePointF &center, const ShapeValueF &radius)
 {
-    d->_shapes.append(new CircleShape(center, radius));
+    d->m_shapes.append(new CircleShape(center, radius));
 }
 
 void IconShape::addEllipse(const ShapePointF &center, const ShapeSizeF &radius)
 {
-    d->_shapes.append(new EllipseShape(center, radius));
+    d->m_shapes.append(new EllipseShape(center, radius));
 }
 
 void IconShape::addArc(const ShapePointF &center, const ShapeSizeF &radius, qreal start_angle, qreal span_angle)
 {
-    d->_shapes.append(new ArcShape(center, radius, start_angle, span_angle));
+    d->m_shapes.append(new ArcShape(center, radius, start_angle, span_angle));
 }
 
 void IconShape::moveTo(const ShapePointF &pos)
@@ -174,7 +174,7 @@ void IconShape::closePath()
 
 void IconShape::visitShapes(ShapeConstVisitor *visitor) const
 {
-    foreach (IShape *p, d->_shapes) {
+    foreach (IShape *p, d->m_shapes) {
         p->accept(visitor);
     }
 }

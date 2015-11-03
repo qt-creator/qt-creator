@@ -34,7 +34,7 @@
 namespace qmt {
 
 Exception::Exception(const QString &err_msg)
-    : _error_message(err_msg)
+    : m_errorMessage(err_msg)
 {
 }
 

@@ -47,15 +47,15 @@ public:
 
 public:
 
-    QString getVariety() const { return _variety; }
+    QString getVariety() const { return m_variety; }
 
     void setVariety(const QString &variety);
 
-    QString getShape() const { return _shape; }
+    QString getShape() const { return m_shape; }
 
     void setShape(const QString &shape);
 
-    bool isShapeEditable() const { return _shape_editable; }
+    bool isShapeEditable() const { return m_shapeEditable; }
 
     void setShapeEditable(bool shape_editable);
 
@@ -67,11 +67,11 @@ public:
 
 private:
 
-    QString _variety;
+    QString m_variety;
 
-    QString _shape;
+    QString m_shape;
 
-    bool _shape_editable;
+    bool m_shapeEditable;
 
 };
 

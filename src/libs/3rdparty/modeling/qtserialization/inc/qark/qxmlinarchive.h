@@ -75,34 +75,34 @@ private:
         typedef QList<Node *> children_type;
 
     public:
-        virtual ~Node() { qDeleteAll(_children); }
+        virtual ~Node() { qDeleteAll(m_children); }
 
-        const children_type &getChildren() const { return _children; }
+        const children_type &getChildren() const { return m_children; }
 
         virtual QString getQualifiedName() const = 0;
 
         virtual void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        void append(Node *node) { _children.push_back(node); }
+        void append(Node *node) { m_children.push_back(node); }
 
     private:
-        children_type _children;
+        children_type m_children;
     };
 
     class TagNode :
         public Node
     {
     public:
-        explicit TagNode(const Tag &tag) : _tag(tag) { }
+        explicit TagNode(const Tag &tag) : m_tag(tag) { }
 
-        const Tag &getTag() const { return _tag; }
+        const Tag &getTag() const { return m_tag; }
 
-        QString getQualifiedName() const { return _tag.getQualifiedName(); }
+        QString getQualifiedName() const { return m_tag.getQualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
     private:
-        Tag _tag;
+        Tag m_tag;
     };
 
     template<class T>
@@ -110,16 +110,16 @@ private:
         public Node
     {
     public:
-        explicit ObjectNode(const Object<T> &object) : _object(object) { }
+        explicit ObjectNode(const Object<T> &object) : m_object(object) { }
 
-        QString getQualifiedName() const { return _object.getQualifiedName(); }
+        QString getQualifiedName() const { return m_object.getQualifiedName(); }
 
-        Object<T> &getObject() { return _object; }
+        Object<T> &getObject() { return m_object; }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
     private:
-        Object<T> _object;
+        Object<T> m_object;
     };
 
     template<class T, class U>
@@ -127,16 +127,16 @@ private:
         public Node
     {
     public:
-        explicit BaseNode(const Base<T, U> &base) : _base(base) { }
+        explicit BaseNode(const Base<T, U> &base) : m_base(base) { }
 
-        QString getQualifiedName() const { return _base.getQualifiedName(); }
+        QString getQualifiedName() const { return m_base.getQualifiedName(); }
 
-        Base<T, U> &getBase() { return _base; }
+        Base<T, U> &getBase() { return m_base; }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
     private:
-        Base<T, U> _base;
+        Base<T, U> m_base;
     };
 
     template<class T>
@@ -144,16 +144,16 @@ private:
         public Node
     {
     public:
-        explicit AttrNode(const Attr<T> &attr) : _attr(attr) { }
+        explicit AttrNode(const Attr<T> &attr) : m_attr(attr) { }
 
-        QString getQualifiedName() const { return _attr.getQualifiedName(); }
+        QString getQualifiedName() const { return m_attr.getQualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        Attr<T> &getAttribute() { return _attr; }
+        Attr<T> &getAttribute() { return m_attr; }
 
     private:
-        Attr<T> _attr;
+        Attr<T> m_attr;
     };
 
     template<class U, typename T>
@@ -161,16 +161,16 @@ private:
         public Node
     {
     public:
-        explicit SetterAttrNode(const SetterAttr<U, T> &attr) : _attr(attr) { }
+        explicit SetterAttrNode(const SetterAttr<U, T> &attr) : m_attr(attr) { }
 
-        QString getQualifiedName() const { return _attr.getQualifiedName(); }
+        QString getQualifiedName() const { return m_attr.getQualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        SetterAttr<U, T> &getAttribute() { return _attr; }
+        SetterAttr<U, T> &getAttribute() { return m_attr; }
 
     private:
-        SetterAttr<U, T> _attr;
+        SetterAttr<U, T> m_attr;
     };
 
     template<class U, typename T, typename V>
@@ -178,16 +178,16 @@ private:
         public Node
     {
     public:
-        explicit GetterSetterAttrNode(const GetterSetterAttr<U, T, V> &attr) : _attr(attr) { }
+        explicit GetterSetterAttrNode(const GetterSetterAttr<U, T, V> &attr) : m_attr(attr) { }
 
-        QString getQualifiedName() const { return _attr.getQualifiedName(); }
+        QString getQualifiedName() const { return m_attr.getQualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        GetterSetterAttr<U, T, V> &getAttribute() { return _attr; }
+        GetterSetterAttr<U, T, V> &getAttribute() { return m_attr; }
 
     private:
-        GetterSetterAttr<U, T, V> _attr;
+        GetterSetterAttr<U, T, V> m_attr;
     };
 
     template<class U, typename T>
@@ -195,16 +195,16 @@ private:
         public Node
     {
     public:
-        explicit SetFuncAttrNode(const SetFuncAttr<U, T> &attr) : _attr(attr) { }
+        explicit SetFuncAttrNode(const SetFuncAttr<U, T> &attr) : m_attr(attr) { }
 
-        QString getQualifiedName() const { return _attr.getQualifiedName(); }
+        QString getQualifiedName() const { return m_attr.getQualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        SetFuncAttr<U, T> &getAttribute() { return _attr; }
+        SetFuncAttr<U, T> &getAttribute() { return m_attr; }
 
     private:
-        SetFuncAttr<U, T> _attr;
+        SetFuncAttr<U, T> m_attr;
     };
 
     template<class U, typename T, typename V>
@@ -212,16 +212,16 @@ private:
         public Node
     {
     public:
-        explicit GetSetFuncAttrNode(const GetSetFuncAttr<U, T, V> &attr) : _attr(attr) { }
+        explicit GetSetFuncAttrNode(const GetSetFuncAttr<U, T, V> &attr) : m_attr(attr) { }
 
-        QString getQualifiedName() const { return _attr.getQualifiedName(); }
+        QString getQualifiedName() const { return m_attr.getQualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        GetSetFuncAttr<U, T, V> &getAttribute() { return _attr; }
+        GetSetFuncAttr<U, T, V> &getAttribute() { return m_attr; }
 
     private:
-        GetSetFuncAttr<U, T, V> _attr;
+        GetSetFuncAttr<U, T, V> m_attr;
     };
 
     template<class T>
@@ -229,16 +229,16 @@ private:
         public Node
     {
     public:
-        explicit RefNode(const Ref<T> &ref) : _ref(ref) { }
+        explicit RefNode(const Ref<T> &ref) : m_ref(ref) { }
 
-        QString getQualifiedName() const { return _ref.getQualifiedName(); }
+        QString getQualifiedName() const { return m_ref.getQualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        Ref<T> &getReference() { return _ref; }
+        Ref<T> &getReference() { return m_ref; }
 
     private:
-        Ref<T> _ref;
+        Ref<T> m_ref;
     };
 
     template<class U, typename T>
@@ -246,16 +246,16 @@ private:
         public Node
     {
     public:
-        explicit SetterRefNode(const SetterRef<U, T> &ref) : _ref(ref) { }
+        explicit SetterRefNode(const SetterRef<U, T> &ref) : m_ref(ref) { }
 
-        QString getQualifiedName() const { return _ref.getQualifiedName(); }
+        QString getQualifiedName() const { return m_ref.getQualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        SetterRef<U, T> &getReference() { return _ref; }
+        SetterRef<U, T> &getReference() { return m_ref; }
 
     private:
-        SetterRef<U, T> _ref;
+        SetterRef<U, T> m_ref;
     };
 
     template<class U, typename T, typename V>
@@ -263,16 +263,16 @@ private:
         public Node
     {
     public:
-        explicit GetterSetterRefNode(const GetterSetterRef<U, T, V> &ref) : _ref(ref) { }
+        explicit GetterSetterRefNode(const GetterSetterRef<U, T, V> &ref) : m_ref(ref) { }
 
-        QString getQualifiedName() const { return _ref.getQualifiedName(); }
+        QString getQualifiedName() const { return m_ref.getQualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        GetterSetterRef<U, T, V> &getReference() { return _ref; }
+        GetterSetterRef<U, T, V> &getReference() { return m_ref; }
 
     private:
-        GetterSetterRef<U, T, V> _ref;
+        GetterSetterRef<U, T, V> m_ref;
     };
 
     template<class U, typename T>
@@ -280,16 +280,16 @@ private:
         public Node
     {
     public:
-        explicit SetFuncRefNode(const SetFuncRef<U, T> &ref) : _ref(ref) { }
+        explicit SetFuncRefNode(const SetFuncRef<U, T> &ref) : m_ref(ref) { }
 
-        QString getQualifiedName() const { return _ref.getQualifiedName(); }
+        QString getQualifiedName() const { return m_ref.getQualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        SetFuncRef<U, T> &getReference() { return _ref; }
+        SetFuncRef<U, T> &getReference() { return m_ref; }
 
     private:
-        SetFuncRef<U, T> _ref;
+        SetFuncRef<U, T> m_ref;
     };
 
     template<class U, typename T, typename V>
@@ -297,24 +297,24 @@ private:
         public Node
     {
     public:
-        explicit GetSetFuncRefNode(const GetSetFuncRef<U, T, V> &ref) : _ref(ref) { }
+        explicit GetSetFuncRefNode(const GetSetFuncRef<U, T, V> &ref) : m_ref(ref) { }
 
-        QString getQualifiedName() const { return _ref.getQualifiedName(); }
+        QString getQualifiedName() const { return m_ref.getQualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        GetSetFuncRef<U, T, V> &getReference() { return _ref; }
+        GetSetFuncRef<U, T, V> &getReference() { return m_ref; }
 
     private:
-        GetSetFuncRef<U, T, V> _ref;
+        GetSetFuncRef<U, T, V> m_ref;
     };
 
 public:
 
     explicit QXmlInArchive(QXmlStreamReader &stream)
-        : _stream(stream),
-          _end_tag_was_read(false),
-          _current_ref_node(0)
+        : m_stream(stream),
+          m_endTagWasRead(false),
+          m_currentRefNode(0)
     {
     }
 
@@ -326,8 +326,8 @@ public:
 
     void beginDocument()
     {
-        while (!_stream.atEnd()) {
-            switch (_stream.readNext()) {
+        while (!m_stream.atEnd()) {
+            switch (m_stream.readNext()) {
             case QXmlStreamReader::StartDocument:
                 return;
             case QXmlStreamReader::Comment:
@@ -341,13 +341,13 @@ public:
 
     void endDocument()
     {
-        if (_end_tag_was_read) {
-            if (_stream.tokenType() != QXmlStreamReader::EndDocument) {
+        if (m_endTagWasRead) {
+            if (m_stream.tokenType() != QXmlStreamReader::EndDocument) {
                 throw FileFormatException();
             }
         } else {
-            while (!_stream.atEnd()) {
-                switch (_stream.readNext()) {
+            while (!m_stream.atEnd()) {
+                switch (m_stream.readNext()) {
                 case QXmlStreamReader::EndDocument:
                     return;
                 case QXmlStreamReader::Comment:
@@ -365,28 +365,28 @@ public:
     void append(const Tag &tag)
     {
         TagNode *node = new TagNode(tag);
-        if (!_node_stack.empty()) {
-            _node_stack.top()->append(node);
+        if (!m_nodeStack.empty()) {
+            m_nodeStack.top()->append(node);
         }
-        _node_stack.push(node);
+        m_nodeStack.push(node);
     }
 
     template<class T>
     void append(const Object<T> &object)
     {
         ObjectNode<T> *node = new ObjectNode<T>(object);
-        if (!_node_stack.empty()) {
-            _node_stack.top()->append(node);
+        if (!m_nodeStack.empty()) {
+            m_nodeStack.top()->append(node);
         }
-        _node_stack.push(node);
+        m_nodeStack.push(node);
     }
 
     void append(const End &)
     {
-        Node *node = _node_stack.pop();
-        if (_node_stack.empty()) {
+        Node *node = m_nodeStack.pop();
+        if (m_nodeStack.empty()) {
             XmlTag xml_tag = readTag();
-            if (xml_tag._tag_name != node->getQualifiedName() || xml_tag._end_tag) {
+            if (xml_tag.m_tagName != node->getQualifiedName() || xml_tag.m_endTag) {
                 throw FileFormatException();
             }
             node->accept(*this, xml_tag);
@@ -397,67 +397,67 @@ public:
     template<class T, class U>
     void append(const Base<T, U> &base)
     {
-        _node_stack.top()->append(new BaseNode<T, U>(base));
+        m_nodeStack.top()->append(new BaseNode<T, U>(base));
     }
 
     template<typename T>
     void append(const Attr<T> &attr)
     {
-        _node_stack.top()->append(new AttrNode<T>(attr));
+        m_nodeStack.top()->append(new AttrNode<T>(attr));
     }
 
     template<class U, typename T>
     void append(const SetterAttr<U, T> &attr)
     {
-        _node_stack.top()->append(new SetterAttrNode<U, T>(attr));
+        m_nodeStack.top()->append(new SetterAttrNode<U, T>(attr));
     }
 
     template<class U, typename T, typename V>
     void append(const GetterSetterAttr<U, T, V> &attr)
     {
-        _node_stack.top()->append(new GetterSetterAttrNode<U, T, V>(attr));
+        m_nodeStack.top()->append(new GetterSetterAttrNode<U, T, V>(attr));
     }
 
     template<class U, typename T>
     void append(const SetFuncAttr<U, T> &attr)
     {
-        _node_stack.top()->append(new SetFuncAttrNode<U, T>(attr));
+        m_nodeStack.top()->append(new SetFuncAttrNode<U, T>(attr));
     }
 
     template<class U, typename T, typename V>
     void append(const GetSetFuncAttr<U, T, V> &attr)
     {
-        _node_stack.top()->append(new GetSetFuncAttrNode<U, T, V>(attr));
+        m_nodeStack.top()->append(new GetSetFuncAttrNode<U, T, V>(attr));
     }
 
     template<typename T>
     void append(const Ref<T> &ref)
     {
-        _node_stack.top()->append(new RefNode<T>(ref));
+        m_nodeStack.top()->append(new RefNode<T>(ref));
     }
 
     template<class U, typename T>
     void append(const SetterRef<U, T> &ref)
     {
-        _node_stack.top()->append(new SetterRefNode<U, T>(ref));
+        m_nodeStack.top()->append(new SetterRefNode<U, T>(ref));
     }
 
     template<class U, typename T, typename V>
     void append(const GetterSetterRef<U, T, V> &ref)
     {
-        _node_stack.top()->append(new GetterSetterRefNode<U, T, V>(ref));
+        m_nodeStack.top()->append(new GetterSetterRefNode<U, T, V>(ref));
     }
 
     template<class U, typename T>
     void append(const SetFuncRef<U, T> &ref)
     {
-        _node_stack.top()->append(new SetFuncRefNode<U, T>(ref));
+        m_nodeStack.top()->append(new SetFuncRefNode<U, T>(ref));
     }
 
     template<class U, typename T, typename V>
     void append(const GetSetFuncRef<U, T, V> &ref)
     {
-        _node_stack.top()->append(new GetSetFuncRefNode<U, T, V>(ref));
+        m_nodeStack.top()->append(new GetSetFuncRefNode<U, T, V>(ref));
     }
 
 public:
@@ -465,8 +465,8 @@ public:
 #define QARK_READNUMBER(T, M) \
     void read(T *i) \
     { \
-        QString s = _stream.readElementText(); \
-        _end_tag_was_read = true; \
+        QString s = m_stream.readElementText(); \
+        m_endTagWasRead = true; \
         bool ok = false; \
         *i = s.M(&ok); \
         if (!ok) { \
@@ -492,8 +492,8 @@ public:
 
     void read(bool *b)
     {
-        QString s = _stream.readElementText();
-        _end_tag_was_read = true;
+        QString s = m_stream.readElementText();
+        m_endTagWasRead = true;
         if (s == QLatin1String("true")) {
             *b = true;
         } else if (s == QLatin1String("false")) {
@@ -505,8 +505,8 @@ public:
 
     void read(QString *s)
     {
-        *s = _stream.readElementText();
-        _end_tag_was_read = true;
+        *s = m_stream.readElementText();
+        m_endTagWasRead = true;
     }
 
 public:
@@ -527,12 +527,12 @@ public:
     ReferenceTag readReferenceTag()
     {
         XmlTag tag = readTag();
-        if (tag._tag_name == QLatin1String("null")) {
+        if (tag.m_tagName == QLatin1String("null")) {
             return ReferenceTag(NULLPOINTER);
-        } else if (tag._tag_name == QLatin1String("reference")) {
+        } else if (tag.m_tagName == QLatin1String("reference")) {
             return ReferenceTag(POINTER);
-        } else if (tag._tag_name == QLatin1String("instance")) {
-            return ReferenceTag(INSTANCE, tag._attributes.value(QLatin1String("type")));
+        } else if (tag.m_tagName == QLatin1String("instance")) {
+            return ReferenceTag(INSTANCE, tag.m_attributes.value(QLatin1String("type")));
         } else {
             throw FileFormatException();
         }
@@ -541,13 +541,13 @@ public:
     void readReferenceEndTag(ReferenceKind kind)
     {
         XmlTag tag = readTag();
-        if (!tag._end_tag) {
+        if (!tag.m_endTag) {
             throw FileFormatException();
-        } else if (tag._tag_name == QLatin1String("null") && kind != NULLPOINTER) {
+        } else if (tag.m_tagName == QLatin1String("null") && kind != NULLPOINTER) {
             throw FileFormatException();
-        } else if (tag._tag_name == QLatin1String("reference") && kind != POINTER) {
+        } else if (tag.m_tagName == QLatin1String("reference") && kind != POINTER) {
             throw FileFormatException();
-        } else if (tag._tag_name == QLatin1String("instance") && kind != INSTANCE) {
+        } else if (tag.m_tagName == QLatin1String("instance") && kind != INSTANCE) {
             throw FileFormatException();
         }
     }
@@ -559,8 +559,8 @@ public:
         int i;
         read(&i);
         id.set(i);
-        if (_loading_ref_map.hasObject(id)) {
-            p = _loading_ref_map.getObject<T *>(id);
+        if (m_loadingRefMap.hasObject(id)) {
+            p = m_loadingRefMap.getObject<T *>(id);
         } else {
             throw UnexpectedForwardReference();
         }
@@ -569,25 +569,25 @@ public:
 private:
 
     struct XmlTag {
-        XmlTag() : _end_tag(false) { }
-        QString _tag_name;
-        bool _end_tag;
-        impl::ObjectId _id;
-        QHash<QString, QString> _attributes;
+        XmlTag() : m_endTag(false) { }
+        QString m_tagName;
+        bool m_endTag;
+        impl::ObjectId m_id;
+        QHash<QString, QString> m_attributes;
     };
 
     void readChildren(Node *node) {
         for (;;) {
             XmlTag xml_tag = readTag();
-            if (xml_tag._end_tag) {
-                if (xml_tag._tag_name != node->getQualifiedName()) {
+            if (xml_tag.m_endTag) {
+                if (xml_tag.m_tagName != node->getQualifiedName()) {
                     throw FileFormatException();
                 }
                 return;
             } else {
                 bool found_tag = false;
                 for (Node::children_type::const_iterator it = node->getChildren().begin(); it != node->getChildren().end(); ++it) {
-                    if ((*it)->getQualifiedName() == xml_tag._tag_name) {
+                    if ((*it)->getQualifiedName() == xml_tag.m_tagName) {
                         found_tag = true;
                         (*it)->accept(*this, xml_tag);
                     }
@@ -612,8 +612,8 @@ private:
     template<class T>
     void visit(ObjectNode<T> *node, const XmlTag &tag)
     {
-        if (tag._id.isValid() && node->getObject().getObject() != 0) {
-            _loading_ref_map.addObject(tag._id, node->getObject().getObject());
+        if (tag.m_id.isValid() && node->getObject().getObject() != 0) {
+            m_loadingRefMap.addObject(tag.m_id, node->getObject().getObject());
         }
         readChildren(node);
     }
@@ -623,7 +623,7 @@ private:
     {
         load(*this, node->getBase().getBase(), node->getBase().getParameters());
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getBase().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getBase().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -633,7 +633,7 @@ private:
     {
         load(*this, *node->getAttribute().getValue(), node->getAttribute().getParameters());
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getAttribute().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -645,7 +645,7 @@ private:
         load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getObject().*(node->getAttribute().getSetter()))(value);
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getAttribute().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -657,7 +657,7 @@ private:
         load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getObject().*(node->getAttribute().getSetter()))(value);
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getAttribute().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -669,7 +669,7 @@ private:
         load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getObject().*(node->getAttribute().getSetter()))(value);
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getAttribute().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -681,7 +681,7 @@ private:
         load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getObject().*(node->getAttribute().getSetter()))(value);
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getAttribute().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -693,7 +693,7 @@ private:
         load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getSetFunc())(node->getAttribute().getObject(), value);
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getAttribute().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -705,7 +705,7 @@ private:
         load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getSetFunc())(node->getAttribute().getObject(), value);
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getAttribute().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -717,7 +717,7 @@ private:
         load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getSetFunc())(node->getAttribute().getObject(), value);
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getAttribute().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -729,7 +729,7 @@ private:
         load(*this, value, node->getAttribute().getParameters());
         (node->getAttribute().getSetFunc())(node->getAttribute().getObject(), value);
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getAttribute().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getAttribute().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -737,15 +737,15 @@ private:
     template<typename T>
     void visit(RefNode<T> *node, const XmlTag &)
     {
-        _current_ref_node = node;
+        m_currentRefNode = node;
         T value = T();
         load(*this, value, node->getReference().getParameters());
-        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
             *node->getReference().getValue() = value;
-            _current_ref_node = 0;
+            m_currentRefNode = 0;
         }
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getReference().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getReference().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -753,15 +753,15 @@ private:
     template<class U, typename T>
     void visit(SetterRefNode<U, T> *node, const XmlTag &)
     {
-        _current_ref_node = node;
+        m_currentRefNode = node;
         T value;
         load(*this, value, node->getReference().getParameters());
-        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
             (node->getReference().getObject().*(node->getReference().getSetter()))(value);
-            _current_ref_node = 0;
+            m_currentRefNode = 0;
         }
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getReference().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getReference().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -769,15 +769,15 @@ private:
     template<class U, typename T>
     void visit(SetterRefNode<U, T const &> *node, const XmlTag &)
     {
-        _current_ref_node = node;
+        m_currentRefNode = node;
         T value;
         load(*this, value, node->getReference().getParameters());
-        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
             (node->getReference().getObject().*(node->getReference().getSetter()))(value);
-            _current_ref_node = 0;
+            m_currentRefNode = 0;
         }
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getReference().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getReference().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -785,15 +785,15 @@ private:
     template<class U, typename T, typename V>
     void visit(GetterSetterRefNode<U, T, V> *node, const XmlTag &)
     {
-        _current_ref_node = node;
+        m_currentRefNode = node;
         V value;
         load(*this, value, node->getReference().getParameters());
-        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
             (node->getReference().getObject().*(node->getReference().getSetter()))(value);
-            _current_ref_node = 0;
+            m_currentRefNode = 0;
         }
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getReference().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getReference().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -801,15 +801,15 @@ private:
     template<class U, typename T, typename V>
     void visit(GetterSetterRefNode<U, T, V const &> *node, const XmlTag &)
     {
-        _current_ref_node = node;
+        m_currentRefNode = node;
         V value;
         load(*this, value, node->getReference().getParameters());
-        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
             (node->getReference().getObject().*(node->getReference().getSetter()))(value);
-            _current_ref_node = 0;
+            m_currentRefNode = 0;
         }
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getReference().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getReference().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -817,15 +817,15 @@ private:
     template<class U, typename T>
     void visit(SetFuncRefNode<U, T> *node, const XmlTag &)
     {
-        _current_ref_node = node;
+        m_currentRefNode = node;
         T value;
         load(*this, value, node->getReference().getParameters());
-        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
             (node->getReference().getSetFunc())(node->getReference().getObject(), value);
-            _current_ref_node = 0;
+            m_currentRefNode = 0;
         }
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getReference().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getReference().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -833,15 +833,15 @@ private:
     template<class U, typename T>
     void visit(SetFuncRefNode<U, T const &> *node, const XmlTag &)
     {
-        _current_ref_node = node;
+        m_currentRefNode = node;
         T value;
         load(*this, value, node->getReference().getParameters());
-        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
             (node->getReference().getSetFunc())(node->getReference().getObject(), value);
-            _current_ref_node = 0;
+            m_currentRefNode = 0;
         }
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getReference().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getReference().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -849,15 +849,15 @@ private:
     template<class U, typename T, typename V>
     void visit(GetSetFuncRefNode<U, T, V> *node, const XmlTag &)
     {
-        _current_ref_node = node;
+        m_currentRefNode = node;
         V value;
         load(*this, value, node->getReference().getParameters());
-        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
             (node->getReference().getSetFunc())(node->getReference().getObject(), value);
-            _current_ref_node = 0;
+            m_currentRefNode = 0;
         }
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getReference().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getReference().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -865,15 +865,15 @@ private:
     template<class U, typename T, typename V>
     void visit(GetSetFuncRefNode<U, T, V const &> *node, const XmlTag &)
     {
-        _current_ref_node = node;
+        m_currentRefNode = node;
         V value;
         load(*this, value, node->getReference().getParameters());
-        if (_current_ref_node != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
             (node->getReference().getSetFunc())(node->getReference().getObject(), value);
-            _current_ref_node = 0;
+            m_currentRefNode = 0;
         }
         XmlTag xml_tag = readTag();
-        if (!xml_tag._end_tag || xml_tag._tag_name != node->getReference().getQualifiedName()) {
+        if (!xml_tag.m_endTag || xml_tag.m_tagName != node->getReference().getQualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -885,11 +885,11 @@ private:
     inline void skipUntilEndOfTag(const XmlTag &xml_tag);
 
 private:
-    QXmlStreamReader &_stream;
-    bool _end_tag_was_read;
-    QStack<Node *> _node_stack;
-    impl::LoadingRefMap _loading_ref_map;
-    Node *_current_ref_node;
+    QXmlStreamReader &m_stream;
+    bool m_endTagWasRead;
+    QStack<Node *> m_nodeStack;
+    impl::LoadingRefMap m_loadingRefMap;
+    Node *m_currentRefNode;
 };
 
 
@@ -897,43 +897,43 @@ QXmlInArchive::XmlTag QXmlInArchive::readTag()
 {
     XmlTag xml_tag;
 
-    if (_end_tag_was_read) {
-        if (_stream.tokenType() != QXmlStreamReader::EndElement) {
+    if (m_endTagWasRead) {
+        if (m_stream.tokenType() != QXmlStreamReader::EndElement) {
             throw FileFormatException();
         }
-        xml_tag._tag_name = _stream.name().toString();
-        xml_tag._end_tag = true;
-        _end_tag_was_read = false;
+        xml_tag.m_tagName = m_stream.name().toString();
+        xml_tag.m_endTag = true;
+        m_endTagWasRead = false;
         return xml_tag;
     }
 
-    while (!_stream.atEnd()) {
-        switch (_stream.readNext()) {
+    while (!m_stream.atEnd()) {
+        switch (m_stream.readNext()) {
         case QXmlStreamReader::StartElement:
-            xml_tag._tag_name = _stream.name().toString();
-            foreach (const QXmlStreamAttribute &attribute, _stream.attributes()) {
+            xml_tag.m_tagName = m_stream.name().toString();
+            foreach (const QXmlStreamAttribute &attribute, m_stream.attributes()) {
                 if (attribute.name() == QLatin1String("id")) {
                     bool ok = false;
                     int id = attribute.value().toString().toInt(&ok);
                     if (!ok) {
                         throw FileFormatException();
                     }
-                    xml_tag._id = impl::ObjectId(id);
+                    xml_tag.m_id = impl::ObjectId(id);
                 } else {
-                    xml_tag._attributes.insert(attribute.name().toString(), attribute.value().toString());
+                    xml_tag.m_attributes.insert(attribute.name().toString(), attribute.value().toString());
                 }
             }
 
             return xml_tag;
         case QXmlStreamReader::EndElement:
-            xml_tag._tag_name = _stream.name().toString();
-            xml_tag._end_tag = true;
+            xml_tag.m_tagName = m_stream.name().toString();
+            xml_tag.m_endTag = true;
             return xml_tag;
         case QXmlStreamReader::Comment:
             // intentionally left blank
             break;
         case QXmlStreamReader::Characters:
-            if (!_stream.isWhitespace()) {
+            if (!m_stream.isWhitespace()) {
                 throw FileFormatException();
             }
             break;
@@ -946,19 +946,19 @@ QXmlInArchive::XmlTag QXmlInArchive::readTag()
 
 void QXmlInArchive::skipUntilEndOfTag(const XmlTag &xml_tag)
 {
-    if (_end_tag_was_read) {
+    if (m_endTagWasRead) {
         throw FileFormatException();
     }
     int depth = 1;
-    while (!_stream.atEnd()) {
-        switch (_stream.readNext()) {
+    while (!m_stream.atEnd()) {
+        switch (m_stream.readNext()) {
         case QXmlStreamReader::StartElement:
             ++depth;
             break;
         case QXmlStreamReader::EndElement:
             --depth;
             if (depth == 0) {
-                if (_stream.name().toString() != xml_tag._tag_name) {
+                if (m_stream.name().toString() != xml_tag.m_tagName) {
                     throw FileFormatException();
                 }
                 return;

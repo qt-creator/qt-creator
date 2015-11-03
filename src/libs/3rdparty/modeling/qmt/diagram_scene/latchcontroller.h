@@ -77,23 +77,23 @@ public:
 
 private:
 
-    DiagramSceneModel *_diagram_scene_model;
+    DiagramSceneModel *m_diagramSceneModel;
 
-    AlignLineItem *_horizontal_align_line;
+    AlignLineItem *m_horizontalAlignLine;
 
-    AlignLineItem *_vertical_align_line;
+    AlignLineItem *m_verticalAlignLine;
 
-    bool _found_horizontal_latch;
+    bool m_foundHorizontalLatch;
 
-    ILatchable::Latch _horizontal_latch;
+    ILatchable::Latch m_horizontalLatch;
 
-    qreal _horizontal_dist;
+    qreal m_horizontalDist;
 
-    bool _found_vertical_latch;
+    bool m_foundVerticalLatch;
 
-    ILatchable::Latch _vertical_latch;
+    ILatchable::Latch m_verticalLatch;
 
-    qreal _vertical_dist;
+    qreal m_verticalDist;
 };
 
 }

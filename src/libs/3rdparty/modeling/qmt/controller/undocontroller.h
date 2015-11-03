@@ -59,7 +59,7 @@ signals:
 
 public:
 
-    QUndoStack *getUndoStack() const { return _undo_stack; }
+    QUndoStack *getUndoStack() const { return m_undoStack; }
 
 public slots:
 
@@ -77,9 +77,9 @@ public:
 
 private:
 
-    QUndoStack *_undo_stack;
+    QUndoStack *m_undoStack;
 
-    bool _do_not_merge;
+    bool m_doNotMerge;
 
 };
 

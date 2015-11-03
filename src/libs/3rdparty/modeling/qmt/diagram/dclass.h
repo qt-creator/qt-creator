@@ -55,27 +55,27 @@ public:
 
 public:
 
-    QString getNamespace() const { return _namespace; }
+    QString getNamespace() const { return m_namespace; }
 
     void setNamespace(const QString &name_space);
 
-    QList<QString> getTemplateParameters() const { return _template_parameters; }
+    QList<QString> getTemplateParameters() const { return m_templateParameters; }
 
     void setTemplateParameters(const QList<QString> &template_parameters);
 
-    QList<MClassMember> getMembers() const { return _members; }
+    QList<MClassMember> getMembers() const { return m_members; }
 
     void setMembers(const QList<MClassMember> &members);
 
-    QSet<Uid> getVisibleMembers() const { return _visible_members; }
+    QSet<Uid> getVisibleMembers() const { return m_visibleMembers; }
 
     void setVisibleMembers(const QSet<Uid> &visible_members);
 
-    TemplateDisplay getTemplateDisplay() const { return _template_display; }
+    TemplateDisplay getTemplateDisplay() const { return m_templateDisplay; }
 
     void setTemplateDisplay(TemplateDisplay template_display);
 
-    bool getShowAllMembers() const { return _show_all_members; }
+    bool getShowAllMembers() const { return m_showAllMembers; }
 
     void setShowAllMembers(bool show_all_members);
 
@@ -87,17 +87,17 @@ public:
 
 private:
 
-    QString _namespace;
+    QString m_namespace;
 
-    QList<QString> _template_parameters;
+    QList<QString> m_templateParameters;
 
-    QList<MClassMember> _members;
+    QList<MClassMember> m_members;
 
-    QSet<Uid> _visible_members;
+    QSet<Uid> m_visibleMembers;
 
-    TemplateDisplay _template_display;
+    TemplateDisplay m_templateDisplay;
 
-    bool _show_all_members;
+    bool m_showAllMembers;
 };
 
 }

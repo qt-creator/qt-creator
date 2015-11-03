@@ -59,8 +59,8 @@
 namespace qmt {
 
 DiagramSceneModel::CreationVisitor::CreationVisitor(DiagramSceneModel *diagram_scene_model)
-    : _diagram_scene_model(diagram_scene_model),
-      _graphics_item(0)
+    : m_diagramSceneModel(diagram_scene_model),
+      m_graphicsItem(0)
 {
 }
 
@@ -78,38 +78,38 @@ void DiagramSceneModel::CreationVisitor::visitDObject(DObject *object)
 
 void DiagramSceneModel::CreationVisitor::visitDPackage(DPackage *package)
 {
-    QMT_CHECK(!_graphics_item);
-    _graphics_item = new PackageItem(package, _diagram_scene_model);
+    QMT_CHECK(!m_graphicsItem);
+    m_graphicsItem = new PackageItem(package, m_diagramSceneModel);
 }
 
 void DiagramSceneModel::CreationVisitor::visitDClass(DClass *klass)
 {
-    QMT_CHECK(!_graphics_item);
-    _graphics_item = new ClassItem(klass, _diagram_scene_model);
+    QMT_CHECK(!m_graphicsItem);
+    m_graphicsItem = new ClassItem(klass, m_diagramSceneModel);
 }
 
 void DiagramSceneModel::CreationVisitor::visitDComponent(DComponent *component)
 {
-    QMT_CHECK(!_graphics_item);
-    _graphics_item = new ComponentItem(component, _diagram_scene_model);
+    QMT_CHECK(!m_graphicsItem);
+    m_graphicsItem = new ComponentItem(component, m_diagramSceneModel);
 }
 
 void DiagramSceneModel::CreationVisitor::visitDDiagram(DDiagram *diagram)
 {
-    QMT_CHECK(!_graphics_item);
-    _graphics_item = new DiagramItem(diagram, _diagram_scene_model);
+    QMT_CHECK(!m_graphicsItem);
+    m_graphicsItem = new DiagramItem(diagram, m_diagramSceneModel);
 }
 
 void DiagramSceneModel::CreationVisitor::visitDItem(DItem *item)
 {
-    QMT_CHECK(!_graphics_item);
-    _graphics_item = new ItemItem(item, _diagram_scene_model);
+    QMT_CHECK(!m_graphicsItem);
+    m_graphicsItem = new ItemItem(item, m_diagramSceneModel);
 }
 
 void DiagramSceneModel::CreationVisitor::visitDRelation(DRelation *relation)
 {
-    QMT_CHECK(!_graphics_item);
-    _graphics_item = new RelationItem(relation, _diagram_scene_model);
+    QMT_CHECK(!m_graphicsItem);
+    m_graphicsItem = new RelationItem(relation, m_diagramSceneModel);
 }
 
 void DiagramSceneModel::CreationVisitor::visitDInheritance(DInheritance *inheritance)
@@ -124,28 +124,28 @@ void DiagramSceneModel::CreationVisitor::visitDDependency(DDependency *dependenc
 
 void DiagramSceneModel::CreationVisitor::visitDAssociation(DAssociation *association)
 {
-    QMT_CHECK(!_graphics_item);
-    _graphics_item = new AssociationItem(association, _diagram_scene_model);
+    QMT_CHECK(!m_graphicsItem);
+    m_graphicsItem = new AssociationItem(association, m_diagramSceneModel);
 }
 
 void DiagramSceneModel::CreationVisitor::visitDAnnotation(DAnnotation *annotation)
 {
-    QMT_CHECK(!_graphics_item);
-    _graphics_item = new AnnotationItem(annotation, _diagram_scene_model);
+    QMT_CHECK(!m_graphicsItem);
+    m_graphicsItem = new AnnotationItem(annotation, m_diagramSceneModel);
 }
 
 void DiagramSceneModel::CreationVisitor::visitDBoundary(DBoundary *boundary)
 {
-    QMT_CHECK(!_graphics_item);
-    _graphics_item = new BoundaryItem(boundary, _diagram_scene_model);
+    QMT_CHECK(!m_graphicsItem);
+    m_graphicsItem = new BoundaryItem(boundary, m_diagramSceneModel);
 }
 
 
 
 DiagramSceneModel::UpdateVisitor::UpdateVisitor(QGraphicsItem *item, DiagramSceneModel *diagram_scene_model, DElement *related_element)
-    : _graphics_item(item),
-      _diagram_scene_model(diagram_scene_model),
-      _related_element(related_element)
+    : m_graphicsItem(item),
+      m_diagramSceneModel(diagram_scene_model),
+      m_relatedElement(related_element)
 {
 }
 
@@ -157,13 +157,13 @@ void DiagramSceneModel::UpdateVisitor::visitDElement(DElement *element)
 
 void DiagramSceneModel::UpdateVisitor::visitDObject(DObject *object)
 {
-    if (_related_element == 0) {
+    if (m_relatedElement == 0) {
         // update all related relations
-        foreach (QGraphicsItem *item, _diagram_scene_model->_graphics_items) {
-            DElement *element = _diagram_scene_model->_item_to_element_map.value(item);
+        foreach (QGraphicsItem *item, m_diagramSceneModel->m_graphicsItems) {
+            DElement *element = m_diagramSceneModel->m_itemToElementMap.value(item);
             QMT_CHECK(element);
             if (dynamic_cast<DRelation *>(element) != 0) {
-                UpdateVisitor visitor(item, _diagram_scene_model, object);
+                UpdateVisitor visitor(item, m_diagramSceneModel, object);
                 element->accept(&visitor);
             }
         }
@@ -172,10 +172,10 @@ void DiagramSceneModel::UpdateVisitor::visitDObject(DObject *object)
 
 void DiagramSceneModel::UpdateVisitor::visitDPackage(DPackage *package)
 {
-    QMT_CHECK(_graphics_item);
+    QMT_CHECK(m_graphicsItem);
 
-    if (_related_element == 0) {
-        PackageItem *package_item = qgraphicsitem_cast<PackageItem *>(_graphics_item);
+    if (m_relatedElement == 0) {
+        PackageItem *package_item = qgraphicsitem_cast<PackageItem *>(m_graphicsItem);
         QMT_CHECK(package_item);
         QMT_CHECK(package_item->getObject() == package);
         package_item->update();
@@ -186,10 +186,10 @@ void DiagramSceneModel::UpdateVisitor::visitDPackage(DPackage *package)
 
 void DiagramSceneModel::UpdateVisitor::visitDClass(DClass *klass)
 {
-    QMT_CHECK(_graphics_item);
+    QMT_CHECK(m_graphicsItem);
 
-    if (_related_element == 0) {
-        ClassItem *class_item = qgraphicsitem_cast<ClassItem *>(_graphics_item);
+    if (m_relatedElement == 0) {
+        ClassItem *class_item = qgraphicsitem_cast<ClassItem *>(m_graphicsItem);
         QMT_CHECK(class_item);
         QMT_CHECK(class_item->getObject() == klass);
         class_item->update();
@@ -200,10 +200,10 @@ void DiagramSceneModel::UpdateVisitor::visitDClass(DClass *klass)
 
 void DiagramSceneModel::UpdateVisitor::visitDComponent(DComponent *component)
 {
-    QMT_CHECK(_graphics_item);
+    QMT_CHECK(m_graphicsItem);
 
-    if (_related_element == 0) {
-        ComponentItem *component_item = qgraphicsitem_cast<ComponentItem *>(_graphics_item);
+    if (m_relatedElement == 0) {
+        ComponentItem *component_item = qgraphicsitem_cast<ComponentItem *>(m_graphicsItem);
         QMT_CHECK(component_item);
         QMT_CHECK(component_item->getObject() == component);
         component_item->update();
@@ -214,10 +214,10 @@ void DiagramSceneModel::UpdateVisitor::visitDComponent(DComponent *component)
 
 void DiagramSceneModel::UpdateVisitor::visitDDiagram(DDiagram *diagram)
 {
-    QMT_CHECK(_graphics_item);
+    QMT_CHECK(m_graphicsItem);
 
-    if (_related_element == 0) {
-        DiagramItem *document_item = qgraphicsitem_cast<DiagramItem *>(_graphics_item);
+    if (m_relatedElement == 0) {
+        DiagramItem *document_item = qgraphicsitem_cast<DiagramItem *>(m_graphicsItem);
         QMT_CHECK(document_item);
         QMT_CHECK(document_item->getObject() == diagram);
         document_item->update();
@@ -228,10 +228,10 @@ void DiagramSceneModel::UpdateVisitor::visitDDiagram(DDiagram *diagram)
 
 void DiagramSceneModel::UpdateVisitor::visitDItem(DItem *item)
 {
-    QMT_CHECK(_graphics_item);
+    QMT_CHECK(m_graphicsItem);
 
-    if (_related_element == 0) {
-        ItemItem *item_item = qgraphicsitem_cast<ItemItem *>(_graphics_item);
+    if (m_relatedElement == 0) {
+        ItemItem *item_item = qgraphicsitem_cast<ItemItem *>(m_graphicsItem);
         QMT_CHECK(item_item);
         QMT_CHECK(item_item->getObject() == item);
         item_item->update();
@@ -242,10 +242,10 @@ void DiagramSceneModel::UpdateVisitor::visitDItem(DItem *item)
 
 void DiagramSceneModel::UpdateVisitor::visitDRelation(DRelation *relation)
 {
-    QMT_CHECK(_graphics_item);
+    QMT_CHECK(m_graphicsItem);
 
-    if (_related_element == 0 || _related_element->getUid() == relation->getEndA() || _related_element->getUid() == relation->getEndB()) {
-        RelationItem *relation_item = qgraphicsitem_cast<RelationItem *>(_graphics_item);
+    if (m_relatedElement == 0 || m_relatedElement->getUid() == relation->getEndA() || m_relatedElement->getUid() == relation->getEndB()) {
+        RelationItem *relation_item = qgraphicsitem_cast<RelationItem *>(m_graphicsItem);
         QMT_CHECK(relation_item);
         QMT_CHECK(relation_item->getRelation() == relation);
         relation_item->update();
@@ -270,9 +270,9 @@ void DiagramSceneModel::UpdateVisitor::visitDAssociation(DAssociation *associati
 void DiagramSceneModel::UpdateVisitor::visitDAnnotation(DAnnotation *annotation)
 {
     Q_UNUSED(annotation); // avoid warning in release mode
-    QMT_CHECK(_graphics_item);
+    QMT_CHECK(m_graphicsItem);
 
-    AnnotationItem *annotation_item = qgraphicsitem_cast<AnnotationItem *>(_graphics_item);
+    AnnotationItem *annotation_item = qgraphicsitem_cast<AnnotationItem *>(m_graphicsItem);
     QMT_CHECK(annotation_item);
     QMT_CHECK(annotation_item->getAnnotation() == annotation);
     annotation_item->update();
@@ -281,9 +281,9 @@ void DiagramSceneModel::UpdateVisitor::visitDAnnotation(DAnnotation *annotation)
 void DiagramSceneModel::UpdateVisitor::visitDBoundary(DBoundary *boundary)
 {
     Q_UNUSED(boundary); // avoid warning in release mode
-    QMT_CHECK(_graphics_item);
+    QMT_CHECK(m_graphicsItem);
 
-    BoundaryItem *boundary_item = qgraphicsitem_cast<BoundaryItem *>(_graphics_item);
+    BoundaryItem *boundary_item = qgraphicsitem_cast<BoundaryItem *>(m_graphicsItem);
     QMT_CHECK(boundary_item);
     QMT_CHECK(boundary_item->getBoundary() == boundary);
     boundary_item->update();

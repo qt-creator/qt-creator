@@ -39,9 +39,9 @@ namespace qmt {
 
 PaletteBox::PaletteBox(QWidget *parent)
     : QWidget(parent),
-      _brushes(6),
-      _pens(6),
-      _current_index(-1)
+      m_brushes(6),
+      m_pens(6),
+      m_currentIndex(-1)
 {
     setFocusPolicy(Qt::StrongFocus);
 }
@@ -52,30 +52,30 @@ PaletteBox::~PaletteBox()
 
 QBrush PaletteBox::getBrush(int index) const
 {
-    QMT_CHECK(index >= 0 && index <= _brushes.size());
-    return _brushes.at(index);
+    QMT_CHECK(index >= 0 && index <= m_brushes.size());
+    return m_brushes.at(index);
 }
 
 void PaletteBox::setBrush(int index, const QBrush &brush)
 {
-    QMT_CHECK(index >= 0 && index <= _brushes.size());
-    if (_brushes[index] != brush) {
-        _brushes[index] = brush;
+    QMT_CHECK(index >= 0 && index <= m_brushes.size());
+    if (m_brushes[index] != brush) {
+        m_brushes[index] = brush;
         update();
     }
 }
 
 QPen PaletteBox::getLinePen(int index) const
 {
-    QMT_CHECK(index >= 0 && index <= _pens.size());
-    return _pens.at(index);
+    QMT_CHECK(index >= 0 && index <= m_pens.size());
+    return m_pens.at(index);
 }
 
 void PaletteBox::setLinePen(int index, const QPen &pen)
 {
-    QMT_CHECK(index >= 0 && index <= _pens.size());
-    if (_pens[index] != pen) {
-        _pens[index] = pen;
+    QMT_CHECK(index >= 0 && index <= m_pens.size());
+    if (m_pens[index] != pen) {
+        m_pens[index] = pen;
         update();
     }
 }
@@ -87,11 +87,11 @@ void PaletteBox::clear()
 
 void PaletteBox::setCurrentIndex(int index)
 {
-    if (_current_index != index) {
-        if (index >= 0 && index < _brushes.size()) {
-            _current_index = index;
+    if (m_currentIndex != index) {
+        if (index >= 0 && index < m_brushes.size()) {
+            m_currentIndex = index;
         } else {
-            _current_index = -1;
+            m_currentIndex = -1;
         }
         update();
     }
@@ -102,13 +102,13 @@ void PaletteBox::paintEvent(QPaintEvent *event)
     Q_UNUSED(event);
 
     QPainter painter(this);
-    qreal w = (qreal) width() / (qreal) _brushes.size();
+    qreal w = (qreal) width() / (qreal) m_brushes.size();
     qreal h = height();
-    for (int i = 0; i < _brushes.size(); ++i) {
-        QBrush brush = _brushes.at(i);
-        if (i == _current_index) {
+    for (int i = 0; i < m_brushes.size(); ++i) {
+        QBrush brush = m_brushes.at(i);
+        if (i == m_currentIndex) {
             painter.fillRect(QRectF(i * w, 0, w, h), brush);
-            QPen pen = _pens.at(i);
+            QPen pen = m_pens.at(i);
             pen.setWidth(2);
             painter.setPen(pen);
             painter.drawRect(QRectF(i * w + 1, 1, w - 2, h - 2));
@@ -128,13 +128,13 @@ void PaletteBox::paintEvent(QPaintEvent *event)
 
 void PaletteBox::mousePressEvent(QMouseEvent *event)
 {
-    qreal w = (qreal) width() / (qreal) _brushes.size();
+    qreal w = (qreal) width() / (qreal) m_brushes.size();
 
     int i = (int) (event->x() / w);
-    QMT_CHECK(i >= 0 && i < _brushes.size());
+    QMT_CHECK(i >= 0 && i < m_brushes.size());
     setCurrentIndex(i);
-    if (_current_index >= 0 && _current_index < _brushes.size()) {
-        emit activated(_current_index);
+    if (m_currentIndex >= 0 && m_currentIndex < m_brushes.size()) {
+        emit activated(m_currentIndex);
     }
 }
 
@@ -143,24 +143,24 @@ void PaletteBox::keyPressEvent(QKeyEvent *event)
     bool is_known_key = false;
     switch (event->key()) {
     case Qt::Key_Left:
-        if (_current_index <= 0) {
-            setCurrentIndex((_brushes.size() - 1));
+        if (m_currentIndex <= 0) {
+            setCurrentIndex((m_brushes.size() - 1));
         } else {
-            setCurrentIndex(_current_index - 1);
+            setCurrentIndex(m_currentIndex - 1);
         }
         is_known_key = true;
         break;
     case Qt::Key_Right:
-        if (_current_index < 0 || _current_index >= _brushes.size() - 1) {
+        if (m_currentIndex < 0 || m_currentIndex >= m_brushes.size() - 1) {
             setCurrentIndex(0);
         } else {
-            setCurrentIndex(_current_index + 1);
+            setCurrentIndex(m_currentIndex + 1);
         }
         is_known_key = true;
         break;
     }
-    if (is_known_key && _current_index >= 0 && _current_index < _brushes.size()) {
-        emit activated(_current_index);
+    if (is_known_key && m_currentIndex >= 0 && m_currentIndex < m_brushes.size()) {
+        emit activated(m_currentIndex);
     }
 }
 

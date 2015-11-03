@@ -41,38 +41,38 @@ class Handle
 {
 public:
 
-    Handle() : _target(0) { }
+    Handle() : m_target(0) { }
 
-    explicit Handle(const Uid &uid) : _uid(uid), _target(0) { }
+    explicit Handle(const Uid &uid) : m_uid(uid), m_target(0) { }
 
-    explicit Handle(T *t) : _uid(t ? t->getUid() : Uid()), _target(t) { }
+    explicit Handle(T *t) : m_uid(t ? t->getUid() : Uid()), m_target(t) { }
 
-    Handle(const Handle &rhs) : _uid(rhs._uid), _target(rhs._target) { }
+    Handle(const Handle &rhs) : m_uid(rhs.m_uid), m_target(rhs.m_target) { }
 
     template<class U>
-    Handle(const Handle<U> &rhs) : _uid(rhs.getUid()), _target(rhs.getTarget()) { }
+    Handle(const Handle<U> &rhs) : m_uid(rhs.getUid()), m_target(rhs.getTarget()) { }
 
 public:
 
-    bool isNull() const { return !_uid.isValid(); }
+    bool isNull() const { return !m_uid.isValid(); }
 
-    bool hasTarget() const { return _target != 0; }
+    bool hasTarget() const { return m_target != 0; }
 
-    Uid getUid() const { return _uid; }
+    Uid getUid() const { return m_uid; }
 
-    T *getTarget() const { return _target; }
+    T *getTarget() const { return m_target; }
 
-    void setUid(const Uid &uid) { QMT_CHECK(_target != 0 ? (_target->getUid() == uid) : true); _uid = uid; }
+    void setUid(const Uid &uid) { QMT_CHECK(m_target != 0 ? (m_target->getUid() == uid) : true); m_uid = uid; }
 
-    void setTarget(T *t) { _uid = t ? t->getUid() : Uid(); _target = t; }
+    void setTarget(T *t) { m_uid = t ? t->getUid() : Uid(); m_target = t; }
 
-    void clear() { _uid = Uid(); _target = 0; }
+    void clear() { m_uid = Uid(); m_target = 0; }
 
-    void clearTarget() { _target = 0; }
+    void clearTarget() { m_target = 0; }
 
 private:
-    Uid _uid;
-    T *_target;
+    Uid m_uid;
+    T *m_target;
 };
 
 template<class T>

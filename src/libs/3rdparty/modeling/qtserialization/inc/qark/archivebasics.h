@@ -42,50 +42,50 @@ namespace qark {
 class ArchiveBasics
 {
 public:
-    ArchiveBasics() : _flags(0) { }
+    ArchiveBasics() : m_flags(0) { }
 
-    void setFlag(const Flag &flag) { _flags |= flag.getMask(); }
+    void setFlag(const Flag &flag) { m_flags |= flag.getMask(); }
 
-    void clearFlag(const Flag &flag) { _flags &= ~flag.getMask(); }
+    void clearFlag(const Flag &flag) { m_flags &= ~flag.getMask(); }
 
-    bool hasFlag(const Flag &flag) const { return (_flags & flag.getMask()) != 0; }
+    bool hasFlag(const Flag &flag) const { return (m_flags & flag.getMask()) != 0; }
 
-    bool takeFlag(const Flag &flag) { bool f = (_flags & flag.getMask()) != 0; _flags &= ~flag.getMask(); return f; }
+    bool takeFlag(const Flag &flag) { bool f = (m_flags & flag.getMask()) != 0; m_flags &= ~flag.getMask(); return f; }
 
     bool hasUserData(const QString &key)
     {
-        return _user_data.contains(key);
+        return m_userData.contains(key);
     }
 
     template<typename T>
     T getUserData(const QString &key)
     {
-        return _user_data.value(key).value<T>();
+        return m_userData.value(key).value<T>();
     }
 
     template<typename T>
     T getUserData(const QString &key, const T &default_value)
     {
         // gcc 4.8.2 fails to compile if the following 2 statements are written in one expression
-        //return _user_data.value(key, data).value<T>();
-        QVariant v = _user_data.value(key, default_value);
+        //return m_userData.value(key, data).value<T>();
+        QVariant v = m_userData.value(key, default_value);
         return v.value<T>();
     }
 
     template<class T>
     void setUserData(const QString &key, const T &data)
     {
-        _user_data.insert(key, data);
+        m_userData.insert(key, data);
     }
 
     void removeUserData(const QString &key)
     {
-        _user_data.remove(key);
+        m_userData.remove(key);
     }
 
 private:
-    Flag::mask_type _flags;
-    QHash<QString, QVariant> _user_data;
+    Flag::mask_type m_flags;
+    QHash<QString, QVariant> m_userData;
 };
 
 }

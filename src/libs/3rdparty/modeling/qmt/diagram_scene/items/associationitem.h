@@ -65,15 +65,15 @@ private:
 
 private:
 
-    DAssociation *_association;
+    DAssociation *m_association;
 
-    QGraphicsSimpleTextItem *_end_a_name;
+    QGraphicsSimpleTextItem *m_endAName;
 
-    QGraphicsSimpleTextItem *_end_a_cardinality;
+    QGraphicsSimpleTextItem *m_endACardinality;
 
-    QGraphicsSimpleTextItem *_end_b_name;
+    QGraphicsSimpleTextItem *m_endBName;
 
-    QGraphicsSimpleTextItem *_end_b_cardinality;
+    QGraphicsSimpleTextItem *m_endBCardinality;
 
 };
 

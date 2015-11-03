@@ -78,7 +78,7 @@ public:
 
 public:
 
-    QWidget *getTopLevelWidget() const { return _top_widget; }
+    QWidget *getTopLevelWidget() const { return m_topWidget; }
 
 public:
 
@@ -250,75 +250,75 @@ private:
     void assignEmbeddedModelElement(const QList<BASE *> &base_elements, SelectionType selection_type, const V &value, E (T::*getter)() const, void (T::*setter)(const E &), V (E::*v_getter)() const, void (E::*v_setter)(V));
 
 private:
-    PropertiesView *_properties_view;
+    PropertiesView *m_propertiesView;
 
-    QList<MElement *> _model_elements;
+    QList<MElement *> m_modelElements;
 
-    QList<DElement *> _diagram_elements;
-    MDiagram *_diagram;
+    QList<DElement *> m_diagramElements;
+    MDiagram *m_diagram;
 
-    StereotypesController *_stereotypes_controller;
+    StereotypesController *m_stereotypesController;
 
-    QWidget *_top_widget;
-    QFormLayout *_top_layout;
-    QString _properties_title;
+    QWidget *m_topWidget;
+    QFormLayout *m_topLayout;
+    QString m_propertiesTitle;
     // MElement
-    StereotypeIcon::Element _stereotype_element;
-    QLabel *_class_name_label;
-    QComboBox *_stereotype_combo_box;
-    QLabel *_reverse_engineered_label;
+    StereotypeIcon::Element m_stereotypeElement;
+    QLabel *m_classNameLabel;
+    QComboBox *m_stereotypeComboBox;
+    QLabel *m_reverseEngineeredLabel;
     // MObject
-    QLineEdit *_element_name_line_edit;
-    QLabel *_children_label;
-    QLabel *_relations_label;
+    QLineEdit *m_elementNameLineEdit;
+    QLabel *m_childrenLabel;
+    QLabel *m_relationsLabel;
     // MClass
-    QLineEdit *_namespace_line_edit;
-    QLineEdit *_template_parameters_line_edit;
-    QLabel *_class_members_status_label;
-    QPushButton *_class_members_parse_button;
-    ClassMembersEdit *_class_members_edit;
+    QLineEdit *m_namespaceLineEdit;
+    QLineEdit *m_templateParametersLineEdit;
+    QLabel *m_classMembersStatusLabel;
+    QPushButton *m_classMembersParseButton;
+    ClassMembersEdit *m_classMembersEdit;
     // MDiagram
-    QLabel *_diagrams_label;
+    QLabel *m_diagramsLabel;
     // MItem
-    QLineEdit *_item_variety_edit;
+    QLineEdit *m_itemVarietyEdit;
     // MRelation
-    QString _end_a_name;
-    QLabel *_end_a_label;
-    QString _end_b_name;
-    QLabel *_end_b_label;
+    QString m_endAName;
+    QLabel *m_endALabel;
+    QString m_endBName;
+    QLabel *m_endBLabel;
     // MDependency
-    QComboBox *_direction_selector;
+    QComboBox *m_directionSelector;
     // MAssociation
-    QLineEdit *_end_a_end_name;
-    QLineEdit *_end_a_cardinality;
-    QCheckBox *_end_a_navigable;
-    QComboBox *_end_a_kind;
-    QLineEdit *_end_b_end_name;
-    QLineEdit *_end_b_cardinality;
-    QCheckBox *_end_b_navigable;
-    QComboBox *_end_b_kind;
+    QLineEdit *m_endAEndName;
+    QLineEdit *m_endACardinality;
+    QCheckBox *m_endANavigable;
+    QComboBox *m_endAKind;
+    QLineEdit *m_endBEndName;
+    QLineEdit *m_endBCardinality;
+    QCheckBox *m_endBNavigable;
+    QComboBox *m_endBKind;
 
     // DElement
-    QFrame *_separator_line;
+    QFrame *m_separatorLine;
     // DObject
-    StyleEngine::ElementType _style_element_type;
-    QLabel *_pos_rect_label;
-    QCheckBox *_auto_sized_checkbox;
-    PaletteBox *_visual_primary_role_selector;
-    QComboBox *_visual_secondary_role_selector;
-    QCheckBox *_visual_emphasized_checkbox;
-    QComboBox *_stereotype_display_selector;
-    QLabel *_depth_label;
+    StyleEngine::ElementType m_styleElementType;
+    QLabel *m_posRectLabel;
+    QCheckBox *m_autoSizedCheckbox;
+    PaletteBox *m_visualPrimaryRoleSelector;
+    QComboBox *m_visualSecondaryRoleSelector;
+    QCheckBox *m_visualEmphasizedCheckbox;
+    QComboBox *m_stereotypeDisplaySelector;
+    QLabel *m_depthLabel;
     // DClass
-    QComboBox *_template_display_selector;
-    QCheckBox *_show_all_members_checkbox;
+    QComboBox *m_templateDisplaySelector;
+    QCheckBox *m_showAllMembersCheckbox;
     // DComponent
-    QCheckBox *_plain_shape_checkbox;
+    QCheckBox *m_plainShapeCheckbox;
     // DItem
-    QLineEdit *_item_shape_edit;
+    QLineEdit *m_itemShapeEdit;
     // DAnnotation
-    QCheckBox *_annotation_auto_width_checkbox;
-    QComboBox *_annotation_visual_role_selector;
+    QCheckBox *m_annotationAutoWidthCheckbox;
+    QComboBox *m_annotationVisualRoleSelector;
 };
 
 }

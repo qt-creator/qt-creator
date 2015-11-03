@@ -47,9 +47,9 @@ namespace qmt {
 
 RelationStarter::RelationStarter(IRelationable *owner, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent)
     : QGraphicsRectItem(parent),
-      _owner(owner),
-      _diagram_scene_model(diagram_scene_model),
-      _current_preview_arrow(0)
+      m_owner(owner),
+      m_diagramSceneModel(diagram_scene_model),
+      m_currentPreviewArrow(0)
 {
     setBrush(QBrush(QColor(192, 192, 192)));
     setPen(QPen(QColor(64, 64, 64)));
@@ -89,27 +89,27 @@ void RelationStarter::addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowI
     arrow->setStartHead(start_head);
     arrow->setEndHead(end_head);
     arrow->setPoints(QList<QPointF>() << QPointF(0.0, 10.0) << QPointF(15.0, 0.0));
-    arrow->setPos(6.0, _arrows.size() * 20.0 + 8.0);
-    arrow->update(_diagram_scene_model->getStyleController()->getRelationStarterStyle());
-    _arrows.append(arrow);
-    _arrow_ids.insert(arrow, id);
-    setRect(0.0, 0.0, 26.0, _arrows.size() * 20.0 + 6.0);
+    arrow->setPos(6.0, m_arrows.size() * 20.0 + 8.0);
+    arrow->update(m_diagramSceneModel->getStyleController()->getRelationStarterStyle());
+    m_arrows.append(arrow);
+    m_arrowIds.insert(arrow, id);
+    setRect(0.0, 0.0, 26.0, m_arrows.size() * 20.0 + 6.0);
 }
 
 void RelationStarter::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    _current_preview_arrow = 0;
-    foreach (ArrowItem *item, _arrows) {
+    m_currentPreviewArrow = 0;
+    foreach (ArrowItem *item, m_arrows) {
         if (item->boundingRect().contains(mapToItem(item, event->pos()))) {
             prepareGeometryChange();
-            _current_preview_arrow_intermediate_points.clear();
-            _current_preview_arrow_id = _arrow_ids.value(item);
-            QMT_CHECK(!_current_preview_arrow_id.isEmpty());
-            _current_preview_arrow = new ArrowItem(*item);
-            _current_preview_arrow->setPoints(QList<QPointF>() << _owner->getRelationStartPos() << mapToScene(event->pos()));
-            _current_preview_arrow->update(_diagram_scene_model->getStyleController()->getRelationStarterStyle());
-            _current_preview_arrow->setZValue(PREVIEW_RELATION_ZVALUE);
-            scene()->addItem(_current_preview_arrow);
+            m_currentPreviewArrowIntermediatePoints.clear();
+            m_currentPreviewArrowId = m_arrowIds.value(item);
+            QMT_CHECK(!m_currentPreviewArrowId.isEmpty());
+            m_currentPreviewArrow = new ArrowItem(*item);
+            m_currentPreviewArrow->setPoints(QList<QPointF>() << m_owner->getRelationStartPos() << mapToScene(event->pos()));
+            m_currentPreviewArrow->update(m_diagramSceneModel->getStyleController()->getRelationStarterStyle());
+            m_currentPreviewArrow->setZValue(PREVIEW_RELATION_ZVALUE);
+            scene()->addItem(m_currentPreviewArrow);
             setFocus(); // receive keyboard events
             break;
         }
@@ -118,7 +118,7 @@ void RelationStarter::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void RelationStarter::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (!_current_preview_arrow) {
+    if (!m_currentPreviewArrow) {
         return;
     }
     updateCurrentPreviewArrow(mapToScene(event->pos()));
@@ -126,30 +126,30 @@ void RelationStarter::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void RelationStarter::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (_current_preview_arrow) {
-        _owner->relationDrawn(_current_preview_arrow_id, mapToScene(event->pos()), _current_preview_arrow_intermediate_points);
-        _current_preview_arrow->scene()->removeItem(_current_preview_arrow);
-        delete _current_preview_arrow;
-        _current_preview_arrow = 0;
-        _current_preview_arrow_intermediate_points.clear();
+    if (m_currentPreviewArrow) {
+        m_owner->relationDrawn(m_currentPreviewArrowId, mapToScene(event->pos()), m_currentPreviewArrowIntermediatePoints);
+        m_currentPreviewArrow->scene()->removeItem(m_currentPreviewArrow);
+        delete m_currentPreviewArrow;
+        m_currentPreviewArrow = 0;
+        m_currentPreviewArrowIntermediatePoints.clear();
     }
 }
 
 void RelationStarter::keyPressEvent(QKeyEvent *event)
 {
-    if (!_current_preview_arrow) {
+    if (!m_currentPreviewArrow) {
         return;
     }
     if (event->key() == Qt::Key_Shift) {
-        QPointF p = _current_preview_arrow->getLastLineSegment().p1();
-        if (_current_preview_arrow_intermediate_points.isEmpty() || _current_preview_arrow_intermediate_points.last() != p) {
-            _current_preview_arrow_intermediate_points.append(p);
+        QPointF p = m_currentPreviewArrow->getLastLineSegment().p1();
+        if (m_currentPreviewArrowIntermediatePoints.isEmpty() || m_currentPreviewArrowIntermediatePoints.last() != p) {
+            m_currentPreviewArrowIntermediatePoints.append(p);
             // Do not update the preview arrow here because last two points are now identical which looks wired
         }
     } else if (event->key() == Qt::Key_Control) {
-        if (!_current_preview_arrow_intermediate_points.isEmpty()) {
-            _current_preview_arrow_intermediate_points.removeLast();
-            updateCurrentPreviewArrow(_current_preview_arrow->getLastLineSegment().p1());
+        if (!m_currentPreviewArrowIntermediatePoints.isEmpty()) {
+            m_currentPreviewArrowIntermediatePoints.removeLast();
+            updateCurrentPreviewArrow(m_currentPreviewArrow->getLastLineSegment().p1());
         }
     }
 }
@@ -157,9 +157,9 @@ void RelationStarter::keyPressEvent(QKeyEvent *event)
 void RelationStarter::updateCurrentPreviewArrow(const QPointF &head_point)
 {
     prepareGeometryChange();
-    _current_preview_arrow->setPoints(QList<QPointF>() << _owner->getRelationStartPos()
-                                      << _current_preview_arrow_intermediate_points << head_point);
-    _current_preview_arrow->update(_diagram_scene_model->getStyleController()->getRelationStarterStyle());
+    m_currentPreviewArrow->setPoints(QList<QPointF>() << m_owner->getRelationStartPos()
+                                      << m_currentPreviewArrowIntermediatePoints << head_point);
+    m_currentPreviewArrow->update(m_diagramSceneModel->getStyleController()->getRelationStarterStyle());
 }
 
 }

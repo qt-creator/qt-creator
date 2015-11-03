@@ -65,7 +65,7 @@ public:
 
 public:
 
-    bool getSuppressGradients() const { return _suppress_gradients; }
+    bool getSuppressGradients() const { return m_suppressGradients; }
 
     void setSuppressGradients(bool suppress_gradients);
 
@@ -87,13 +87,13 @@ public:
 
 private:
 
-    QScopedPointer<Style> _default_style;
+    QScopedPointer<Style> m_defaultStyle;
 
-    QScopedPointer<Style> _relation_starter_style;
+    QScopedPointer<Style> m_relationStarterStyle;
 
-    QScopedPointer<StyleEngine> _default_style_engine;
+    QScopedPointer<StyleEngine> m_defaultStyleEngine;
 
-    bool _suppress_gradients;
+    bool m_suppressGradients;
 
 };
 

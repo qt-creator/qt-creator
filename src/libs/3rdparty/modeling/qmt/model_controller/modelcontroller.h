@@ -123,11 +123,11 @@ signals:
 
 public:
 
-    MPackage *getRootPackage() const { return _root_package; }
+    MPackage *getRootPackage() const { return m_rootPackage; }
 
     void setRootPackage(MPackage *root_package);
 
-    UndoController *getUndoController() const { return _undo_controller; }
+    UndoController *getUndoController() const { return m_undoController; }
 
     void setUndoController(UndoController *undo_controller);
 
@@ -234,19 +234,19 @@ private:
 
 private:
 
-    MPackage *_root_package;
+    MPackage *m_rootPackage;
 
-    UndoController *_undo_controller;
+    UndoController *m_undoController;
 
-    QHash<Uid, MObject *> _objects_map;
+    QHash<Uid, MObject *> m_objectsMap;
 
-    QHash<Uid, MRelation *> _relations_map;
+    QHash<Uid, MRelation *> m_relationsMap;
 
-    QMultiHash<Uid, MRelation *> _object_relations_map;
+    QMultiHash<Uid, MRelation *> m_objectRelationsMap;
 
-    bool _resetting_model;
+    bool m_resettingModel;
 
-    QString _old_package_name;
+    QString m_oldPackageName;
 
 };
 

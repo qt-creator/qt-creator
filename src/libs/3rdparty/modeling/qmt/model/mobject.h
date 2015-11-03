@@ -59,11 +59,11 @@ public:
 
 public:
 
-    QString getName() const { return _name; }
+    QString getName() const { return m_name; }
 
     void setName(const QString &name);
 
-    const Handles<MObject> &getChildren() const { return _children; }
+    const Handles<MObject> &getChildren() const { return m_children; }
 
     void setChildren(const Handles<MObject> &children);
 
@@ -83,7 +83,7 @@ public:
 
     void decontrolChild(MObject *child);
 
-    const Handles<MRelation> &getRelations() const { return _relations; }
+    const Handles<MRelation> &getRelations() const { return m_relations; }
 
     void setRelations(const Handles<MRelation> &relations);
 
@@ -105,11 +105,11 @@ public:
 
 private:
 
-    QString _name;
+    QString m_name;
 
-    Handles<MObject> _children;
+    Handles<MObject> m_children;
 
-    Handles<MRelation> _relations;
+    Handles<MRelation> m_relations;
 
 };
 

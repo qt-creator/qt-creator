@@ -59,19 +59,19 @@
 namespace qmt {
 
 DFactory::DFactory()
-    : _product(0)
+    : m_product(0)
 {
 }
 
 void DFactory::visitMElement(const MElement *element)
 {
     Q_UNUSED(element);
-    QMT_CHECK(_product);
+    QMT_CHECK(m_product);
 }
 
 void DFactory::visitMObject(const MObject *object)
 {
-    DObject *diagram_object = dynamic_cast<DObject *>(_product);
+    DObject *diagram_object = dynamic_cast<DObject *>(m_product);
     QMT_CHECK(diagram_object);
     diagram_object->setModelUid(object->getUid());
     visitMElement(object);
@@ -79,53 +79,53 @@ void DFactory::visitMObject(const MObject *object)
 
 void DFactory::visitMPackage(const MPackage *package)
 {
-    QMT_CHECK(!_product);
+    QMT_CHECK(!m_product);
     DPackage *diagram_package = new DPackage();
-    _product = diagram_package;
+    m_product = diagram_package;
     visitMObject(package);
 }
 
 void DFactory::visitMClass(const MClass *klass)
 {
-    QMT_CHECK(!_product);
+    QMT_CHECK(!m_product);
     DClass *diagram_klass = new DClass();
-    _product = diagram_klass;
+    m_product = diagram_klass;
     visitMObject(klass);
 }
 
 void DFactory::visitMComponent(const MComponent *component)
 {
-    QMT_CHECK(!_product);
+    QMT_CHECK(!m_product);
     DComponent *diagram_component = new DComponent();
-    _product = diagram_component;
+    m_product = diagram_component;
     visitMObject(component);
 }
 
 void DFactory::visitMDiagram(const MDiagram *diagram)
 {
-    QMT_CHECK(!_product);
+    QMT_CHECK(!m_product);
     DDiagram *diagram_diagram = new DDiagram();
-    _product = diagram_diagram;
+    m_product = diagram_diagram;
     visitMObject(diagram);
 }
 
 void DFactory::visitMCanvasDiagram(const MCanvasDiagram *diagram)
 {
-    QMT_CHECK(!_product);
+    QMT_CHECK(!m_product);
     visitMDiagram(diagram);
 }
 
 void DFactory::visitMItem(const MItem *item)
 {
-    QMT_CHECK(!_product);
+    QMT_CHECK(!m_product);
     DItem *diagram_item = new DItem();
-    _product = diagram_item;
+    m_product = diagram_item;
     visitMObject(item);
 }
 
 void DFactory::visitMRelation(const MRelation *relation)
 {
-    DRelation *diagram_relation = dynamic_cast<DRelation *>(_product);
+    DRelation *diagram_relation = dynamic_cast<DRelation *>(m_product);
     QMT_CHECK(diagram_relation);
     diagram_relation->setModelUid(relation->getUid());
     visitMElement(relation);
@@ -133,25 +133,25 @@ void DFactory::visitMRelation(const MRelation *relation)
 
 void DFactory::visitMDependency(const MDependency *dependency)
 {
-    QMT_CHECK(!_product);
+    QMT_CHECK(!m_product);
     DDependency *diagram_dependency = new DDependency();
-    _product = diagram_dependency;
+    m_product = diagram_dependency;
     visitMRelation(dependency);
 }
 
 void DFactory::visitMInheritance(const MInheritance *inheritance)
 {
-    QMT_CHECK(!_product);
+    QMT_CHECK(!m_product);
     DInheritance *diagram_inheritance = new DInheritance();
-    _product = diagram_inheritance;
+    m_product = diagram_inheritance;
     visitMRelation(inheritance);
 }
 
 void DFactory::visitMAssociation(const MAssociation *association)
 {
-    QMT_CHECK(!_product);
+    QMT_CHECK(!m_product);
     DAssociation *diagram_association = new DAssociation();
-    _product = diagram_association;
+    m_product = diagram_association;
     visitMRelation(association);
 }
 

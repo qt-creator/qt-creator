@@ -50,22 +50,22 @@ public:
 
     struct Tool {
         Tool()
-            : _tool_type(TOOLTYPE_SEPARATOR)
+            : m_toolType(TOOLTYPE_SEPARATOR)
         {
         }
 
         Tool(const QString &name, const QString &element_type, const QString &stereotype = QString::null)
-            : _tool_type(TOOLTYPE_TOOL),
-              _name(name),
-              _element_type(element_type),
-              _stereotype(stereotype)
+            : m_toolType(TOOLTYPE_TOOL),
+              m_name(name),
+              m_elementType(element_type),
+              m_stereotype(stereotype)
         {
         }
 
-        ToolType _tool_type;
-        QString _name;
-        QString _element_type;
-        QString _stereotype;
+        ToolType m_toolType;
+        QString m_name;
+        QString m_elementType;
+        QString m_stereotype;
     };
 
 public:
@@ -75,25 +75,25 @@ public:
 
 public:
 
-    QString getId() const { return _id; }
+    QString getId() const { return m_id; }
 
     void setId(const QString &id);
 
-    int getPriority() const { return _priority; }
+    int getPriority() const { return m_priority; }
 
     void setPriority(int priority);
 
-    QList<Tool> getTools() const { return _tools; }
+    QList<Tool> getTools() const { return m_tools; }
 
     void setTools(const QList<Tool> &tools);
 
 private:
 
-    QString _id;
+    QString m_id;
 
-    int _priority;
+    int m_priority;
 
-    QList<Tool> _tools;
+    QList<Tool> m_tools;
 };
 
 }

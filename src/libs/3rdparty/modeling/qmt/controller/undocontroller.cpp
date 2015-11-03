@@ -38,8 +38,8 @@ namespace qmt {
 
 UndoController::UndoController(QObject *parent) :
     QObject(parent),
-    _undo_stack(new QUndoStack(this)),
-    _do_not_merge(false)
+    m_undoStack(new QUndoStack(this)),
+    m_doNotMerge(false)
 {
 }
 
@@ -49,29 +49,29 @@ UndoController::~UndoController()
 
 void UndoController::push(UndoCommand *cmd)
 {
-    cmd->setDoNotMerge(_do_not_merge);
-    _do_not_merge = false;
-    _undo_stack->push(cmd);
+    cmd->setDoNotMerge(m_doNotMerge);
+    m_doNotMerge = false;
+    m_undoStack->push(cmd);
 }
 
 void UndoController::beginMergeSequence(const QString &text)
 {
-    _undo_stack->beginMacro(text);
+    m_undoStack->beginMacro(text);
 }
 
 void UndoController::endMergeSequence()
 {
-    _undo_stack->endMacro();
+    m_undoStack->endMacro();
 }
 
 void UndoController::reset()
 {
-    _undo_stack->clear();
+    m_undoStack->clear();
 }
 
 void UndoController::doNotMerge()
 {
-    _do_not_merge = true;
+    m_doNotMerge = true;
 }
 
 }

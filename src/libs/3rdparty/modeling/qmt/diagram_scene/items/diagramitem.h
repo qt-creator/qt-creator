@@ -69,13 +69,13 @@ private:
 
 private:
 
-    CustomIconItem *_custom_icon;
+    CustomIconItem *m_customIcon;
 
-    QGraphicsPolygonItem *_body;
+    QGraphicsPolygonItem *m_body;
 
-    QGraphicsPolygonItem *_fold;
+    QGraphicsPolygonItem *m_fold;
 
-    QGraphicsSimpleTextItem *_diagram_name;
+    QGraphicsSimpleTextItem *m_diagramName;
 
 };
 

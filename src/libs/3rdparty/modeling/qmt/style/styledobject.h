@@ -49,19 +49,19 @@ public:
 
 public:
 
-    const DObject *getObject() const { return _object; }
+    const DObject *getObject() const { return m_object; }
 
-    ObjectVisuals getObjectVisuals() const { return _object_visuals; }
+    ObjectVisuals getObjectVisuals() const { return m_objectVisuals; }
 
-    QList<const DObject *> getCollidingObjects() const { return _colliding_objects; }
+    QList<const DObject *> getCollidingObjects() const { return m_collidingObjects; }
 
 private:
 
-    const DObject *_object;
+    const DObject *m_object;
 
-    ObjectVisuals _object_visuals;
+    ObjectVisuals m_objectVisuals;
 
-    QList<const DObject *> _colliding_objects;
+    QList<const DObject *> m_collidingObjects;
 };
 
 }

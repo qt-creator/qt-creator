@@ -42,17 +42,17 @@ Selection::~Selection()
 
 void Selection::setIndices(const QList<qmt::Selection::Index> &indices)
 {
-    _indices = indices;
+    m_indices = indices;
 }
 
 void Selection::clear()
 {
-    _indices.clear();
+    m_indices.clear();
 }
 
 void Selection::append(const Index &index)
 {
-    _indices.append(index);
+    m_indices.append(index);
 }
 
 void Selection::append(const Uid &element_key, const Uid &owner_key)

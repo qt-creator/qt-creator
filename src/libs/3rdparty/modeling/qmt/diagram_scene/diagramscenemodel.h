@@ -96,23 +96,23 @@ signals:
 
 public:
 
-    DiagramController *getDiagramController() const { return _diagram_controller; }
+    DiagramController *getDiagramController() const { return m_diagramController; }
 
     void setDiagramController(DiagramController *diagram_controller);
 
-    DiagramSceneController *getDiagramSceneController() const { return _diagram_scene_controller; }
+    DiagramSceneController *getDiagramSceneController() const { return m_diagramSceneController; }
 
     void setDiagramSceneController(DiagramSceneController *diagram_scene_controller);
 
-    StyleController *getStyleController() const { return _style_controller; }
+    StyleController *getStyleController() const { return m_styleController; }
 
     void setStyleController(StyleController *style_controller);
 
-    StereotypeController *getStereotypeController() const { return _stereotype_controller; }
+    StereotypeController *getStereotypeController() const { return m_stereotypeController; }
 
     void setStereotypeController(StereotypeController *stereotype_controller);
 
-    MDiagram *getDiagram() const { return _diagram; }
+    MDiagram *getDiagram() const { return m_diagram; }
 
     void setDiagram(MDiagram *diagram);
 
@@ -130,17 +130,17 @@ public:
 
 public:
 
-    QList<QGraphicsItem *> getGraphicsItems() const { return _graphics_items; }
+    QList<QGraphicsItem *> getGraphicsItems() const { return m_graphicsItems; }
 
     QGraphicsItem *getGraphicsItem(DElement *element) const;
 
     QGraphicsItem *getGraphicsItem(const Uid &uid) const;
 
-    QGraphicsItem *getFocusItem() const { return _focus_item; }
+    QGraphicsItem *getFocusItem() const { return m_focusItem; }
 
     bool isSelectedItem(QGraphicsItem *item) const;
 
-    QSet<QGraphicsItem *> getSelectedItems() const { return _selected_items; }
+    QSet<QGraphicsItem *> getSelectedItems() const { return m_selectedItems; }
 
     DElement *getElement(QGraphicsItem *item) const;
 
@@ -246,35 +246,35 @@ private:
 
 private:
 
-    DiagramController *_diagram_controller;
+    DiagramController *m_diagramController;
 
-    DiagramSceneController *_diagram_scene_controller;
+    DiagramSceneController *m_diagramSceneController;
 
-    StyleController *_style_controller;
+    StyleController *m_styleController;
 
-    StereotypeController *_stereotype_controller;
+    StereotypeController *m_stereotypeController;
 
-    MDiagram *_diagram;
+    MDiagram *m_diagram;
 
-    DiagramGraphicsScene *_graphics_scene;
+    DiagramGraphicsScene *m_graphicsScene;
 
-    LatchController *_latch_controller;
+    LatchController *m_latchController;
 
-    QList<QGraphicsItem *> _graphics_items;
+    QList<QGraphicsItem *> m_graphicsItems;
 
-    QHash<const QGraphicsItem *, DElement *> _item_to_element_map;
+    QHash<const QGraphicsItem *, DElement *> m_itemToElementMap;
 
-    QHash<const DElement *, QGraphicsItem *> _element_to_item_map;
+    QHash<const DElement *, QGraphicsItem *> m_elementToItemMap;
 
-    QSet<QGraphicsItem *> _selected_items;
+    QSet<QGraphicsItem *> m_selectedItems;
 
-    QSet<QGraphicsItem *> _secondary_selected_items;
+    QSet<QGraphicsItem *> m_secondarySelectedItems;
 
-    Busy _busy;
+    Busy m_busy;
 
-    OriginItem *_origin_item;
+    OriginItem *m_originItem;
 
-    QGraphicsItem *_focus_item;
+    QGraphicsItem *m_focusItem;
 };
 
 }

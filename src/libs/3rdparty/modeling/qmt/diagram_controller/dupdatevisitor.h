@@ -48,7 +48,7 @@ public:
 
 public:
 
-    bool updateNeeded() const { return _update_needed; }
+    bool updateNeeded() const { return m_updateNeeded; }
 
     void setCheckNeedsUpdate(bool check_needs_update);
 
@@ -82,13 +82,13 @@ private:
 
 private:
 
-    DElement *_target;
+    DElement *m_target;
 
-    const MDiagram *_diagram;
+    const MDiagram *m_diagram;
 
-    bool _check_needs_update;
+    bool m_checkNeedsUpdate;
 
-    bool _update_needed;
+    bool m_updateNeeded;
 };
 
 }

@@ -37,7 +37,7 @@ namespace qmt {
 
 FindDiagramVisitor::FindDiagramVisitor()
     : MVoidConstVisitor(),
-      _diagram(0)
+      m_diagram(0)
 {
 }
 
@@ -50,7 +50,7 @@ void FindDiagramVisitor::visitMObject(const MObject *object)
     foreach (const Handle<MObject> &child, object->getChildren()) {
         if (child.hasTarget()) {
             if (MDiagram *diagram = dynamic_cast<MDiagram *>(child.getTarget())) {
-                _diagram = diagram;
+                m_diagram = diagram;
                 return;
             }
         }
@@ -59,7 +59,7 @@ void FindDiagramVisitor::visitMObject(const MObject *object)
 
 void FindDiagramVisitor::visitMDiagram(const MDiagram *diagram)
 {
-    _diagram = diagram;
+    m_diagram = diagram;
 }
 
 }

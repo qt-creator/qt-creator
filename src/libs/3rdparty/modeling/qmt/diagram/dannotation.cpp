@@ -37,18 +37,18 @@ namespace qmt {
 
 DAnnotation::DAnnotation()
     : DElement(),
-      _visual_role(ROLE_NORMAL),
-      _auto_sized(true)
+      m_visualRole(ROLE_NORMAL),
+      m_autoSized(true)
 {
 }
 
 DAnnotation::DAnnotation(const DAnnotation &rhs)
     : DElement(rhs),
-      _text(rhs._text),
-      _pos(rhs._pos),
-      _rect(rhs._rect),
-      _visual_role(rhs._visual_role),
-      _auto_sized(rhs._auto_sized)
+      m_text(rhs.m_text),
+      m_pos(rhs.m_pos),
+      m_rect(rhs.m_rect),
+      m_visualRole(rhs.m_visualRole),
+      m_autoSized(rhs.m_autoSized)
 {
 }
 
@@ -60,38 +60,38 @@ DAnnotation &DAnnotation::operator=(const DAnnotation &rhs)
 {
     if (this != &rhs) {
         DElement::operator=(rhs);
-        _text = rhs._text;
-        _pos = rhs._pos;
-        _rect = rhs._rect;
-        _visual_role = rhs._visual_role;
-        _auto_sized = rhs._auto_sized;
+        m_text = rhs.m_text;
+        m_pos = rhs.m_pos;
+        m_rect = rhs.m_rect;
+        m_visualRole = rhs.m_visualRole;
+        m_autoSized = rhs.m_autoSized;
     }
     return *this;
 }
 
 void DAnnotation::setText(const QString &text)
 {
-    _text = text;
+    m_text = text;
 }
 
 void DAnnotation::setPos(const QPointF &pos)
 {
-    _pos = pos;
+    m_pos = pos;
 }
 
 void DAnnotation::setRect(const QRectF &rect)
 {
-    _rect = rect;
+    m_rect = rect;
 }
 
 void DAnnotation::setVisualRole(DAnnotation::VisualRole visual_role)
 {
-    _visual_role = visual_role;
+    m_visualRole = visual_role;
 }
 
 void DAnnotation::setAutoSize(bool auto_sized)
 {
-    _auto_sized = auto_sized;
+    m_autoSized = auto_sized;
 }
 
 void DAnnotation::accept(DVisitor *visitor)

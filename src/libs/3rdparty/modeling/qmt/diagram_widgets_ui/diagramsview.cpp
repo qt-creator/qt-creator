@@ -43,7 +43,7 @@ namespace qmt {
 
 DiagramsView::DiagramsView(QWidget *parent)
     : QTabWidget(parent),
-      _diagrams_manager(0)
+      m_diagramsManager(0)
 {
     setTabsClosable(true);
     setMovable(true);
@@ -58,24 +58,24 @@ DiagramsView::~DiagramsView()
 
 void DiagramsView::setDiagramsManager(DiagramsManager *diagrams_manager)
 {
-    _diagrams_manager = diagrams_manager;
+    m_diagramsManager = diagrams_manager;
 }
 
 void DiagramsView::openDiagram(MDiagram *diagram)
 {
     QMT_CHECK(diagram);
-    DiagramView *diagram_view = _diagram_views.value(diagram->getUid());
+    DiagramView *diagram_view = m_diagramViews.value(diagram->getUid());
     if (!diagram_view) {
-        DiagramSceneModel *diagram_scene_model = _diagrams_manager->bindDiagramSceneModel(diagram);
+        DiagramSceneModel *diagram_scene_model = m_diagramsManager->bindDiagramSceneModel(diagram);
         DiagramView *diagram_view = new DiagramView(this);
         diagram_view->setDiagramSceneModel(diagram_scene_model);
         int tab_index = addTab(diagram_view, diagram->getName());
         setCurrentIndex(tab_index);
-        _diagram_views.insert(diagram->getUid(), diagram_view);
+        m_diagramViews.insert(diagram->getUid(), diagram_view);
     } else {
         setCurrentWidget(diagram_view);
     }
-    emit someDiagramOpened(!_diagram_views.isEmpty());
+    emit someDiagramOpened(!m_diagramViews.isEmpty());
 }
 
 void DiagramsView::closeDiagram(const MDiagram *diagram)
@@ -84,13 +84,13 @@ void DiagramsView::closeDiagram(const MDiagram *diagram)
         return;
     }
 
-    DiagramView *diagram_view = _diagram_views.value(diagram->getUid());
+    DiagramView *diagram_view = m_diagramViews.value(diagram->getUid());
     if (diagram_view) {
         removeTab(indexOf(diagram_view));
         delete diagram_view;
-        _diagram_views.remove(diagram->getUid());
+        m_diagramViews.remove(diagram->getUid());
     }
-    emit someDiagramOpened(!_diagram_views.isEmpty());
+    emit someDiagramOpened(!m_diagramViews.isEmpty());
 }
 
 void DiagramsView::closeAllDiagrams()
@@ -102,8 +102,8 @@ void DiagramsView::closeAllDiagrams()
             delete diagram_view;
         }
     }
-    _diagram_views.clear();
-    emit someDiagramOpened(!_diagram_views.isEmpty());
+    m_diagramViews.clear();
+    emit someDiagramOpened(!m_diagramViews.isEmpty());
 }
 
 void DiagramsView::onCurrentChanged(int tab_index)
@@ -121,7 +121,7 @@ void DiagramsView::onDiagramRenamed(const MDiagram *diagram)
     if (!diagram) {
         return;
     }
-    DiagramView *diagram_view = _diagram_views.value(diagram->getUid());
+    DiagramView *diagram_view = m_diagramViews.value(diagram->getUid());
     if (diagram_view) {
         setTabText(indexOf(diagram_view), diagram->getName());
     }

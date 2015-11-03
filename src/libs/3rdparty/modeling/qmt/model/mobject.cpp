@@ -40,16 +40,16 @@ namespace qmt {
 
 MObject::MObject()
     : MElement(),
-      _children(true),
-      _relations(true)
+      m_children(true),
+      m_relations(true)
 {
 }
 
 MObject::MObject(const MObject &rhs)
     : MElement(rhs),
-      _name(rhs._name),
-      _children(true),
-      _relations(true)
+      m_name(rhs.m_name),
+      m_children(true),
+      m_relations(true)
 {
 }
 
@@ -61,7 +61,7 @@ MObject &MObject::operator =(const MObject &rhs)
 {
     if (this != &rhs) {
         MElement::operator=(rhs);
-        _name = rhs._name;
+        m_name = rhs.m_name;
         // no deep copy; list of children remains unchanged
     }
     return *this;
@@ -69,12 +69,12 @@ MObject &MObject::operator =(const MObject &rhs)
 
 void MObject::setName(const QString &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 void MObject::setChildren(const Handles<MObject> &children)
 {
-    _children = children;
+    m_children = children;
     foreach (const Handle<MObject> &handle, children) {
         if (handle.hasTarget()) {
             handle.getTarget()->setOwner(this);
@@ -84,69 +84,69 @@ void MObject::setChildren(const Handles<MObject> &children)
 
 void MObject::addChild(const Uid &uid)
 {
-    _children.add(uid);
+    m_children.add(uid);
 }
 
 void MObject::addChild(MObject *child)
 {
     QMT_CHECK(child);
     QMT_CHECK(child->getOwner() == 0);
-    _children.add(child);
+    m_children.add(child);
     child->setOwner(this);
 }
 
 void MObject::insertChild(int before_index, const Uid &uid)
 {
-    _children.insert(before_index, uid);
+    m_children.insert(before_index, uid);
 }
 
 void MObject::insertChild(int before_index, MObject *child)
 {
     QMT_CHECK(child);
     QMT_CHECK(child->getOwner() == 0);
-    _children.insert(before_index, child);
+    m_children.insert(before_index, child);
     child->setOwner(this);
 }
 
 void MObject::removeChild(const Uid &uid)
 {
-    QMT_CHECK(_children.contains(uid));
-    MObject *child = _children.find(uid);
+    QMT_CHECK(m_children.contains(uid));
+    MObject *child = m_children.find(uid);
     if (child) {
         child->setOwner(0);
     }
-    _children.remove(uid);
+    m_children.remove(uid);
 }
 
 void MObject::removeChild(MObject *child)
 {
     QMT_CHECK(child);
-    QMT_CHECK(_children.contains(child));
+    QMT_CHECK(m_children.contains(child));
     child->setOwner(0);
-    _children.remove(child);
+    m_children.remove(child);
 }
 
 void MObject::decontrolChild(const Uid &uid)
 {
-    QMT_CHECK(_children.contains(uid));
-    MObject *child = _children.find(uid);
+    QMT_CHECK(m_children.contains(uid));
+    MObject *child = m_children.find(uid);
     if (child) {
         child->setOwner(0);
     }
-    _children.take(uid);
+    m_children.take(uid);
 }
 
 void MObject::decontrolChild(MObject *child)
 {
     QMT_CHECK(child);
-    QMT_CHECK(_children.contains(child));
+    QMT_CHECK(m_children.contains(child));
     child->setOwner(0);
-    _children.take(child);
+    m_children.take(child);
 }
 
 void MObject::setRelations(const Handles<MRelation> &relations)
 {
-    _relations = relations;
+    m_relations = relations;
     foreach (const Handle<MRelation> &handle, relations) {
         if (handle.hasTarget()) {
             handle.getTarget()->setOwner(this);
@@ -156,7 +156,7 @@ void MObject::setRelations(const Handles<MRelation> &relations)
 
 void MObject::addRelation(const Uid &uid)
 {
-    _relations.add(uid);
+    m_relations.add(uid);
 }
 
 void MObject::addRelation(MRelation *relation)
@@ -164,7 +164,7 @@ void MObject::addRelation(MRelation *relation)
     QMT_CHECK(relation);
     QMT_CHECK(relation->getOwner() == 0);
     relation->setOwner(this);
-    _relations.add(relation);
+    m_relations.add(relation);
 }
 
 void MObject::insertRelation(int before_index, MRelation *relation)
@@ -172,21 +172,21 @@ void MObject::insertRelation(int before_index, MRelation *relation)
     QMT_CHECK(relation);
     QMT_CHECK(relation->getOwner() == 0);
     relation->setOwner(this);
-    _relations.insert(before_index, relation);
+    m_relations.insert(before_index, relation);
 }
 
 void MObject::removeRelation(MRelation *relation)
 {
     QMT_CHECK(relation);
     relation->setOwner(0);
-    _relations.remove(relation);
+    m_relations.remove(relation);
 }
 
 void MObject::decontrolRelation(MRelation *relation)
 {
     QMT_CHECK(relation);
     relation->setOwner(0);
-    _relations.take(relation);
+    m_relations.take(relation);
 }
 
 void MObject::accept(MVisitor *visitor)

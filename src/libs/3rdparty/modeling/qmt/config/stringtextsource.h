@@ -49,7 +49,7 @@ public:
 
     void setText(const QString &text);
 
-    int getSourceId() const { return _source_id; }
+    int getSourceId() const { return m_sourceId; }
 
     void setSourceId(int source_id);
 
@@ -60,15 +60,15 @@ public:
 
 private:
 
-    QString _text;
+    QString m_text;
 
-    int _source_id;
+    int m_sourceId;
 
-    int _index;
+    int m_index;
 
-    int _line_number;
+    int m_lineNumber;
 
-    int _column_number;
+    int m_columnNumber;
 };
 
 } // namespace qmt

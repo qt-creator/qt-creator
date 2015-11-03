@@ -63,7 +63,7 @@ public:
 
     void setLinePen(int index, const QPen &pen);
 
-    int currentIndex() const { return _current_index; }
+    int currentIndex() const { return m_currentIndex; }
 
 public slots:
 
@@ -81,11 +81,11 @@ protected:
 
 private:
 
-    QVector<QBrush> _brushes;
+    QVector<QBrush> m_brushes;
 
-    QVector<QPen> _pens;
+    QVector<QPen> m_pens;
 
-    int _current_index;
+    int m_currentIndex;
 };
 
 } // namespace qmt

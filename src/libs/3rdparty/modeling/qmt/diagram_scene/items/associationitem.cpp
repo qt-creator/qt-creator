@@ -52,11 +52,11 @@ namespace qmt {
 
 AssociationItem::AssociationItem(DAssociation *association, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent)
     : RelationItem(association, diagram_scene_model, parent),
-      _association(association),
-      _end_a_name(0),
-      _end_a_cardinality(0),
-      _end_b_name(0),
-      _end_b_cardinality(0)
+      m_association(association),
+      m_endAName(0),
+      m_endACardinality(0),
+      m_endBName(0),
+      m_endBCardinality(0)
 {
 }
 
@@ -68,16 +68,16 @@ void AssociationItem::update(const Style *style)
 {
     RelationItem::update(style);
 
-    updateEndLabels(_association->getA(), _association->getB(), &_end_a_name, &_end_a_cardinality, style);
-    updateEndLabels(_association->getB(), _association->getA(), &_end_b_name, &_end_b_cardinality, style);
+    updateEndLabels(m_association->getA(), m_association->getB(), &m_endAName, &m_endACardinality, style);
+    updateEndLabels(m_association->getB(), m_association->getA(), &m_endBName, &m_endBCardinality, style);
 
-    QMT_CHECK(_arrow);
-    QGraphicsItem *end_a_item = _diagram_scene_model->getGraphicsItem(_association->getEndA());
+    QMT_CHECK(m_arrow);
+    QGraphicsItem *end_a_item = m_diagramSceneModel->getGraphicsItem(m_association->getEndA());
     QMT_CHECK(end_a_item);
-    placeEndLabels(_arrow->getFirstLineSegment(), _end_a_name, _end_a_cardinality, end_a_item, _arrow->getStartHeadLength());
-    QGraphicsItem *end_b_item = _diagram_scene_model->getGraphicsItem(_association->getEndB());
+    placeEndLabels(m_arrow->getFirstLineSegment(), m_endAName, m_endACardinality, end_a_item, m_arrow->getStartHeadLength());
+    QGraphicsItem *end_b_item = m_diagramSceneModel->getGraphicsItem(m_association->getEndB());
     QMT_CHECK(end_b_item);
-    placeEndLabels(_arrow->getLastLineSegment(), _end_b_name, _end_b_cardinality, end_b_item, _arrow->getEndHeadLength());
+    placeEndLabels(m_arrow->getLastLineSegment(), m_endBName, m_endBCardinality, end_b_item, m_arrow->getEndHeadLength());
 }
 
 void AssociationItem::updateEndLabels(const DAssociationEnd &end, const DAssociationEnd &other_end, QGraphicsSimpleTextItem **end_name, QGraphicsSimpleTextItem **end_cardinality, const Style *style)

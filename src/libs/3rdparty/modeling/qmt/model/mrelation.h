@@ -57,15 +57,15 @@ public:
 
 public:
 
-    QString getName() const { return _name; }
+    QString getName() const { return m_name; }
 
     void setName(const QString &name);
 
-    Uid getEndA() const { return _end_a_uid; }
+    Uid getEndA() const { return m_endAUid; }
 
     void setEndA(const Uid &uid);
 
-    Uid getEndB() const { return _end_b_uid; }
+    Uid getEndB() const { return m_endBUid; }
 
     void setEndB(const Uid &uid);
 
@@ -77,11 +77,11 @@ public:
 
 private:
 
-    QString _name;
+    QString m_name;
 
-    Uid _end_a_uid;
+    Uid m_endAUid;
 
-    Uid _end_b_uid;
+    Uid m_endBUid;
 
 };
 

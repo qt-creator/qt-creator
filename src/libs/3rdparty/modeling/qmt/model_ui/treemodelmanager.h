@@ -58,11 +58,11 @@ signals:
 
 public:
 
-    TreeModel *getTreeModel() const { return _tree_model; }
+    TreeModel *getTreeModel() const { return m_treeModel; }
 
     void setTreeModel(TreeModel *tree_model);
 
-    ModelTreeViewInterface *getModelTreeView() const { return _model_tree_view; }
+    ModelTreeViewInterface *getModelTreeView() const { return m_modelTreeView; }
 
     void setModelTreeView(ModelTreeViewInterface *model_tree_view);
 
@@ -78,9 +78,9 @@ public:
 
 private:
 
-    TreeModel *_tree_model;
+    TreeModel *m_treeModel;
 
-    ModelTreeViewInterface *_model_tree_view;
+    ModelTreeViewInterface *m_modelTreeView;
 
 };
 

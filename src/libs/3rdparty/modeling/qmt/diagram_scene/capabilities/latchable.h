@@ -58,27 +58,27 @@ public:
 
     struct Latch {
         Latch()
-            : _latch_type(NONE),
-               _pos(0.0),
-               _other_pos1(0.0),
-               _other_pos2(0.0),
-               _identifier()
+            : m_latchType(NONE),
+              m_pos(0.0),
+              m_otherPos1(0.0),
+              m_otherPos2(0.0),
+              m_identifier()
         {
         }
 
         Latch(LatchType latch_type, qreal pos, qreal other_pos1, qreal other_pos2, const QString &identifier)
-            : _latch_type(latch_type),
-              _pos(pos),
-              _other_pos1(other_pos1),
-              _other_pos2(other_pos2),
-              _identifier(identifier)
+            : m_latchType(latch_type),
+              m_pos(pos),
+              m_otherPos1(other_pos1),
+              m_otherPos2(other_pos2),
+              m_identifier(identifier)
         {
         }
 
-        LatchType _latch_type;
-        qreal _pos;
-        qreal _other_pos1, _other_pos2;
-        QString _identifier;
+        LatchType m_latchType;
+        qreal m_pos;
+        qreal m_otherPos1, m_otherPos2;
+        QString m_identifier;
     };
 
 public:

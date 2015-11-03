@@ -98,10 +98,10 @@ private:
 
 private:
 
-    QHash<ObjectStyleKey, const Style *> _object_style_map;
-    QHash<RelationStyleKey, const Style *> _relation_style_map;
-    QHash<AnnotationStyleKey, const Style *> _annotation_style_map;
-    QHash<BoundaryStyleKey, const Style *> _boundary_style_map;
+    QHash<ObjectStyleKey, const Style *> m_objectStyleMap;
+    QHash<RelationStyleKey, const Style *> m_relationStyleMap;
+    QHash<AnnotationStyleKey, const Style *> m_annotationStyleMap;
+    QHash<BoundaryStyleKey, const Style *> m_boundaryStyleMap;
 };
 
 }

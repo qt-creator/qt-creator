@@ -158,10 +158,10 @@ template<typename KEY, typename VALUE>
 class KeyValuePair {
 public:
     KeyValuePair() { }
-    explicit KeyValuePair(const KEY &key, const VALUE &value) : _key(key), _value(value) { }
+    explicit KeyValuePair(const KEY &key, const VALUE &value) : m_key(key), m_value(value) { }
 
-    KEY _key;
-    VALUE _value;
+    KEY m_key;
+    VALUE m_value;
 };
 
 }
@@ -170,8 +170,8 @@ template<class Archive, class KEY, class VALUE>
 inline void save(Archive &archive, const impl::KeyValuePair<KEY, VALUE> &pair, const Parameters &)
 {
     archive << tag(QStringLiteral("pair"))
-            << attr(QStringLiteral("key"), pair._key)
-            << attr(QStringLiteral("value"), pair._value)
+            << attr(QStringLiteral("key"), pair.m_key)
+            << attr(QStringLiteral("value"), pair.m_value)
             << end;
 }
 
@@ -179,8 +179,8 @@ template<class Archive, class KEY, class VALUE>
 inline void load(Archive &archive, impl::KeyValuePair<KEY, VALUE> &pair, const Parameters &)
 {
     archive >> tag(QStringLiteral("pair"))
-            >> attr(QStringLiteral("key"), pair._key)
-            >> attr(QStringLiteral("value"), pair._value)
+            >> attr(QStringLiteral("key"), pair.m_key)
+            >> attr(QStringLiteral("value"), pair.m_value)
             >> end;
 }
 
@@ -200,7 +200,7 @@ namespace impl {
 template<class KEY, class VALUE>
 inline void keyValuePairInsert(QHash<KEY, VALUE> &hash, const KeyValuePair<KEY, VALUE> &pair)
 {
-    hash.insert(pair._key, pair._value);
+    hash.insert(pair.m_key, pair.m_value);
 }
 
 }

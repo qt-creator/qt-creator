@@ -44,19 +44,19 @@ public:
 
     bool hasObject(const ObjectId &id)
     {
-        return _references.find(id) != _references.end();
+        return m_references.find(id) != m_references.end();
     }
 
     template<typename T>
     T getObject(const ObjectId &id)
     {
-        return reinterpret_cast<T>(_references.value(id));
+        return reinterpret_cast<T>(m_references.value(id));
     }
 
     template<typename T>
     void addObject(const ObjectId &id, T *p)
     {
-        _references[id] = reinterpret_cast<void *>(p);
+        m_references[id] = reinterpret_cast<void *>(p);
     }
 
 private:
@@ -67,7 +67,7 @@ private:
 
 private:
 
-    map_type _references;
+    map_type m_references;
 };
 
 }

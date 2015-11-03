@@ -47,7 +47,7 @@ public:
 
 public:
 
-    bool canRedo() const { return _can_redo; }
+    bool canRedo() const { return m_canRedo; }
 
     int id() const;
 
@@ -65,9 +65,9 @@ public:
 
 private:
 
-    bool _can_redo;
+    bool m_canRedo;
 
-    bool _do_not_merge;
+    bool m_doNotMerge;
 };
 
 }

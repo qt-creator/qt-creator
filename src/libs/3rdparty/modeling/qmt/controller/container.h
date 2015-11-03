@@ -43,16 +43,16 @@ protected:
     Container() { }
 
     Container(const Container<T> &rhs)
-        : _elements(rhs._elements)
+        : m_elements(rhs.m_elements)
     {
-        rhs._elements.clear();
+        rhs.m_elements.clear();
     }
 
 public:
 
     ~Container()
     {
-        qDeleteAll(_elements);
+        qDeleteAll(m_elements);
     }
 
 public:
@@ -60,48 +60,48 @@ public:
     Container &operator=(const Container<T> &rhs)
     {
         if (this != &rhs) {
-            qDeleteAll(_elements);
-            _elements = rhs._elements;
-            rhs._elements.clear();
+            qDeleteAll(m_elements);
+            m_elements = rhs.m_elements;
+            rhs.m_elements.clear();
         }
         return *this;
     }
 
 public:
 
-    bool isEmpty() const { return _elements.empty(); }
+    bool isEmpty() const { return m_elements.empty(); }
 
-    int size() const { return _elements.size(); }
+    int size() const { return m_elements.size(); }
 
-    QList<T *> getElements() const { return _elements; }
+    QList<T *> getElements() const { return m_elements; }
 
     QList<T *> takeElements() const
     {
-        QList<T *> elements = _elements;
-        _elements.clear();
+        QList<T *> elements = m_elements;
+        m_elements.clear();
         return elements;
     }
 
     void submitElements(const QList<T *> &elements)
     {
-        qDeleteAll(_elements);
-        _elements = elements;
+        qDeleteAll(m_elements);
+        m_elements = elements;
     }
 
     void reset()
     {
-        qDeleteAll(_elements);
-        _elements.clear();
+        qDeleteAll(m_elements);
+        m_elements.clear();
     }
 
     void submit(T *element)
     {
-        _elements.append(element);
+        m_elements.append(element);
     }
 
 private:
 
-    mutable QList<T *> _elements;
+    mutable QList<T *> m_elements;
 };
 
 }

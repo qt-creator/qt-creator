@@ -52,16 +52,16 @@ public:
     }
 
     LineShape(const ShapePointF &pos1, const ShapePointF &pos2)
-        : _pos1(pos1),
-          _pos2(pos2)
+        : m_pos1(pos1),
+          m_pos2(pos2)
     {
     }
 
 public:
 
-    ShapePointF getPos1() const { return _pos1; }
+    ShapePointF getPos1() const { return m_pos1; }
 
-    ShapePointF getPos2() const { return _pos2; }
+    ShapePointF getPos2() const { return m_pos2; }
 
 public:
 
@@ -75,8 +75,8 @@ public:
 
 private:
 
-    ShapePointF _pos1;
-    ShapePointF _pos2;
+    ShapePointF m_pos1;
+    ShapePointF m_pos2;
 };
 
 
@@ -90,16 +90,16 @@ public:
     }
 
     RectShape(const ShapePointF &pos, const ShapeSizeF &size)
-        : _pos(pos),
-          _size(size)
+        : m_pos(pos),
+          m_size(size)
     {
     }
 
 public:
 
-    ShapePointF getPos() const { return _pos; }
+    ShapePointF getPos() const { return m_pos; }
 
-    ShapeSizeF getSize() const { return _size; }
+    ShapeSizeF getSize() const { return m_size; }
 
 public:
 
@@ -113,8 +113,8 @@ public:
 
 private:
 
-    ShapePointF _pos;
-    ShapeSizeF _size;
+    ShapePointF m_pos;
+    ShapeSizeF m_size;
 };
 
 
@@ -128,19 +128,19 @@ public:
     }
 
     RoundedRectShape(const ShapePointF &pos, const ShapeSizeF &size, const ShapeValueF &radius)
-        : _pos(pos),
-          _size(size),
-          _radius(radius)
+        : m_pos(pos),
+          m_size(size),
+          m_radius(radius)
     {
     }
 
 public:
 
-    ShapePointF getPos() const { return _pos; }
+    ShapePointF getPos() const { return m_pos; }
 
-    ShapeSizeF getSize() const { return _size; }
+    ShapeSizeF getSize() const { return m_size; }
 
-    ShapeValueF getRadius() const { return _radius; }
+    ShapeValueF getRadius() const { return m_radius; }
 
 public:
 
@@ -154,9 +154,9 @@ public:
 
 private:
 
-    ShapePointF _pos;
-    ShapeSizeF _size;
-    ShapeValueF _radius;
+    ShapePointF m_pos;
+    ShapeSizeF m_size;
+    ShapeValueF m_radius;
 };
 
 
@@ -170,16 +170,16 @@ public:
     }
 
     CircleShape(const ShapePointF &center, const ShapeValueF &radius)
-        : _center(center),
-          _radius(radius)
+        : m_center(center),
+          m_radius(radius)
     {
     }
 
 public:
 
-    ShapePointF getCenter() const { return _center; }
+    ShapePointF getCenter() const { return m_center; }
 
-    ShapeValueF getRadius() const { return _radius; }
+    ShapeValueF getRadius() const { return m_radius; }
 
 public:
 
@@ -193,8 +193,8 @@ public:
 
 private:
 
-    ShapePointF _center;
-    ShapeValueF _radius;
+    ShapePointF m_center;
+    ShapeValueF m_radius;
 };
 
 
@@ -207,16 +207,16 @@ public:
     }
 
     EllipseShape(const ShapePointF &center, const ShapeSizeF &radius)
-        : _center(center),
-          _radius(radius)
+        : m_center(center),
+          m_radius(radius)
     {
     }
 
 public:
 
-    ShapePointF getCenter() const { return _center; }
+    ShapePointF getCenter() const { return m_center; }
 
-    ShapeSizeF getRadius() const { return _radius; }
+    ShapeSizeF getRadius() const { return m_radius; }
 
 public:
 
@@ -230,8 +230,8 @@ public:
 
 private:
 
-    ShapePointF _center;
-    ShapeSizeF _radius;
+    ShapePointF m_center;
+    ShapeSizeF m_radius;
 };
 
 
@@ -244,22 +244,22 @@ public:
     }
 
     ArcShape(const ShapePointF &center, const ShapeSizeF &radius, qreal start_angle, qreal span_angle)
-        : _center(center),
-          _radius(radius),
-          _start_angle(start_angle),
-          _span_angle(span_angle)
+        : m_center(center),
+          m_radius(radius),
+          m_startAngle(start_angle),
+          m_spanAngle(span_angle)
     {
     }
 
 public:
 
-    ShapePointF getCenter() const { return _center; }
+    ShapePointF getCenter() const { return m_center; }
 
-    ShapeSizeF getRadius() const { return _radius; }
+    ShapeSizeF getRadius() const { return m_radius; }
 
-    qreal getStartAngle() const { return _start_angle; }
+    qreal getStartAngle() const { return m_startAngle; }
 
-    qreal getSpanAngle() const { return _span_angle; }
+    qreal getSpanAngle() const { return m_spanAngle; }
 
 public:
 
@@ -273,10 +273,10 @@ public:
 
 private:
 
-    ShapePointF _center;
-    ShapeSizeF _radius;
-    qreal _start_angle;
-    qreal _span_angle;
+    ShapePointF m_center;
+    ShapeSizeF m_radius;
+    qreal m_startAngle;
+    qreal m_spanAngle;
 };
 
 
@@ -296,17 +296,17 @@ public:
 
     struct Element {
         explicit Element(ElementType element = TYPE_NONE)
-            : _element_type(element),
-              _angle1(0.0),
-              _angle2(0.0)
+            : m_elementType(element),
+              m_angle1(0.0),
+              m_angle2(0.0)
         {
         }
 
-        ElementType _element_type;
-        ShapePointF _position;
-        ShapeSizeF _size;
-        qreal _angle1;
-        qreal _angle2;
+        ElementType m_elementType;
+        ShapePointF m_position;
+        ShapeSizeF m_size;
+        qreal m_angle1;
+        qreal m_angle2;
     };
 
 public:
@@ -316,7 +316,7 @@ public:
 
 public:
 
-    QList<Element> getElements() const { return _elements; }
+    QList<Element> getElements() const { return m_elements; }
 
 public:
 
@@ -342,7 +342,7 @@ public:
 
 private:
 
-    QList<Element> _elements;
+    QList<Element> m_elements;
 
 };
 

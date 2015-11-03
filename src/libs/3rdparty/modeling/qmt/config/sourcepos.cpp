@@ -33,16 +33,16 @@
 namespace qmt {
 
 SourcePos::SourcePos()
-    : _source_id(-1),
-      _line_number(-1),
-      _column_number(-1)
+    : m_sourceId(-1),
+      m_lineNumber(-1),
+      m_columnNumber(-1)
 {
 }
 
 SourcePos::SourcePos(int source_id, int line_number, int column_number)
-    : _source_id(source_id),
-      _line_number(line_number),
-      _column_number(column_number)
+    : m_sourceId(source_id),
+      m_lineNumber(line_number),
+      m_columnNumber(column_number)
 {
 }
 

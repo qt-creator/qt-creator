@@ -62,27 +62,27 @@ public:
 
 public:
 
-    Type getType() const { return _type; }
+    Type getType() const { return m_type; }
 
     void setType(Type type);
 
-    int getSubtype() const { return _subtype; }
+    int getSubtype() const { return m_subtype; }
 
     void setSubtype(int subtype);
 
-    QString getText() const { return _text; }
+    QString getText() const { return m_text; }
 
     void setText(const QString &text);
 
-    SourcePos getSourcePos() const { return _source_pos; }
+    SourcePos getSourcePos() const { return m_sourcePos; }
 
     void setSourcePos(const SourcePos &source_pos);
 
 private:
-    Type _type;
-    int _subtype;
-    QString _text;
-    SourcePos _source_pos;
+    Type m_type;
+    int m_subtype;
+    QString m_text;
+    SourcePos m_sourcePos;
 };
 
 } // namespace qmt

@@ -71,17 +71,17 @@ static const qreal BODY_HORIZ_BORDER = 4.0;
 
 ClassItem::ClassItem(DClass *klass, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent)
     : ObjectItem(klass, diagram_scene_model, parent),
-      _custom_icon(0),
-      _shape(0),
-      _namespace(0),
-      _class_name(0),
-      _context_label(0),
-      _attributes_separator(0),
-      _attributes(0),
-      _methods_separator(0),
-      _methods(0),
-      _template_parameter_box(0),
-      _relation_starter(0)
+      m_customIcon(0),
+      m_shape(0),
+      m_namespace(0),
+      m_className(0),
+      m_contextLabel(0),
+      m_attributesSeparator(0),
+      m_attributes(0),
+      m_methodsSeparator(0),
+      m_methods(0),
+      m_templateParameterBox(0),
+      m_relationStarter(0)
 {
 }
 
@@ -103,38 +103,38 @@ void ClassItem::update()
     if (diagram_class->getShowAllMembers()) {
         updateMembers(style);
     } else {
-        _attributes_text.clear();
-        _methods_text.clear();
+        m_attributesText.clear();
+        m_methodsText.clear();
     }
 
     // custom icon
     if (getStereotypeIconDisplay() == StereotypeIcon::DISPLAY_ICON) {
-        if (!_custom_icon) {
-            _custom_icon = new CustomIconItem(getDiagramSceneModel(), this);
+        if (!m_customIcon) {
+            m_customIcon = new CustomIconItem(getDiagramSceneModel(), this);
         }
-        _custom_icon->setStereotypeIconId(getStereotypeIconId());
-        _custom_icon->setBaseSize(getStereotypeIconMinimumSize(_custom_icon->getStereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT));
-        _custom_icon->setBrush(style->getFillBrush());
-        _custom_icon->setPen(style->getOuterLinePen());
-        _custom_icon->setZValue(SHAPE_ZVALUE);
-    } else if (_custom_icon) {
-        _custom_icon->scene()->removeItem(_custom_icon);
-        delete _custom_icon;
-        _custom_icon = 0;
+        m_customIcon->setStereotypeIconId(getStereotypeIconId());
+        m_customIcon->setBaseSize(getStereotypeIconMinimumSize(m_customIcon->getStereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT));
+        m_customIcon->setBrush(style->getFillBrush());
+        m_customIcon->setPen(style->getOuterLinePen());
+        m_customIcon->setZValue(SHAPE_ZVALUE);
+    } else if (m_customIcon) {
+        m_customIcon->scene()->removeItem(m_customIcon);
+        delete m_customIcon;
+        m_customIcon = 0;
     }
 
     // shape
-    if (!_custom_icon) {
-        if (!_shape) {
-            _shape = new QGraphicsRectItem(this);
+    if (!m_customIcon) {
+        if (!m_shape) {
+            m_shape = new QGraphicsRectItem(this);
         }
-        _shape->setBrush(style->getFillBrush());
-        _shape->setPen(style->getOuterLinePen());
-        _shape->setZValue(SHAPE_ZVALUE);
-    } else if (_shape){
-        _shape->scene()->removeItem(_shape);
-        delete _shape;
-        _shape = 0;
+        m_shape->setBrush(style->getFillBrush());
+        m_shape->setPen(style->getOuterLinePen());
+        m_shape->setZValue(SHAPE_ZVALUE);
+    } else if (m_shape){
+        m_shape->scene()->removeItem(m_shape);
+        delete m_shape;
+        m_shape = 0;
     }
 
     // stereotypes
@@ -142,21 +142,21 @@ void ClassItem::update()
 
     // namespace
     if (!diagram_class->getNamespace().isEmpty()) {
-        if (!_namespace) {
-            _namespace = new QGraphicsSimpleTextItem(this);
+        if (!m_namespace) {
+            m_namespace = new QGraphicsSimpleTextItem(this);
         }
-        _namespace->setFont(style->getSmallFont());
-        _namespace->setBrush(style->getTextBrush());
-        _namespace->setText(diagram_class->getNamespace());
-    } else if (_namespace) {
-        _namespace->scene()->removeItem(_namespace);
-        delete _namespace;
-        _namespace = 0;
+        m_namespace->setFont(style->getSmallFont());
+        m_namespace->setBrush(style->getTextBrush());
+        m_namespace->setText(diagram_class->getNamespace());
+    } else if (m_namespace) {
+        m_namespace->scene()->removeItem(m_namespace);
+        delete m_namespace;
+        m_namespace = 0;
     }
 
     DClass::TemplateDisplay template_display = diagram_class->getTemplateDisplay();
     if (template_display == DClass::TEMPLATE_SMART) {
-        if (_custom_icon) {
+        if (m_customIcon) {
             template_display = DClass::TEMPLATE_NAME;
         } else {
             template_display = DClass::TEMPLATE_BOX;
@@ -164,16 +164,16 @@ void ClassItem::update()
     }
 
     // class name
-    if (!_class_name) {
-        _class_name = new QGraphicsSimpleTextItem(this);
+    if (!m_className) {
+        m_className = new QGraphicsSimpleTextItem(this);
     }
-    _class_name->setFont(style->getHeaderFont());
-    _class_name->setBrush(style->getTextBrush());
+    m_className->setFont(style->getHeaderFont());
+    m_className->setBrush(style->getTextBrush());
     if (template_display == DClass::TEMPLATE_NAME && !diagram_class->getTemplateParameters().isEmpty()) {
         QString name = getObject()->getName();
         name += QLatin1Char('<');
         bool first = true;
-        foreach (const QString p, diagram_class->getTemplateParameters()) {
+        foreach (const QString &p, diagram_class->getTemplateParameters()) {
             if (!first) {
                 name += QLatin1Char(',');
             }
@@ -181,115 +181,115 @@ void ClassItem::update()
             first = false;
         }
         name += QLatin1Char('>');
-        _class_name->setText(name);
+        m_className->setText(name);
     } else {
-        _class_name->setText(getObject()->getName());
+        m_className->setText(getObject()->getName());
     }
 
     // context
     if (showContext()) {
-        if (!_context_label) {
-            _context_label = new ContextLabelItem(this);
+        if (!m_contextLabel) {
+            m_contextLabel = new ContextLabelItem(this);
         }
-        _context_label->setFont(style->getSmallFont());
-        _context_label->setBrush(style->getTextBrush());
-        _context_label->setContext(getObject()->getContext());
-    } else if (_context_label) {
-        _context_label->scene()->removeItem(_context_label);
-        delete _context_label;
-        _context_label = 0;
+        m_contextLabel->setFont(style->getSmallFont());
+        m_contextLabel->setBrush(style->getTextBrush());
+        m_contextLabel->setContext(getObject()->getContext());
+    } else if (m_contextLabel) {
+        m_contextLabel->scene()->removeItem(m_contextLabel);
+        delete m_contextLabel;
+        m_contextLabel = 0;
     }
 
     // attributes separator
-    if (_shape || !_attributes_text.isEmpty() || !_methods_text.isEmpty()) {
-        if (!_attributes_separator) {
-            _attributes_separator = new QGraphicsLineItem(this);
+    if (m_shape || !m_attributesText.isEmpty() || !m_methodsText.isEmpty()) {
+        if (!m_attributesSeparator) {
+            m_attributesSeparator = new QGraphicsLineItem(this);
         }
-        _attributes_separator->setPen(style->getInnerLinePen());
-        _attributes_separator->setZValue(SHAPE_DETAILS_ZVALUE);
-    } else if (_attributes_separator) {
-        _attributes_separator->scene()->removeItem(_attributes_separator);
-        delete _attributes_separator;
-        _attributes_separator = 0;
+        m_attributesSeparator->setPen(style->getInnerLinePen());
+        m_attributesSeparator->setZValue(SHAPE_DETAILS_ZVALUE);
+    } else if (m_attributesSeparator) {
+        m_attributesSeparator->scene()->removeItem(m_attributesSeparator);
+        delete m_attributesSeparator;
+        m_attributesSeparator = 0;
     }
 
     // attributes
-    if (!_attributes_text.isEmpty()) {
-        if (!_attributes) {
-            _attributes = new QGraphicsTextItem(this);
+    if (!m_attributesText.isEmpty()) {
+        if (!m_attributes) {
+            m_attributes = new QGraphicsTextItem(this);
         }
-        _attributes->setFont(style->getNormalFont());
-        //_attributes->setBrush(style->getTextBrush());
-        _attributes->setDefaultTextColor(style->getTextBrush().color());
-        _attributes->setHtml(_attributes_text);
-    } else if (_attributes) {
-        _attributes->scene()->removeItem(_attributes);
-        delete _attributes;
-        _attributes = 0;
+        m_attributes->setFont(style->getNormalFont());
+        //m_attributes->setBrush(style->getTextBrush());
+        m_attributes->setDefaultTextColor(style->getTextBrush().color());
+        m_attributes->setHtml(m_attributesText);
+    } else if (m_attributes) {
+        m_attributes->scene()->removeItem(m_attributes);
+        delete m_attributes;
+        m_attributes = 0;
     }
 
     // methods separator
-    if (_shape || !_attributes_text.isEmpty() || !_methods_text.isEmpty()) {
-        if (!_methods_separator) {
-            _methods_separator = new QGraphicsLineItem(this);
+    if (m_shape || !m_attributesText.isEmpty() || !m_methodsText.isEmpty()) {
+        if (!m_methodsSeparator) {
+            m_methodsSeparator = new QGraphicsLineItem(this);
         }
-        _methods_separator->setPen(style->getInnerLinePen());
-        _methods_separator->setZValue(SHAPE_DETAILS_ZVALUE);
-    } else if (_methods_separator) {
-        _methods_separator->scene()->removeItem(_methods_separator);
-        delete _methods_separator;
-        _methods_separator = 0;
+        m_methodsSeparator->setPen(style->getInnerLinePen());
+        m_methodsSeparator->setZValue(SHAPE_DETAILS_ZVALUE);
+    } else if (m_methodsSeparator) {
+        m_methodsSeparator->scene()->removeItem(m_methodsSeparator);
+        delete m_methodsSeparator;
+        m_methodsSeparator = 0;
     }
 
     // methods
-    if (!_methods_text.isEmpty()) {
-        if (!_methods) {
-            _methods = new QGraphicsTextItem(this);
+    if (!m_methodsText.isEmpty()) {
+        if (!m_methods) {
+            m_methods = new QGraphicsTextItem(this);
         }
-        _methods->setFont(style->getNormalFont());
-        //_methods->setBrush(style->getTextBrush());
-        _methods->setDefaultTextColor(style->getTextBrush().color());
-        _methods->setHtml(_methods_text);
-    } else if (_methods) {
-        _methods->scene()->removeItem(_methods);
-        delete _methods;
-        _methods = 0;
+        m_methods->setFont(style->getNormalFont());
+        //m_methods->setBrush(style->getTextBrush());
+        m_methods->setDefaultTextColor(style->getTextBrush().color());
+        m_methods->setHtml(m_methodsText);
+    } else if (m_methods) {
+        m_methods->scene()->removeItem(m_methods);
+        delete m_methods;
+        m_methods = 0;
     }
 
     // template parameters
     if (template_display == DClass::TEMPLATE_BOX && !diagram_class->getTemplateParameters().isEmpty()) {
-        if (!_template_parameter_box) {
-            _template_parameter_box = new TemplateParameterBox(this);
+        if (!m_templateParameterBox) {
+            m_templateParameterBox = new TemplateParameterBox(this);
         }
         QPen pen = style->getOuterLinePen();
         pen.setStyle(Qt::DashLine);
-        _template_parameter_box->setPen(pen);
-        _template_parameter_box->setBrush(QBrush(Qt::white));
-        _template_parameter_box->setFont(style->getSmallFont());
-        _template_parameter_box->setTextBrush(style->getTextBrush());
-        _template_parameter_box->setTemplateParameters(diagram_class->getTemplateParameters());
-    } else if (_template_parameter_box) {
-        _template_parameter_box->scene()->removeItem(_template_parameter_box);
-        delete _template_parameter_box;
-        _template_parameter_box = 0;
+        m_templateParameterBox->setPen(pen);
+        m_templateParameterBox->setBrush(QBrush(Qt::white));
+        m_templateParameterBox->setFont(style->getSmallFont());
+        m_templateParameterBox->setTextBrush(style->getTextBrush());
+        m_templateParameterBox->setTemplateParameters(diagram_class->getTemplateParameters());
+    } else if (m_templateParameterBox) {
+        m_templateParameterBox->scene()->removeItem(m_templateParameterBox);
+        delete m_templateParameterBox;
+        m_templateParameterBox = 0;
     }
 
-    updateSelectionMarker(_custom_icon);
+    updateSelectionMarker(m_customIcon);
 
     // relation starters
     if (isFocusSelected()) {
-        if (!_relation_starter) {
-            _relation_starter = new RelationStarter(this, getDiagramSceneModel(), 0);
-            scene()->addItem(_relation_starter);
-            _relation_starter->setZValue(RELATION_STARTER_ZVALUE);
-            _relation_starter->addArrow(QLatin1String("inheritance"), ArrowItem::SHAFT_SOLID, ArrowItem::HEAD_TRIANGLE);
-            _relation_starter->addArrow(QLatin1String("dependency"), ArrowItem::SHAFT_DASHED, ArrowItem::HEAD_OPEN);
-            _relation_starter->addArrow(QLatin1String("association"), ArrowItem::SHAFT_SOLID, ArrowItem::HEAD_FILLED_TRIANGLE);
+        if (!m_relationStarter) {
+            m_relationStarter = new RelationStarter(this, getDiagramSceneModel(), 0);
+            scene()->addItem(m_relationStarter);
+            m_relationStarter->setZValue(RELATION_STARTER_ZVALUE);
+            m_relationStarter->addArrow(QLatin1String("inheritance"), ArrowItem::SHAFT_SOLID, ArrowItem::HEAD_TRIANGLE);
+            m_relationStarter->addArrow(QLatin1String("dependency"), ArrowItem::SHAFT_DASHED, ArrowItem::HEAD_OPEN);
+            m_relationStarter->addArrow(QLatin1String("association"), ArrowItem::SHAFT_SOLID, ArrowItem::HEAD_FILLED_TRIANGLE);
         }
-    } else if (_relation_starter) {
-        scene()->removeItem(_relation_starter);
-        delete _relation_starter;
-        _relation_starter = 0;
+    } else if (m_relationStarter) {
+        scene()->removeItem(m_relationStarter);
+        delete m_relationStarter;
+        m_relationStarter = 0;
     }
 
     updateAlignmentButtons();
@@ -300,10 +300,10 @@ void ClassItem::update()
 bool ClassItem::intersectShapeWithLine(const QLineF &line, QPointF *intersection_point, QLineF *intersection_line) const
 {
     QPolygonF polygon;
-    if (_custom_icon) {
+    if (m_customIcon) {
         QRectF rect = getObject()->getRect();
-//        polygon = _custom_icon->path().toFillPolygon(QTransform()
-//                                                     .scale(rect.width() / _custom_icon->getShapeWidth(), rect.height() / _custom_icon->getShapeHeight())
+//        polygon = m_customIcon->path().toFillPolygon(QTransform()
+//                                                     .scale(rect.width() / m_customIcon->getShapeWidth(), rect.height() / m_customIcon->getShapeHeight())
 //                                                     .translate(getObject()->getPos().x(), getObject()->getPos().y()));
         rect.translate(getObject()->getPos());
         polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
@@ -379,8 +379,8 @@ QSizeF ClassItem::calcMinimumGeometry() const
     double width = 0.0;
     double height = 0.0;
 
-    if (_custom_icon) {
-        return getStereotypeIconMinimumSize(_custom_icon->getStereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
+    if (m_customIcon) {
+        return getStereotypeIconMinimumSize(m_customIcon->getStereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
     }
 
     height += BODY_VERT_BORDER;
@@ -392,30 +392,30 @@ QSizeF ClassItem::calcMinimumGeometry() const
         width = std::max(width, stereotypes_item->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
         height += stereotypes_item->boundingRect().height();
     }
-    if (_namespace) {
-        width = std::max(width, _namespace->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
-        height += _namespace->boundingRect().height();
+    if (m_namespace) {
+        width = std::max(width, m_namespace->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
+        height += m_namespace->boundingRect().height();
     }
-    if (_class_name) {
-        width = std::max(width, _class_name->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
-        height += _class_name->boundingRect().height();
+    if (m_className) {
+        width = std::max(width, m_className->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
+        height += m_className->boundingRect().height();
     }
-    if (_context_label) {
-        height += _context_label->getHeight();
+    if (m_contextLabel) {
+        height += m_contextLabel->getHeight();
     }
-    if (_attributes_separator) {
+    if (m_attributesSeparator) {
         height += 8.0;
     }
-    if (_attributes) {
-        width = std::max(width, _attributes->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
-        height += _attributes->boundingRect().height();
+    if (m_attributes) {
+        width = std::max(width, m_attributes->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
+        height += m_attributes->boundingRect().height();
     }
-    if (_methods_separator) {
+    if (m_methodsSeparator) {
         height += 8.0;
     }
-    if (_methods) {
-        width = std::max(width, _methods->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
-        height += _methods->boundingRect().height();
+    if (m_methods) {
+        width = std::max(width, m_methods->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
+        height += m_methods->boundingRect().height();
     }
     height += BODY_VERT_BORDER;
 
@@ -435,7 +435,7 @@ void ClassItem::updateGeometry()
     height = geometry.height();
 
     if (getObject()->hasAutoSize()) {
-        if (!_custom_icon) {
+        if (!m_customIcon) {
             if (width < MINIMUM_AUTO_WIDTH) {
                 width = MINIMUM_AUTO_WIDTH;
             }
@@ -469,14 +469,14 @@ void ClassItem::updateGeometry()
     // a backup for the graphics item used for manual resized and persistency.
     getObject()->setRect(rect);
 
-    if (_custom_icon) {
-        _custom_icon->setPos(left, top);
-        _custom_icon->setActualSize(QSizeF(width, height));
+    if (m_customIcon) {
+        m_customIcon->setPos(left, top);
+        m_customIcon->setActualSize(QSizeF(width, height));
         y += height;
     }
 
-    if (_shape) {
-        _shape->setRect(rect);
+    if (m_shape) {
+        m_shape->setRect(rect);
     }
 
     y += BODY_VERT_BORDER;
@@ -488,67 +488,67 @@ void ClassItem::updateGeometry()
         stereotypes_item->setPos(-stereotypes_item->boundingRect().width() / 2.0, y);
         y += stereotypes_item->boundingRect().height();
     }
-    if (_namespace) {
-        _namespace->setPos(-_namespace->boundingRect().width() / 2.0, y);
-        y += _namespace->boundingRect().height();
+    if (m_namespace) {
+        m_namespace->setPos(-m_namespace->boundingRect().width() / 2.0, y);
+        y += m_namespace->boundingRect().height();
     }
-    if (_class_name) {
-        _class_name->setPos(-_class_name->boundingRect().width() / 2.0, y);
-        y += _class_name->boundingRect().height();
+    if (m_className) {
+        m_className->setPos(-m_className->boundingRect().width() / 2.0, y);
+        y += m_className->boundingRect().height();
     }
-    if (_context_label) {
-        if (_custom_icon) {
-            _context_label->resetMaxWidth();
+    if (m_contextLabel) {
+        if (m_customIcon) {
+            m_contextLabel->resetMaxWidth();
         } else {
-            _context_label->setMaxWidth(width - 2 * BODY_HORIZ_BORDER);
+            m_contextLabel->setMaxWidth(width - 2 * BODY_HORIZ_BORDER);
         }
-        _context_label->setPos(-_context_label->boundingRect().width() / 2.0, y);
-        y += _context_label->boundingRect().height();
+        m_contextLabel->setPos(-m_contextLabel->boundingRect().width() / 2.0, y);
+        y += m_contextLabel->boundingRect().height();
     }
-    if (_attributes_separator) {
-        _attributes_separator->setLine(left, 4.0, right, 4.0);
-        _attributes_separator->setPos(0, y);
+    if (m_attributesSeparator) {
+        m_attributesSeparator->setLine(left, 4.0, right, 4.0);
+        m_attributesSeparator->setPos(0, y);
         y += 8.0;
     }
-    if (_attributes) {
-        if (_custom_icon) {
-            _attributes->setPos(-_attributes->boundingRect().width() / 2.0, y);
+    if (m_attributes) {
+        if (m_customIcon) {
+            m_attributes->setPos(-m_attributes->boundingRect().width() / 2.0, y);
         } else {
-            _attributes->setPos(left + BODY_HORIZ_BORDER, y);
+            m_attributes->setPos(left + BODY_HORIZ_BORDER, y);
         }
-        y += _attributes->boundingRect().height();
+        y += m_attributes->boundingRect().height();
     }
-    if (_methods_separator) {
-        _methods_separator->setLine(left, 4.0, right, 4.0);
-        _methods_separator->setPos(0, y);
+    if (m_methodsSeparator) {
+        m_methodsSeparator->setLine(left, 4.0, right, 4.0);
+        m_methodsSeparator->setPos(0, y);
         y += 8.0;
     }
-    if (_methods) {
-        if (_custom_icon) {
-            _methods->setPos(-_methods->boundingRect().width() / 2.0, y);
+    if (m_methods) {
+        if (m_customIcon) {
+            m_methods->setPos(-m_methods->boundingRect().width() / 2.0, y);
         } else {
-            _methods->setPos(left + BODY_HORIZ_BORDER, y);
+            m_methods->setPos(left + BODY_HORIZ_BORDER, y);
         }
-        y += _methods->boundingRect().height();
+        y += m_methods->boundingRect().height();
     }
 
-    if (_template_parameter_box) {
-        _template_parameter_box->setBreakLines(false);
-        double x = right - _template_parameter_box->boundingRect().width() * 0.8;
+    if (m_templateParameterBox) {
+        m_templateParameterBox->setBreakLines(false);
+        double x = right - m_templateParameterBox->boundingRect().width() * 0.8;
         if (x < 0) {
-            _template_parameter_box->setBreakLines(true);
-            x = right - _template_parameter_box->boundingRect().width() * 0.8;
+            m_templateParameterBox->setBreakLines(true);
+            x = right - m_templateParameterBox->boundingRect().width() * 0.8;
         }
         if (x < 0) {
             x = 0;
         }
-        _template_parameter_box->setPos(x, top - _template_parameter_box->boundingRect().height() + BODY_VERT_BORDER);
+        m_templateParameterBox->setPos(x, top - m_templateParameterBox->boundingRect().height() + BODY_VERT_BORDER);
     }
 
     updateSelectionMarkerGeometry(rect);
 
-    if (_relation_starter) {
-        _relation_starter->setPos(mapToScene(QPointF(right + 8.0, top)));
+    if (m_relationStarter) {
+        m_relationStarter->setPos(mapToScene(QPointF(right + 8.0, top)));
     }
 
     updateAlignmentButtonsGeometry(rect);
@@ -561,8 +561,8 @@ void ClassItem::updateMembers(const Style *style)
 {
     Q_UNUSED(style)
 
-    _attributes_text.clear();
-    _methods_text.clear();
+    m_attributesText.clear();
+    m_methodsText.clear();
 
     MClassMember::Visibility attributes_visibility = MClassMember::VISIBILITY_UNDEFINED;
     MClassMember::Visibility methods_visibility = MClassMember::VISIBILITY_UNDEFINED;
@@ -590,12 +590,12 @@ void ClassItem::updateMembers(const Style *style)
         case MClassMember::MEMBER_ATTRIBUTE:
             current_visibility = &attributes_visibility;
             current_group = &attributes_group;
-            text = &_attributes_text;
+            text = &m_attributesText;
             break;
         case MClassMember::MEMBER_METHOD:
             current_visibility = &methods_visibility;
             current_group = &methods_group;
-            text = &_methods_text;
+            text = &m_methodsText;
             break;
         }
 

@@ -73,7 +73,7 @@ public:
 
 public:
 
-    QSizeF getPointSize() const { return _point_size; }
+    QSizeF getPointSize() const { return m_pointSize; }
 
     void setPointSize(const QSizeF &size);
 
@@ -95,15 +95,15 @@ private:
 
 private:
 
-    IWindable *_windable;
+    IWindable *m_windable;
 
-    QSizeF _point_size;
+    QSizeF m_pointSize;
 
-    bool _secondary_selected;
+    bool m_secondarySelected;
 
-    QList<GraphicsHandleItem *> _handles;
+    QList<GraphicsHandleItem *> m_handles;
 
-    QPointF _original_handle_pos;
+    QPointF m_originalHandlePos;
 };
 
 }

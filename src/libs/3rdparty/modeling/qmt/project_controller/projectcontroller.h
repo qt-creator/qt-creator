@@ -76,9 +76,9 @@ signals:
 
 public:
 
-    Project *getProject() const { return _project.data(); }
+    Project *getProject() const { return m_project.data(); }
 
-    bool isModified() const { return _is_modified; }
+    bool isModified() const { return m_isModified; }
 
 public slots:
 
@@ -95,8 +95,8 @@ public slots:
     void saveAs(const QString &file_name);
 
 private:
-    QScopedPointer<Project> _project;
-    bool _is_modified;
+    QScopedPointer<Project> m_project;
+    bool m_isModified;
 };
 
 }

@@ -37,39 +37,39 @@
 namespace qmt {
 
 DClass::DClass()
-    : _template_display(TEMPLATE_SMART),
-      _show_all_members(false)
+    : m_templateDisplay(TEMPLATE_SMART),
+      m_showAllMembers(false)
 {
 }
 
 void DClass::setNamespace(const QString &name_space)
 {
-    _namespace = name_space;
+    m_namespace = name_space;
 }
 
 void DClass::setTemplateParameters(const QList<QString> &template_parameters)
 {
-    _template_parameters = template_parameters;
+    m_templateParameters = template_parameters;
 }
 
 void DClass::setMembers(const QList<MClassMember> &members)
 {
-    _members = members;
+    m_members = members;
 }
 
 void DClass::setVisibleMembers(const QSet<Uid> &visible_members)
 {
-    _visible_members = visible_members;
+    m_visibleMembers = visible_members;
 }
 
 void DClass::setTemplateDisplay(DClass::TemplateDisplay template_display)
 {
-    _template_display = template_display;
+    m_templateDisplay = template_display;
 }
 
 void DClass::setShowAllMembers(bool show_all_members)
 {
-    _show_all_members = show_all_members;
+    m_showAllMembers = show_all_members;
 }
 
 void DClass::accept(DVisitor *visitor)

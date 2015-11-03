@@ -37,7 +37,7 @@
 namespace qmt {
 
 DDependency::DDependency()
-    : _direction(MDependency::A_TO_B)
+    : m_direction(MDependency::A_TO_B)
 {
 }
 
@@ -47,27 +47,27 @@ DDependency::~DDependency()
 
 Uid DDependency::getSource() const
 {
-    return _direction == MDependency::B_TO_A ? getEndB() : getEndA();
+    return m_direction == MDependency::B_TO_A ? getEndB() : getEndA();
 }
 
 void DDependency::setSource(const Uid &source)
 {
-    _direction == MDependency::B_TO_A ? setEndB(source) : setEndA(source);
+    m_direction == MDependency::B_TO_A ? setEndB(source) : setEndA(source);
 }
 
 Uid DDependency::getTarget() const
 {
-    return _direction == MDependency::B_TO_A ? getEndA() : getEndB();
+    return m_direction == MDependency::B_TO_A ? getEndA() : getEndB();
 }
 
 void DDependency::setTarget(const Uid &target)
 {
-    return _direction == MDependency::B_TO_A ? setEndA(target) : setEndB(target);
+    return m_direction == MDependency::B_TO_A ? setEndA(target) : setEndB(target);
 }
 
 void DDependency::setDirection(MDependency::Direction direction)
 {
-    _direction = direction;
+    m_direction = direction;
 }
 
 void DDependency::accept(DVisitor *visitor)

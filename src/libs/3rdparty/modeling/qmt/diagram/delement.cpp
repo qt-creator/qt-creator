@@ -47,12 +47,12 @@ DElement::~DElement()
 
 void DElement::setUid(const Uid &uid)
 {
-    _uid = uid;
+    m_uid = uid;
 }
 
 void DElement::renewUid()
 {
-    _uid.renew();
+    m_uid.renew();
 }
 
 void DElement::accept(DVisitor *visitor)

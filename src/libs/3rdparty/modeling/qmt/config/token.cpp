@@ -33,24 +33,24 @@
 namespace qmt {
 
 Token::Token()
-    : _type(TOKEN_UNDEFINED),
-      _subtype(0)
+    : m_type(TOKEN_UNDEFINED),
+      m_subtype(0)
 {
 }
 
 Token::Token(Type type, const QString &text, const SourcePos &source_pos)
-    : _type(type),
-      _subtype(0),
-      _text(text),
-      _source_pos(source_pos)
+    : m_type(type),
+      m_subtype(0),
+      m_text(text),
+      m_sourcePos(source_pos)
 {
 }
 
 Token::Token(Token::Type type, int subtype, const QString &text, const SourcePos &source_pos)
-    : _type(type),
-      _subtype(subtype),
-      _text(text),
-      _source_pos(source_pos)
+    : m_type(type),
+      m_subtype(subtype),
+      m_text(text),
+      m_sourcePos(source_pos)
 {
 }
 
@@ -60,22 +60,22 @@ Token::~Token()
 
 void Token::setType(Token::Type type)
 {
-    _type = type;
+    m_type = type;
 }
 
 void Token::setSubtype(int subtype)
 {
-    _subtype = subtype;
+    m_subtype = subtype;
 }
 
 void Token::setText(const QString &text)
 {
-    _text = text;
+    m_text = text;
 }
 
 void Token::setSourcePos(const SourcePos &source_pos)
 {
-    _source_pos = source_pos;
+    m_sourcePos = source_pos;
 }
 
 } // namespace qmt

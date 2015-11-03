@@ -123,23 +123,23 @@ private:
 
 private:
 
-    Shaft _shaft;
+    Shaft m_shaft;
 
-    GraphicsShaftItem *_shaft_item;
+    GraphicsShaftItem *m_shaftItem;
 
-    double _arrow_size;
+    double m_arrowSize;
 
-    double _diamond_size;
+    double m_diamondSize;
 
-    Head _start_head;
+    Head m_startHead;
 
-    GraphicsHeadItem *_start_head_item;
+    GraphicsHeadItem *m_startHeadItem;
 
-    Head _end_head;
+    Head m_endHead;
 
-    GraphicsHeadItem *_end_head_item;
+    GraphicsHeadItem *m_endHeadItem;
 
-    QList<QPointF> _points;
+    QList<QPointF> m_points;
 };
 
 }

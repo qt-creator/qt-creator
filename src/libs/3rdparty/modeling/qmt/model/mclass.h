@@ -56,15 +56,15 @@ public:
 
 public:
 
-    QString getNamespace() const { return _namespace; }
+    QString getNamespace() const { return m_namespace; }
 
     void setNamespace(const QString &name_space);
 
-    QList<QString> getTemplateParameters() const { return _template_parameters; }
+    QList<QString> getTemplateParameters() const { return m_templateParameters; }
 
     void setTemplateParameters(const QList<QString> &template_parameters);
 
-    QList<MClassMember> getMembers() const { return _members; }
+    QList<MClassMember> getMembers() const { return m_members; }
 
     void setMembers(const QList<MClassMember> &members);
 
@@ -84,11 +84,11 @@ public:
 
 private:
 
-    QString _namespace;
+    QString m_namespace;
 
-    QList<QString> _template_parameters;
+    QList<QString> m_templateParameters;
 
-    QList<MClassMember> _members;
+    QList<MClassMember> m_members;
 
 };
 

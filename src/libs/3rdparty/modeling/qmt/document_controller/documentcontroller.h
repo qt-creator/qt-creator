@@ -78,29 +78,29 @@ signals:
 
 public:
 
-    ProjectController *getProjectController() const { return _project_controller; }
+    ProjectController *getProjectController() const { return m_projectController; }
 
-    UndoController *getUndoController() const { return _undo_controller; }
+    UndoController *getUndoController() const { return m_undoController; }
 
-    ModelController *getModelController() const { return _model_controller; }
+    ModelController *getModelController() const { return m_modelController; }
 
-    DiagramController *getDiagramController() const { return _diagram_controller; }
+    DiagramController *getDiagramController() const { return m_diagramController; }
 
-    DiagramSceneController *getDiagramSceneController() const { return _diagram_scene_controller; }
+    DiagramSceneController *getDiagramSceneController() const { return m_diagramSceneController; }
 
-    StyleController *getStyleController() const { return _style_controller; }
+    StyleController *getStyleController() const { return m_styleController; }
 
-    StereotypeController *getStereotypeController() const { return _stereotype_controller; }
+    StereotypeController *getStereotypeController() const { return m_stereotypeController; }
 
-    ConfigController *getConfigController() const { return _config_controller; }
+    ConfigController *getConfigController() const { return m_configController; }
 
-    TreeModel *getTreeModel() const { return _tree_model; }
+    TreeModel *getTreeModel() const { return m_treeModel; }
 
-    SortedTreeModel *getSortedTreeModel() const { return _sorted_tree_model; }
+    SortedTreeModel *getSortedTreeModel() const { return m_sortedTreeModel; }
 
-    DiagramsManager *getDiagramsManager() const { return _diagrams_manager; }
+    DiagramsManager *getDiagramsManager() const { return m_diagramsManager; }
 
-    SceneInspector *getSceneInspector() const { return _scene_inspector; }
+    SceneInspector *getSceneInspector() const { return m_sceneInspector; }
 
 public:
 
@@ -158,33 +158,33 @@ public:
 
 private:
 
-    ProjectController *_project_controller;
+    ProjectController *m_projectController;
 
-    UndoController *_undo_controller;
+    UndoController *m_undoController;
 
-    ModelController *_model_controller;
+    ModelController *m_modelController;
 
-    DiagramController *_diagram_controller;
+    DiagramController *m_diagramController;
 
-    DiagramSceneController *_diagram_scene_controller;
+    DiagramSceneController *m_diagramSceneController;
 
-    StyleController *_style_controller;
+    StyleController *m_styleController;
 
-    StereotypeController *_stereotype_controller;
+    StereotypeController *m_stereotypeController;
 
-    ConfigController *_config_controller;
+    ConfigController *m_configController;
 
-    TreeModel *_tree_model;
+    TreeModel *m_treeModel;
 
-    SortedTreeModel *_sorted_tree_model;
+    SortedTreeModel *m_sortedTreeModel;
 
-    DiagramsManager *_diagrams_manager;
+    DiagramsManager *m_diagramsManager;
 
-    SceneInspector *_scene_inspector;
+    SceneInspector *m_sceneInspector;
 
-    QScopedPointer<MContainer> _model_clipboard;
+    QScopedPointer<MContainer> m_modelClipboard;
 
-    QScopedPointer<DContainer> _diagram_clipboard;
+    QScopedPointer<DContainer> m_diagramClipboard;
 
 };
 

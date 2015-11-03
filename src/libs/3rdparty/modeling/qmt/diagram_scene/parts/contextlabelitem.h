@@ -60,9 +60,9 @@ private:
 
 private:
 
-    double _max_width;
+    double m_maxWidth;
 
-    QString _context;
+    QString m_context;
 };
 
 }

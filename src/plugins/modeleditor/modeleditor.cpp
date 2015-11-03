@@ -870,47 +870,47 @@ void ModelEditor::initToolbars()
             QTC_ASSERT(toolBarLayout, continue);
         }
         foreach (const qmt::Toolbar::Tool &tool, toolbar.getTools()) {
-            switch (tool._tool_type) {
+            switch (tool.m_toolType) {
             case qmt::Toolbar::TOOLTYPE_TOOL:
             {
                 QString iconPath;
                 qmt::StereotypeIcon::Element stereotypeIconElement = qmt::StereotypeIcon::ELEMENT_ANY;
                 qmt::StyleEngine::ElementType styleEngineElementType = qmt::StyleEngine::TYPE_OTHER;
-                if (tool._element_type == QLatin1String(qmt::ELEMENT_TYPE_PACKAGE)) {
+                if (tool.m_elementType == QLatin1String(qmt::ELEMENT_TYPE_PACKAGE)) {
                     iconPath = QStringLiteral(":/modelinglib/48x48/package.png");
                     stereotypeIconElement = qmt::StereotypeIcon::ELEMENT_PACKAGE;
                     styleEngineElementType = qmt::StyleEngine::TYPE_PACKAGE;
-                } else if (tool._element_type == QLatin1String(qmt::ELEMENT_TYPE_COMPONENT)) {
+                } else if (tool.m_elementType == QLatin1String(qmt::ELEMENT_TYPE_COMPONENT)) {
                     iconPath = QStringLiteral(":/modelinglib/48x48/component.png");
                     stereotypeIconElement = qmt::StereotypeIcon::ELEMENT_COMPONENT;
                     styleEngineElementType = qmt::StyleEngine::TYPE_COMPONENT;
-                } else if (tool._element_type == QLatin1String(qmt::ELEMENT_TYPE_CLASS)) {
+                } else if (tool.m_elementType == QLatin1String(qmt::ELEMENT_TYPE_CLASS)) {
                     iconPath = QStringLiteral(":/modelinglib/48x48/class.png");
                     stereotypeIconElement = qmt::StereotypeIcon::ELEMENT_CLASS;
                     styleEngineElementType = qmt::StyleEngine::TYPE_CLASS;
-                } else if (tool._element_type == QLatin1String(qmt::ELEMENT_TYPE_ITEM)) {
+                } else if (tool.m_elementType == QLatin1String(qmt::ELEMENT_TYPE_ITEM)) {
                     iconPath = QStringLiteral(":/modelinglib/48x48/item.png");
                     stereotypeIconElement = qmt::StereotypeIcon::ELEMENT_ITEM;
                     styleEngineElementType = qmt::StyleEngine::TYPE_ITEM;
-                } else if (tool._element_type == QLatin1String(qmt::ELEMENT_TYPE_ANNOTATION)) {
+                } else if (tool.m_elementType == QLatin1String(qmt::ELEMENT_TYPE_ANNOTATION)) {
                     iconPath = QStringLiteral(":/modelinglib/48x48/annotation.png");
                     styleEngineElementType = qmt::StyleEngine::TYPE_ANNOTATION;
-                } else if (tool._element_type == QLatin1String(qmt::ELEMENT_TYPE_BOUNDARY)) {
+                } else if (tool.m_elementType == QLatin1String(qmt::ELEMENT_TYPE_BOUNDARY)) {
                     iconPath = QStringLiteral(":/modelinglib/48x48/boundary.png");
                     styleEngineElementType = qmt::StyleEngine::TYPE_BOUNDARY;
                 }
                 QIcon icon;
-                if (!tool._stereotype.isEmpty() && stereotypeIconElement != qmt::StereotypeIcon::ELEMENT_ANY) {
+                if (!tool.m_stereotype.isEmpty() && stereotypeIconElement != qmt::StereotypeIcon::ELEMENT_ANY) {
                     const qmt::Style *style = documentController->getStyleController()->adaptStyle(styleEngineElementType);
                     icon = stereotypeController->createIcon(
-                                stereotypeIconElement, QStringList() << tool._stereotype,
+                                stereotypeIconElement, QStringList() << tool.m_stereotype,
                                 QString(), style, QSize(48, 48), QMarginsF(3.0, 2.0, 3.0, 4.0));
                 }
                 if (icon.isNull())
                     icon = QIcon(iconPath);
                 if (!icon.isNull()) {
-                    toolBarLayout->addWidget(new DragTool(icon, tool._name, tool._element_type,
-                                                          tool._stereotype, toolBar));
+                    toolBarLayout->addWidget(new DragTool(icon, tool.m_name, tool.m_elementType,
+                                                          tool.m_stereotype, toolBar));
                 }
                 break;
             }

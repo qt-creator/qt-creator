@@ -36,10 +36,10 @@
 namespace qmt {
 
 StringTextSource::StringTextSource()
-    : _source_id(-1),
-      _index(-1),
-      _line_number(-1),
-      _column_number(-1)
+    : m_sourceId(-1),
+      m_index(-1),
+      m_lineNumber(-1),
+      m_columnNumber(-1)
 {
 }
 
@@ -49,36 +49,36 @@ StringTextSource::~StringTextSource()
 
 void StringTextSource::setText(const QString &text)
 {
-    _text = text;
-    _index = 0;
-    _line_number = 1;
-    _column_number = 1;
+    m_text = text;
+    m_index = 0;
+    m_lineNumber = 1;
+    m_columnNumber = 1;
 }
 
 void StringTextSource::setSourceId(int source_id)
 {
-    _source_id = source_id;
+    m_sourceId = source_id;
 }
 
 SourceChar StringTextSource::readNextChar()
 {
-    QMT_CHECK(_source_id >= 0);
-    QMT_CHECK(_index >= 0);
-    QMT_CHECK(_line_number >= 0);
-    QMT_CHECK(_column_number >= 0);
+    QMT_CHECK(m_sourceId >= 0);
+    QMT_CHECK(m_index >= 0);
+    QMT_CHECK(m_lineNumber >= 0);
+    QMT_CHECK(m_columnNumber >= 0);
 
-    if (_index >= _text.length()) {
-        return SourceChar(QChar(), SourcePos(_source_id, _line_number, _column_number));
+    if (m_index >= m_text.length()) {
+        return SourceChar(QChar(), SourcePos(m_sourceId, m_lineNumber, m_columnNumber));
     }
 
-    SourcePos pos(_source_id, _line_number, _column_number);
-    QChar ch(_text.at(_index));
-    ++_index;
+    SourcePos pos(m_sourceId, m_lineNumber, m_columnNumber);
+    QChar ch(m_text.at(m_index));
+    ++m_index;
     if (ch == QChar::LineFeed) {
-        ++_line_number;
-        _column_number = 1;
+        ++m_lineNumber;
+        m_columnNumber = 1;
     } else {
-        ++_column_number;
+        ++m_columnNumber;
     }
     return SourceChar(ch, pos);
 }

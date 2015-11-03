@@ -48,11 +48,11 @@ namespace qmt {
 struct ConfigController::ConfigControllerPrivate
 {
     ConfigControllerPrivate()
-        : _stereotype_controller(0)
+        : m_stereotypeController(0)
     {
     }
 
-    StereotypeController *_stereotype_controller;
+    StereotypeController *m_stereotypeController;
 };
 
 ConfigController::ConfigController(QObject *parent)
@@ -68,7 +68,7 @@ ConfigController::~ConfigController()
 
 void ConfigController::setStereotypeController(StereotypeController *stereotype_controller)
 {
-    d->_stereotype_controller = stereotype_controller;
+    d->m_stereotypeController = stereotype_controller;
 }
 
 void ConfigController::readStereotypeDefinitions(const QString &path)
@@ -101,12 +101,12 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
 
 void ConfigController::onStereotypeIconParsed(const StereotypeIcon &stereotype_icon)
 {
-    d->_stereotype_controller->addStereotypeIcon(stereotype_icon);
+    d->m_stereotypeController->addStereotypeIcon(stereotype_icon);
 }
 
 void ConfigController::onToolbarParsed(const Toolbar &toolbar)
 {
-    d->_stereotype_controller->addToolbar(toolbar);
+    d->m_stereotypeController->addToolbar(toolbar);
 }
 
 } // namespace qmt

@@ -52,9 +52,9 @@ struct StereotypeController::StereotypeControllerPrivate
     {
     }
 
-    QHash<QPair<StereotypeIcon::Element, QString>, QString> _stereotype_to_icon_id_map;
-    QHash<QString, StereotypeIcon> _icon_id_to_stereotype_icons_map;
-    QList<Toolbar> _toolbars;
+    QHash<QPair<StereotypeIcon::Element, QString>, QString> m_stereotypeToIconIdMap;
+    QHash<QString, StereotypeIcon> m_iconIdToStereotypeIconsMap;
+    QList<Toolbar> m_toolbars;
 };
 
 StereotypeController::StereotypeController(QObject *parent) :
@@ -70,18 +70,18 @@ StereotypeController::~StereotypeController()
 
 QList<StereotypeIcon> StereotypeController::getStereotypeIcons() const
 {
-    return d->_icon_id_to_stereotype_icons_map.values();
+    return d->m_iconIdToStereotypeIconsMap.values();
 }
 
 QList<Toolbar> StereotypeController::getToolbars() const
 {
-    return d->_toolbars;
+    return d->m_toolbars;
 }
 
 QList<QString> StereotypeController::getKnownStereotypes(StereotypeIcon::Element stereotype_element) const
 {
     QSet<QString> stereotypes;
-    foreach (const StereotypeIcon &icon, d->_icon_id_to_stereotype_icons_map.values()) {
+    foreach (const StereotypeIcon &icon, d->m_iconIdToStereotypeIconsMap.values()) {
         if (icon.getElements().isEmpty() || icon.getElements().contains(stereotype_element)) {
             stereotypes += icon.getStereotypes();
         }
@@ -94,10 +94,10 @@ QList<QString> StereotypeController::getKnownStereotypes(StereotypeIcon::Element
 QString StereotypeController::findStereotypeIconId(StereotypeIcon::Element element, const QList<QString> &stereotypes) const
 {
     foreach (const QString &stereotype, stereotypes) {
-        if (d->_stereotype_to_icon_id_map.contains(qMakePair(element, stereotype))) {
-            return d->_stereotype_to_icon_id_map.value(qMakePair(element, stereotype));
-        } else if (d->_stereotype_to_icon_id_map.contains(qMakePair(StereotypeIcon::ELEMENT_ANY, stereotype))) {
-            return d->_stereotype_to_icon_id_map.value(qMakePair(StereotypeIcon::ELEMENT_ANY, stereotype));
+        if (d->m_stereotypeToIconIdMap.contains(qMakePair(element, stereotype))) {
+            return d->m_stereotypeToIconIdMap.value(qMakePair(element, stereotype));
+        } else if (d->m_stereotypeToIconIdMap.contains(qMakePair(StereotypeIcon::ELEMENT_ANY, stereotype))) {
+            return d->m_stereotypeToIconIdMap.value(qMakePair(StereotypeIcon::ELEMENT_ANY, stereotype));
         }
     }
     return QString();
@@ -105,11 +105,11 @@ QString StereotypeController::findStereotypeIconId(StereotypeIcon::Element eleme
 
 QList<QString> StereotypeController::filterStereotypesByIconId(const QString &stereotype_icon_id, const QList<QString> &stereotypes) const
 {
-    if (!d->_icon_id_to_stereotype_icons_map.contains(stereotype_icon_id)) {
+    if (!d->m_iconIdToStereotypeIconsMap.contains(stereotype_icon_id)) {
         return stereotypes;
     }
     QList<QString> filtered_stereotypes = stereotypes;
-    foreach (const QString &stereotype, d->_icon_id_to_stereotype_icons_map.value(stereotype_icon_id).getStereotypes()) {
+    foreach (const QString &stereotype, d->m_iconIdToStereotypeIconsMap.value(stereotype_icon_id).getStereotypes()) {
         filtered_stereotypes.removeAll(stereotype);
     }
     return filtered_stereotypes;
@@ -117,8 +117,8 @@ QList<QString> StereotypeController::filterStereotypesByIconId(const QString &st
 
 StereotypeIcon StereotypeController::findStereotypeIcon(const QString &stereotype_icon_id)
 {
-    QMT_CHECK(d->_icon_id_to_stereotype_icons_map.contains(stereotype_icon_id));
-    return d->_icon_id_to_stereotype_icons_map.value(stereotype_icon_id);
+    QMT_CHECK(d->m_iconIdToStereotypeIconsMap.contains(stereotype_icon_id));
+    return d->m_iconIdToStereotypeIconsMap.value(stereotype_icon_id);
 }
 
 QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes, const QString &default_icon_path,
@@ -179,21 +179,21 @@ void StereotypeController::addStereotypeIcon(const StereotypeIcon &stereotype_ic
 {
     if (stereotype_icon.getElements().isEmpty()) {
         foreach (const QString &stereotype, stereotype_icon.getStereotypes()) {
-            d->_stereotype_to_icon_id_map.insert(qMakePair(StereotypeIcon::ELEMENT_ANY, stereotype), stereotype_icon.getId());
+            d->m_stereotypeToIconIdMap.insert(qMakePair(StereotypeIcon::ELEMENT_ANY, stereotype), stereotype_icon.getId());
         }
     } else {
         foreach (StereotypeIcon::Element element, stereotype_icon.getElements()) {
             foreach (const QString &stereotype, stereotype_icon.getStereotypes()) {
-                d->_stereotype_to_icon_id_map.insert(qMakePair(element, stereotype), stereotype_icon.getId());
+                d->m_stereotypeToIconIdMap.insert(qMakePair(element, stereotype), stereotype_icon.getId());
             }
         }
     }
-    d->_icon_id_to_stereotype_icons_map.insert(stereotype_icon.getId(), stereotype_icon);
+    d->m_iconIdToStereotypeIconsMap.insert(stereotype_icon.getId(), stereotype_icon);
 }
 
 void StereotypeController::addToolbar(const Toolbar &toolbar)
 {
-    d->_toolbars.append(toolbar);
+    d->m_toolbars.append(toolbar);
 }
 
 } // namespace qmt

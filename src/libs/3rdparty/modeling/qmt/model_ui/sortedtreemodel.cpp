@@ -41,8 +41,8 @@ SortedTreeModel::SortedTreeModel(QObject *parent)
     setDynamicSortFilter(false);
     setSortCaseSensitivity(Qt::CaseInsensitive);
 
-    _delayed_sort_timer.setSingleShot(true);
-    connect(&_delayed_sort_timer, SIGNAL(timeout()), this, SLOT(onDelayedSortTimeout()));
+    m_delayedSortTimer.setSingleShot(true);
+    connect(&m_delayedSortTimer, SIGNAL(timeout()), this, SLOT(onDelayedSortTimeout()));
 
     connect(this, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onTreeModelRowsInserted(QModelIndex,int,int)));
     connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), this, SLOT(onDataChanged(QModelIndex,QModelIndex,QVector<int>)));
@@ -55,7 +55,7 @@ SortedTreeModel::~SortedTreeModel()
 
 void SortedTreeModel::setTreeModel(TreeModel *tree_model)
 {
-    _tree_model = tree_model;
+    m_treeModel = tree_model;
     setSourceModel(tree_model);
     startDelayedSortTimer();
 }
@@ -103,7 +103,7 @@ void SortedTreeModel::onDelayedSortTimeout()
 
 void SortedTreeModel::startDelayedSortTimer()
 {
-    _delayed_sort_timer.start(1000);
+    m_delayedSortTimer.start(1000);
 }
 
 }

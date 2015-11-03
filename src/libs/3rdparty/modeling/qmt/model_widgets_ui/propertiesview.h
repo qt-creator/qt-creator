@@ -72,31 +72,31 @@ signals:
 
 public:
 
-    ModelController *getModelController() const { return _model_controller; }
+    ModelController *getModelController() const { return m_modelController; }
 
     void setModelController(ModelController *model_controller);
 
-    DiagramController *getDiagramController() const { return _diagram_controller; }
+    DiagramController *getDiagramController() const { return m_diagramController; }
 
     void setDiagramController(DiagramController *diagram_controller);
 
-    StereotypeController *getStereotypeController() const { return _stereotype_controller; }
+    StereotypeController *getStereotypeController() const { return m_stereotypeController; }
 
     void setStereotypeController(StereotypeController *stereotype_controller);
 
-    StyleController *getStyleController() const { return _style_controller; }
+    StyleController *getStyleController() const { return m_styleController; }
 
     void setStyleController(StyleController *style_controller);
 
 public:
 
-    QList<MElement *> getSelectedModelElements() const { return _selected_model_elements; }
+    QList<MElement *> getSelectedModelElements() const { return m_selectedModelElements; }
 
     void setSelectedModelElements(const QList<MElement *> &model_elements);
 
-    QList<DElement *> getSelectedDiagramElements() const { return _selected_diagram_elements; }
+    QList<DElement *> getSelectedDiagramElements() const { return m_selectedDiagramElements; }
 
-    MDiagram *getSelectedDiagram() const { return _selected_diagram; }
+    MDiagram *getSelectedDiagram() const { return m_selectedDiagram; }
 
     void setSelectedDiagramElements(const QList<DElement *> &diagram_elements, MDiagram *diagram);
 
@@ -182,23 +182,23 @@ private:
 
 private:
 
-    ModelController *_model_controller;
+    ModelController *m_modelController;
 
-    DiagramController *_diagram_controller;
+    DiagramController *m_diagramController;
 
-    StereotypeController *_stereotype_controller;
+    StereotypeController *m_stereotypeController;
 
-    StyleController *_style_controller;
+    StyleController *m_styleController;
 
-    QList<MElement *> _selected_model_elements;
+    QList<MElement *> m_selectedModelElements;
 
-    QList<DElement *> _selected_diagram_elements;
+    QList<DElement *> m_selectedDiagramElements;
 
-    MDiagram *_selected_diagram;
+    MDiagram *m_selectedDiagram;
 
-    QScopedPointer<MView> _mview;
+    QScopedPointer<MView> m_mview;
 
-    QWidget *_widget;
+    QWidget *m_widget;
 };
 
 }

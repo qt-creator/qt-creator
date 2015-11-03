@@ -44,7 +44,7 @@ namespace qmt {
 
 SceneInspector::SceneInspector(QObject *parent)
     : QObject(parent),
-      _diagrams_manager(0)
+      m_diagramsManager(0)
 {
 }
 
@@ -54,7 +54,7 @@ SceneInspector::~SceneInspector()
 
 void SceneInspector::setDiagramsManager(DiagramsManager *diagrams_manager)
 {
-    _diagrams_manager = diagrams_manager;
+    m_diagramsManager = diagrams_manager;
 }
 
 QSizeF SceneInspector::getRasterSize() const
@@ -64,7 +64,7 @@ QSizeF SceneInspector::getRasterSize() const
 
 QSizeF SceneInspector::getMinimalSize(const DElement *element, const MDiagram *diagram) const
 {
-    DiagramSceneModel *diagram_scene_model = _diagrams_manager->getDiagramSceneModel(diagram);
+    DiagramSceneModel *diagram_scene_model = m_diagramsManager->getDiagramSceneModel(diagram);
     QMT_CHECK(diagram_scene_model);
     if (diagram_scene_model) {
         const QGraphicsItem *item = diagram_scene_model->getGraphicsItem(const_cast<DElement *>(element));
@@ -81,7 +81,7 @@ QSizeF SceneInspector::getMinimalSize(const DElement *element, const MDiagram *d
 
 IMoveable *SceneInspector::getMoveable(const DElement *element, const MDiagram *diagram) const
 {
-    DiagramSceneModel *diagram_scene_model = _diagrams_manager->getDiagramSceneModel(diagram);
+    DiagramSceneModel *diagram_scene_model = m_diagramsManager->getDiagramSceneModel(diagram);
     QMT_CHECK(diagram_scene_model);
     if (diagram_scene_model) {
         QGraphicsItem *item = diagram_scene_model->getGraphicsItem(const_cast<DElement *>(element));
@@ -98,7 +98,7 @@ IMoveable *SceneInspector::getMoveable(const DElement *element, const MDiagram *
 
 IResizable *SceneInspector::getResizable(const DElement *element, const MDiagram *diagram) const
 {
-    DiagramSceneModel *diagram_scene_model = _diagrams_manager->getDiagramSceneModel(diagram);
+    DiagramSceneModel *diagram_scene_model = m_diagramsManager->getDiagramSceneModel(diagram);
     QMT_CHECK(diagram_scene_model);
     if (diagram_scene_model) {
         QGraphicsItem *item = diagram_scene_model->getGraphicsItem(const_cast<DElement *>(element));

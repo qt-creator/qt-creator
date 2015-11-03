@@ -43,7 +43,7 @@ namespace qmt {
 
 StackedDiagramsView::StackedDiagramsView(QWidget *parent)
     : QStackedWidget(parent),
-      _diagrams_manager(0)
+      m_diagramsManager(0)
 {
     connect(this, SIGNAL(currentChanged(int)), this, SLOT(onCurrentChanged(int)));
 }
@@ -54,24 +54,24 @@ StackedDiagramsView::~StackedDiagramsView()
 
 void StackedDiagramsView::setDiagramsManager(DiagramsManager *diagrams_manager)
 {
-    _diagrams_manager = diagrams_manager;
+    m_diagramsManager = diagrams_manager;
 }
 
 void StackedDiagramsView::openDiagram(MDiagram *diagram)
 {
     QMT_CHECK(diagram);
-    DiagramView *diagram_view = _diagram_views.value(diagram->getUid());
+    DiagramView *diagram_view = m_diagramViews.value(diagram->getUid());
     if (!diagram_view) {
-        DiagramSceneModel *diagram_scene_model = _diagrams_manager->bindDiagramSceneModel(diagram);
+        DiagramSceneModel *diagram_scene_model = m_diagramsManager->bindDiagramSceneModel(diagram);
         DiagramView *diagram_view = new DiagramView(this);
         diagram_view->setDiagramSceneModel(diagram_scene_model);
         int tab_index = addWidget(diagram_view);
         setCurrentIndex(tab_index);
-        _diagram_views.insert(diagram->getUid(), diagram_view);
+        m_diagramViews.insert(diagram->getUid(), diagram_view);
     } else {
         setCurrentWidget(diagram_view);
     }
-    emit someDiagramOpened(!_diagram_views.isEmpty());
+    emit someDiagramOpened(!m_diagramViews.isEmpty());
 }
 
 void StackedDiagramsView::closeDiagram(const MDiagram *diagram)
@@ -80,13 +80,13 @@ void StackedDiagramsView::closeDiagram(const MDiagram *diagram)
         return;
     }
 
-    DiagramView *diagram_view = _diagram_views.value(diagram->getUid());
+    DiagramView *diagram_view = m_diagramViews.value(diagram->getUid());
     if (diagram_view) {
         removeWidget(diagram_view);
         delete diagram_view;
-        _diagram_views.remove(diagram->getUid());
+        m_diagramViews.remove(diagram->getUid());
     }
-    emit someDiagramOpened(!_diagram_views.isEmpty());
+    emit someDiagramOpened(!m_diagramViews.isEmpty());
 }
 
 void StackedDiagramsView::closeAllDiagrams()
@@ -98,8 +98,8 @@ void StackedDiagramsView::closeAllDiagrams()
             delete diagram_view;
         }
     }
-    _diagram_views.clear();
-    emit someDiagramOpened(!_diagram_views.isEmpty());
+    m_diagramViews.clear();
+    emit someDiagramOpened(!m_diagramViews.isEmpty());
 }
 
 void StackedDiagramsView::onCurrentChanged(int tab_index)

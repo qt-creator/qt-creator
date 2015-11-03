@@ -70,11 +70,11 @@ class ArrowItem::GraphicsHeadItem :
 public:
     GraphicsHeadItem(QGraphicsItem *parent)
         : QGraphicsItem(parent),
-          _head(ArrowItem::HEAD_NONE),
-          _arrow_size(10.0),
-          _diamond_size(15.0),
-          _arrow_item(0),
-          _diamond_item(0)
+          m_head(ArrowItem::HEAD_NONE),
+          m_arrowSize(10.0),
+          m_diamondSize(15.0),
+          m_arrowItem(0),
+          m_diamondItem(0)
     {
     }
 
@@ -86,22 +86,22 @@ public:
 
     void setHead(ArrowItem::Head head)
     {
-        if (_head != head) {
-            _head = head;
+        if (m_head != head) {
+            m_head = head;
         }
     }
 
     void setArrowSize(double arrow_size)
     {
-        if (_arrow_size != arrow_size) {
-            _arrow_size = arrow_size;
+        if (m_arrowSize != arrow_size) {
+            m_arrowSize = arrow_size;
         }
     }
 
     void setDiamondSize(double diamond_size)
     {
-        if (_diamond_size != diamond_size) {
-            _diamond_size = diamond_size;
+        if (m_diamondSize != diamond_size) {
+            m_diamondSize = diamond_size;
         }
     }
 
@@ -124,11 +124,11 @@ public:
         painter->setPen(QPen(Qt::red));
         painter->drawPath(shape());
         painter->setPen(QPen(Qt::green));
-        if (_arrow_item) {
-            painter->drawRect(mapRectFromItem(_arrow_item, _arrow_item->boundingRect()));
+        if (m_arrowItem) {
+            painter->drawRect(mapRectFromItem(m_arrowItem, m_arrowItem->boundingRect()));
         }
-        if (_diamond_item) {
-            painter->drawRect(mapRectFromItem(_diamond_item, _diamond_item->boundingRect()));
+        if (m_diamondItem) {
+            painter->drawRect(mapRectFromItem(m_diamondItem, m_diamondItem->boundingRect()));
         }
 #endif
     }
@@ -137,11 +137,11 @@ public:
     {
         QPainterPath path;
         path.setFillRule(Qt::WindingFill);
-        if (_arrow_item) {
-            path.addRect(mapRectFromItem(_arrow_item, _arrow_item->boundingRect()));
+        if (m_arrowItem) {
+            path.addRect(mapRectFromItem(m_arrowItem, m_arrowItem->boundingRect()));
         }
-        if (_diamond_item) {
-            path.addRect(mapRectFromItem(_diamond_item, _diamond_item->boundingRect()));
+        if (m_diamondItem) {
+            path.addRect(mapRectFromItem(m_diamondItem, m_diamondItem->boundingRect()));
         }
         return path;
     }
@@ -151,7 +151,7 @@ public:
     double calcHeadLength() const
     {
         double length = 0.0;
-        switch (_head) {
+        switch (m_head) {
         case ArrowItem::HEAD_NONE:
             break;
         case ArrowItem::HEAD_OPEN:
@@ -175,12 +175,12 @@ private:
 
     double calcArrowLength() const
     {
-        return sqrt(3.0) * 0.5 * _arrow_size;
+        return sqrt(3.0) * 0.5 * m_arrowSize;
     }
 
     double calcDiamondLength() const
     {
-        return sqrt(3.0) * _diamond_size;
+        return sqrt(3.0) * m_diamondSize;
     }
 
 public:
@@ -189,7 +189,7 @@ public:
     {
         bool has_arrow = false;
         bool has_diamond = false;
-        switch (_head) {
+        switch (m_head) {
         case ArrowItem::HEAD_NONE:
             break;
         case ArrowItem::HEAD_OPEN:
@@ -209,74 +209,74 @@ public:
         }
 
         if (has_arrow) {
-            if (!_arrow_item) {
-                _arrow_item = new ArrowItem::GraphicsPathItem(this);
+            if (!m_arrowItem) {
+                m_arrowItem = new ArrowItem::GraphicsPathItem(this);
             }
 
-            if (_head == ArrowItem::HEAD_OPEN || _head == ArrowItem::HEAD_TRIANGLE) {
-                _arrow_item->setPen(style->getLinePen());
-                _arrow_item->setBrush(QBrush());
+            if (m_head == ArrowItem::HEAD_OPEN || m_head == ArrowItem::HEAD_TRIANGLE) {
+                m_arrowItem->setPen(style->getLinePen());
+                m_arrowItem->setBrush(QBrush());
             } else {
-                _arrow_item->setPen(style->getLinePen());
-                _arrow_item->setBrush(style->getFillBrush());
+                m_arrowItem->setPen(style->getLinePen());
+                m_arrowItem->setBrush(style->getFillBrush());
             }
 
             QPainterPath path;
             double h = calcArrowLength();
-            path.moveTo(-h, -_arrow_size * 0.5);
+            path.moveTo(-h, -m_arrowSize * 0.5);
             path.lineTo(0.0, 0.0);
-            path.lineTo(-h, _arrow_size * 0.5);
-            if (_head != ArrowItem::HEAD_OPEN) {
+            path.lineTo(-h, m_arrowSize * 0.5);
+            if (m_head != ArrowItem::HEAD_OPEN) {
                 path.closeSubpath();
             }
             if (has_diamond) {
                 path.translate(-calcDiamondLength(), 0.0);
             }
-            _arrow_item->setPath(path);
-        } else if (_arrow_item) {
-            _arrow_item->scene()->removeItem(_arrow_item);
-            delete _arrow_item;
-            _arrow_item = 0;
+            m_arrowItem->setPath(path);
+        } else if (m_arrowItem) {
+            m_arrowItem->scene()->removeItem(m_arrowItem);
+            delete m_arrowItem;
+            m_arrowItem = 0;
         }
 
         if (has_diamond) {
-            if (!_diamond_item) {
-                _diamond_item = new ArrowItem::GraphicsPathItem(this);
+            if (!m_diamondItem) {
+                m_diamondItem = new ArrowItem::GraphicsPathItem(this);
             }
 
-            if (_head == ArrowItem::HEAD_DIAMOND || _head == ArrowItem::HEAD_DIAMOND_FILLED_TRIANGLE) {
-                _diamond_item->setPen(style->getLinePen());
-                _diamond_item->setBrush(QBrush());
+            if (m_head == ArrowItem::HEAD_DIAMOND || m_head == ArrowItem::HEAD_DIAMOND_FILLED_TRIANGLE) {
+                m_diamondItem->setPen(style->getLinePen());
+                m_diamondItem->setBrush(QBrush());
             } else {
-                _diamond_item->setPen(style->getLinePen());
-                _diamond_item->setBrush(style->getFillBrush());
+                m_diamondItem->setPen(style->getLinePen());
+                m_diamondItem->setBrush(style->getFillBrush());
             }
 
             QPainterPath path;
             double h = calcDiamondLength();
-            path.lineTo(-h * 0.5, -_diamond_size * 0.5);
+            path.lineTo(-h * 0.5, -m_diamondSize * 0.5);
             path.lineTo(-h, 0.0);
-            path.lineTo(-h * 0.5, _diamond_size * 0.5);
+            path.lineTo(-h * 0.5, m_diamondSize * 0.5);
             path.closeSubpath();
-            _diamond_item->setPath(path);
-        } else if (_diamond_item) {
-            _diamond_item->scene()->removeItem(_diamond_item);
-            delete _diamond_item;
-            _diamond_item = 0;
+            m_diamondItem->setPath(path);
+        } else if (m_diamondItem) {
+            m_diamondItem->scene()->removeItem(m_diamondItem);
+            delete m_diamondItem;
+            m_diamondItem = 0;
         }
     }
 
 private:
 
-    ArrowItem::Head _head;
+    ArrowItem::Head m_head;
 
-    double _arrow_size;
+    double m_arrowSize;
 
-    double _diamond_size;
+    double m_diamondSize;
 
-    ArrowItem::GraphicsPathItem *_arrow_item;
+    ArrowItem::GraphicsPathItem *m_arrowItem;
 
-    ArrowItem::GraphicsPathItem *_diamond_item;
+    ArrowItem::GraphicsPathItem *m_diamondItem;
 
 };
 
@@ -294,27 +294,27 @@ public:
 
 ArrowItem::ArrowItem(QGraphicsItem *parent)
     : QGraphicsItem(parent),
-      _shaft(SHAFT_SOLID),
-      _shaft_item(new GraphicsShaftItem(this)),
-      _arrow_size(10.0),
-      _diamond_size(15.0),
-      _start_head(HEAD_NONE),
-      _start_head_item(0),
-      _end_head(HEAD_NONE),
-      _end_head_item(0)
+      m_shaft(SHAFT_SOLID),
+      m_shaftItem(new GraphicsShaftItem(this)),
+      m_arrowSize(10.0),
+      m_diamondSize(15.0),
+      m_startHead(HEAD_NONE),
+      m_startHeadItem(0),
+      m_endHead(HEAD_NONE),
+      m_endHeadItem(0)
 {
 }
 
 ArrowItem::ArrowItem(const ArrowItem &rhs, QGraphicsItem *parent)
     : QGraphicsItem(parent),
-      _shaft(rhs._shaft),
-      _shaft_item(new GraphicsShaftItem(this)),
-      _arrow_size(rhs._arrow_size),
-      _diamond_size(rhs._diamond_size),
-      _start_head(rhs._start_head),
-      _start_head_item(0),
-      _end_head(rhs._end_head),
-      _end_head_item(0)
+      m_shaft(rhs.m_shaft),
+      m_shaftItem(new GraphicsShaftItem(this)),
+      m_arrowSize(rhs.m_arrowSize),
+      m_diamondSize(rhs.m_diamondSize),
+      m_startHead(rhs.m_startHead),
+      m_startHeadItem(0),
+      m_endHead(rhs.m_endHead),
+      m_endHeadItem(0)
 {
 }
 
@@ -324,42 +324,42 @@ ArrowItem::~ArrowItem()
 
 void ArrowItem::setShaft(ArrowItem::Shaft shaft)
 {
-    if (_shaft != shaft) {
-        _shaft = shaft;
+    if (m_shaft != shaft) {
+        m_shaft = shaft;
     }
 }
 
 void ArrowItem::setArrowSize(double arrow_size)
 {
-    if (_arrow_size != arrow_size) {
-        _arrow_size = arrow_size;
+    if (m_arrowSize != arrow_size) {
+        m_arrowSize = arrow_size;
     }
 }
 
 void ArrowItem::setDiamondSize(double diamond_size)
 {
-    if (_diamond_size != diamond_size) {
-        _diamond_size = diamond_size;
+    if (m_diamondSize != diamond_size) {
+        m_diamondSize = diamond_size;
     }
 }
 
 void ArrowItem::setStartHead(ArrowItem::Head head)
 {
-    if (_start_head != head) {
-        _start_head = head;
+    if (m_startHead != head) {
+        m_startHead = head;
     }
 }
 
 void ArrowItem::setEndHead(ArrowItem::Head head)
 {
-    if (_end_head != head) {
-        _end_head = head;
+    if (m_endHead != head) {
+        m_endHead = head;
     }
 }
 
 void ArrowItem::setPoints(const QList<QPointF> &points)
 {
-    _points = points;
+    m_points = points;
 }
 
 QRectF ArrowItem::boundingRect() const
@@ -379,11 +379,11 @@ void ArrowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     painter->setPen(QPen(Qt::red));
     painter->drawPath(shape());
     painter->setPen(QPen(Qt::green));
-    if (_start_head_item) {
-        painter->drawRect(mapRectFromItem(_start_head_item, _start_head_item->boundingRect()));
+    if (m_startHeadItem) {
+        painter->drawRect(mapRectFromItem(m_startHeadItem, m_startHeadItem->boundingRect()));
     }
-    if (_end_head_item) {
-        painter->drawRect(mapRectFromItem(_end_head_item, _end_head_item->boundingRect()));
+    if (m_endHeadItem) {
+        painter->drawRect(mapRectFromItem(m_endHeadItem, m_endHeadItem->boundingRect()));
     }
 #endif
 }
@@ -392,55 +392,55 @@ QPainterPath ArrowItem::shape() const
 {
     QPainterPath path;
     path.setFillRule(Qt::WindingFill);
-    if (_shaft_item &&_shaft_item->path() != QPainterPath()) {
+    if (m_shaftItem &&m_shaftItem->path() != QPainterPath()) {
         QPainterPathStroker ps;
-        QPen pen = _shaft_item->pen();
+        QPen pen = m_shaftItem->pen();
         ps.setCapStyle(pen.capStyle());
         ps.setJoinStyle(pen.joinStyle());
         ps.setMiterLimit(pen.miterLimit());
         // overwrite pen width to make selection more lazy
         ps.setWidth(16.0);
-        QPainterPath p = ps.createStroke(_shaft_item->path());
+        QPainterPath p = ps.createStroke(m_shaftItem->path());
         path.addPath(p);
     }
-    if (_start_head_item) {
-        path.addRect(mapRectFromItem(_start_head_item, _start_head_item->boundingRect()));
+    if (m_startHeadItem) {
+        path.addRect(mapRectFromItem(m_startHeadItem, m_startHeadItem->boundingRect()));
     }
-    if (_end_head_item) {
-        path.addRect(mapRectFromItem(_end_head_item, _end_head_item->boundingRect()));
+    if (m_endHeadItem) {
+        path.addRect(mapRectFromItem(m_endHeadItem, m_endHeadItem->boundingRect()));
     }
     return path;
 }
 
 QPointF ArrowItem::calcPointAtPercent(double percentage) const
 {
-    return _shaft_item->path().pointAtPercent(percentage);
+    return m_shaftItem->path().pointAtPercent(percentage);
 }
 
 QLineF ArrowItem::getFirstLineSegment() const
 {
-    QMT_CHECK(_points.size() >= 2);
-    return QLineF(_points[0], _points[1]);
+    QMT_CHECK(m_points.size() >= 2);
+    return QLineF(m_points[0], m_points[1]);
 }
 
 QLineF ArrowItem::getLastLineSegment() const
 {
-    QMT_CHECK(_points.size() >= 2);
-    return QLineF(_points[_points.size() - 1], _points[_points.size() - 2]);
+    QMT_CHECK(m_points.size() >= 2);
+    return QLineF(m_points[m_points.size() - 1], m_points[m_points.size() - 2]);
 }
 
 double ArrowItem::getStartHeadLength() const
 {
-    if (_start_head_item) {
-        return _start_head_item->calcHeadLength();
+    if (m_startHeadItem) {
+        return m_startHeadItem->calcHeadLength();
     }
     return 0.0;
 }
 
 double ArrowItem::getEndHeadLength() const
 {
-    if (_end_head_item) {
-        return _end_head_item->calcHeadLength();
+    if (m_endHeadItem) {
+        return m_endHeadItem->calcHeadLength();
     }
     return 0.0;
 }
@@ -448,20 +448,20 @@ double ArrowItem::getEndHeadLength() const
 void ArrowItem::update(const Style *style)
 {
     updateShaft(style);
-    updateHead(&_start_head_item, _start_head, style);
-    updateHead(&_end_head_item, _end_head, style);
+    updateHead(&m_startHeadItem, m_startHead, style);
+    updateHead(&m_endHeadItem, m_endHead, style);
     updateGeometry();
 }
 
 void ArrowItem::updateShaft(const Style *style)
 {
-    QMT_CHECK(_shaft_item);
+    QMT_CHECK(m_shaftItem);
 
     QPen pen(style->getLinePen());
-    if (_shaft == SHAFT_DASHED) {
+    if (m_shaft == SHAFT_DASHED) {
         pen.setDashPattern(QVector<qreal>() << (4.0 / pen.widthF()) << (4.0 / pen.widthF()));
     }
-    _shaft_item->setPen(pen);
+    m_shaftItem->setPen(pen);
 }
 
 void ArrowItem::updateHead(GraphicsHeadItem **head_item, Head head, const Style *style)
@@ -479,8 +479,8 @@ void ArrowItem::updateHead(GraphicsHeadItem **head_item, Head head, const Style 
     if (!*head_item) {
         *head_item = new GraphicsHeadItem(this);
     }
-    (*head_item)->setArrowSize(_arrow_size);
-    (*head_item)->setDiamondSize(_diamond_size);
+    (*head_item)->setArrowSize(m_arrowSize);
+    (*head_item)->setDiamondSize(m_diamondSize);
     (*head_item)->setHead(head);
     (*head_item)->update(style);
 }
@@ -504,39 +504,39 @@ void ArrowItem::updateHeadGeometry(GraphicsHeadItem **head_item, const QPointF &
 
 void ArrowItem::updateGeometry()
 {
-    QMT_CHECK(_points.size() >= 2);
-    QMT_CHECK(_shaft_item);
+    QMT_CHECK(m_points.size() >= 2);
+    QMT_CHECK(m_shaftItem);
 
     prepareGeometryChange();
 
     QPainterPath path;
 
-    if (_start_head_item) {
-        QVector2D start_direction_vector(_points[1] - _points[0]);
+    if (m_startHeadItem) {
+        QVector2D start_direction_vector(m_points[1] - m_points[0]);
         start_direction_vector.normalize();
-        start_direction_vector *= _start_head_item->calcHeadLength();
-        path.moveTo(_points[0] + start_direction_vector.toPointF());
+        start_direction_vector *= m_startHeadItem->calcHeadLength();
+        path.moveTo(m_points[0] + start_direction_vector.toPointF());
     } else {
-        path.moveTo(_points[0]);
+        path.moveTo(m_points[0]);
     }
 
-    for (int i = 1; i < _points.size() - 1; ++i) {
-        path.lineTo(_points.at(i));
+    for (int i = 1; i < m_points.size() - 1; ++i) {
+        path.lineTo(m_points.at(i));
     }
 
-    if (_end_head_item) {
-        QVector2D end_direction_vector(_points[_points.size() - 1] - _points[_points.size() - 2]);
+    if (m_endHeadItem) {
+        QVector2D end_direction_vector(m_points[m_points.size() - 1] - m_points[m_points.size() - 2]);
         end_direction_vector.normalize();
-        end_direction_vector *= _end_head_item->calcHeadLength();
-        path.lineTo(_points[_points.size() - 1] - end_direction_vector.toPointF());
+        end_direction_vector *= m_endHeadItem->calcHeadLength();
+        path.lineTo(m_points[m_points.size() - 1] - end_direction_vector.toPointF());
     } else {
-        path.lineTo(_points[_points.size() - 1]);
+        path.lineTo(m_points[m_points.size() - 1]);
     }
 
-    _shaft_item->setPath(path);
+    m_shaftItem->setPath(path);
 
-    updateHeadGeometry(&_start_head_item, _points[0], _points[1]);
-    updateHeadGeometry(&_end_head_item, _points[_points.size() - 1], _points[_points.size() - 2]);
+    updateHeadGeometry(&m_startHeadItem, m_points[0], m_points[1]);
+    updateHeadGeometry(&m_endHeadItem, m_points[m_points.size() - 1], m_points[m_points.size() - 2]);
 }
 
 }

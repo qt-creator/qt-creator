@@ -73,7 +73,7 @@ public:
 
 private:
 
-    DElement *_target;
+    DElement *m_target;
 
 };
 

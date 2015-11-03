@@ -65,14 +65,14 @@ public:
 public:
 
     QXmlOutArchive(QXmlStreamWriter &stream)
-        : _stream(stream),
-          _next_pointer_is_reference(false)
+        : m_stream(stream),
+          m_nextPointerIsReference(false)
     {
     }
 
     ~QXmlOutArchive()
     {
-        if (_saving_ref_map.countDanglingReferences() > 0) {
+        if (m_savingRefMap.countDanglingReferences() > 0) {
             throw DanglingReferences();
         }
     }
@@ -82,16 +82,16 @@ public:
     template<typename T>
     void write(T *p)
     {
-        if (!_saving_ref_map.hasDefinedRef(p)) {
+        if (!m_savingRefMap.hasDefinedRef(p)) {
             throw UnsupportedForwardReference();
         }
-        write(_saving_ref_map.getRef(p).get());
+        write(m_savingRefMap.getRef(p).get());
     }
 
 #define QARK_WRITENUMBER(T) \
     void write(T i) \
     { \
-        _stream.writeCharacters(QString::number(i)); \
+        m_stream.writeCharacters(QString::number(i)); \
     }
 
     QARK_WRITENUMBER(char)
@@ -112,35 +112,35 @@ public:
 
     void write(bool b)
     {
-        _stream.writeCharacters(QLatin1String(b ? "true" : "false"));
+        m_stream.writeCharacters(QLatin1String(b ? "true" : "false"));
     }
 
     void write(const QString &s)
     {
-        _stream.writeCharacters(s);
+        m_stream.writeCharacters(s);
     }
 
 public:
 
     void beginDocument()
     {
-        _stream.writeStartDocument();
+        m_stream.writeStartDocument();
     }
 
     void endDocument()
     {
-        _stream.writeEndDocument();
+        m_stream.writeEndDocument();
     }
 
     void beginElement(const Tag &tag)
     {
-        _stream.writeStartElement(tag.getQualifiedName());
+        m_stream.writeStartElement(tag.getQualifiedName());
     }
 
     template<class T>
     void beginElement(const Object<T> &object)
     {
-        _stream.writeStartElement(object.getQualifiedName());
+        m_stream.writeStartElement(object.getQualifiedName());
         // TODO implement key attribute
         // Currently qmodel files do not use references at all
         // so writing reference keys are not needed. If this
@@ -151,197 +151,197 @@ public:
 
     void endElement(const End &)
     {
-        _stream.writeEndElement();
+        m_stream.writeEndElement();
     }
 
     template<class T, class U>
     void beginBase(const Base<T, U> &base)
     {
-        _stream.writeStartElement(base.getQualifiedName());
+        m_stream.writeStartElement(base.getQualifiedName());
     }
 
     template<class T, class U>
     void endBase(const Base<T, U> &)
     {
-        _stream.writeEndElement();
+        m_stream.writeEndElement();
     }
 
     template<class T>
     void beginAttribute(const Attr<T> &attr)
     {
-        _stream.writeStartElement(attr.getQualifiedName());
+        m_stream.writeStartElement(attr.getQualifiedName());
     }
 
     template<class T>
     void endAttribute(const Attr<T> &)
     {
-        _stream.writeEndElement();
+        m_stream.writeEndElement();
     }
 
     template<class U, typename T>
     void beginAttribute(const GetterAttr<U, T> &attr)
     {
-        _stream.writeStartElement(attr.getQualifiedName());
+        m_stream.writeStartElement(attr.getQualifiedName());
     }
 
     template<class U, typename T>
     void endAttribute(const GetterAttr<U, T> &)
     {
-        _stream.writeEndElement();
+        m_stream.writeEndElement();
     }
 
     template<class U, typename T, typename V>
     void beginAttribute(const GetterSetterAttr<U, T, V> &attr)
     {
-        _stream.writeStartElement(attr.getQualifiedName());
+        m_stream.writeStartElement(attr.getQualifiedName());
     }
 
     template<class U, typename T, typename V>
     void endAttribute(const GetterSetterAttr<U, T, V> &)
     {
-        _stream.writeEndElement();
+        m_stream.writeEndElement();
     }
 
     template<class U, typename T>
     void beginAttribute(const GetFuncAttr<U, T> &attr)
     {
-        _stream.writeStartElement(attr.getQualifiedName());
+        m_stream.writeStartElement(attr.getQualifiedName());
     }
 
     template<class U, typename T>
     void endAttribute(const GetFuncAttr<U, T> &)
     {
-        _stream.writeEndElement();
+        m_stream.writeEndElement();
     }
 
     template<class U, typename T, typename V>
     void beginAttribute(const GetSetFuncAttr<U, T, V> &attr)
     {
-        _stream.writeStartElement(attr.getQualifiedName());
+        m_stream.writeStartElement(attr.getQualifiedName());
     }
 
     template<class U, typename T, typename V>
     void endAttribute(const GetSetFuncAttr<U, T, V> &)
     {
-        _stream.writeEndElement();
+        m_stream.writeEndElement();
     }
 
     template<class T>
     void beginReference(const Ref<T> &ref)
     {
-        _stream.writeStartElement(ref.getQualifiedName());
-        _next_pointer_is_reference = true;
+        m_stream.writeStartElement(ref.getQualifiedName());
+        m_nextPointerIsReference = true;
     }
 
     template<class T>
     void endReference(const Ref<T> &)
     {
-        _next_pointer_is_reference = false;
-        _stream.writeEndElement();
+        m_nextPointerIsReference = false;
+        m_stream.writeEndElement();
     }
 
     template<class U, typename T>
     void beginReference(const GetterRef<U, T> &ref)
     {
-        _stream.writeStartElement(ref.getQualifiedName());
-        _next_pointer_is_reference = true;
+        m_stream.writeStartElement(ref.getQualifiedName());
+        m_nextPointerIsReference = true;
     }
 
     template<class U, typename T>
     void endReference(const GetterRef<U, T> &)
     {
-        _next_pointer_is_reference = false;
-        _stream.writeEndElement();
+        m_nextPointerIsReference = false;
+        m_stream.writeEndElement();
     }
 
     template<class U, typename T, typename V>
     void beginReference(const GetterSetterRef<U, T, V> &ref)
     {
-        _stream.writeStartElement(ref.getQualifiedName());
-        _next_pointer_is_reference = true;
+        m_stream.writeStartElement(ref.getQualifiedName());
+        m_nextPointerIsReference = true;
     }
 
     template<class U, typename T, typename V>
     void endReference(const GetterSetterRef<U, T, V> &)
     {
-        _next_pointer_is_reference = false;
-        _stream.writeEndElement();
+        m_nextPointerIsReference = false;
+        m_stream.writeEndElement();
     }
 
     template<class U, typename T>
     void beginReference(const GetFuncRef<U, T> &ref)
     {
-        _stream.writeStartElement(ref.getQualifiedName());
-        _next_pointer_is_reference = true;
+        m_stream.writeStartElement(ref.getQualifiedName());
+        m_nextPointerIsReference = true;
     }
 
     template<class U, typename T>
     void endReference(const GetFuncRef<U, T> &)
     {
-        _next_pointer_is_reference = false;
-        _stream.writeEndElement();
+        m_nextPointerIsReference = false;
+        m_stream.writeEndElement();
     }
 
     template<class U, typename T, typename V>
     void beginReference(const GetSetFuncRef<U, T, V> &ref)
     {
-        _stream.writeStartElement(ref.getQualifiedName());
-        _next_pointer_is_reference = true;
+        m_stream.writeStartElement(ref.getQualifiedName());
+        m_nextPointerIsReference = true;
     }
 
     template<class U, typename T, typename V>
     void endReference(const GetSetFuncRef<U, T, V> &)
     {
-        _next_pointer_is_reference = false;
-        _stream.writeEndElement();
+        m_nextPointerIsReference = false;
+        m_stream.writeEndElement();
     }
 
     template<typename T>
     bool isReference(T *p)
     {
-        return _next_pointer_is_reference || _saving_ref_map.hasDefinedRef(p);
+        return m_nextPointerIsReference || m_savingRefMap.hasDefinedRef(p);
     }
 
     void beginNullPointer()
     {
-        _stream.writeStartElement(QLatin1String("null"));
+        m_stream.writeStartElement(QLatin1String("null"));
     }
 
     void endNullPointer()
     {
-        _stream.writeEndElement();
+        m_stream.writeEndElement();
     }
 
     void beginPointer()
     {
-        _stream.writeStartElement(QLatin1String("reference"));
+        m_stream.writeStartElement(QLatin1String("reference"));
     }
 
     void endPointer()
     {
-        _stream.writeEndElement();
+        m_stream.writeEndElement();
     }
 
     void beginInstance()
     {
-        _stream.writeStartElement(QLatin1String("instance"));
+        m_stream.writeStartElement(QLatin1String("instance"));
     }
 
     void beginInstance(const QString &type_uid)
     {
-        _stream.writeStartElement(QLatin1String("instance"));
-        _stream.writeAttribute(QLatin1String("type"), type_uid);
+        m_stream.writeStartElement(QLatin1String("instance"));
+        m_stream.writeAttribute(QLatin1String("type"), type_uid);
     }
 
     void endInstance()
     {
-        _stream.writeEndElement();
+        m_stream.writeEndElement();
     }
 
 private:
-    QXmlStreamWriter &_stream;
-    impl::SavingRefMap _saving_ref_map;
-    bool _next_pointer_is_reference;
+    QXmlStreamWriter &m_stream;
+    impl::SavingRefMap m_savingRefMap;
+    bool m_nextPointerIsReference;
 };
 
 }

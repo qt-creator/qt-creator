@@ -47,21 +47,21 @@ public:
 
 public:
 
-    bool isEmpty() const { return _elements.empty(); }
+    bool isEmpty() const { return m_elements.empty(); }
 
-    int size() const { return _elements.size(); }
+    int size() const { return m_elements.size(); }
 
-    QList<T *> getElements() const { return _elements; }
+    QList<T *> getElements() const { return m_elements; }
 
-    void setElements(const QList<T *> &elements) { _elements = elements; }
+    void setElements(const QList<T *> &elements) { m_elements = elements; }
 
-    void clear() { _elements.clear(); }
+    void clear() { m_elements.clear(); }
 
-    void append(T *element) { _elements.append(element); }
+    void append(T *element) { m_elements.append(element); }
 
 private:
 
-    QList<T *> _elements;
+    QList<T *> m_elements;
 };
 
 }

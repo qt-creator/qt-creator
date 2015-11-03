@@ -46,7 +46,7 @@ public:
 
 public:
 
-    QGraphicsItem *getCreatedGraphicsItem() const { return _graphics_item; }
+    QGraphicsItem *getCreatedGraphicsItem() const { return m_graphicsItem; }
 
 public:
 
@@ -78,9 +78,9 @@ public:
 
 private:
 
-    DiagramSceneModel *_diagram_scene_model;
+    DiagramSceneModel *m_diagramSceneModel;
 
-    QGraphicsItem *_graphics_item;
+    QGraphicsItem *m_graphicsItem;
 };
 
 class DiagramSceneModel::UpdateVisitor :
@@ -120,11 +120,11 @@ public:
 
 private:
 
-    QGraphicsItem *_graphics_item;
+    QGraphicsItem *m_graphicsItem;
 
-    DiagramSceneModel *_diagram_scene_model;
+    DiagramSceneModel *m_diagramSceneModel;
 
-    DElement *_related_element;
+    DElement *m_relatedElement;
 };
 
 }

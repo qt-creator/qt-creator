@@ -55,11 +55,11 @@ private:
         public Node
         {
         public:
-            RefNode(V &v) : _v(v) { }
+            RefNode(V &v) : m_v(v) { }
             bool accept(Parser &visitor, int *index) { return visitor.visit(this, index); }
-            V &getRef() const { return _v; }
+            V &getRef() const { return m_v; }
         private:
-            V &_v;
+            V &m_v;
         };
 
         template<class U, typename V>
@@ -67,13 +67,13 @@ private:
         public Node
         {
         public:
-            SetterNode(U &u, void (U::*setter)(V)) : _object(u), _setter(setter) { }
+            SetterNode(U &u, void (U::*setter)(V)) : m_object(u), m_setter(setter) { }
             bool accept(Parser &visitor, int *index) { return visitor.visit(this, index); }
-            U &getObject() const { return _object; }
-            void (U::*getSetter() const)(V) { return _setter; }
+            U &getObject() const { return m_object; }
+            void (U::*getSetter() const)(V) { return m_setter; }
         private:
-            U &_object;
-            void (U::*_setter)(V);
+            U &m_object;
+            void (U::*m_setter)(V);
         };
 
     public:
@@ -86,14 +86,14 @@ private:
         template<typename V>
         Parser &arg(V &v)
         {
-            _nodes.append(new RefNode<V>(v));
+            m_nodes.append(new RefNode<V>(v));
             return *this;
         }
 
         template<class U, typename V>
         Parser &arg(U &u, void (U::*setter)(V))
         {
-            _nodes.append(new SetterNode<U, V>(u, setter));
+            m_nodes.append(new SetterNode<U, V>(u, setter));
             return *this;
         }
 
@@ -141,11 +141,11 @@ private:
 
     private:
 
-        const QString _source;
-        const QString _pattern;
-        bool _evaluated;
-        bool _evaluation_failed;
-        QList<Node *> _nodes;
+        const QString m_source;
+        const QString m_pattern;
+        bool m_evaluated;
+        bool m_evaluationFailed;
+        QList<Node *> m_nodes;
     };
 
 public:
@@ -159,7 +159,7 @@ public:
 
 private:
 
-    const QString _source;
+    const QString m_source;
 };
 
 #endif // QSTRINGPARSER_H

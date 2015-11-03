@@ -78,19 +78,19 @@ private:
 
 public:
 
-    IRelationable *_owner;
+    IRelationable *m_owner;
 
-    DiagramSceneModel *_diagram_scene_model;
+    DiagramSceneModel *m_diagramSceneModel;
 
-    QList<ArrowItem *> _arrows;
+    QList<ArrowItem *> m_arrows;
 
-    QHash<ArrowItem *, QString> _arrow_ids;
+    QHash<ArrowItem *, QString> m_arrowIds;
 
-    ArrowItem *_current_preview_arrow;
+    ArrowItem *m_currentPreviewArrow;
 
-    QString _current_preview_arrow_id;
+    QString m_currentPreviewArrowId;
 
-    QList<QPointF> _current_preview_arrow_intermediate_points;
+    QList<QPointF> m_currentPreviewArrowIntermediatePoints;
 };
 
 }

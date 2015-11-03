@@ -50,7 +50,7 @@ public:
     virtual ~DElement();
 
 public:
-    Uid getUid() const { return _uid; }
+    Uid getUid() const { return m_uid; }
 
     void setUid(const Uid &uid);
 
@@ -66,7 +66,7 @@ public:
 
 private:
 
-    Uid _uid;
+    Uid m_uid;
 };
 
 }

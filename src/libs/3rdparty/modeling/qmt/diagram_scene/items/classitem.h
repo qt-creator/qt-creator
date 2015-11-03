@@ -96,31 +96,31 @@ private:
 
 private:
 
-    CustomIconItem *_custom_icon;
+    CustomIconItem *m_customIcon;
 
-    QGraphicsRectItem *_shape;
+    QGraphicsRectItem *m_shape;
 
-    QGraphicsSimpleTextItem *_namespace;
+    QGraphicsSimpleTextItem *m_namespace;
 
-    QGraphicsSimpleTextItem *_class_name;
+    QGraphicsSimpleTextItem *m_className;
 
-    ContextLabelItem *_context_label;
+    ContextLabelItem *m_contextLabel;
 
-    QGraphicsLineItem *_attributes_separator;
+    QGraphicsLineItem *m_attributesSeparator;
 
-    QString _attributes_text;
+    QString m_attributesText;
 
-    QGraphicsTextItem *_attributes;
+    QGraphicsTextItem *m_attributes;
 
-    QGraphicsLineItem *_methods_separator;
+    QGraphicsLineItem *m_methodsSeparator;
 
-    QString _methods_text;
+    QString m_methodsText;
 
-    QGraphicsTextItem *_methods;
+    QGraphicsTextItem *m_methods;
 
-    TemplateParameterBox *_template_parameter_box;
+    TemplateParameterBox *m_templateParameterBox;
 
-    RelationStarter *_relation_starter;
+    RelationStarter *m_relationStarter;
 
 };
 

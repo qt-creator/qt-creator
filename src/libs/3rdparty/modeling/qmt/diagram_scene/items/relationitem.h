@@ -67,7 +67,7 @@ public:
 
 public:
 
-    DRelation *getRelation() const { return _relation; }
+    DRelation *getRelation() const { return m_relation; }
 
 public:
 
@@ -131,23 +131,23 @@ private:
 
 private:
 
-    DRelation *_relation;
+    DRelation *m_relation;
 
 protected:
 
-    DiagramSceneModel *_diagram_scene_model;
+    DiagramSceneModel *m_diagramSceneModel;
 
-    bool _secondary_selected;
+    bool m_secondarySelected;
 
-    bool _focus_selected;
+    bool m_focusSelected;
 
-    ArrowItem *_arrow;
+    ArrowItem *m_arrow;
 
-    QGraphicsSimpleTextItem *_name;
+    QGraphicsSimpleTextItem *m_name;
 
-    StereotypesItem *_stereotypes;
+    StereotypesItem *m_stereotypes;
 
-    PathSelectionItem *_selection_handles;
+    PathSelectionItem *m_selectionHandles;
 };
 
 }

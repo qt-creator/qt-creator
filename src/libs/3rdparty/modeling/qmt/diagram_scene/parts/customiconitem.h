@@ -67,7 +67,7 @@ public:
 
     void setPen(const QPen &pen);
 
-    StereotypeIcon getStereotypeIcon() const { return _stereotype_icon; }
+    StereotypeIcon getStereotypeIcon() const { return m_stereotypeIcon; }
 
     double getShapeWidth() const;
 
@@ -81,19 +81,19 @@ public:
 
 private:
 
-    DiagramSceneModel *_diagram_scene_model;
+    DiagramSceneModel *m_diagramSceneModel;
 
-    QString _stereotype_icon_id;
+    QString m_stereotypeIconId;
 
-    StereotypeIcon _stereotype_icon;
+    StereotypeIcon m_stereotypeIcon;
 
-    QSizeF _base_size;
+    QSizeF m_baseSize;
 
-    QSizeF _actual_size;
+    QSizeF m_actualSize;
 
-    QBrush _brush;
+    QBrush m_brush;
 
-    QPen _pen;
+    QPen m_pen;
 };
 
 } // namespace qmt

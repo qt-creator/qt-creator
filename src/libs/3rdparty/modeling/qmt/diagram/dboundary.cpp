@@ -42,9 +42,9 @@ DBoundary::DBoundary()
 
 DBoundary::DBoundary(const DBoundary &rhs)
     : DElement(rhs),
-      _text(rhs._text),
-      _pos(rhs._pos),
-      _rect(rhs._rect)
+      m_text(rhs.m_text),
+      m_pos(rhs.m_pos),
+      m_rect(rhs.m_rect)
 {
 }
 
@@ -56,26 +56,26 @@ DBoundary &DBoundary::operator=(const DBoundary &rhs)
 {
     if (this != &rhs) {
         DElement::operator=(rhs);
-        _text = rhs._text;
-        _pos = rhs._pos;
-        _rect = rhs._rect;
+        m_text = rhs.m_text;
+        m_pos = rhs.m_pos;
+        m_rect = rhs.m_rect;
     }
     return *this;
 }
 
 void DBoundary::setText(const QString &text)
 {
-    _text = text;
+    m_text = text;
 }
 
 void DBoundary::setPos(const QPointF &pos)
 {
-    _pos = pos;
+    m_pos = pos;
 }
 
 void DBoundary::setRect(const QRectF &rect)
 {
-    _rect = rect;
+    m_rect = rect;
 }
 
 void DBoundary::accept(DVisitor *visitor)

@@ -75,19 +75,19 @@ signals:
 
 public:
 
-    ModelController *getModelController() const { return _model_controller; }
+    ModelController *getModelController() const { return m_modelController; }
 
     void setModelController(ModelController *model_controller);
 
-    DiagramController *getDiagramController() const { return _diagram_controller; }
+    DiagramController *getDiagramController() const { return m_diagramController; }
 
     void setDiagramController(DiagramController *diagram_controller);
 
-    IElementTasks *getElementTasks() const { return _element_tasks; }
+    IElementTasks *getElementTasks() const { return m_elementTasks; }
 
     void setElementTasks(IElementTasks *element_tasks);
 
-    ISceneInspector *getSceneInspector() const { return _scene_inspector; }
+    ISceneInspector *getSceneInspector() const { return m_sceneInspector; }
 
     void setSceneInspector(ISceneInspector *scene_inspector);
 
@@ -159,13 +159,13 @@ private:
 
 private:
 
-    ModelController *_model_controller;
+    ModelController *m_modelController;
 
-    DiagramController *_diagram_controller;
+    DiagramController *m_diagramController;
 
-    IElementTasks *_element_tasks;
+    IElementTasks *m_elementTasks;
 
-    ISceneInspector *_scene_inspector;
+    ISceneInspector *m_sceneInspector;
 };
 
 }

@@ -48,19 +48,19 @@ public:
 
 public:
 
-    const DRelation *getRelation() const { return _relation; }
+    const DRelation *getRelation() const { return m_relation; }
 
-    const DObject *getEndA() const { return _end_a; }
+    const DObject *getEndA() const { return m_endA; }
 
-    const DObject *getEndB() const { return _end_b; }
+    const DObject *getEndB() const { return m_endB; }
 
 private:
 
-    const DRelation *_relation;
+    const DRelation *m_relation;
 
-    const DObject *_end_a;
+    const DObject *m_endA;
 
-    const DObject *_end_b;
+    const DObject *m_endB;
 
 };
 

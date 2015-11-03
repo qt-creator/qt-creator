@@ -38,13 +38,13 @@ namespace qmt {
 
 MDependency::MDependency()
     : MRelation(),
-      _direction(A_TO_B)
+      m_direction(A_TO_B)
 {
 }
 
 MDependency::MDependency(const MDependency &rhs)
     : MRelation(rhs),
-      _direction(rhs._direction)
+      m_direction(rhs.m_direction)
 {
 }
 
@@ -56,24 +56,24 @@ MDependency &MDependency::operator =(const MDependency &rhs)
 {
     if (this != &rhs) {
         MRelation::operator=(rhs);
-        _direction = rhs._direction;
+        m_direction = rhs.m_direction;
     }
     return *this;
 }
 
 void MDependency::setDirection(MDependency::Direction direction)
 {
-    _direction = direction;
+    m_direction = direction;
 }
 
 Uid MDependency::getSource() const
 {
-    return _direction == B_TO_A ? getEndB() : getEndA();
+    return m_direction == B_TO_A ? getEndB() : getEndA();
 }
 
 void MDependency::setSource(const Uid &source)
 {
-    if (_direction == B_TO_A) {
+    if (m_direction == B_TO_A) {
         setEndB(source);
     } else {
         setEndA(source);
@@ -82,12 +82,12 @@ void MDependency::setSource(const Uid &source)
 
 Uid MDependency::getTarget() const
 {
-    return _direction == B_TO_A ? getEndA() : getEndB();
+    return m_direction == B_TO_A ? getEndA() : getEndB();
 }
 
 void MDependency::setTarget(const Uid &target)
 {
-    if (_direction == B_TO_A) {
+    if (m_direction == B_TO_A) {
         setEndA(target);
     } else {
         setEndB(target);

@@ -46,7 +46,7 @@ namespace qmt {
 
 TextScannerError::TextScannerError(const QString &error_msg, const SourcePos &source_pos)
     : Exception(error_msg),
-      _source_pos(source_pos)
+      m_sourcePos(source_pos)
 {
 }
 
@@ -56,20 +56,20 @@ TextScannerError::~TextScannerError()
 
 struct TextScanner::TextScannerPrivate {
     TextScannerPrivate()
-        : _max_operator_length(0),
-          _source(0)
+        : m_maxOperatorLength(0),
+          m_source(0)
     {
     }
 
-    QHash<QString, int> _keyword_to_subtype_map;
-    QHash<QString, int> _operator_to_subtype_map;
-    int _max_operator_length;
-    QSet<QChar> _operator_first_chars_set;
-    QSet<QChar> _operator_chars_set;
-    ITextSource *_source;
-    QStack<SourceChar> _unread_source_chars;
-    SourcePos _last_source_pos;
-    QStack<Token> _unread_tokens;
+    QHash<QString, int> m_keywordToSubtypeMap;
+    QHash<QString, int> m_operatorToSubtypeMap;
+    int m_maxOperatorLength;
+    QSet<QChar> m_operatorFirstCharsSet;
+    QSet<QChar> m_operatorCharsSet;
+    ITextSource *m_source;
+    QStack<SourceChar> m_unreadSourceChars;
+    SourcePos m_lastSourcePos;
+    QStack<Token> m_unreadTokens;
 };
 
 TextScanner::TextScanner(QObject *parent) :
@@ -85,45 +85,45 @@ TextScanner::~TextScanner()
 
 void TextScanner::setKeywords(const QList<QPair<QString, int> > &keywords)
 {
-    d->_keyword_to_subtype_map.clear();
+    d->m_keywordToSubtypeMap.clear();
     foreach (const DefTuple &tuple, keywords) {
-        d->_keyword_to_subtype_map.insert(tuple.first.toLower(), tuple.second);
+        d->m_keywordToSubtypeMap.insert(tuple.first.toLower(), tuple.second);
     }
 }
 
 void TextScanner::setOperators(const QList<QPair<QString, int> > &operators)
 {
-    d->_operator_to_subtype_map.clear();
-    d->_max_operator_length = 0;
-    d->_operator_first_chars_set.clear();
-    d->_operator_chars_set.clear();
+    d->m_operatorToSubtypeMap.clear();
+    d->m_maxOperatorLength = 0;
+    d->m_operatorFirstCharsSet.clear();
+    d->m_operatorCharsSet.clear();
     foreach (const DefTuple &tuple, operators) {
         QString op = tuple.first;
-        d->_operator_to_subtype_map.insert(op, tuple.second);
-        if (op.length() > d->_max_operator_length) {
-            d->_max_operator_length = op.length();
+        d->m_operatorToSubtypeMap.insert(op, tuple.second);
+        if (op.length() > d->m_maxOperatorLength) {
+            d->m_maxOperatorLength = op.length();
         }
-        d->_operator_first_chars_set.insert(op.at(0));
+        d->m_operatorFirstCharsSet.insert(op.at(0));
         foreach (const QChar ch, op) {
-            d->_operator_chars_set.insert(ch);
+            d->m_operatorCharsSet.insert(ch);
         }
     }
 }
 
 void TextScanner::setSource(ITextSource *text_source)
 {
-    d->_source = text_source;
+    d->m_source = text_source;
 }
 
 SourcePos TextScanner::getSourcePos() const
 {
-    return d->_last_source_pos;
+    return d->m_lastSourcePos;
 }
 
 Token TextScanner::read()
 {
-    if (!d->_unread_tokens.isEmpty()) {
-        return d->_unread_tokens.pop();
+    if (!d->m_unreadTokens.isEmpty()) {
+        return d->m_unreadTokens.pop();
     }
     skipWhitespaces();
     SourceChar source_char = readChar();
@@ -139,7 +139,7 @@ Token TextScanner::read()
         return Token(Token::TOKEN_ENDOFLINE, QString(), source_char.pos);
     } else if (source_char.ch.isNull()) {
         return Token(Token::TOKEN_ENDOFINPUT, QString(), source_char.pos);
-    } else if (d->_operator_first_chars_set.contains(source_char.ch)) {
+    } else if (d->m_operatorFirstCharsSet.contains(source_char.ch)) {
         return scanOperator(source_char);
     } else {
         throw TextScannerError(QStringLiteral("Unexpected character."), source_char.pos);
@@ -148,24 +148,24 @@ Token TextScanner::read()
 
 void TextScanner::unread(const Token &token)
 {
-    d->_unread_tokens.push(token);
+    d->m_unreadTokens.push(token);
 }
 
 SourceChar TextScanner::readChar()
 {
     SourceChar ch;
-    if (!d->_unread_source_chars.isEmpty()) {
-        ch = d->_unread_source_chars.pop();
+    if (!d->m_unreadSourceChars.isEmpty()) {
+        ch = d->m_unreadSourceChars.pop();
     } else {
-        ch = d->_source->readNextChar();
+        ch = d->m_source->readNextChar();
     }
-    d->_last_source_pos = ch.pos;
+    d->m_lastSourcePos = ch.pos;
     return ch;
 }
 
 void TextScanner::unreadChar(const SourceChar &source_char)
 {
-    d->_unread_source_chars.push(source_char);
+    d->m_unreadSourceChars.push(source_char);
 }
 
 void TextScanner::skipWhitespaces()
@@ -259,8 +259,8 @@ Token TextScanner::scanIdentifier(const SourceChar &first_char)
         if (!source_char.ch.isLetterOrNumber() && source_char.ch != QLatin1Char('_')) {
             unreadChar(source_char);
             QString keyword = text.toLower();
-            if (d->_keyword_to_subtype_map.contains(keyword)) {
-                return Token(Token::TOKEN_KEYWORD, d->_keyword_to_subtype_map.value(keyword), text, first_char.pos);
+            if (d->m_keywordToSubtypeMap.contains(keyword)) {
+                return Token(Token::TOKEN_KEYWORD, d->m_keywordToSubtypeMap.value(keyword), text, first_char.pos);
             }
             return Token(Token::TOKEN_IDENTIFIER, text, first_char.pos);
         }
@@ -295,14 +295,14 @@ Token TextScanner::scanOperator(const SourceChar &first_char)
     extra_chars.push(first_char);
 
     for (;;) {
-        if (d->_operator_to_subtype_map.contains(text)) {
+        if (d->m_operatorToSubtypeMap.contains(text)) {
             have_operator = true;
             operator_length = text.length();
-            subtype = d->_operator_to_subtype_map.value(text);
+            subtype = d->m_operatorToSubtypeMap.value(text);
             op = text;
         }
         source_char = readChar();
-        if (text.length() >= d->_max_operator_length || !d->_operator_chars_set.contains(source_char.ch)) {
+        if (text.length() >= d->m_maxOperatorLength || !d->m_operatorCharsSet.contains(source_char.ch)) {
             unreadChar(source_char);
             int i = text.length();
             while (i > operator_length) {

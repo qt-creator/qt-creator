@@ -66,15 +66,15 @@ public:
 
 private:
 
-    QPainter *_painter;
+    QPainter *m_painter;
 
-    QPointF _scaled_origin;
+    QPointF m_scaledOrigin;
 
-    QSizeF _original_size;
+    QSizeF m_originalSize;
 
-    QSizeF _base_size;
+    QSizeF m_baseSize;
 
-    QSizeF _size;
+    QSizeF m_size;
 
 };
 
@@ -88,7 +88,7 @@ public:
 
 public:
 
-    QRectF getBoundingRect() const { return _bounding_rect; }
+    QRectF getBoundingRect() const { return m_boundingRect; }
 
 public:
 
@@ -108,15 +108,15 @@ public:
 
 private:
 
-    QPointF _scaled_origin;
+    QPointF m_scaledOrigin;
 
-    QSizeF _original_size;
+    QSizeF m_originalSize;
 
-    QSizeF _base_size;
+    QSizeF m_baseSize;
 
-    QSizeF _size;
+    QSizeF m_size;
 
-    QRectF _bounding_rect;
+    QRectF m_boundingRect;
 };
 
 } // namespace qmt

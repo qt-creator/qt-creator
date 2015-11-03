@@ -98,25 +98,25 @@ public:
 
 public:
 
-    QRectF getRect() const { return _rect; }
+    QRectF getRect() const { return m_rect; }
 
     void setRect(const QRectF &rectangle);
 
     void setRect(qreal x, qreal y, qreal width, qreal height);
 
-    QSizeF getPointSize() const { return _point_size; }
+    QSizeF getPointSize() const { return m_pointSize; }
 
     void setPointSize(const QSizeF &size);
 
-    bool getShowBorder() const { return _show_border; }
+    bool getShowBorder() const { return m_showBorder; }
 
     void setShowBorder(bool show_border);
 
-    Freedom getFreedom() const { return _freedom; }
+    Freedom getFreedom() const { return m_freedom; }
 
     void setFreedom(Freedom freedom);
 
-    bool isSecondarySelected() const { return _secondary_selected; }
+    bool isSecondarySelected() const { return m_secondarySelected; }
 
     void setSecondarySelected(bool secondary_selected);
 
@@ -128,25 +128,25 @@ private:
 
 private:
 
-    IResizable *_item_resizer;
+    IResizable *m_itemResizer;
 
-    QRectF _rect;
+    QRectF m_rect;
 
-    QSizeF _point_size;
+    QSizeF m_pointSize;
 
-    QVector<GraphicsHandleItem *> _points;
+    QVector<GraphicsHandleItem *> m_points;
 
-    QPointF _original_resize_pos;
+    QPointF m_originalResizePos;
 
-    QRectF _original_resize_rect;
+    QRectF m_originalResizeRect;
 
-    bool _show_border;
+    bool m_showBorder;
 
-    QGraphicsRectItem *_border_item;
+    QGraphicsRectItem *m_borderItem;
 
-    Freedom _freedom;
+    Freedom m_freedom;
 
-    bool _secondary_selected;
+    bool m_secondarySelected;
 };
 
 }

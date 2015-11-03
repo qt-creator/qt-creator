@@ -64,163 +64,163 @@ namespace qmt {
 
 DocumentController::DocumentController(QObject *parent) :
     QObject(parent),
-    _project_controller(new ProjectController(this)),
-    _undo_controller(new UndoController(this)),
-    _model_controller(new ModelController(this)),
-    _diagram_controller(new DiagramController(this)),
-    _diagram_scene_controller(new DiagramSceneController(this)),
-    _style_controller(new StyleController(this)),
-    _stereotype_controller(new StereotypeController(this)),
-    _config_controller(new ConfigController(this)),
-    _tree_model(new TreeModel(this)),
-    _sorted_tree_model(new SortedTreeModel(this)),
-    _diagrams_manager(new DiagramsManager(this)),
-    _scene_inspector(new SceneInspector(this)),
-    _model_clipboard(new MContainer()),
-    _diagram_clipboard(new DContainer())
+    m_projectController(new ProjectController(this)),
+    m_undoController(new UndoController(this)),
+    m_modelController(new ModelController(this)),
+    m_diagramController(new DiagramController(this)),
+    m_diagramSceneController(new DiagramSceneController(this)),
+    m_styleController(new StyleController(this)),
+    m_stereotypeController(new StereotypeController(this)),
+    m_configController(new ConfigController(this)),
+    m_treeModel(new TreeModel(this)),
+    m_sortedTreeModel(new SortedTreeModel(this)),
+    m_diagramsManager(new DiagramsManager(this)),
+    m_sceneInspector(new SceneInspector(this)),
+    m_modelClipboard(new MContainer()),
+    m_diagramClipboard(new DContainer())
 {
     // project controller
-    QObject::connect(_project_controller, SIGNAL(changed()), this, SIGNAL(changed()));
+    QObject::connect(m_projectController, SIGNAL(changed()), this, SIGNAL(changed()));
 
     // model controller
-    _model_controller->setUndoController(_undo_controller);
-    QObject::connect(_model_controller, SIGNAL(modified()), _project_controller, SLOT(setModified()));
+    m_modelController->setUndoController(m_undoController);
+    QObject::connect(m_modelController, SIGNAL(modified()), m_projectController, SLOT(setModified()));
 
     // diagram controller
-    _diagram_controller->setModelController(_model_controller);
-    _diagram_controller->setUndoController(_undo_controller);
-    QObject::connect(_diagram_controller, SIGNAL(modified(const MDiagram*)), _project_controller, SLOT(setModified()));
+    m_diagramController->setModelController(m_modelController);
+    m_diagramController->setUndoController(m_undoController);
+    QObject::connect(m_diagramController, SIGNAL(modified(const MDiagram*)), m_projectController, SLOT(setModified()));
 
     // diagram scene controller
-    _diagram_scene_controller->setModelController(_model_controller);
-    _diagram_scene_controller->setDiagramController(_diagram_controller);
+    m_diagramSceneController->setModelController(m_modelController);
+    m_diagramSceneController->setDiagramController(m_diagramController);
 
     // config controller
-    _config_controller->setStereotypeController(_stereotype_controller);
+    m_configController->setStereotypeController(m_stereotypeController);
 
     // tree model
-    _tree_model->setModelController(_model_controller);
-    _tree_model->setStereotypeController(_stereotype_controller);
-    _tree_model->setStyleController(_style_controller);
+    m_treeModel->setModelController(m_modelController);
+    m_treeModel->setStereotypeController(m_stereotypeController);
+    m_treeModel->setStyleController(m_styleController);
 
     // sorted tree model
-    _sorted_tree_model->setTreeModel(_tree_model);
+    m_sortedTreeModel->setTreeModel(m_treeModel);
 
     // diagrams manager
-    _diagrams_manager->setModel(_tree_model);
-    _diagrams_manager->setDiagramController(_diagram_controller);
-    _diagrams_manager->setDiagramSceneController(_diagram_scene_controller);
-    _diagrams_manager->setStyleController(_style_controller);
-    _diagrams_manager->setStereotypeController(_stereotype_controller);
+    m_diagramsManager->setModel(m_treeModel);
+    m_diagramsManager->setDiagramController(m_diagramController);
+    m_diagramsManager->setDiagramSceneController(m_diagramSceneController);
+    m_diagramsManager->setStyleController(m_styleController);
+    m_diagramsManager->setStereotypeController(m_stereotypeController);
 
     // scene inspector
-    _scene_inspector->setDiagramsManager(_diagrams_manager);
+    m_sceneInspector->setDiagramsManager(m_diagramsManager);
 
     // diagram scene controller (2)
-    _diagram_scene_controller->setSceneInspector(_scene_inspector);
+    m_diagramSceneController->setSceneInspector(m_sceneInspector);
 }
 
 DocumentController::~DocumentController()
 {
     // manually delete objects to ensure correct reverse order of creation
-    delete _scene_inspector;
-    delete _diagrams_manager;
-    delete _sorted_tree_model;
-    delete _tree_model;
-    delete _config_controller;
-    delete _stereotype_controller;
-    delete _style_controller;
-    delete _diagram_scene_controller;
-    delete _diagram_controller;
-    delete _model_controller;
-    delete _undo_controller;
-    delete _project_controller;
+    delete m_sceneInspector;
+    delete m_diagramsManager;
+    delete m_sortedTreeModel;
+    delete m_treeModel;
+    delete m_configController;
+    delete m_stereotypeController;
+    delete m_styleController;
+    delete m_diagramSceneController;
+    delete m_diagramController;
+    delete m_modelController;
+    delete m_undoController;
+    delete m_projectController;
 }
 
 bool DocumentController::isModelClipboardEmpty() const
 {
-    return _model_clipboard->isEmpty();
+    return m_modelClipboard->isEmpty();
 }
 
 bool DocumentController::isDiagramClipboardEmpty() const
 {
-    return _diagram_clipboard->isEmpty();
+    return m_diagramClipboard->isEmpty();
 }
 
 bool DocumentController::hasDiagramSelection(const MDiagram *diagram) const
 {
-    return _diagrams_manager->getDiagramSceneModel(diagram)->hasSelection();
+    return m_diagramsManager->getDiagramSceneModel(diagram)->hasSelection();
 }
 
 void DocumentController::cutFromModel(const MSelection &selection)
 {
-    *_model_clipboard = _model_controller->cutElements(selection);
+    *m_modelClipboard = m_modelController->cutElements(selection);
     emit modelClipboardChanged(isModelClipboardEmpty());
 }
 
 void DocumentController::cutFromDiagram(MDiagram *diagram)
 {
-    *_diagram_clipboard = _diagram_controller->cutElements(_diagrams_manager->getDiagramSceneModel(diagram)->getSelectedElements(), diagram);
+    *m_diagramClipboard = m_diagramController->cutElements(m_diagramsManager->getDiagramSceneModel(diagram)->getSelectedElements(), diagram);
     emit diagramClipboardChanged(isDiagramClipboardEmpty());
 }
 
 void DocumentController::copyFromModel(const MSelection &selection)
 {
-    *_model_clipboard = _model_controller->copyElements(selection);
+    *m_modelClipboard = m_modelController->copyElements(selection);
     emit modelClipboardChanged(isModelClipboardEmpty());
 }
 
 void DocumentController::copyFromDiagram(const qmt::MDiagram *diagram)
 {
-    *_diagram_clipboard = _diagram_controller->copyElements(_diagrams_manager->getDiagramSceneModel(diagram)->getSelectedElements(), diagram);
+    *m_diagramClipboard = m_diagramController->copyElements(m_diagramsManager->getDiagramSceneModel(diagram)->getSelectedElements(), diagram);
     emit diagramClipboardChanged(isDiagramClipboardEmpty());
 }
 
 void DocumentController::copyDiagram(const MDiagram *diagram)
 {
-    _diagrams_manager->getDiagramSceneModel(diagram)->copyToClipboard();
+    m_diagramsManager->getDiagramSceneModel(diagram)->copyToClipboard();
 }
 
 void DocumentController::pasteIntoModel(MObject *model_object)
 {
     if (model_object) {
-        _model_controller->pasteElements(model_object, *_model_clipboard);
+        m_modelController->pasteElements(model_object, *m_modelClipboard);
     }
 }
 
 void DocumentController::pasteIntoDiagram(MDiagram *diagram)
 {
-    _diagram_controller->pasteElements(*_diagram_clipboard, diagram);
+    m_diagramController->pasteElements(*m_diagramClipboard, diagram);
 }
 
 void DocumentController::deleteFromModel(const MSelection &selection)
 {
-    _model_controller->deleteElements(selection);
+    m_modelController->deleteElements(selection);
 }
 
 void DocumentController::deleteFromDiagram(MDiagram *diagram)
 {
-    if (_diagrams_manager->getDiagramSceneModel(diagram)->hasSelection()) {
-        DSelection dselection = _diagrams_manager->getDiagramSceneModel(diagram)->getSelectedElements();
-        _diagram_scene_controller->deleteFromDiagram(dselection, diagram);
+    if (m_diagramsManager->getDiagramSceneModel(diagram)->hasSelection()) {
+        DSelection dselection = m_diagramsManager->getDiagramSceneModel(diagram)->getSelectedElements();
+        m_diagramSceneController->deleteFromDiagram(dselection, diagram);
     }
 }
 
 void DocumentController::removeFromDiagram(MDiagram *diagram)
 {
-    _diagram_controller->deleteElements(_diagrams_manager->getDiagramSceneModel(diagram)->getSelectedElements(), diagram);
+    m_diagramController->deleteElements(m_diagramsManager->getDiagramSceneModel(diagram)->getSelectedElements(), diagram);
 }
 
 void DocumentController::selectAllOnDiagram(MDiagram *diagram)
 {
-    _diagrams_manager->getDiagramSceneModel(diagram)->selectAllElements();
+    m_diagramsManager->getDiagramSceneModel(diagram)->selectAllElements();
 }
 
 MPackage *DocumentController::createNewPackage(MPackage *parent)
 {
     MPackage *new_package = new MPackage();
     new_package->setName(tr("New Package"));
-    _model_controller->addObject(parent, new_package);
+    m_modelController->addObject(parent, new_package);
     return new_package;
 }
 
@@ -228,7 +228,7 @@ MClass *DocumentController::createNewClass(MPackage *parent)
 {
     MClass *new_class = new MClass();
     new_class->setName(tr("New Class"));
-    _model_controller->addObject(parent, new_class);
+    m_modelController->addObject(parent, new_class);
     return new_class;
 }
 
@@ -236,26 +236,26 @@ MComponent *DocumentController::createNewComponent(MPackage *parent)
 {
     MComponent *new_component = new MComponent();
     new_component->setName(tr("New Component"));
-    _model_controller->addObject(parent, new_component);
+    m_modelController->addObject(parent, new_component);
     return new_component;
 }
 
 MCanvasDiagram *DocumentController::createNewCanvasDiagram(MPackage *parent)
 {
     MCanvasDiagram *new_diagram = new MCanvasDiagram();
-    if (!_diagram_scene_controller->findDiagramBySearchId(parent, parent->getName())) {
+    if (!m_diagramSceneController->findDiagramBySearchId(parent, parent->getName())) {
         new_diagram->setName(parent->getName());
     } else {
         new_diagram->setName(tr("New Diagram"));
     }
-    _model_controller->addObject(parent, new_diagram);
+    m_modelController->addObject(parent, new_diagram);
     return new_diagram;
 }
 
 MDiagram *DocumentController::findRootDiagram()
 {
     FindRootDiagramVisitor visitor;
-    _model_controller->getRootPackage()->accept(&visitor);
+    m_modelController->getRootPackage()->accept(&visitor);
     MDiagram *root_diagram = visitor.getDiagram();
     return root_diagram;
 }
@@ -264,41 +264,41 @@ MDiagram *DocumentController::findOrCreateRootDiagram()
 {
     MDiagram *root_diagram = findRootDiagram();
     if (!root_diagram) {
-        root_diagram = createNewCanvasDiagram(_model_controller->getRootPackage());
-        _model_controller->startUpdateObject(root_diagram);
-        if (_project_controller->getProject()->hasFileName()) {
-           root_diagram->setName(NameController::convertFileNameToElementName(_project_controller->getProject()->getFileName()));
+        root_diagram = createNewCanvasDiagram(m_modelController->getRootPackage());
+        m_modelController->startUpdateObject(root_diagram);
+        if (m_projectController->getProject()->hasFileName()) {
+           root_diagram->setName(NameController::convertFileNameToElementName(m_projectController->getProject()->getFileName()));
         }
-        _model_controller->finishUpdateObject(root_diagram, false);
+        m_modelController->finishUpdateObject(root_diagram, false);
     }
     return root_diagram;
 }
 
 void DocumentController::createNewProject(const QString &file_name)
 {
-    _diagrams_manager->removeAllDiagrams();
-    _tree_model->setModelController(0);
-    _model_controller->setRootPackage(0);
-    _undo_controller->reset();
+    m_diagramsManager->removeAllDiagrams();
+    m_treeModel->setModelController(0);
+    m_modelController->setRootPackage(0);
+    m_undoController->reset();
 
-    _project_controller->newProject(file_name);
+    m_projectController->newProject(file_name);
 
-    _tree_model->setModelController(_model_controller);
-    _model_controller->setRootPackage(_project_controller->getProject()->getRootPackage());
+    m_treeModel->setModelController(m_modelController);
+    m_modelController->setRootPackage(m_projectController->getProject()->getRootPackage());
 }
 
 void DocumentController::loadProject(const QString &file_name)
 {
-    _diagrams_manager->removeAllDiagrams();
-    _tree_model->setModelController(0);
-    _model_controller->setRootPackage(0);
-    _undo_controller->reset();
+    m_diagramsManager->removeAllDiagrams();
+    m_treeModel->setModelController(0);
+    m_modelController->setRootPackage(0);
+    m_undoController->reset();
 
-    _project_controller->newProject(file_name);
-    _project_controller->load();
+    m_projectController->newProject(file_name);
+    m_projectController->load();
 
-    _tree_model->setModelController(_model_controller);
-    _model_controller->setRootPackage(_project_controller->getProject()->getRootPackage());
+    m_treeModel->setModelController(m_modelController);
+    m_modelController->setRootPackage(m_projectController->getProject()->getRootPackage());
 }
 
 }

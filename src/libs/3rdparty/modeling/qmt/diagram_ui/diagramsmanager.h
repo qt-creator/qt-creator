@@ -115,19 +115,19 @@ private slots:
 
 private:
 
-    QPointer<TreeModel> _model;
+    QPointer<TreeModel> m_model;
 
-    DiagramsViewInterface *_diagrams_view;
+    DiagramsViewInterface *m_diagramsView;
 
-    DiagramController *_diagram_controller;
+    DiagramController *m_diagramController;
 
-    DiagramSceneController *_diagram_scene_controller;
+    DiagramSceneController *m_diagramSceneController;
 
-    StyleController *_style_controller;
+    StyleController *m_styleController;
 
-    StereotypeController *_stereotype_controller;
+    StereotypeController *m_stereotypeController;
 
-    QHash<Uid, ManagedDiagram *> _diagram_uid_to_managed_diagram_map;
+    QHash<Uid, ManagedDiagram *> m_diagramUidToManagedDiagramMap;
 };
 
 }

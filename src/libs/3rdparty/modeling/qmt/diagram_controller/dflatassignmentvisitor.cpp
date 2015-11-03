@@ -50,7 +50,7 @@ namespace qmt {
 // TODO may flat assignment visitor use operator=() ?
 
 DFlatAssignmentVisitor::DFlatAssignmentVisitor(DElement *target)
-    : _target(target)
+    : m_target(target)
 {
     QMT_CHECK(target);
 }
@@ -63,7 +63,7 @@ void DFlatAssignmentVisitor::visitDElement(const DElement *element)
 void DFlatAssignmentVisitor::visitDObject(const DObject *object)
 {
     visitDElement(object);
-    DObject *target = dynamic_cast<DObject *>(_target);
+    DObject *target = dynamic_cast<DObject *>(m_target);
     QMT_CHECK(target);
     target->setStereotypes(object->getStereotypes());
     target->setName(object->getName());
@@ -85,7 +85,7 @@ void DFlatAssignmentVisitor::visitDPackage(const DPackage *package)
 void DFlatAssignmentVisitor::visitDClass(const DClass *klass)
 {
     visitDObject(klass);
-    DClass *target = dynamic_cast<DClass *>(_target);
+    DClass *target = dynamic_cast<DClass *>(m_target);
     QMT_CHECK(target);
     target->setNamespace(klass->getNamespace());
     target->setTemplateParameters(klass->getTemplateParameters());
@@ -98,7 +98,7 @@ void DFlatAssignmentVisitor::visitDClass(const DClass *klass)
 void DFlatAssignmentVisitor::visitDComponent(const DComponent *component)
 {
     visitDObject(component);
-    DComponent *target = dynamic_cast<DComponent *>(_target);
+    DComponent *target = dynamic_cast<DComponent *>(m_target);
     QMT_CHECK(target);
     target->setPlainShape(component->getPlainShape());
 }
@@ -111,7 +111,7 @@ void DFlatAssignmentVisitor::visitDDiagram(const DDiagram *diagram)
 void DFlatAssignmentVisitor::visitDItem(const DItem *item)
 {
     visitDObject(item);
-    DItem *target = dynamic_cast<DItem *>(_target);
+    DItem *target = dynamic_cast<DItem *>(m_target);
     QMT_CHECK(target);
     target->setVariety(target->getVariety());
     target->setShapeEditable(target->isShapeEditable());
@@ -121,7 +121,7 @@ void DFlatAssignmentVisitor::visitDItem(const DItem *item)
 void DFlatAssignmentVisitor::visitDRelation(const DRelation *relation)
 {
     visitDElement(relation);
-    DRelation *target = dynamic_cast<DRelation *>(_target);
+    DRelation *target = dynamic_cast<DRelation *>(m_target);
     QMT_CHECK(target);
     target->setStereotypes(relation->getStereotypes());
     target->setIntermediatePoints(relation->getIntermediatePoints());
@@ -135,7 +135,7 @@ void DFlatAssignmentVisitor::visitDInheritance(const DInheritance *inheritance)
 void DFlatAssignmentVisitor::visitDDependency(const DDependency *dependency)
 {
     visitDRelation(dependency);
-    DDependency *target = dynamic_cast<DDependency *>(_target);
+    DDependency *target = dynamic_cast<DDependency *>(m_target);
     QMT_CHECK(target);
     target->setDirection(dependency->getDirection());
 }
@@ -143,7 +143,7 @@ void DFlatAssignmentVisitor::visitDDependency(const DDependency *dependency)
 void DFlatAssignmentVisitor::visitDAssociation(const DAssociation *association)
 {
     visitDRelation(association);
-    DAssociation *target = dynamic_cast<DAssociation *>(_target);
+    DAssociation *target = dynamic_cast<DAssociation *>(m_target);
     QMT_CHECK(target);
     target->setA(association->getA());
     target->setB(association->getB());
@@ -152,7 +152,7 @@ void DFlatAssignmentVisitor::visitDAssociation(const DAssociation *association)
 void DFlatAssignmentVisitor::visitDAnnotation(const DAnnotation *annotation)
 {
     visitDElement(annotation);
-    DAnnotation *target = dynamic_cast<DAnnotation *>(_target);
+    DAnnotation *target = dynamic_cast<DAnnotation *>(m_target);
     target->setText(annotation->getText());
     target->setPos(annotation->getPos());
     target->setRect(annotation->getRect());
@@ -163,7 +163,7 @@ void DFlatAssignmentVisitor::visitDAnnotation(const DAnnotation *annotation)
 void DFlatAssignmentVisitor::visitDBoundary(const DBoundary *boundary)
 {
     visitDElement(boundary);
-    DBoundary *target = dynamic_cast<DBoundary *>(_target);
+    DBoundary *target = dynamic_cast<DBoundary *>(m_target);
     target->setText(boundary->getText());
     target->setPos(boundary->getPos());
     target->setRect(boundary->getRect());

@@ -85,15 +85,15 @@ public:
 
 public:
 
-    ModelController *getModelController() const { return _model_controller; }
+    ModelController *getModelController() const { return m_modelController; }
 
     void setModelController(ModelController *model_controller);
 
-    StereotypeController *getStereotypeController() const { return _stereotype_controller; }
+    StereotypeController *getStereotypeController() const { return m_stereotypeController; }
 
     void setStereotypeController(StereotypeController *stereotype_controller);
 
-    StyleController *getStyleController() const { return _style_controller; }
+    StyleController *getStyleController() const { return m_styleController; }
 
     void setStyleController(StyleController *style_controller);
 
@@ -187,19 +187,19 @@ private:
 
 private:
 
-    ModelController *_model_controller;
+    ModelController *m_modelController;
 
-    StereotypeController *_stereotype_controller;
+    StereotypeController *m_stereotypeController;
 
-    StyleController *_style_controller;
+    StyleController *m_styleController;
 
-    ModelItem *_root_item;
+    ModelItem *m_rootItem;
 
-    QHash<const MObject *, ModelItem *> _object_to_item_map;
+    QHash<const MObject *, ModelItem *> m_objectToItemMap;
 
-    QHash<ModelItem *, const MObject *> _item_to_object_map;
+    QHash<ModelItem *, const MObject *> m_itemToObjectMap;
 
-    Busy _busy;
+    Busy m_busy;
 };
 
 }

@@ -96,13 +96,13 @@ protected:
 
 private:
 
-    SortedTreeModel *_sorted_tree_model;
+    SortedTreeModel *m_sortedTreeModel;
 
-    IElementTasks *_element_tasks;
+    IElementTasks *m_elementTasks;
 
-    QModelIndex _auto_delay_index;
+    QModelIndex m_autoDelayIndex;
 
-    QTime _auto_delay_start_time;
+    QTime m_autoDelayStartTime;
 };
 
 }

@@ -47,12 +47,12 @@ namespace qmt {
 
 PropertiesView::PropertiesView(QObject *parent)
     : QObject(parent),
-      _model_controller(0),
-      _diagram_controller(0),
-      _stereotype_controller(0),
-      _style_controller(0),
-      _selected_diagram(0),
-      _widget(0)
+      m_modelController(0),
+      m_diagramController(0),
+      m_stereotypeController(0),
+      m_styleController(0),
+      m_selectedDiagram(0),
+      m_widget(0)
 {
 }
 
@@ -62,84 +62,84 @@ PropertiesView::~PropertiesView()
 
 void PropertiesView::setModelController(ModelController *model_controller)
 {
-    if (_model_controller != model_controller) {
-        if (_model_controller) {
-            disconnect(_model_controller, 0, this, 0);
+    if (m_modelController != model_controller) {
+        if (m_modelController) {
+            disconnect(m_modelController, 0, this, 0);
         }
-        _model_controller = model_controller;
-        if (_model_controller) {
-            connect(_model_controller, SIGNAL(beginResetModel()), this, SLOT(onBeginResetModel()));
-            connect(_model_controller, SIGNAL(endResetModel()), this, SLOT(onEndResetModel()));
+        m_modelController = model_controller;
+        if (m_modelController) {
+            connect(m_modelController, SIGNAL(beginResetModel()), this, SLOT(onBeginResetModel()));
+            connect(m_modelController, SIGNAL(endResetModel()), this, SLOT(onEndResetModel()));
 
-            connect(_model_controller, SIGNAL(beginInsertObject(int,const MObject*)), this, SLOT(onBeginInsertObject(int,const MObject*)));
-            connect(_model_controller, SIGNAL(endInsertObject(int,const MObject*)), this, SLOT(onEndInsertObject(int,const MObject*)));
-            connect(_model_controller, SIGNAL(beginUpdateObject(int,const MObject*)), this, SLOT(onBeginUpdateObject(int,const MObject*)));
-            connect(_model_controller, SIGNAL(endUpdateObject(int,const MObject*)), this, SLOT(onEndUpdateObject(int,const MObject*)));
-            connect(_model_controller, SIGNAL(beginRemoveObject(int,const MObject*)), this, SLOT(onBeginRemoveObject(int,const MObject*)));
-            connect(_model_controller, SIGNAL(endRemoveObject(int,const MObject*)), this, SLOT(onEndRemoveObject(int,const MObject*)));
-            connect(_model_controller, SIGNAL(beginMoveObject(int,const MObject*)), this, SLOT(onBeginMoveObject(int,const MObject*)));
-            connect(_model_controller, SIGNAL(endMoveObject(int,const MObject*)), this, SLOT(onEndMoveObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginInsertObject(int,const MObject*)), this, SLOT(onBeginInsertObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endInsertObject(int,const MObject*)), this, SLOT(onEndInsertObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginUpdateObject(int,const MObject*)), this, SLOT(onBeginUpdateObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endUpdateObject(int,const MObject*)), this, SLOT(onEndUpdateObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginRemoveObject(int,const MObject*)), this, SLOT(onBeginRemoveObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endRemoveObject(int,const MObject*)), this, SLOT(onEndRemoveObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginMoveObject(int,const MObject*)), this, SLOT(onBeginMoveObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endMoveObject(int,const MObject*)), this, SLOT(onEndMoveObject(int,const MObject*)));
 
-            connect(_model_controller, SIGNAL(beginInsertRelation(int,const MObject*)), this, SLOT(onBeginInsertRelation(int,const MObject*)));
-            connect(_model_controller, SIGNAL(endInsertRelation(int,const MObject*)), this, SLOT(onEndInsertRelation(int,const MObject*)));
-            connect(_model_controller, SIGNAL(beginUpdateRelation(int,const MObject*)), this, SLOT(onBeginUpdateRelation(int,const MObject*)));
-            connect(_model_controller, SIGNAL(endUpdateRelation(int,const MObject*)), this, SLOT(onEndUpdateRelation(int,const MObject*)));
-            connect(_model_controller, SIGNAL(beginRemoveRelation(int,const MObject*)), this, SLOT(onBeginRemoveRelation(int,const MObject*)));
-            connect(_model_controller, SIGNAL(endRemoveRelation(int,const MObject*)), this, SLOT(onEndRemoveRelation(int,const MObject*)));
-            connect(_model_controller, SIGNAL(beginMoveRelation(int,const MObject*)), this, SLOT(onBeginMoveRelation(int,const MObject*)));
-            connect(_model_controller, SIGNAL(endMoveRelation(int,const MObject*)), this, SLOT(onEndMoveRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginInsertRelation(int,const MObject*)), this, SLOT(onBeginInsertRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endInsertRelation(int,const MObject*)), this, SLOT(onEndInsertRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginUpdateRelation(int,const MObject*)), this, SLOT(onBeginUpdateRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endUpdateRelation(int,const MObject*)), this, SLOT(onEndUpdateRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginRemoveRelation(int,const MObject*)), this, SLOT(onBeginRemoveRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endRemoveRelation(int,const MObject*)), this, SLOT(onEndRemoveRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginMoveRelation(int,const MObject*)), this, SLOT(onBeginMoveRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endMoveRelation(int,const MObject*)), this, SLOT(onEndMoveRelation(int,const MObject*)));
 
-            connect(_model_controller, SIGNAL(relationEndChanged(MRelation*,MObject*)), this, SLOT(onRelationEndChanged(MRelation*,MObject*)));
+            connect(m_modelController, SIGNAL(relationEndChanged(MRelation*,MObject*)), this, SLOT(onRelationEndChanged(MRelation*,MObject*)));
         }
     }
 }
 
 void PropertiesView::setDiagramController(DiagramController *diagram_controller)
 {
-    if (_diagram_controller != diagram_controller) {
-        if (_diagram_controller) {
-            disconnect(_diagram_controller, 0, this, 0);
-            _diagram_controller = 0;
+    if (m_diagramController != diagram_controller) {
+        if (m_diagramController) {
+            disconnect(m_diagramController, 0, this, 0);
+            m_diagramController = 0;
         }
-        _diagram_controller = diagram_controller;
+        m_diagramController = diagram_controller;
         if (diagram_controller) {
-            connect(_diagram_controller, SIGNAL(beginResetAllDiagrams()), this, SLOT(onBeginResetAllDiagrams()));
-            connect(_diagram_controller, SIGNAL(endResetAllDiagrams()), this, SLOT(onEndResetAllDiagrams()));
+            connect(m_diagramController, SIGNAL(beginResetAllDiagrams()), this, SLOT(onBeginResetAllDiagrams()));
+            connect(m_diagramController, SIGNAL(endResetAllDiagrams()), this, SLOT(onEndResetAllDiagrams()));
 
-            connect(_diagram_controller, SIGNAL(beginResetDiagram(const MDiagram*)), this, SLOT(onBeginResetDiagram(const MDiagram*)));
-            connect(_diagram_controller, SIGNAL(endResetDiagram(const MDiagram*)), this, SLOT(onEndResetDiagram(const MDiagram*)));
+            connect(m_diagramController, SIGNAL(beginResetDiagram(const MDiagram*)), this, SLOT(onBeginResetDiagram(const MDiagram*)));
+            connect(m_diagramController, SIGNAL(endResetDiagram(const MDiagram*)), this, SLOT(onEndResetDiagram(const MDiagram*)));
 
-            connect(_diagram_controller, SIGNAL(beginUpdateElement(int,const MDiagram*)), this, SLOT(onBeginUpdateElement(int,const MDiagram*)));
-            connect(_diagram_controller, SIGNAL(endUpdateElement(int,const MDiagram*)), this, SLOT(onEndUpdateElement(int,const MDiagram*)));
-            connect(_diagram_controller, SIGNAL(beginInsertElement(int,const MDiagram*)), this, SLOT(onBeginInsertElement(int,const MDiagram*)));
-            connect(_diagram_controller, SIGNAL(endInsertElement(int,const MDiagram*)), this, SLOT(onEndInsertElement(int,const MDiagram*)));
-            connect(_diagram_controller, SIGNAL(beginRemoveElement(int,const MDiagram*)), this, SLOT(onBeginRemoveElement(int,const MDiagram*)));
-            connect(_diagram_controller, SIGNAL(endRemoveElement(int,const MDiagram*)), this, SLOT(onEndRemoveElement(int,const MDiagram*)));
+            connect(m_diagramController, SIGNAL(beginUpdateElement(int,const MDiagram*)), this, SLOT(onBeginUpdateElement(int,const MDiagram*)));
+            connect(m_diagramController, SIGNAL(endUpdateElement(int,const MDiagram*)), this, SLOT(onEndUpdateElement(int,const MDiagram*)));
+            connect(m_diagramController, SIGNAL(beginInsertElement(int,const MDiagram*)), this, SLOT(onBeginInsertElement(int,const MDiagram*)));
+            connect(m_diagramController, SIGNAL(endInsertElement(int,const MDiagram*)), this, SLOT(onEndInsertElement(int,const MDiagram*)));
+            connect(m_diagramController, SIGNAL(beginRemoveElement(int,const MDiagram*)), this, SLOT(onBeginRemoveElement(int,const MDiagram*)));
+            connect(m_diagramController, SIGNAL(endRemoveElement(int,const MDiagram*)), this, SLOT(onEndRemoveElement(int,const MDiagram*)));
         }
     }
 }
 
 void PropertiesView::setStereotypeController(StereotypeController *stereotype_controller)
 {
-    _stereotype_controller = stereotype_controller;
+    m_stereotypeController = stereotype_controller;
 }
 
 void PropertiesView::setStyleController(StyleController *style_controller)
 {
-    _style_controller = style_controller;
+    m_styleController = style_controller;
 }
 
 void PropertiesView::setSelectedModelElements(const QList<MElement *> &model_elements)
 {
     QMT_CHECK(model_elements.size() > 0);
 
-    if (_selected_model_elements != model_elements) {
-        _selected_model_elements = model_elements;
-        _selected_diagram_elements.clear();
-        _selected_diagram = 0;
-        _mview.reset(new MView(this));
-        _mview->update(_selected_model_elements);
-        _widget = _mview->getTopLevelWidget();
+    if (m_selectedModelElements != model_elements) {
+        m_selectedModelElements = model_elements;
+        m_selectedDiagramElements.clear();
+        m_selectedDiagram = 0;
+        m_mview.reset(new MView(this));
+        m_mview->update(m_selectedModelElements);
+        m_widget = m_mview->getTopLevelWidget();
     }
 }
 
@@ -148,34 +148,34 @@ void PropertiesView::setSelectedDiagramElements(const QList<DElement *> &diagram
     QMT_CHECK(diagram_elements.size() > 0);
     QMT_CHECK(diagram);
 
-    if (_selected_diagram_elements != diagram_elements || _selected_diagram != diagram) {
-        _selected_diagram_elements = diagram_elements;
-        _selected_diagram = diagram;
-        _selected_model_elements.clear();
-        _mview.reset(new MView(this));
-        _mview->update(_selected_diagram_elements, _selected_diagram);
-        _widget = _mview->getTopLevelWidget();
+    if (m_selectedDiagramElements != diagram_elements || m_selectedDiagram != diagram) {
+        m_selectedDiagramElements = diagram_elements;
+        m_selectedDiagram = diagram;
+        m_selectedModelElements.clear();
+        m_mview.reset(new MView(this));
+        m_mview->update(m_selectedDiagramElements, m_selectedDiagram);
+        m_widget = m_mview->getTopLevelWidget();
     }
 }
 
 void PropertiesView::clearSelection()
 {
-    _selected_model_elements.clear();
-    _selected_diagram_elements.clear();
-    _selected_diagram = 0;
-    _mview.reset();
-    _widget = 0;
+    m_selectedModelElements.clear();
+    m_selectedDiagramElements.clear();
+    m_selectedDiagram = 0;
+    m_mview.reset();
+    m_widget = 0;
 }
 
 QWidget *PropertiesView::getWidget() const
 {
-    return _widget;
+    return m_widget;
 }
 
 void PropertiesView::editSelectedElement()
 {
-    if (_selected_model_elements.size() == 1 || (_selected_diagram_elements.size() == 1 && _selected_diagram)) {
-        _mview->edit();
+    if (m_selectedModelElements.size() == 1 || (m_selectedDiagramElements.size() == 1 && m_selectedDiagram)) {
+        m_mview->edit();
     }
 }
 
@@ -196,9 +196,9 @@ void PropertiesView::onBeginUpdateObject(int row, const MObject *parent)
 
 void PropertiesView::onEndUpdateObject(int row, const MObject *parent)
 {
-    MObject *mobject = _model_controller->getObject(row, parent);
-    if (mobject && _selected_model_elements.contains(mobject)) {
-        _mview->update(_selected_model_elements);
+    MObject *mobject = m_modelController->getObject(row, parent);
+    if (mobject && m_selectedModelElements.contains(mobject)) {
+        m_mview->update(m_selectedModelElements);
     }
 }
 
@@ -216,8 +216,8 @@ void PropertiesView::onEndInsertObject(int row, const MObject *parent)
 
 void PropertiesView::onBeginRemoveObject(int row, const MObject *parent)
 {
-    MObject *mobject = _model_controller->getObject(row, parent);
-    if (mobject && _selected_model_elements.contains(mobject)) {
+    MObject *mobject = m_modelController->getObject(row, parent);
+    if (mobject && m_selectedModelElements.contains(mobject)) {
         clearSelection();
     }
 }
@@ -236,9 +236,9 @@ void PropertiesView::onBeginMoveObject(int former_row, const MObject *former_own
 
 void PropertiesView::onEndMoveObject(int row, const MObject *owner)
 {
-    MObject *mobject = _model_controller->getObject(row, owner);
-    if (mobject && _selected_model_elements.contains(mobject)) {
-        _mview->update(_selected_model_elements);
+    MObject *mobject = m_modelController->getObject(row, owner);
+    if (mobject && m_selectedModelElements.contains(mobject)) {
+        m_mview->update(m_selectedModelElements);
     }
 }
 
@@ -251,8 +251,8 @@ void PropertiesView::onBeginUpdateRelation(int row, const MObject *parent)
 void PropertiesView::onEndUpdateRelation(int row, const MObject *parent)
 {
     MRelation *mrelation = parent->getRelations().at(row);
-    if (mrelation && _selected_model_elements.contains(mrelation)) {
-        _mview->update(_selected_model_elements);
+    if (mrelation && m_selectedModelElements.contains(mrelation)) {
+        m_mview->update(m_selectedModelElements);
     }
 }
 
@@ -271,7 +271,7 @@ void PropertiesView::onEndInsertRelation(int row, const MObject *parent)
 void PropertiesView::onBeginRemoveRelation(int row, const MObject *parent)
 {
     MRelation *mrelation = parent->getRelations().at(row);
-    if (mrelation && _selected_model_elements.contains(mrelation)) {
+    if (mrelation && m_selectedModelElements.contains(mrelation)) {
         clearSelection();
     }
 }
@@ -291,16 +291,16 @@ void PropertiesView::onBeginMoveRelation(int former_row, const MObject *former_o
 void PropertiesView::onEndMoveRelation(int row, const MObject *owner)
 {
     MRelation *mrelation = owner->getRelations().at(row);
-    if (mrelation && _selected_model_elements.contains(mrelation)) {
-        _mview->update(_selected_model_elements);
+    if (mrelation && m_selectedModelElements.contains(mrelation)) {
+        m_mview->update(m_selectedModelElements);
     }
 }
 
 void PropertiesView::onRelationEndChanged(MRelation *relation, MObject *end_object)
 {
     Q_UNUSED(end_object);
-    if (relation && _selected_model_elements.contains(relation)) {
-        _mview->update(_selected_model_elements);
+    if (relation && m_selectedModelElements.contains(relation)) {
+        m_mview->update(m_selectedModelElements);
     }
 }
 
@@ -320,8 +320,8 @@ void PropertiesView::onBeginResetDiagram(const MDiagram *diagram)
 
 void PropertiesView::onEndResetDiagram(const MDiagram *diagram)
 {
-    if (diagram == _selected_diagram && _selected_diagram_elements.size() > 0) {
-        _mview->update(_selected_diagram_elements, _selected_diagram);
+    if (diagram == m_selectedDiagram && m_selectedDiagramElements.size() > 0) {
+        m_mview->update(m_selectedDiagramElements, m_selectedDiagram);
     }
 }
 
@@ -333,10 +333,10 @@ void PropertiesView::onBeginUpdateElement(int row, const MDiagram *diagram)
 
 void PropertiesView::onEndUpdateElement(int row, const MDiagram *diagram)
 {
-    if (diagram == _selected_diagram) {
+    if (diagram == m_selectedDiagram) {
         DElement *delement = diagram->getDiagramElements().at(row);
-        if (_selected_diagram_elements.contains(delement)) {
-            _mview->update(_selected_diagram_elements, _selected_diagram);
+        if (m_selectedDiagramElements.contains(delement)) {
+            m_mview->update(m_selectedDiagramElements, m_selectedDiagram);
         }
     }
 }
@@ -355,9 +355,9 @@ void PropertiesView::onEndInsertElement(int row, const MDiagram *diagram)
 
 void PropertiesView::onBeginRemoveElement(int row, const MDiagram *diagram)
 {
-    if (diagram == _selected_diagram) {
+    if (diagram == m_selectedDiagram) {
         DElement *delement = diagram->getDiagramElements().at(row);
-        if (_selected_diagram_elements.contains(delement)) {
+        if (m_selectedDiagramElements.contains(delement)) {
             clearSelection();
         }
     }
@@ -374,9 +374,9 @@ void PropertiesView::beginUpdate(MElement *model_element)
     QMT_CHECK(model_element);
 
     if (MObject *object = dynamic_cast<MObject *>(model_element)) {
-        _model_controller->startUpdateObject(object);
+        m_modelController->startUpdateObject(object);
     } else if (MRelation *relation = dynamic_cast<MRelation *>(model_element)) {
-        _model_controller->startUpdateRelation(relation);
+        m_modelController->startUpdateRelation(relation);
     } else {
         QMT_CHECK(false);
     }
@@ -387,9 +387,9 @@ void PropertiesView::endUpdate(MElement *model_element, bool cancelled)
     QMT_CHECK(model_element);
 
     if (MObject *object = dynamic_cast<MObject *>(model_element)) {
-        _model_controller->finishUpdateObject(object, cancelled);
+        m_modelController->finishUpdateObject(object, cancelled);
     } else if (MRelation *relation = dynamic_cast<MRelation *>(model_element)) {
-        _model_controller->finishUpdateRelation(relation, cancelled);
+        m_modelController->finishUpdateRelation(relation, cancelled);
     } else {
         QMT_CHECK(false);
     }
@@ -398,19 +398,19 @@ void PropertiesView::endUpdate(MElement *model_element, bool cancelled)
 void PropertiesView::beginUpdate(DElement *diagram_element)
 {
     QMT_CHECK(diagram_element);
-    QMT_CHECK(_selected_diagram != 0);
-    QMT_CHECK(_diagram_controller->findElement(diagram_element->getUid(), _selected_diagram) == diagram_element);
+    QMT_CHECK(m_selectedDiagram != 0);
+    QMT_CHECK(m_diagramController->findElement(diagram_element->getUid(), m_selectedDiagram) == diagram_element);
 
-    _diagram_controller->startUpdateElement(diagram_element, _selected_diagram, DiagramController::UPDATE_MINOR);
+    m_diagramController->startUpdateElement(diagram_element, m_selectedDiagram, DiagramController::UPDATE_MINOR);
 }
 
 void PropertiesView::endUpdate(DElement *diagram_element, bool cancelled)
 {
     QMT_CHECK(diagram_element);
-    QMT_CHECK(_selected_diagram != 0);
-    QMT_CHECK(_diagram_controller->findElement(diagram_element->getUid(), _selected_diagram) == diagram_element);
+    QMT_CHECK(m_selectedDiagram != 0);
+    QMT_CHECK(m_diagramController->findElement(diagram_element->getUid(), m_selectedDiagram) == diagram_element);
 
-    _diagram_controller->finishUpdateElement(diagram_element, _selected_diagram, cancelled);
+    m_diagramController->finishUpdateElement(diagram_element, m_selectedDiagram, cancelled);
 }
 
 }

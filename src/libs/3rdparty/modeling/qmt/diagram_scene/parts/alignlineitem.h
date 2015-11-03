@@ -66,11 +66,11 @@ public:
 
 private:
 
-    Direction _direction;
+    Direction m_direction;
 
-    QGraphicsLineItem *_align_line;
+    QGraphicsLineItem *m_alignLine;
 
-    QGraphicsLineItem *_highlight_line;
+    QGraphicsLineItem *m_highlightLine;
 
 };
 

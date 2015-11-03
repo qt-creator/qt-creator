@@ -43,22 +43,22 @@ Project::~Project()
 
 void Project::setUid(const Uid &uid)
 {
-    _uid = uid;
+    m_uid = uid;
 }
 
 bool Project::hasFileName() const
 {
-    return !_file_name.isEmpty();
+    return !m_fileName.isEmpty();
 }
 
 void Project::setFileName(const QString &file_name)
 {
-    _file_name = file_name;
+    m_fileName = file_name;
 }
 
 void Project::setRootPackage(MPackage *root_package)
 {
-    _root_package = root_package;
+    m_rootPackage = root_package;
 }
 
 }
