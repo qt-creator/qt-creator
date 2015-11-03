@@ -103,7 +103,7 @@ def ignored_qt_lib_files(path, filenames):
         return []
     return [fn for fn in filenames if is_ignored_windows_file(debug_build, path, fn)]
 
-def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_dir, plugins, imports):
+def copy_qt_libs(target_qt_prefix_path, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_dir, plugins, imports):
     print "copying Qt libraries..."
 
     if common.is_windows_platform():
@@ -112,58 +112,66 @@ def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_
         libraries = glob(os.path.join(qt_libs_dir, '*.so.*'))
 
     if common.is_windows_platform():
-        dest = os.path.join(install_dir, 'bin')
+        lib_dest = os.path.join(target_qt_prefix_path)
     else:
-        dest = os.path.join(install_dir, 'lib', 'qtcreator')
+        lib_dest = os.path.join(target_qt_prefix_path, 'lib')
+
+    if not os.path.exists(lib_dest):
+        os.makedirs(lib_dest)
 
     if common.is_windows_platform():
         libraries = [lib for lib in libraries if debug_build == is_debug(lib)]
 
     for library in libraries:
-        print library, '->', dest
+        print library, '->', lib_dest
         if os.path.islink(library):
             linkto = os.readlink(library)
             try:
-                os.symlink(linkto, os.path.join(dest, os.path.basename(library)))
+                os.symlink(linkto, os.path.join(lib_dest, os.path.basename(library)))
             except OSError:
                 op_failed("Link already exists!")
         else:
-            shutil.copy(library, dest)
+            shutil.copy(library, lib_dest)
 
     print "Copying plugins:", plugins
     for plugin in plugins:
-        target = os.path.join(install_dir, 'bin', 'plugins', plugin)
+        target = os.path.join(target_qt_prefix_path, 'plugins', plugin)
         if (os.path.exists(target)):
             shutil.rmtree(target)
         pluginPath = os.path.join(qt_plugin_dir, plugin)
         if (os.path.exists(pluginPath)):
+            print('{0} -> {1}'.format(pluginPath, target))
             common.copytree(pluginPath, target, ignore=ignored_qt_lib_files, symlinks=True)
 
     print "Copying imports:", imports
     for qtimport in imports:
-        target = os.path.join(install_dir, 'bin', 'imports', qtimport)
+        target = os.path.join(target_qt_prefix_path, 'imports', qtimport)
         if (os.path.exists(target)):
             shutil.rmtree(target)
         import_path = os.path.join(qt_import_dir, qtimport)
         if os.path.exists(import_path):
+            print('{0} -> {1}'.format(import_path, target))
             common.copytree(import_path, target, ignore=ignored_qt_lib_files, symlinks=True)
 
     if (os.path.exists(qt_qml_dir)):
         print "Copying qt quick 2 imports"
-        target = os.path.join(install_dir, 'bin', 'qml')
+        target = os.path.join(target_qt_prefix_path, 'qml')
         if (os.path.exists(target)):
             shutil.rmtree(target)
+        print('{0} -> {1}'.format(qt_qml_dir, target))
         common.copytree(qt_qml_dir, target, ignore=ignored_qt_lib_files, symlinks=True)
 
-def add_qt_conf(target_dir, install_dir):
-    qtconf_filepath = os.path.join(target_dir, 'qt.conf')
+def add_qt_conf(target_path, qt_prefix_path):
+    qtconf_filepath = os.path.join(target_path, 'qt.conf')
+    prefix_path = os.path.relpath(qt_prefix_path, target_path).replace('\\', '/')
     print('Creating qt.conf in "{0}":'.format(qtconf_filepath))
     f = open(qtconf_filepath, 'w')
     f.write('[Paths]\n')
-    f.write('Libraries={0}\n'.format(os.path.relpath(os.path.join(install_dir, 'lib', 'qtcreator'), target_dir).replace('\\', '/')))
-    f.write('Plugins={0}\n'.format(os.path.relpath(os.path.join(install_dir, 'bin', 'plugins'), target_dir).replace('\\', '/')))
-    f.write('Imports={0}\n'.format(os.path.relpath(os.path.join(install_dir, 'bin', 'imports'), target_dir).replace('\\', '/')))
-    f.write('Qml2Imports={0}\n'.format(os.path.relpath(os.path.join(install_dir, 'bin', 'qml'), target_dir).replace('\\', '/')))
+    f.write('Prefix={0}\n'.format(prefix_path))
+    f.write('Libraries={0}\n'.format('lib' if common.is_linux_platform() else '.'))
+    f.write('Plugins=plugins\n')
+    f.write('Imports=imports\n')
+    f.write('Qml2Imports=qml\n')
     f.close()
 
 def copy_translations(install_dir, qt_tr_dir):
@@ -250,7 +258,10 @@ def main():
         sys.exit(2)
 
     install_dir = args[0]
-
+    if common.is_linux_platform():
+        qt_deploy_prefix = os.path.join(install_dir, 'lib', 'Qt')
+    else:
+        qt_deploy_prefix = os.path.join(install_dir, 'bin')
     qmake_bin = 'qmake'
     if len(args) > 1:
         qmake_bin = args[1]
@@ -283,19 +294,18 @@ def main():
         debug_build = is_debug_build(install_dir)
 
     if common.is_windows_platform():
-        copy_qt_libs(install_dir, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
+        copy_qt_libs(qt_deploy_prefix, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
     else:
-        copy_qt_libs(install_dir, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
+        copy_qt_libs(qt_deploy_prefix, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
     copy_translations(install_dir, QT_INSTALL_TRANSLATIONS)
     if "LLVM_INSTALL_DIR" in os.environ:
         deploy_libclang(install_dir, os.environ["LLVM_INSTALL_DIR"], chrpath_bin)
 
     if not common.is_windows_platform():
         print "fixing rpaths..."
-        common.fix_rpaths(install_dir, os.path.join(install_dir, 'lib', 'qtcreator'),
-                          qt_install_info, chrpath_bin)
-        add_qt_conf(os.path.join(install_dir, 'libexec', 'qtcreator'), install_dir) # e.g. for qml2puppet
-    add_qt_conf(os.path.join(install_dir, 'bin'), install_dir)
+        common.fix_rpaths(install_dir, os.path.join(qt_deploy_prefix, 'lib'), qt_install_info, chrpath_bin)
+        add_qt_conf(os.path.join(install_dir, 'libexec', 'qtcreator'), qt_deploy_prefix) # e.g. for qml2puppet
+    add_qt_conf(os.path.join(install_dir, 'bin'), qt_deploy_prefix)
 
 if __name__ == "__main__":
     if common.is_mac_platform():
