@@ -395,6 +395,31 @@ std::tuple<C, C> partition(const C &container, R (S::*predicate)() const)
 }
 
 //////////////////
+// filteredUnique
+/////////////////
+
+template<typename C>
+Q_REQUIRED_RESULT
+C filteredUnique(const C &container)
+{
+    C result;
+    auto ins = inserter(result);
+
+    QSet<typename C::value_type> seen;
+    int setSize = 0;
+
+    auto endIt = container.end();
+    for (auto it = container.begin(); it != endIt; ++it) {
+        seen.insert(*it);
+        if (setSize == seen.size()) // unchanged size => was already seen
+            continue;
+        ++setSize;
+        ins = *it;
+    }
+    return result;
+}
+
+//////////////////
 // sort
 /////////////////
 template <typename Container>
