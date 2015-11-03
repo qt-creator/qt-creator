@@ -177,15 +177,14 @@ bool TestDataFunctionVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
 {
     if (ast->declarator) {
         CPlusPlus::DeclaratorIdAST *id = ast->declarator->core_declarator->asDeclaratorId();
-        if (!id)
+        if (!id || !ast->symbol || ast->symbol->argumentCount() != 0)
             return false;
 
-        const QString prettyName = m_overview.prettyName(id->name->name);
+        CPlusPlus::LookupContext lc;
+        const QString prettyName = m_overview.prettyName(lc.fullyQualifiedName(ast->symbol));
         // do not handle functions that aren't real test data functions
-        if (!prettyName.endsWith(QLatin1String("_data")) || !ast->symbol
-                || ast->symbol->argumentCount() != 0) {
+        if (!prettyName.endsWith(QLatin1String("_data")))
             return false;
-        }
 
         m_currentFunction = prettyName.left(prettyName.size() - 5);
         m_currentTags.clear();
