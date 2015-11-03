@@ -47,8 +47,13 @@
 
 namespace ProjectExplorer {
 
-SelectableFilesModel::SelectableFilesModel(QObject *parent)
-    : QAbstractItemModel(parent), m_root(0), m_allFiles(true)
+Tree::~Tree()
+{
+    qDeleteAll(childDirectories);
+    qDeleteAll(files);
+}
+
+SelectableFilesModel::SelectableFilesModel(QObject *parent) : QAbstractItemModel(parent)
 {
     connect(&m_watcher, &QFutureWatcherBase::finished,
             this, &SelectableFilesModel::buildTreeFinished);
@@ -90,7 +95,7 @@ void SelectableFilesModel::run(QFutureInterface<void> &fi)
 void SelectableFilesModel::buildTreeFinished()
 {
     beginResetModel();
-    deleteTree(m_root);
+    delete m_root;
     m_root = m_rootForFuture;
     m_rootForFuture = 0;
     endResetModel();
@@ -178,18 +183,7 @@ SelectableFilesModel::~SelectableFilesModel()
 {
     m_watcher.cancel();
     m_watcher.waitForFinished();
-    deleteTree(m_root);
-}
-
-void SelectableFilesModel::deleteTree(Tree *tree)
-{
-    if (!tree)
-        return;
-    foreach (Tree *t, tree->childDirectories)
-        deleteTree(t);
-    foreach (Tree *t, tree->files)
-        deleteTree(t);
-    delete tree;
+    delete m_root;
 }
 
 int SelectableFilesModel::columnCount(const QModelIndex &parent) const

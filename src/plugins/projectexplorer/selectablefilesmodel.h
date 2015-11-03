@@ -50,8 +50,11 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
-struct Tree
+class Tree
 {
+public:
+    ~Tree();
+
     QString name;
     Qt::CheckState checked;
     bool isDir;
@@ -130,7 +133,6 @@ private:
     void collectFiles(Tree *root, QList<Utils::FileName> *result) const;
     void collectPaths(Tree *root, QList<Utils::FileName> *result) const;
     void buildTree(const Utils::FileName &baseDir, Tree *tree, QFutureInterface<void> &fi, int symlinkDepth);
-    void deleteTree(Tree *tree);
     void propagateUp(const QModelIndex &index);
     void propagateDown(const QModelIndex &index);
     void selectAllFiles(Tree *root);
