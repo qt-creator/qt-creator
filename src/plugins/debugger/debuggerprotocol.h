@@ -79,55 +79,6 @@ private:
     void argHelper(const char *name, const QByteArray &value);
 };
 
-/*
-
-output ==>
-    ( out-of-band-record )* [ result-record ] "(gdb)" nl
-result-record ==>
-     [ token ] "^" result-class ( "," result )* nl
-out-of-band-record ==>
-    async-record | stream-record
-async-record ==>
-    exec-async-output | status-async-output | notify-async-output
-exec-async-output ==>
-    [ token ] "*" async-output
-status-async-output ==>
-    [ token ] "+" async-output
-notify-async-output ==>
-    [ token ] "=" async-output
-async-output ==>
-    async-class ( "," result )* nl
-result-class ==>
-    "done" | "running" | "connected" | "error" | "exit"
-async-class ==>
-    "stopped" | others (where others will be added depending on the needs--this is still in development).
-result ==>
-     variable "=" value
-variable ==>
-     string
-value ==>
-     const | tuple | list
-const ==>
-    c-string
-tuple ==>
-     "{}" | "{" result ( "," result )* "}"
-list ==>
-     "[]" | "[" value ( "," value )* "]" | "[" result ( "," result )* "]"
-stream-record ==>
-    console-stream-output | target-stream-output | log-stream-output
-console-stream-output ==>
-    "~" c-string
-target-stream-output ==>
-    "@" c-string
-log-stream-output ==>
-    "&" c-string
-nl ==>
-    CR | CR-LF
-token ==>
-    any sequence of digits.
-
- */
-
 // FIXME: rename into GdbMiValue
 class GdbMi
 {
