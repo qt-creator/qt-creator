@@ -35,6 +35,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/customwizard/customwizard.h>
 
+#include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/filewizardpage.h>
 #include <utils/mimetypes/mimedatabase.h>
 
@@ -84,12 +86,12 @@ QString GenericProjectWizardDialog::path() const
     return m_firstPage->path();
 }
 
-QStringList GenericProjectWizardDialog::selectedPaths() const
+QList<Utils::FileName> GenericProjectWizardDialog::selectedPaths() const
 {
     return m_secondPage->selectedPaths();
 }
 
-QStringList GenericProjectWizardDialog::selectedFiles() const
+QList<Utils::FileName> GenericProjectWizardDialog::selectedFiles() const
 {
     return m_secondPage->selectedFiles();
 }
@@ -156,7 +158,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     const QString filesFileName = QFileInfo(dir, projectName + QLatin1String(".files")).absoluteFilePath();
     const QString includesFileName = QFileInfo(dir, projectName + QLatin1String(".includes")).absoluteFilePath();
     const QString configFileName = QFileInfo(dir, projectName + QLatin1String(".config")).absoluteFilePath();
-    const QStringList paths = wizard->selectedPaths();
+    const QStringList paths = Utils::transform(wizard->selectedPaths(), &Utils::FileName::toString);
 
     Utils::MimeDatabase mdb;
     Utils::MimeType headerTy = mdb.mimeTypeForName(QLatin1String("text/x-chdr"));
@@ -180,7 +182,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     generatedCreatorFile.setContents(QLatin1String("[General]\n"));
     generatedCreatorFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
 
-    QStringList sources = wizard->selectedFiles();
+    QStringList sources = Utils::transform(wizard->selectedFiles(), &Utils::FileName::toString);
     for (int i = 0; i < sources.length(); ++i)
         sources[i] = dir.relativeFilePath(sources[i]);
 

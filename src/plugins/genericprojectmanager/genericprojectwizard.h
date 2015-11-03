@@ -35,7 +35,10 @@
 #include <coreplugin/basefilewizardfactory.h>
 #include <utils/wizard.h>
 
-namespace Utils { class FileWizardPage; }
+namespace Utils {
+class FileName;
+class FileWizardPage;
+} // namespace Utils
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -51,8 +54,8 @@ public:
 
     QString path() const;
     void setPath(const QString &path);
-    QStringList selectedFiles() const;
-    QStringList selectedPaths() const;
+    QList<Utils::FileName> selectedFiles() const;
+    QList<Utils::FileName> selectedPaths() const;
 
     QString projectName() const;
 

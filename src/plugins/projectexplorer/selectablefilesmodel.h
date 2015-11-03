@@ -40,6 +40,8 @@
 #include <QLabel>
 #include "projectexplorer_export.h"
 
+#include <utils/fileutils.h>
+
 namespace Utils { class PathChooser; }
 
 QT_BEGIN_NAMESPACE
@@ -57,7 +59,7 @@ struct Tree
     QList<Tree *> files;
     QList<Tree *> visibleFiles;
     QIcon icon;
-    QString fullPath;
+    Utils::FileName fullPath;
     Tree *parent;
 };
 
@@ -92,7 +94,7 @@ public:
     SelectableFilesModel(QObject *parent);
     ~SelectableFilesModel();
 
-    void setInitialMarkedFiles(const QStringList &files);
+    void setInitialMarkedFiles(const QList<Utils::FileName> &files);
 
     int columnCount(const QModelIndex &parent) const;
     int rowCount(const QModelIndex &parent) const;
@@ -103,11 +105,11 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    QStringList selectedFiles() const;
-    QStringList selectedPaths() const;
-    QStringList preservedFiles() const;
+    QList<Utils::FileName> selectedFiles() const;
+    QList<Utils::FileName> selectedPaths() const;
+    QList<Utils::FileName> preservedFiles() const;
 
-    void startParsing(const QString &baseDir);
+    void startParsing(const Utils::FileName &baseDir);
     void cancel();
     void applyFilter(const QString &selectFilesfilter, const QString &hideFilesfilter);
 
@@ -115,7 +117,7 @@ public:
 
 signals:
     void parsingFinished();
-    void parsingProgress(const QString &filename);
+    void parsingProgress(const Utils::FileName &fileName);
 
 private slots:
     void buildTreeFinished();
@@ -125,22 +127,24 @@ private:
     Qt::CheckState applyFilter(const QModelIndex &index);
     bool filter(Tree *t);
     void run(QFutureInterface<void> &fi);
-    void collectFiles(Tree *root, QStringList *result) const;
-    void collectPaths(Tree *root, QStringList *result) const;
-    void buildTree(const QString &baseDir, Tree *tree, QFutureInterface<void> &fi, int symlinkDepth);
+    void collectFiles(Tree *root, QList<Utils::FileName> *result) const;
+    void collectPaths(Tree *root, QList<Utils::FileName> *result) const;
+    void buildTree(const Utils::FileName &baseDir, Tree *tree, QFutureInterface<void> &fi, int symlinkDepth);
     void deleteTree(Tree *tree);
     void propagateUp(const QModelIndex &index);
     void propagateDown(const QModelIndex &index);
     void selectAllFiles(Tree *root);
-    Tree *m_root;
+
+    Tree *m_root = 0;
+
     // Used in the future thread need to all not used after calling startParsing
-    QString m_baseDir;
-    QSet<QString> m_files;
-    QStringList m_outOfBaseDirFiles;
+    Utils::FileName m_baseDir;
+    QSet<Utils::FileName> m_files;
+    QSet<Utils::FileName> m_outOfBaseDirFiles;
     QFutureWatcher<void> m_watcher;
-    Tree *m_rootForFuture;
-    int m_futureCount;
-    bool m_allFiles;
+    Tree *m_rootForFuture = 0;
+    int m_futureCount = 0;
+    bool m_allFiles = true;
 
     QList<Glob> m_hideFilesFilter;
     QList<Glob> m_showFilesFilter;
@@ -151,9 +155,9 @@ class PROJECTEXPLORER_EXPORT SelectableFilesDialogEditFiles : public QDialog
     Q_OBJECT
 
 public:
-    SelectableFilesDialogEditFiles(const QString &path, const QStringList &files, QWidget *parent);
+    SelectableFilesDialogEditFiles(const Utils::FileName &path, const QList<Utils::FileName> &files, QWidget *parent);
     ~SelectableFilesDialogEditFiles();
-    QStringList selectedFiles() const;
+    QList<Utils::FileName> selectedFiles() const;
 
     void setAddFileFilter(const QString &filter);
 
@@ -188,7 +192,7 @@ class SelectableFilesDialogAddDirectory : public SelectableFilesDialogEditFiles
     Q_OBJECT
 
 public:
-    SelectableFilesDialogAddDirectory(const QString &path, const QStringList &files, QWidget *parent);
+    SelectableFilesDialogAddDirectory(const Utils::FileName &path, const QList<Utils::FileName> &files, QWidget *parent);
 
 private slots:
     void validityOfDirectoryChanged(bool validState);
@@ -201,7 +205,7 @@ private:
     QPushButton *m_startParsingButton;
 
     void setWidgetsEnabled(bool enabled);
-    void createPathChooser(QVBoxLayout *layout, const QString &path);
+    void createPathChooser(QVBoxLayout *layout, const Utils::FileName &path);
 };
 
 } // namespace ProjectExplorer

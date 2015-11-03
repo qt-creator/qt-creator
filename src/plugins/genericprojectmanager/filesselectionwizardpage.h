@@ -40,6 +40,7 @@ class QTreeView;
 class QLineEdit;
 QT_END_NAMESPACE
 
+namespace Utils { class FileName; }
 namespace ProjectExplorer { class SelectableFilesModel; }
 
 namespace GenericProjectManager {
@@ -56,12 +57,12 @@ public:
     bool isComplete() const;
     void initializePage();
     void cleanupPage();
-    QStringList selectedFiles() const;
-    QStringList selectedPaths() const;
+    QList<Utils::FileName> selectedFiles() const;
+    QList<Utils::FileName> selectedPaths() const;
 
 private slots:
     void applyFilter();
-    void parsingProgress(const QString &text);
+    void parsingProgress(const Utils::FileName &text);
     void parsingFinished();
 
 private:

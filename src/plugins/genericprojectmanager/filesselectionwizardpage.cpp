@@ -126,7 +126,7 @@ void FilesSelectionWizardPage::initializePage()
             this, &FilesSelectionWizardPage::parsingProgress);
     connect(m_model, &ProjectExplorer::SelectableFilesModel::parsingFinished,
             this, &FilesSelectionWizardPage::parsingFinished);
-    m_model->startParsing(m_genericProjectWizardDialog->path());
+    m_model->startParsing(Utils::FileName::fromString(m_genericProjectWizardDialog->path()));
 
     m_hideFilesFilterLabel->setVisible(false);
     m_hideFilesfilterLineEdit->setVisible(false);
@@ -145,9 +145,9 @@ void FilesSelectionWizardPage::cleanupPage()
     m_model->cancel();
 }
 
-void FilesSelectionWizardPage::parsingProgress(const QString &text)
+void FilesSelectionWizardPage::parsingProgress(const Utils::FileName &text)
 {
-    m_label->setText(tr("Generating file list...\n\n%1").arg(text));
+    m_label->setText(tr("Generating file list...\n\n%1").arg(text.toUserOutput()));
 }
 
 void FilesSelectionWizardPage::parsingFinished()
@@ -175,14 +175,14 @@ bool FilesSelectionWizardPage::isComplete() const
     return m_finished;
 }
 
-QStringList FilesSelectionWizardPage::selectedPaths() const
+QList<Utils::FileName> FilesSelectionWizardPage::selectedPaths() const
 {
-    return m_model ? m_model->selectedPaths() : QStringList();
+    return m_model ? m_model->selectedPaths() : QList<Utils::FileName>();
 }
 
-QStringList FilesSelectionWizardPage::selectedFiles() const
+QList<Utils::FileName> FilesSelectionWizardPage::selectedFiles() const
 {
-    return m_model ? m_model->selectedFiles() : QStringList();
+    return m_model ? m_model->selectedFiles() : QList<Utils::FileName>();
 }
 
 void FilesSelectionWizardPage::applyFilter()
