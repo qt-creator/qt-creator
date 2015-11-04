@@ -51,7 +51,7 @@ namespace qmt {
 
 struct ObjectStyleKey {
     ObjectStyleKey()
-        : m_elementType(StyleEngine::TYPE_OTHER)
+        : m_elementType(StyleEngine::TypeOther)
     {
     }
 
@@ -77,8 +77,8 @@ bool operator==(const ObjectStyleKey &lhs, const ObjectStyleKey &rhs)
 
 
 struct RelationStyleKey {
-    RelationStyleKey(StyleEngine::ElementType elementType = StyleEngine::TYPE_OTHER,
-                     DObject::VisualPrimaryRole visualPrimaryRole = DObject::PRIMARY_ROLE_NORMAL)
+    RelationStyleKey(StyleEngine::ElementType elementType = StyleEngine::TypeOther,
+                     DObject::VisualPrimaryRole visualPrimaryRole = DObject::PrimaryRoleNormal)
         : m_elementType(elementType),
           m_visualPrimaryRole(visualPrimaryRole)
     {
@@ -99,7 +99,7 @@ bool operator==(const RelationStyleKey &lhs, const RelationStyleKey &rhs)
 
 
 struct AnnotationStyleKey {
-    AnnotationStyleKey(DAnnotation::VisualRole visualRole = DAnnotation::ROLE_NORMAL)
+    AnnotationStyleKey(DAnnotation::VisualRole visualRole = DAnnotation::RoleNormal)
         : m_visualRole(visualRole)
     {
     }
@@ -153,18 +153,18 @@ DefaultStyleEngine::~DefaultStyleEngine()
 const Style *DefaultStyleEngine::applyStyle(const Style *baseStyle, StyleEngine::ElementType elementType, const StyleEngine::Parameters *parameters)
 {
     switch (elementType) {
-    case TYPE_ANNOTATION:
-        return applyAnnotationStyle(baseStyle, DAnnotation::ROLE_NORMAL, parameters);
-    case TYPE_BOUNDARY:
+    case TypeAnnotation:
+        return applyAnnotationStyle(baseStyle, DAnnotation::RoleNormal, parameters);
+    case TypeBoundary:
         return applyBoundaryStyle(baseStyle, parameters);
-    case TYPE_RELATION:
+    case TypeRelation:
         break;
-    case TYPE_CLASS:
-    case TYPE_COMPONENT:
-    case TYPE_ITEM:
-    case TYPE_PACKAGE:
-        return applyObjectStyle(baseStyle, elementType, ObjectVisuals(DObject::PRIMARY_ROLE_NORMAL, DObject::SECONDARY_ROLE_NONE, false, QColor(), 0), parameters);
-    case TYPE_OTHER:
+    case TypeClass:
+    case TypeComponent:
+    case TypeItem:
+    case TypePackage:
+        return applyObjectStyle(baseStyle, elementType, ObjectVisuals(DObject::PrimaryRoleNormal, DObject::SecondaryRoleNone, false, QColor(), 0), parameters);
+    case TypeOther:
         break;
     }
     return baseStyle;
@@ -197,7 +197,7 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, StyleE
         style->setOuterLinePen(linePen);
         style->setExtraLinePen(linePen);
         style->setTextBrush(QBrush(textColor));
-        if (objectVisuals.visualSecondaryRole() == DObject::SECONDARY_ROLE_OUTLINE) {
+        if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleOutline) {
             style->setFillBrush(QBrush(Qt::white));
         } else {
             if (!parameters->suppressGradients()) {
@@ -210,7 +210,7 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, StyleE
                 style->setFillBrush(QBrush(fillColor));
             }
         }
-        if (objectVisuals.visualSecondaryRole() == DObject::SECONDARY_ROLE_OUTLINE) {
+        if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleOutline) {
             style->setExtraFillBrush(QBrush(Qt::white));
         } else {
             style->setExtraFillBrush(QBrush(fillColor.darker(120)));
@@ -231,9 +231,9 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
 
     struct DepthProperties {
         DepthProperties()
-            : m_elementType(TYPE_OTHER),
-              m_visualPrimaryRole(DObject::PRIMARY_ROLE_NORMAL),
-              m_visualSecondaryRole(DObject::SECONDARY_ROLE_NONE)
+            : m_elementType(TypeOther),
+              m_visualPrimaryRole(DObject::PrimaryRoleNormal),
+              m_visualSecondaryRole(DObject::SecondaryRoleNone)
         {
         }
 
@@ -311,14 +311,14 @@ const Style *DefaultStyleEngine::applyRelationStyle(const Style *baseStyle, cons
     Q_UNUSED(parameters);
 
     ElementType elementType = objectType(styledRelation.endA());
-    RelationStyleKey key(elementType, styledRelation.endA() ? styledRelation.endA()->visualPrimaryRole() : DObject::PRIMARY_ROLE_NORMAL);
+    RelationStyleKey key(elementType, styledRelation.endA() ? styledRelation.endA()->visualPrimaryRole() : DObject::PrimaryRoleNormal);
     const Style *derivedStyle = m_relationStyleMap.value(key);
     if (!derivedStyle) {
         Style *style = new Style(baseStyle->type());
 
         const DObject *object = styledRelation.endA();
-        ObjectVisuals objectVisuals(object ? object->visualPrimaryRole() : DObject::PRIMARY_ROLE_NORMAL,
-                                     object ? object->visualSecondaryRole() : DObject::SECONDARY_ROLE_NONE,
+        ObjectVisuals objectVisuals(object ? object->visualPrimaryRole() : DObject::PrimaryRoleNormal,
+                                     object ? object->visualSecondaryRole() : DObject::SecondaryRoleNone,
                                      object ? object->isVisualEmphasized() : false,
                                      Qt::black, // TODO STyledRelation should get an EndAObjectVisuals
                                      object ? object->depth() : 0);
@@ -347,7 +347,7 @@ const Style *DefaultStyleEngine::applyRelationStyle(const Style *baseStyle, cons
 
 const Style *DefaultStyleEngine::applyAnnotationStyle(const Style *baseStyle, const DAnnotation *annotation, const Parameters *parameters)
 {
-    DAnnotation::VisualRole visualRole = annotation ? annotation->visualRole() : DAnnotation::ROLE_NORMAL;
+    DAnnotation::VisualRole visualRole = annotation ? annotation->visualRole() : DAnnotation::RoleNormal;
     return applyAnnotationStyle(baseStyle, visualRole, parameters);
 }
 
@@ -369,25 +369,25 @@ const Style *DefaultStyleEngine::applyAnnotationStyle(const Style *baseStyle, DA
         QFont normalFont;
         QBrush textBrush = baseStyle->textBrush();
         switch (visualRole) {
-        case DAnnotation::ROLE_NORMAL:
+        case DAnnotation::RoleNormal:
             normalFont = baseStyle->normalFont();
             break;
-        case DAnnotation::ROLE_TITLE:
+        case DAnnotation::RoleTitle:
             normalFont = baseStyle->headerFont();
             break;
-        case DAnnotation::ROLE_SUBTITLE:
+        case DAnnotation::RoleSubtitle:
             normalFont = baseStyle->normalFont();
             normalFont.setItalic(true);
             break;
-        case DAnnotation::ROLE_EMPHASIZED:
+        case DAnnotation::RoleEmphasized:
             normalFont = baseStyle->normalFont();
             normalFont.setBold(true);
             break;
-        case DAnnotation::ROLE_SOFTEN:
+        case DAnnotation::RoleSoften:
             normalFont = baseStyle->normalFont();
             textBrush.setColor(Qt::gray);
             break;
-        case DAnnotation::ROLE_FOOTNOTE:
+        case DAnnotation::RoleFootnote:
             normalFont = baseStyle->smallFont();
             break;
         }
@@ -419,15 +419,15 @@ DefaultStyleEngine::ElementType DefaultStyleEngine::objectType(const DObject *ob
 {
     ElementType elementType;
     if (dynamic_cast<const DPackage *>(object)) {
-        elementType = TYPE_PACKAGE;
+        elementType = TypePackage;
     } else if (dynamic_cast<const DComponent *>(object)) {
-        elementType = TYPE_COMPONENT;
+        elementType = TypeComponent;
     } else if (dynamic_cast<const DClass *>(object)) {
-        elementType = TYPE_CLASS;
+        elementType = TypeClass;
     } else if (dynamic_cast<const DItem *>(object)) {
-        elementType = TYPE_ITEM;
+        elementType = TypeItem;
     } else {
-        elementType = TYPE_OTHER;
+        elementType = TypeOther;
     }
     return elementType;
 }
@@ -436,21 +436,21 @@ bool DefaultStyleEngine::areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryR
                                           DObject::VisualPrimaryRole lhsPrimaryRole, DObject::VisualSecondaryRole lhsSecondaryRols)
 {
     switch (rhsSecondaryRole) {
-    case DObject::SECONDARY_ROLE_NONE:
-    case DObject::SECONDARY_ROLE_LIGHTER:
-    case DObject::SECONDARY_ROLE_DARKER:
+    case DObject::SecondaryRoleNone:
+    case DObject::SecondaryRoleLighter:
+    case DObject::SecondaryRoleDarker:
         switch (lhsSecondaryRols) {
-        case DObject::SECONDARY_ROLE_NONE:
-        case DObject::SECONDARY_ROLE_LIGHTER:
-        case DObject::SECONDARY_ROLE_DARKER:
+        case DObject::SecondaryRoleNone:
+        case DObject::SecondaryRoleLighter:
+        case DObject::SecondaryRoleDarker:
             return lhsPrimaryRole == rhsPrimaryRole;
             break;
-        case DObject::SECONDARY_ROLE_SOFTEN:
-        case DObject::SECONDARY_ROLE_OUTLINE:
+        case DObject::SecondaryRoleSoften:
+        case DObject::SecondaryRoleOutline:
             return false;
         }
-    case DObject::SECONDARY_ROLE_SOFTEN:
-    case DObject::SECONDARY_ROLE_OUTLINE:
+    case DObject::SecondaryRoleSoften:
+    case DObject::SecondaryRoleOutline:
         return false;
     }
     return true;
@@ -458,27 +458,27 @@ bool DefaultStyleEngine::areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryR
 
 QColor DefaultStyleEngine::baseColor(ElementType elementType, ObjectVisuals objectVisuals)
 {
-    if (objectVisuals.visualSecondaryRole() == DObject::SECONDARY_ROLE_OUTLINE) {
+    if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleOutline) {
         return QColor("#FFFFFF");
     }
 
     QColor baseColor;
 
-    if (objectVisuals.visualPrimaryRole() == DObject::PRIMARY_ROLE_NORMAL) {
+    if (objectVisuals.visualPrimaryRole() == DObject::PrimaryRoleNormal) {
         if (objectVisuals.baseColor().isValid()) {
             baseColor = objectVisuals.baseColor();
         } else {
             switch (elementType) {
-            case TYPE_PACKAGE:
+            case TypePackage:
                 baseColor = QColor("#7C98AD");
                 break;
-            case TYPE_COMPONENT:
+            case TypeComponent:
                 baseColor = QColor("#A0A891");
                 break;
-            case TYPE_CLASS:
+            case TypeClass:
                 baseColor = QColor("#E5A858");
                 break;
-            case TYPE_ITEM:
+            case TypeItem:
                 baseColor = QColor("#B995C6");
                 break;
             default:
@@ -495,24 +495,24 @@ QColor DefaultStyleEngine::baseColor(ElementType elementType, ObjectVisuals obje
             QColor("#FFE14B")               // ROLE_CUSTOM5,
         };
 
-        int index = (int) objectVisuals.visualPrimaryRole() - (int) DObject::PRIMARY_ROLE_CUSTOM1;
+        int index = (int) objectVisuals.visualPrimaryRole() - (int) DObject::PrimaryRoleCustom1;
         QMT_CHECK(index >= 0 && index <= 4);
         baseColor = customColors[index];
     }
 
     switch (objectVisuals.visualSecondaryRole()) {
-    case DObject::SECONDARY_ROLE_NONE:
+    case DObject::SecondaryRoleNone:
         break;
-    case DObject::SECONDARY_ROLE_LIGHTER:
+    case DObject::SecondaryRoleLighter:
         baseColor = baseColor.lighter(110);
         break;
-    case DObject::SECONDARY_ROLE_DARKER:
+    case DObject::SecondaryRoleDarker:
         baseColor = baseColor.darker(120);
         break;
-    case DObject::SECONDARY_ROLE_SOFTEN:
+    case DObject::SecondaryRoleSoften:
         baseColor = baseColor.lighter(300);
         break;
-    case DObject::SECONDARY_ROLE_OUTLINE:
+    case DObject::SecondaryRoleOutline:
         QMT_CHECK(false);
         break;
     }
@@ -523,9 +523,9 @@ QColor DefaultStyleEngine::baseColor(ElementType elementType, ObjectVisuals obje
 QColor DefaultStyleEngine::lineColor(ElementType elementType, const ObjectVisuals &objectVisuals)
 {
     QColor lineColor;
-    if (objectVisuals.visualSecondaryRole() == DObject::SECONDARY_ROLE_OUTLINE) {
+    if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleOutline) {
         lineColor = Qt::black;
-    } else if (objectVisuals.visualSecondaryRole() == DObject::SECONDARY_ROLE_SOFTEN) {
+    } else if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleSoften) {
         lineColor = Qt::gray;
     } else {
         lineColor = baseColor(elementType, objectVisuals).darker(200).lighter(150).darker(100 + objectVisuals.depth() * 10);
@@ -536,7 +536,7 @@ QColor DefaultStyleEngine::lineColor(ElementType elementType, const ObjectVisual
 QColor DefaultStyleEngine::fillColor(ElementType elementType, const ObjectVisuals &objectVisuals)
 {
     QColor fillColor;
-    if (objectVisuals.visualSecondaryRole() == DObject::SECONDARY_ROLE_OUTLINE) {
+    if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleOutline) {
         fillColor = Qt::white;
     } else {
         fillColor = baseColor(elementType, objectVisuals).lighter(150).darker(100 + objectVisuals.depth() * 10);
@@ -549,8 +549,8 @@ QColor DefaultStyleEngine::textColor(const DObject *object, int depth)
     Q_UNUSED(depth);
 
     QColor textColor;
-    DObject::VisualPrimaryRole visualRole = object ? object->visualPrimaryRole() : DObject::PRIMARY_ROLE_NORMAL;
-    if (visualRole == DObject::DEPRECATED_PRIMARY_ROLE_SOFTEN) {
+    DObject::VisualPrimaryRole visualRole = object ? object->visualPrimaryRole() : DObject::PrimaryRoleNormal;
+    if (visualRole == DObject::DeprecatedPrimaryRoleSoften) {
         textColor = Qt::gray;
     } else {
         textColor = Qt::black;
@@ -563,7 +563,7 @@ QColor DefaultStyleEngine::textColor(ElementType elementType, const ObjectVisual
     Q_UNUSED(elementType);
 
     QColor textColor;
-    if (objectVisuals.visualSecondaryRole() == DObject::SECONDARY_ROLE_SOFTEN) {
+    if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleSoften) {
         textColor = Qt::gray;
     } else {
         textColor = Qt::black;

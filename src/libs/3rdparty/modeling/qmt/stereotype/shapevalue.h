@@ -44,33 +44,33 @@ class QMT_EXPORT ShapeValueF {
 public:
 
     enum Origin {
-        ORIGIN_SMART,
-        ORIGIN_TOP,
-        ORIGIN_LEFT = ORIGIN_TOP,
-        ORIGIN_TOP_OR_LEFT = ORIGIN_TOP,
-        ORIGIN_BOTTOM,
-        ORIGIN_RIGHT = ORIGIN_BOTTOM,
-        ORIGIN_BOTTOM_OR_RIGHT = ORIGIN_BOTTOM,
-        ORIGIN_CENTER
+        OriginSmart,
+        OriginTop,
+        OriginLeft = OriginTop,
+        OriginTopOrLeft = OriginTop,
+        OriginBottom,
+        OriginRight = OriginBottom,
+        OriginBottomOrRight = OriginBottom,
+        OriginCenter
     };
 
     enum Unit {
-        UNIT_ABSOLUTE,
-        UNIT_RELATIVE,
-        UNIT_SCALED,
-        UNIT_PERCENTAGE
+        UnitAbsolute,
+        UnitRelative,
+        UnitScaled,
+        UnitPercentage
     };
 
 public:
 
     ShapeValueF()
         : m_value(0.0),
-          m_unit(UNIT_RELATIVE),
-          m_origin(ORIGIN_SMART)
+          m_unit(UnitRelative),
+          m_origin(OriginSmart)
     {
     }
 
-    ShapeValueF(qreal value, Unit unit = UNIT_RELATIVE, Origin origin = ORIGIN_SMART)
+    ShapeValueF(qreal value, Unit unit = UnitRelative, Origin origin = OriginSmart)
         : m_value(value),
           m_unit(unit),
           m_origin(origin)

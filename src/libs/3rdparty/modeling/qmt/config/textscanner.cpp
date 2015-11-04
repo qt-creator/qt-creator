@@ -136,9 +136,9 @@ Token TextScanner::read()
     } else if (sourceChar.ch == QLatin1Char('#')) {
         return scanColorIdentifier(sourceChar);
     } else if (sourceChar.ch == QChar::LineFeed || sourceChar.ch == QChar::CarriageReturn) {
-        return Token(Token::TOKEN_ENDOFLINE, QString(), sourceChar.pos);
+        return Token(Token::TokenEndOfLine, QString(), sourceChar.pos);
     } else if (sourceChar.ch.isNull()) {
-        return Token(Token::TOKEN_ENDOFINPUT, QString(), sourceChar.pos);
+        return Token(Token::TokenEndOfInput, QString(), sourceChar.pos);
     } else if (d->m_operatorFirstCharsSet.contains(sourceChar.ch)) {
         return scanOperator(sourceChar);
     } else {
@@ -198,7 +198,7 @@ Token TextScanner::scanString(const SourceChar &delimiterChar)
     for (;;) {
         SourceChar sourceChar = readChar();
         if (sourceChar.ch == delimiterChar.ch) {
-            return Token(Token::TOKEN_STRING, text, delimiterChar.pos);
+            return Token(Token::TokenString, text, delimiterChar.pos);
         } else if (sourceChar.ch == QLatin1Char('\\')) {
             sourceChar = readChar();
             if (sourceChar.ch == QLatin1Char('n')) {
@@ -243,10 +243,10 @@ Token TextScanner::scanNumber(const SourceChar &firstDigit)
             text += sourceChar.ch;
         }
         unreadChar(sourceChar);
-        return Token(Token::TOKEN_FLOAT, text, firstDigit.pos);
+        return Token(Token::TokenFloat, text, firstDigit.pos);
     } else {
         unreadChar(sourceChar);
-        return Token(Token::TOKEN_INTEGER, text, firstDigit.pos);
+        return Token(Token::TokenInteger, text, firstDigit.pos);
     }
 }
 
@@ -260,9 +260,9 @@ Token TextScanner::scanIdentifier(const SourceChar &firstChar)
             unreadChar(sourceChar);
             QString keyword = text.toLower();
             if (d->m_keywordToSubtypeMap.contains(keyword)) {
-                return Token(Token::TOKEN_KEYWORD, d->m_keywordToSubtypeMap.value(keyword), text, firstChar.pos);
+                return Token(Token::TokenKeyword, d->m_keywordToSubtypeMap.value(keyword), text, firstChar.pos);
             }
-            return Token(Token::TOKEN_IDENTIFIER, text, firstChar.pos);
+            return Token(Token::TokenIdentifier, text, firstChar.pos);
         }
         text += sourceChar.ch;
     }
@@ -277,7 +277,7 @@ Token TextScanner::scanColorIdentifier(const SourceChar &firstChar)
         QChar ch = sourceChar.ch.toLower();
         if (!(ch.isDigit() || (ch >= QLatin1Char('a') && ch <= QLatin1Char('f')))) {
             unreadChar(sourceChar);
-            return Token(Token::TOKEN_COLOR, text, firstChar.pos);
+            return Token(Token::TokenColor, text, firstChar.pos);
         }
         text += sourceChar.ch;
     }
@@ -311,7 +311,7 @@ Token TextScanner::scanOperator(const SourceChar &firstChar)
             }
             QMT_CHECK(haveOperator);
             Q_UNUSED(haveOperator); // avoid warning in release mode
-            return Token(Token::TOKEN_OPERATOR, subtype, op, firstChar.pos);
+            return Token(Token::TokenOperator, subtype, op, firstChar.pos);
         }
         text += sourceChar.ch;
         extraChars.push(sourceChar);

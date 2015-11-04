@@ -58,7 +58,7 @@ struct ModelController::Clone {
 };
 
 ModelController::Clone::Clone()
-    : m_elementType(TYPE_UNKNOWN),
+    : m_elementType(TypeUnknown),
       m_indexOfElement(-1),
       m_clonedElement(0)
 {
@@ -262,7 +262,7 @@ public:
                 QMT_CHECK(owner);
                 QMT_CHECK(clone.m_indexOfElement >= 0);
                 switch (clone.m_elementType) {
-                case TYPE_OBJECT:
+                case TypeObject:
                 {
                     emit m_modelController->beginInsertObject(clone.m_indexOfElement, owner);
                     MObject *object = dynamic_cast<MObject *>(clone.m_clonedElement);
@@ -274,7 +274,7 @@ public:
                     inserted = true;
                     break;
                 }
-                case TYPE_RELATION:
+                case TypeRelation:
                 {
                     emit m_modelController->beginInsertRelation(clone.m_indexOfElement, owner);
                     MRelation *relation = dynamic_cast<MRelation *>(clone.m_clonedElement);
@@ -308,7 +308,7 @@ public:
             MObject *owner = m_modelController->findObject<MObject>(clone.m_ownerKey);
             QMT_CHECK(owner);
             switch (clone.m_elementType) {
-            case TYPE_OBJECT:
+            case TypeObject:
             {
                 MObject *object = m_modelController->findObject<MObject>(clone.m_elementKey);
                 QMT_CHECK(object);
@@ -324,7 +324,7 @@ public:
                 removed = true;
                 break;
             }
-            case TYPE_RELATION:
+            case TypeRelation:
             {
                 MRelation *relation = m_modelController->findRelation<MRelation>(clone.m_elementKey);
                 QMT_CHECK(relation);
@@ -384,11 +384,11 @@ public:
         clone.m_elementKey = element->uid();
         clone.m_ownerKey = owner->uid();
         if (MObject *object = dynamic_cast<MObject *>(element)) {
-            clone.m_elementType = TYPE_OBJECT;
+            clone.m_elementType = TypeObject;
             clone.m_indexOfElement = owner->children().indexOf(object);
             QMT_CHECK(clone.m_indexOfElement >= 0);
         } else if (MRelation *relation = dynamic_cast<MRelation *>(element)) {
-            clone.m_elementType = TYPE_RELATION;
+            clone.m_elementType = TypeRelation;
             clone.m_indexOfElement = owner->relations().indexOf(relation);
             QMT_CHECK(clone.m_indexOfElement >= 0);
         } else {
@@ -411,7 +411,7 @@ public:
                 MObject *owner = m_modelController->findObject<MObject>(clone.m_ownerKey);
                 QMT_CHECK(owner);
                 switch (clone.m_elementType) {
-                case TYPE_OBJECT:
+                case TypeObject:
                 {
                     MObject *object = m_modelController->findObject<MObject>(clone.m_elementKey);
                     QMT_CHECK(object);
@@ -427,7 +427,7 @@ public:
                     removed = true;
                     break;
                 }
-                case TYPE_RELATION:
+                case TypeRelation:
                 {
                     MRelation *relation = m_modelController->findRelation<MRelation>(clone.m_elementKey);
                     QMT_CHECK(relation);
@@ -466,7 +466,7 @@ public:
             QMT_CHECK(owner);
             QMT_CHECK(clone.m_indexOfElement >= 0);
             switch (clone.m_elementType) {
-            case TYPE_OBJECT:
+            case TypeObject:
             {
                 emit m_modelController->beginInsertObject(clone.m_indexOfElement, owner);
                 MObject *object = dynamic_cast<MObject *>(clone.m_clonedElement);
@@ -478,7 +478,7 @@ public:
                 inserted = true;
                 break;
             }
-            case TYPE_RELATION:
+            case TypeRelation:
             {
                 emit m_modelController->beginInsertRelation(clone.m_indexOfElement, owner);
                 MRelation *relation = dynamic_cast<MRelation *>(clone.m_clonedElement);
@@ -731,7 +731,7 @@ void ModelController::addObject(MPackage *parentPackage, MObject *object)
     if (m_undoController) {
         AddElementsCommand *undoCommand = new AddElementsCommand(this, tr("Add Object"));
         m_undoController->push(undoCommand);
-        undoCommand->add(TYPE_OBJECT, object->uid(), parentPackage->uid());
+        undoCommand->add(TypeObject, object->uid(), parentPackage->uid());
     }
     parentPackage->addChild(object);
     if (!m_resettingModel) {
@@ -871,7 +871,7 @@ void ModelController::addRelation(MObject *owner, MRelation *relation)
     if (m_undoController) {
         AddElementsCommand *undoCommand = new AddElementsCommand(this, tr("Add Relation"));
         m_undoController->push(undoCommand);
-        undoCommand->add(TYPE_RELATION, relation->uid(), owner->uid());
+        undoCommand->add(TypeRelation, relation->uid(), owner->uid());
     }
     owner->addRelation(relation);
     if (!m_resettingModel) {
@@ -1022,7 +1022,7 @@ void ModelController::pasteElements(MObject *owner, const MContainer &modelConta
             if (m_undoController) {
                 AddElementsCommand *undoCommand = new AddElementsCommand(this, tr("Paste"));
                 m_undoController->push(undoCommand);
-                undoCommand->add(TYPE_OBJECT, object->uid(), objectOwner->uid());
+                undoCommand->add(TypeObject, object->uid(), objectOwner->uid());
             }
             objectOwner->insertChild(row, object);
             emit endInsertObject(row, objectOwner);
@@ -1034,7 +1034,7 @@ void ModelController::pasteElements(MObject *owner, const MContainer &modelConta
             if (m_undoController) {
                 AddElementsCommand *undoCommand = new AddElementsCommand(this, tr("Paste"));
                 m_undoController->push(undoCommand);
-                undoCommand->add(TYPE_RELATION, relation->uid(), owner->uid());
+                undoCommand->add(TypeRelation, relation->uid(), owner->uid());
             }
             owner->addRelation(relation);
             emit endInsertRelation(row, owner);

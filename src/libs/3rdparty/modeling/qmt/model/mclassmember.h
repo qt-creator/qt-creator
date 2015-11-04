@@ -43,39 +43,39 @@ class QMT_EXPORT MClassMember
 public:
 
     enum Visibility {
-        VISIBILITY_UNDEFINED,
-        VISIBILITY_PUBLIC,
-        VISIBILITY_PROTECTED,
-        VISIBILITY_PRIVATE,
-        VISIBILITY_SIGNALS,
-        VISIBILITY_PRIVATE_SLOTS,
-        VISIBILITY_PROTECTED_SLOTS,
-        VISIBILITY_PUBLIC_SLOTS
+        VisibilityUndefined,
+        VisibilityPublic,
+        VisibilityProtected,
+        VisibilityPrivate,
+        VisibilitySignals,
+        VisibilityPrivateSlots,
+        VisibilityProtectedSlots,
+        VisibilityPublicSlots
     };
 
     enum MemberType {
-        MEMBER_UNDEFINED,
-        MEMBER_ATTRIBUTE,
-        MEMBER_METHOD,
+        MemberUndefined,
+        MemberAttribute,
+        MemberMethod,
     };
 
     enum Property {
-        PROPERTY_VIRTUAL    = 0x1,
-        PROPERTY_ABSTRACT   = 0x2,
-        PROPERTY_CONST      = 0x4,
-        PROPERTY_OVERRIDE   = 0x8,
-        PROPERTY_FINAL      = 0x10,
-        PROPERTY_QSIGNAL    = 0x100,
-        PROPERTY_QSLOT      = 0x200,
-        PROPERTY_QINVOKABLE = 0x400,
-        PROPERTY_QPROPERTY  = 0x800
+        PropertyVirtual    = 0x1,
+        PropertyAbstract   = 0x2,
+        PropertyConst      = 0x4,
+        PropertyOverride   = 0x8,
+        PropertyFinal      = 0x10,
+        PropertyQsignal    = 0x100,
+        PropertyQslot      = 0x200,
+        PropertyQinvokable = 0x400,
+        PropertyQproperty  = 0x800
     };
 
     Q_DECLARE_FLAGS(Properties, Property)
 
 public:
 
-    MClassMember(MemberType memberType = MEMBER_UNDEFINED);
+    MClassMember(MemberType memberType = MemberUndefined);
 
     MClassMember(const MClassMember &rhs);
 

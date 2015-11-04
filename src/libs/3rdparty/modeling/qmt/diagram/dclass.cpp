@@ -37,7 +37,7 @@
 namespace qmt {
 
 DClass::DClass()
-    : m_templateDisplay(TEMPLATE_SMART),
+    : m_templateDisplay(TemplateSmart),
       m_showAllMembers(false)
 {
 }

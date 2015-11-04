@@ -64,9 +64,9 @@ class QMT_EXPORT DiagramController :
 public:
 
     enum UpdateAction {
-        UPDATE_GEOMETRY, // update only position and size of element
-        UPDATE_MAJOR, // a major update of the element which will create a separate undo command
-        UPDATE_MINOR // a minor update of the element which may be merged with other minor updates in one undo command
+        UpdateGeometry, // update only position and size of element
+        UpdateMajor, // a major update of the element which will create a separate undo command
+        UpdateMinor // a minor update of the element which may be merged with other minor updates in one undo command
     };
 
 private:

@@ -168,7 +168,7 @@ void AnnotationItem::setPosAndRect(const QPointF &originalPos, const QRectF &ori
     QRectF newRect = originalRect;
     GeometryUtilities::adjustPosAndRect(&newPos, &newRect, topLeftDelta, bottomRightDelta, QPointF(0.0, 0.0));
     if (newPos != m_annotation->pos() || newRect != m_annotation->rect()) {
-        m_diagramSceneModel->diagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->diagram(), DiagramController::UPDATE_GEOMETRY);
+        m_diagramSceneModel->diagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
         m_annotation->setPos(newPos);
         if (newRect.size() != m_annotation->rect().size()) {
             m_annotation->setAutoSize(false);
@@ -188,7 +188,7 @@ void AnnotationItem::alignItemSizeToRaster(Side adjustHorizontalSide, Side adjus
 
 void AnnotationItem::moveDelta(const QPointF &delta)
 {
-    m_diagramSceneModel->diagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->diagram(), DiagramController::UPDATE_GEOMETRY);
+    m_diagramSceneModel->diagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
     m_annotation->setPos(m_annotation->pos() + delta);
     m_diagramSceneModel->diagramController()->finishUpdateElement(m_annotation, m_diagramSceneModel->diagram(), false);
 }
@@ -277,7 +277,7 @@ void AnnotationItem::updateSelectionMarker()
         if (!m_selectionMarker) {
             m_selectionMarker = new RectangularSelectionItem(this, this);
             m_selectionMarker->setShowBorder(true);
-            m_selectionMarker->setFreedom(RectangularSelectionItem::FREEDOM_HORIZONTAL_ONLY);
+            m_selectionMarker->setFreedom(RectangularSelectionItem::FreedomHorizontalOnly);
         }
         m_selectionMarker->setSecondarySelected(isSelected() ? false : m_secondarySelected);
     } else if (m_selectionMarker) {
@@ -320,7 +320,7 @@ void AnnotationItem::onContentsChanged()
     if (!m_onUpdate) {
         QString plainText = m_textItem->toPlainText();
         if (m_annotation->text() != plainText) {
-            m_diagramSceneModel->diagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->diagram(), DiagramController::UPDATE_MINOR);
+            m_diagramSceneModel->diagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->diagram(), DiagramController::UpdateMinor);
             m_annotation->setText(plainText);
             m_diagramSceneModel->diagramController()->finishUpdateElement(m_annotation, m_diagramSceneModel->diagram(), false);
         }

@@ -99,7 +99,7 @@ void PackageItem::update()
     const Style *style = adaptedStyle(stereotypeIconId());
 
     // custom icon
-    if (stereotypeIconDisplay() == StereotypeIcon::DISPLAY_ICON) {
+    if (stereotypeIconDisplay() == StereotypeIcon::DisplayIcon) {
         if (!m_customIcon) {
             m_customIcon = new CustomIconItem(diagramSceneModel(), this);
         }
@@ -161,7 +161,7 @@ void PackageItem::update()
             m_relationStarter = new RelationStarter(this, diagramSceneModel(), 0);
             scene()->addItem(m_relationStarter);
             m_relationStarter->setZValue(RELATION_STARTER_ZVALUE);
-            m_relationStarter->addArrow(QStringLiteral("dependency"), ArrowItem::SHAFT_DASHED, ArrowItem::HEAD_OPEN);
+            m_relationStarter->addArrow(QStringLiteral("dependency"), ArrowItem::ShaftDashed, ArrowItem::HeadOpen);
         }
     } else if (m_relationStarter) {
         scene()->removeItem(m_relationStarter);

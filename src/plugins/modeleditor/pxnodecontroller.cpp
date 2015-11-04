@@ -286,7 +286,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
     case MenuAction::TYPE_ADD_COMPONENT:
     {
         auto component = new qmt::MComponent();
-        component->setFlags(qmt::MElement::REVERSE_ENGINEERED);
+        component->setFlags(qmt::MElement::ReverseEngineered);
         component->setName(action->elementName);
         newObject = component;
         break;
@@ -295,7 +295,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
     {
         // TODO handle template classes
         auto klass = new qmt::MClass();
-        klass->setFlags(qmt::MElement::REVERSE_ENGINEERED);
+        klass->setFlags(qmt::MElement::ReverseEngineered);
         QString qualifiedName = action->className;
         int i = qualifiedName.lastIndexOf(QStringLiteral("::"));
         if (i >= 0) {
@@ -311,7 +311,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
     case MenuAction::TYPE_ADD_PACKAGE_AND_DIAGRAM:
     {
             auto package = new qmt::MPackage();
-            package->setFlags(qmt::MElement::REVERSE_ENGINEERED);
+            package->setFlags(qmt::MElement::ReverseEngineered);
             package->setName(action->elementName);
             if (!action->packageStereotype.isEmpty())
                 package->setStereotypes(QStringList() << action->packageStereotype);
@@ -326,7 +326,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
     case MenuAction::TYPE_ADD_COMPONENT_MODEL:
     {
         auto package = new qmt::MPackage();
-        package->setFlags(qmt::MElement::REVERSE_ENGINEERED);
+        package->setFlags(qmt::MElement::ReverseEngineered);
         package->setName(action->elementName);
         if (!action->packageStereotype.isEmpty())
             package->setStereotypes(QStringList() << action->packageStereotype);

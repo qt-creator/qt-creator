@@ -183,7 +183,7 @@ void BoundaryItem::setPosAndRect(const QPointF &originalPos, const QRectF &origi
     QRectF newRect = originalRect;
     GeometryUtilities::adjustPosAndRect(&newPos, &newRect, topLeftDelta, bottomRightDelta, QPointF(0.5, 0.5));
     if (newPos != m_boundary->pos() || newRect != m_boundary->rect()) {
-        m_diagramSceneModel->diagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->diagram(), DiagramController::UPDATE_GEOMETRY);
+        m_diagramSceneModel->diagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
         m_boundary->setPos(newPos);
         m_boundary->setRect(newRect);
         m_diagramSceneModel->diagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->diagram(), false);
@@ -213,23 +213,23 @@ void BoundaryItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, 
     double bottomDelta = 0.0;
 
     switch (adjustHorizontalSide) {
-    case IResizable::SIDE_NONE:
+    case IResizable::SideNone:
         break;
-    case IResizable::SIDE_LEFT_OR_TOP:
+    case IResizable::SideLeftOrTop:
         leftDelta = horizDelta;
         break;
-    case IResizable::SIDE_RIGHT_OR_BOTTOM:
+    case IResizable::SideRightOrBottom:
         rightDelta = -horizDelta;
         break;
     }
 
     switch (adjustVerticalSide) {
-    case IResizable::SIDE_NONE:
+    case IResizable::SideNone:
         break;
-    case IResizable::SIDE_LEFT_OR_TOP:
+    case IResizable::SideLeftOrTop:
         topDelta = vertDelta;
         break;
-    case IResizable::SIDE_RIGHT_OR_BOTTOM:
+    case IResizable::SideRightOrBottom:
         bottomDelta = -vertDelta;
         break;
     }
@@ -241,7 +241,7 @@ void BoundaryItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, 
 
 void BoundaryItem::moveDelta(const QPointF &delta)
 {
-    m_diagramSceneModel->diagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->diagram(), DiagramController::UPDATE_GEOMETRY);
+    m_diagramSceneModel->diagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
     m_boundary->setPos(m_boundary->pos() + delta);
     m_diagramSceneModel->diagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->diagram(), false);
 }
@@ -371,7 +371,7 @@ void BoundaryItem::onContentsChanged()
     if (!m_onUpdate) {
         QString plainText = m_textItem->toPlainText();
         if (m_boundary->text() != plainText) {
-            m_diagramSceneModel->diagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->diagram(), DiagramController::UPDATE_MINOR);
+            m_diagramSceneModel->diagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->diagram(), DiagramController::UpdateMinor);
             m_boundary->setText(plainText);
             m_diagramSceneModel->diagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->diagram(), false);
         }

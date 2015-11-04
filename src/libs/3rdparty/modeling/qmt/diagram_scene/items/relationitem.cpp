@@ -84,20 +84,20 @@ public:
             stereotypeDisplayVisitor.setModelController(m_diagramSceneModel->diagramSceneController()->modelController());
             stereotypeDisplayVisitor.setStereotypeController(m_diagramSceneModel->stereotypeController());
             baseObject->accept(&stereotypeDisplayVisitor);
-            lollipopDisplay = stereotypeDisplayVisitor.stereotypeDisplay() == DObject::STEREOTYPE_ICON;
+            lollipopDisplay = stereotypeDisplayVisitor.stereotypeDisplay() == DObject::StereotypeIcon;
         }
         if (lollipopDisplay) {
-            m_arrow->setShaft(ArrowItem::SHAFT_SOLID);
-            m_arrow->setEndHead(ArrowItem::HEAD_NONE);
+            m_arrow->setShaft(ArrowItem::ShaftSolid);
+            m_arrow->setEndHead(ArrowItem::HeadNone);
         } else if (baseIsInterface || inheritance->stereotypes().contains(QStringLiteral("realize"))) {
-            m_arrow->setShaft(ArrowItem::SHAFT_DASHED);
-            m_arrow->setEndHead(ArrowItem::HEAD_TRIANGLE);
+            m_arrow->setShaft(ArrowItem::ShaftDashed);
+            m_arrow->setEndHead(ArrowItem::HeadTriangle);
         } else {
-            m_arrow->setShaft(ArrowItem::SHAFT_SOLID);
-            m_arrow->setEndHead(ArrowItem::HEAD_TRIANGLE);
+            m_arrow->setShaft(ArrowItem::ShaftSolid);
+            m_arrow->setEndHead(ArrowItem::HeadTriangle);
         }
         m_arrow->setArrowSize(16.0);
-        m_arrow->setStartHead(ArrowItem::HEAD_NONE);
+        m_arrow->setStartHead(ArrowItem::HeadNone);
         m_arrow->setPoints(m_points);
     }
 
@@ -105,25 +105,25 @@ public:
     {
         Q_UNUSED(dependency);
 
-        ArrowItem::Head endAHead = ArrowItem::HEAD_NONE;
-        ArrowItem::Head endBHead = ArrowItem::HEAD_NONE;
+        ArrowItem::Head endAHead = ArrowItem::HeadNone;
+        ArrowItem::Head endBHead = ArrowItem::HeadNone;
         bool isRealization = dependency->stereotypes().contains(QStringLiteral("realize"));
         switch (dependency->direction()) {
-        case MDependency::A_TO_B:
-            endBHead = isRealization ? ArrowItem::HEAD_TRIANGLE : ArrowItem::HEAD_OPEN;
+        case MDependency::AToB:
+            endBHead = isRealization ? ArrowItem::HeadTriangle : ArrowItem::HeadOpen;
             break;
-        case MDependency::B_TO_A:
-            endAHead = isRealization ? ArrowItem::HEAD_TRIANGLE : ArrowItem::HEAD_OPEN;
+        case MDependency::BToA:
+            endAHead = isRealization ? ArrowItem::HeadTriangle : ArrowItem::HeadOpen;
             break;
-        case MDependency::BIDIRECTIONAL:
-            endAHead = ArrowItem::HEAD_OPEN;
-            endBHead = ArrowItem::HEAD_OPEN;
+        case MDependency::Bidirectional:
+            endAHead = ArrowItem::HeadOpen;
+            endBHead = ArrowItem::HeadOpen;
             break;
         default:
             break;
         }
 
-        m_arrow->setShaft(ArrowItem::SHAFT_DASHED);
+        m_arrow->setShaft(ArrowItem::ShaftDashed);
         m_arrow->setArrowSize(12.0);
         m_arrow->setStartHead(endAHead);
         m_arrow->setEndHead(endBHead);
@@ -134,40 +134,40 @@ public:
     {
         Q_UNUSED(association);
 
-        m_arrow->setShaft(ArrowItem::SHAFT_SOLID);
+        m_arrow->setShaft(ArrowItem::ShaftSolid);
         m_arrow->setArrowSize(12.0);
         m_arrow->setDiamondSize(12.0);
 
-        ArrowItem::Head endAHead = ArrowItem::HEAD_NONE;
-        ArrowItem::Head endBHead = ArrowItem::HEAD_NONE;
+        ArrowItem::Head endAHead = ArrowItem::HeadNone;
+        ArrowItem::Head endBHead = ArrowItem::HeadNone;
 
         bool aNav = association->endA().isNavigable();
         bool bNav = association->endB().isNavigable();
 
-        bool aFlat = association->endA().kind() == MAssociationEnd::ASSOCIATION;
-        bool bFlat = association->endB().kind() == MAssociationEnd::ASSOCIATION;
+        bool aFlat = association->endA().kind() == MAssociationEnd::Association;
+        bool bFlat = association->endB().kind() == MAssociationEnd::Association;
 
         switch (association->endA().kind()) {
-        case MAssociationEnd::ASSOCIATION:
-            endAHead = ((bNav && !aNav && bFlat) || (aNav && bNav && !bFlat)) ? ArrowItem::HEAD_FILLED_TRIANGLE : ArrowItem::HEAD_NONE;
+        case MAssociationEnd::Association:
+            endAHead = ((bNav && !aNav && bFlat) || (aNav && bNav && !bFlat)) ? ArrowItem::HeadFilledTriangle : ArrowItem::HeadNone;
             break;
-        case MAssociationEnd::AGGREGATION:
-            endAHead = association->endB().isNavigable() ? ArrowItem::HEAD_DIAMOND_FILLED_TRIANGLE : ArrowItem::HEAD_DIAMOND;
+        case MAssociationEnd::Aggregation:
+            endAHead = association->endB().isNavigable() ? ArrowItem::HeadDiamondFilledTriangle : ArrowItem::HeadDiamond;
             break;
-        case MAssociationEnd::COMPOSITION:
-            endAHead = association->endB().isNavigable() ? ArrowItem::HEAD_FILLED_DIAMOND_FILLED_TRIANGLE : ArrowItem::HEAD_FILLED_DIAMOND;
+        case MAssociationEnd::Composition:
+            endAHead = association->endB().isNavigable() ? ArrowItem::HeadFilledDiamondFilledTriangle : ArrowItem::HeadFilledDiamond;
             break;
         }
 
         switch (association->endB().kind()) {
-        case MAssociationEnd::ASSOCIATION:
-            endBHead = ((aNav && !bNav && aFlat) || (aNav && bNav && !aFlat)) ? ArrowItem::HEAD_FILLED_TRIANGLE : ArrowItem::HEAD_NONE;
+        case MAssociationEnd::Association:
+            endBHead = ((aNav && !bNav && aFlat) || (aNav && bNav && !aFlat)) ? ArrowItem::HeadFilledTriangle : ArrowItem::HeadNone;
             break;
-        case MAssociationEnd::AGGREGATION:
-            endBHead = association->endA().isNavigable() ? ArrowItem::HEAD_DIAMOND_FILLED_TRIANGLE : ArrowItem::HEAD_DIAMOND;
+        case MAssociationEnd::Aggregation:
+            endBHead = association->endA().isNavigable() ? ArrowItem::HeadDiamondFilledTriangle : ArrowItem::HeadDiamond;
             break;
-        case MAssociationEnd::COMPOSITION:
-            endBHead = association->endA().isNavigable() ? ArrowItem::HEAD_FILLED_DIAMOND_FILLED_TRIANGLE : ArrowItem::HEAD_FILLED_DIAMOND;
+        case MAssociationEnd::Composition:
+            endBHead = association->endA().isNavigable() ? ArrowItem::HeadFilledDiamondFilledTriangle : ArrowItem::HeadFilledDiamond;
             break;
         }
 
@@ -245,7 +245,7 @@ QPainterPath RelationItem::shape() const
 
 void RelationItem::moveDelta(const QPointF &delta)
 {
-    m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UPDATE_GEOMETRY);
+    m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
     QList<DRelation::IntermediatePoint> points;
     foreach (const DRelation::IntermediatePoint &point, m_relation->intermediatePoints()) {
         points << DRelation::IntermediatePoint(point.pos() + delta);
@@ -256,7 +256,7 @@ void RelationItem::moveDelta(const QPointF &delta)
 
 void RelationItem::alignItemPositionToRaster(double rasterWidth, double rasterHeight)
 {
-    m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UPDATE_GEOMETRY);
+    m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
     QList<DRelation::IntermediatePoint> points;
     foreach (const DRelation::IntermediatePoint &point, m_relation->intermediatePoints()) {
         QPointF pos = point.pos();
@@ -316,7 +316,7 @@ void RelationItem::insertHandle(int beforeIndex, const QPointF &pos)
         QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->intermediatePoints();
         intermediatePoints.insert(beforeIndex - 1, DRelation::IntermediatePoint(pos));
 
-        m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UPDATE_MAJOR);
+        m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UpdateMajor);
         m_relation->setIntermediatePoints(intermediatePoints);
         m_diagramSceneModel->diagramController()->finishUpdateElement(m_relation, m_diagramSceneModel->diagram(), false);
     }
@@ -328,7 +328,7 @@ void RelationItem::deleteHandle(int index)
         QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->intermediatePoints();
         intermediatePoints.removeAt(index - 1);
 
-        m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UPDATE_MAJOR);
+        m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UpdateMajor);
         m_relation->setIntermediatePoints(intermediatePoints);
         m_diagramSceneModel->diagramController()->finishUpdateElement(m_relation, m_diagramSceneModel->diagram(), false);
     }
@@ -346,7 +346,7 @@ void RelationItem::setHandlePos(int index, const QPointF &pos)
         QMT_CHECK(index >= 0 && index < intermediatePoints.size());
         intermediatePoints[index].setPos(pos);
 
-        m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UPDATE_MINOR);
+        m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UpdateMinor);
         m_relation->setIntermediatePoints(intermediatePoints);
         m_diagramSceneModel->diagramController()->finishUpdateElement(m_relation, m_diagramSceneModel->diagram(), false);
     }
@@ -368,7 +368,7 @@ void RelationItem::alignHandleToRaster(int index, double rasterWidth, double ras
         double y = qRound(pos.y() / rasterHeight) * rasterHeight;
         intermediatePoints[index].setPos(QPointF(x, y));
 
-        m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UPDATE_MINOR);
+        m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UpdateMinor);
         m_relation->setIntermediatePoints(intermediatePoints);
         m_diagramSceneModel->diagramController()->finishUpdateElement(m_relation, m_diagramSceneModel->diagram(), false);
     }

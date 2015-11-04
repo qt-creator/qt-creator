@@ -46,8 +46,8 @@ namespace qmt {
 LatchController::LatchController(QObject *parent)
     : QObject(parent),
       m_diagramSceneModel(0),
-      m_horizontalAlignLine(new AlignLineItem(AlignLineItem::HORIZONTAL, 0)),
-      m_verticalAlignLine(new AlignLineItem(AlignLineItem::VERTICAL, 0)),
+      m_horizontalAlignLine(new AlignLineItem(AlignLineItem::Horizontal, 0)),
+      m_verticalAlignLine(new AlignLineItem(AlignLineItem::Vertical, 0)),
       m_foundHorizontalLatch(false),
       m_horizontalDist(0.0),
       m_foundVerticalLatch(false),
@@ -124,8 +124,8 @@ void LatchController::mouseMoveEventLatching(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    ILatchable::Action horizAction = ILatchable::MOVE;
-    ILatchable::Action vertAction = ILatchable::MOVE;
+    ILatchable::Action horizAction = ILatchable::Move;
+    ILatchable::Action vertAction = ILatchable::Move;
 
     QList<ILatchable::Latch> palpedHorizontals = palpedLatchable->horizontalLatches(horizAction, true);
     QList<ILatchable::Latch> palpedVerticals = palpedLatchable->verticalLatches(vertAction, true);
@@ -174,19 +174,19 @@ void LatchController::mouseMoveEventLatching(QGraphicsSceneMouseEvent *event)
 
     if (foundBestHoriz) {
         switch (bestHorizLatch.m_latchType) {
-        case ILatchable::LEFT:
-        case ILatchable::RIGHT:
-        case ILatchable::HCENTER:
+        case ILatchable::Left:
+        case ILatchable::Right:
+        case ILatchable::Hcenter:
             m_verticalAlignLine->setLine(bestHorizLatch.m_pos, bestHorizLatch.m_otherPos1, bestHorizLatch.m_otherPos2);
             m_verticalAlignLine->setVisible(true);
             m_foundHorizontalLatch = true;
             m_horizontalLatch = bestHorizLatch;
             m_horizontalDist = horizMinDist;
             break;
-        case ILatchable::NONE:
-        case ILatchable::TOP:
-        case ILatchable::BOTTOM:
-        case ILatchable::VCENTER:
+        case ILatchable::None:
+        case ILatchable::Top:
+        case ILatchable::Bottom:
+        case ILatchable::Vcenter:
             QMT_CHECK(false);
             break;
         }
@@ -196,19 +196,19 @@ void LatchController::mouseMoveEventLatching(QGraphicsSceneMouseEvent *event)
 
     if (foundBestVert) {
         switch (bestVertLatch.m_latchType) {
-        case ILatchable::TOP:
-        case ILatchable::BOTTOM:
-        case ILatchable::VCENTER:
+        case ILatchable::Top:
+        case ILatchable::Bottom:
+        case ILatchable::Vcenter:
             m_horizontalAlignLine->setLine(bestVertLatch.m_pos, bestVertLatch.m_otherPos1, bestVertLatch.m_otherPos2);
             m_horizontalAlignLine->setVisible(true);
             m_foundVerticalLatch = true;
             m_verticalLatch = bestVertLatch;
             m_verticalDist = vertMinDist;
             break;
-        case ILatchable::NONE:
-        case ILatchable::LEFT:
-        case ILatchable::RIGHT:
-        case ILatchable::HCENTER:
+        case ILatchable::None:
+        case ILatchable::Left:
+        case ILatchable::Right:
+        case ILatchable::Hcenter:
             QMT_CHECK(false);
             break;
         }
@@ -223,13 +223,13 @@ void LatchController::mouseReleaseEventLatching(QGraphicsSceneMouseEvent *event)
 
     if (m_foundHorizontalLatch) {
         switch (m_horizontalLatch.m_latchType) {
-        case ILatchable::LEFT:
-        case ILatchable::RIGHT:
-        case ILatchable::HCENTER:
+        case ILatchable::Left:
+        case ILatchable::Right:
+        case ILatchable::Hcenter:
             foreach (QGraphicsItem *item, m_diagramSceneModel->selectedItems()) {
                 DElement *element = m_diagramSceneModel->element(item);
                 if (DObject *selectedObject = dynamic_cast<DObject *>(element)) {
-                    m_diagramSceneModel->diagramController()->startUpdateElement(selectedObject, m_diagramSceneModel->diagram(), DiagramController::UPDATE_GEOMETRY);
+                    m_diagramSceneModel->diagramController()->startUpdateElement(selectedObject, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
                     QPointF newPos = selectedObject->pos();
                     newPos.setX(newPos.x() + m_horizontalDist);
                     selectedObject->setPos(newPos);
@@ -237,10 +237,10 @@ void LatchController::mouseReleaseEventLatching(QGraphicsSceneMouseEvent *event)
                 }
             }
             break;
-        case ILatchable::NONE:
-        case ILatchable::TOP:
-        case ILatchable::BOTTOM:
-        case ILatchable::VCENTER:
+        case ILatchable::None:
+        case ILatchable::Top:
+        case ILatchable::Bottom:
+        case ILatchable::Vcenter:
             QMT_CHECK(false);
             break;
         }
@@ -248,13 +248,13 @@ void LatchController::mouseReleaseEventLatching(QGraphicsSceneMouseEvent *event)
 
     if (m_foundVerticalLatch) {
         switch (m_verticalLatch.m_latchType) {
-        case ILatchable::TOP:
-        case ILatchable::BOTTOM:
-        case ILatchable::VCENTER:
+        case ILatchable::Top:
+        case ILatchable::Bottom:
+        case ILatchable::Vcenter:
             foreach (QGraphicsItem *item, m_diagramSceneModel->selectedItems()) {
                 DElement *element = m_diagramSceneModel->element(item);
                 if (DObject *selectedObject = dynamic_cast<DObject *>(element)) {
-                    m_diagramSceneModel->diagramController()->startUpdateElement(selectedObject, m_diagramSceneModel->diagram(), DiagramController::UPDATE_GEOMETRY);
+                    m_diagramSceneModel->diagramController()->startUpdateElement(selectedObject, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
                     QPointF newPos = selectedObject->pos();
                     newPos.setY(newPos.y() + m_verticalDist);
                     selectedObject->setPos(newPos);
@@ -262,10 +262,10 @@ void LatchController::mouseReleaseEventLatching(QGraphicsSceneMouseEvent *event)
                 }
             }
             break;
-        case ILatchable::NONE:
-        case ILatchable::LEFT:
-        case ILatchable::RIGHT:
-        case ILatchable::HCENTER:
+        case ILatchable::None:
+        case ILatchable::Left:
+        case ILatchable::Right:
+        case ILatchable::Hcenter:
             QMT_CHECK(false);
             break;
         }

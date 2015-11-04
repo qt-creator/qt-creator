@@ -52,11 +52,11 @@ private:
 public:
 
     enum Side {
-        SIDE_UNSPECIFIED,
-        SIDE_TOP,
-        SIDE_BOTTOM,
-        SIDE_LEFT,
-        SIDE_RIGHT
+        SideUnspecified,
+        SideTop,
+        SideBottom,
+        SideLeft,
+        SideRight
     };
 
 public:

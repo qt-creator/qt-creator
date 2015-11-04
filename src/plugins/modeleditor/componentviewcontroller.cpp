@@ -158,9 +158,9 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                     // add dependency between components
                     if (!haveDependency(component, includeComponent)) {
                         auto dependency = new qmt::MDependency;
-                        dependency->setFlags(qmt::MElement::REVERSE_ENGINEERED);
+                        dependency->setFlags(qmt::MElement::ReverseEngineered);
                         dependency->setStereotypes(QStringList() << QStringLiteral("include"));
-                        dependency->setDirection(qmt::MDependency::A_TO_B);
+                        dependency->setDirection(qmt::MDependency::AToB);
                         dependency->setSource(component->uid());
                         dependency->setTarget(includeComponent->uid());
                         m_modelController->addRelation(component, dependency);
@@ -201,9 +201,9 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                                 if (haveMatchingStereotypes(componentAncestors.at(index1), includeComponentAncestors.at(index2))) {
                                     if (!haveDependency(componentAncestors.at(index1), includeComponentAncestors.at(index2))) {
                                         auto dependency = new qmt::MDependency;
-                                        dependency->setFlags(qmt::MElement::REVERSE_ENGINEERED);
+                                        dependency->setFlags(qmt::MElement::ReverseEngineered);
                                         dependency->setStereotypes(QStringList() << QStringLiteral("same stereotype"));
-                                        dependency->setDirection(qmt::MDependency::A_TO_B);
+                                        dependency->setDirection(qmt::MDependency::AToB);
                                         dependency->setSource(componentAncestors.at(index1)->uid());
                                         dependency->setTarget(includeComponentAncestors.at(index2)->uid());
                                         m_modelController->addRelation(componentAncestors.at(index1), dependency);
@@ -221,9 +221,9 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                     if (componentAncestors.at(componentHighestAncestorIndex) != includeComponentAncestors.at(includeComponentHighestAncestorIndex)) {
                         if (!haveDependency(componentAncestors.at(componentHighestAncestorIndex), includeComponentAncestors)) {
                             auto dependency = new qmt::MDependency;
-                            dependency->setFlags(qmt::MElement::REVERSE_ENGINEERED);
+                            dependency->setFlags(qmt::MElement::ReverseEngineered);
                             dependency->setStereotypes(QStringList() << QStringLiteral("ancestor"));
-                            dependency->setDirection(qmt::MDependency::A_TO_B);
+                            dependency->setDirection(qmt::MDependency::AToB);
                             dependency->setSource(componentAncestors.at(componentHighestAncestorIndex)->uid());
                             dependency->setTarget(includeComponentAncestors.at(includeComponentHighestAncestorIndex)->uid());
                             m_modelController->addRelation(componentAncestors.at(componentHighestAncestorIndex), dependency);
@@ -235,9 +235,9 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                         if (componentAncestors.at(0) != includeComponentAncestors.at(0)) {
                             if (!haveDependency(componentAncestors.at(0), includeComponentAncestors)) {
                                 auto dependency = new qmt::MDependency;
-                                dependency->setFlags(qmt::MElement::REVERSE_ENGINEERED);
+                                dependency->setFlags(qmt::MElement::ReverseEngineered);
                                 dependency->setStereotypes(QStringList() << QStringLiteral("parents"));
-                                dependency->setDirection(qmt::MDependency::A_TO_B);
+                                dependency->setDirection(qmt::MDependency::AToB);
                                 dependency->setSource(componentAncestors.at(0)->uid());
                                 dependency->setTarget(includeComponentAncestors.at(0)->uid());
                                 m_modelController->addRelation(componentAncestors.at(0), dependency);
@@ -316,24 +316,24 @@ qmt::MComponent *UpdateIncludeDependenciesVisitor::findComponentFromFilePath(con
 bool UpdateIncludeDependenciesVisitor::haveDependency(const qmt::MObject *source,
                                                       const qmt::MObject *target, bool inverted)
 {
-    qmt::MDependency::Direction aToB = qmt::MDependency::A_TO_B;
-    qmt::MDependency::Direction bToA = qmt::MDependency::B_TO_A;
+    qmt::MDependency::Direction aToB = qmt::MDependency::AToB;
+    qmt::MDependency::Direction bToA = qmt::MDependency::BToA;
     if (inverted) {
-        aToB = qmt::MDependency::B_TO_A;
-        bToA = qmt::MDependency::A_TO_B;
+        aToB = qmt::MDependency::BToA;
+        bToA = qmt::MDependency::AToB;
     }
     foreach (const qmt::Handle<qmt::MRelation> &handle, source->relations()) {
         if (auto dependency = dynamic_cast<qmt::MDependency *>(handle.target())) {
             if (dependency->source() == source->uid()
                     && dependency->target() == target->uid()
                     && (dependency->direction() == aToB
-                        || dependency->direction() == qmt::MDependency::BIDIRECTIONAL)) {
+                        || dependency->direction() == qmt::MDependency::Bidirectional)) {
                 return true;
             }
             if (dependency->source() == target->uid()
                     && dependency->target() == source->uid()
                     && (dependency->direction() == bToA
-                        || dependency->direction() == qmt::MDependency::BIDIRECTIONAL)) {
+                        || dependency->direction() == qmt::MDependency::Bidirectional)) {
                 return true;
             }
         }
@@ -408,7 +408,7 @@ void ComponentViewController::createComponentModel(const ProjectExplorer::Folder
         }
         if (isSource) {
             component = new qmt::MComponent;
-            component->setFlags(qmt::MElement::REVERSE_ENGINEERED);
+            component->setFlags(qmt::MElement::ReverseEngineered);
             component->setName(componentName);
         }
         if (component) {

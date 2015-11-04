@@ -35,8 +35,8 @@
 namespace qmt {
 
 ObjectVisuals::ObjectVisuals()
-    : m_visualPrimaryRole(DObject::PRIMARY_ROLE_NORMAL),
-      m_visualSecondaryRole(DObject::SECONDARY_ROLE_NONE),
+    : m_visualPrimaryRole(DObject::PrimaryRoleNormal),
+      m_visualSecondaryRole(DObject::SecondaryRoleNone),
       m_emphasized(false),
       m_depth(0)
 {

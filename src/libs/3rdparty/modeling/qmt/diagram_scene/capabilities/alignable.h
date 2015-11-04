@@ -40,15 +40,15 @@ class IAlignable {
 
 public:
     enum AlignType {
-        ALIGN_LEFT,
-        ALIGN_RIGHT,
-        ALIGN_TOP,
-        ALIGN_BOTTOM,
-        ALIGN_HCENTER,
-        ALIGN_VCENTER,
-        ALIGN_WIDTH,
-        ALIGN_HEIGHT,
-        ALIGN_SIZE
+        AlignLeft,
+        AlignRight,
+        AlignTop,
+        AlignBottom,
+        AlignHcenter,
+        AlignVcenter,
+        AlignWidth,
+        AlignHeight,
+        AlignSize
     };
 
 public:

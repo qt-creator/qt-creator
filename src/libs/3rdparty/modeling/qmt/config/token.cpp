@@ -33,7 +33,7 @@
 namespace qmt {
 
 Token::Token()
-    : m_type(TOKEN_UNDEFINED),
+    : m_type(TokenUndefined),
       m_subtype(0)
 {
 }

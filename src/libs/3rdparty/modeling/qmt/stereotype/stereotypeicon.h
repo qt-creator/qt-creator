@@ -45,34 +45,34 @@ class QMT_EXPORT StereotypeIcon
 public:
 
     enum Element {
-        ELEMENT_ANY,
-        ELEMENT_PACKAGE,
-        ELEMENT_COMPONENT,
-        ELEMENT_CLASS,
-        ELEMENT_DIAGRAM,
-        ELEMENT_ITEM
+        ElementAny,
+        ElementPackage,
+        ElementComponent,
+        ElementClass,
+        ElementDiagram,
+        ElementItem
     };
 
     enum Display {
-        DISPLAY_NONE,
-        DISPLAY_LABEL,
-        DISPLAY_DECORATION,
-        DISPLAY_ICON,
-        DISPLAY_SMART
+        DisplayNone,
+        DisplayLabel,
+        DisplayDecoration,
+        DisplayIcon,
+        DisplaySmart
     };
 
     enum SizeLock {
-        LOCK_NONE,
-        LOCK_WIDTH,
-        LOCK_HEIGHT,
-        LOCK_SIZE,
-        LOCK_RATIO
+        LockNone,
+        LockWidth,
+        LockHeight,
+        LockSize,
+        LockRatio
     };
 
     enum TextAlignment {
-        TEXTALIGN_BELOW,
-        TEXTALIGN_CENTER,
-        TEXTALIGN_NONE
+        TextalignBelow,
+        TextalignCenter,
+        TextalignNone
     };
 
 public:

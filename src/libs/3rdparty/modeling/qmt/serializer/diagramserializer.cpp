@@ -82,30 +82,30 @@ QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DElement)
 static DObject::VisualPrimaryRole visualRole(const DObject &object)
 {
     DObject::VisualPrimaryRole visualRole = object.visualPrimaryRole();
-    if (visualRole == DObject::DEPRECATED_PRIMARY_ROLE_DARKER
-            || visualRole == DObject::DEPRECATED_PRIMARY_ROLE_LIGHTER
-            || visualRole == DObject::DEPRECATED_PRIMARY_ROLE_OUTLINE
-            || visualRole == DObject::DEPRECATED_PRIMARY_ROLE_SOFTEN) {
+    if (visualRole == DObject::DeprecatedPrimaryRoleDarker
+            || visualRole == DObject::DeprecatedPrimaryRoleLighter
+            || visualRole == DObject::DeprecatedPrimaryRoleOutline
+            || visualRole == DObject::DeprecatedPrimaryRoleSoften) {
         QMT_CHECK(false);
-        visualRole = DObject::PRIMARY_ROLE_NORMAL;
+        visualRole = DObject::PrimaryRoleNormal;
     }
     return visualRole;
 }
 
 static void setVisualRole(DObject &object, DObject::VisualPrimaryRole visualRole)
 {
-    if (visualRole == DObject::DEPRECATED_PRIMARY_ROLE_DARKER) {
-        object.setVisualPrimaryRole(DObject::PRIMARY_ROLE_NORMAL);
-        object.setVisualSecondaryRole(DObject::SECONDARY_ROLE_DARKER);
-    } else if (visualRole == DObject::DEPRECATED_PRIMARY_ROLE_LIGHTER) {
-        object.setVisualPrimaryRole(DObject::PRIMARY_ROLE_NORMAL);
-        object.setVisualSecondaryRole(DObject::SECONDARY_ROLE_LIGHTER);
-    } else if (visualRole == DObject::DEPRECATED_PRIMARY_ROLE_OUTLINE) {
-        object.setVisualPrimaryRole(DObject::PRIMARY_ROLE_NORMAL);
-        object.setVisualSecondaryRole(DObject::SECONDARY_ROLE_OUTLINE);
-    } else if (visualRole == DObject::DEPRECATED_PRIMARY_ROLE_SOFTEN) {
-        object.setVisualPrimaryRole(DObject::PRIMARY_ROLE_NORMAL);
-        object.setVisualSecondaryRole(DObject::SECONDARY_ROLE_SOFTEN);
+    if (visualRole == DObject::DeprecatedPrimaryRoleDarker) {
+        object.setVisualPrimaryRole(DObject::PrimaryRoleNormal);
+        object.setVisualSecondaryRole(DObject::SecondaryRoleDarker);
+    } else if (visualRole == DObject::DeprecatedPrimaryRoleLighter) {
+        object.setVisualPrimaryRole(DObject::PrimaryRoleNormal);
+        object.setVisualSecondaryRole(DObject::SecondaryRoleLighter);
+    } else if (visualRole == DObject::DeprecatedPrimaryRoleOutline) {
+        object.setVisualPrimaryRole(DObject::PrimaryRoleNormal);
+        object.setVisualSecondaryRole(DObject::SecondaryRoleOutline);
+    } else if (visualRole == DObject::DeprecatedPrimaryRoleSoften) {
+        object.setVisualPrimaryRole(DObject::PrimaryRoleNormal);
+        object.setVisualSecondaryRole(DObject::SecondaryRoleSoften);
     } else {
         object.setVisualPrimaryRole(visualRole);
     }

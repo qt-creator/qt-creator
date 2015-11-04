@@ -42,16 +42,16 @@ class Token
 public:
 
     enum Type {
-        TOKEN_UNDEFINED,
-        TOKEN_ENDOFINPUT,
-        TOKEN_ENDOFLINE,
-        TOKEN_STRING,
-        TOKEN_INTEGER,
-        TOKEN_FLOAT,
-        TOKEN_IDENTIFIER,
-        TOKEN_KEYWORD,
-        TOKEN_OPERATOR,
-        TOKEN_COLOR
+        TokenUndefined,
+        TokenEndOfInput,
+        TokenEndOfLine,
+        TokenString,
+        TokenInteger,
+        TokenFloat,
+        TokenIdentifier,
+        TokenKeyword,
+        TokenOperator,
+        TokenColor
     };
 
 public:

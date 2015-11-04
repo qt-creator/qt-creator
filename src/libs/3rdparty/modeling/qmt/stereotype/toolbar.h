@@ -44,18 +44,18 @@ class QMT_EXPORT Toolbar
 public:
 
     enum ToolType {
-        TOOLTYPE_TOOL,
-        TOOLTYPE_SEPARATOR
+        TooltypeTool,
+        TooltypeSeparator
     };
 
     struct Tool {
         Tool()
-            : m_toolType(TOOLTYPE_SEPARATOR)
+            : m_toolType(TooltypeSeparator)
         {
         }
 
         Tool(const QString &name, const QString &elementType, const QString &stereotype = QString::null)
-            : m_toolType(TOOLTYPE_TOOL),
+            : m_toolType(TooltypeTool),
               m_name(name),
               m_elementType(elementType),
               m_stereotype(stereotype)

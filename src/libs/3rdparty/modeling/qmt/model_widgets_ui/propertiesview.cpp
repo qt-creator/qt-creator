@@ -401,7 +401,7 @@ void PropertiesView::beginUpdate(DElement *diagramElement)
     QMT_CHECK(m_selectedDiagram != 0);
     QMT_CHECK(m_diagramController->findElement(diagramElement->uid(), m_selectedDiagram) == diagramElement);
 
-    m_diagramController->startUpdateElement(diagramElement, m_selectedDiagram, DiagramController::UPDATE_MINOR);
+    m_diagramController->startUpdateElement(diagramElement, m_selectedDiagram, DiagramController::UpdateMinor);
 }
 
 void PropertiesView::endUpdate(DElement *diagramElement, bool cancelled)

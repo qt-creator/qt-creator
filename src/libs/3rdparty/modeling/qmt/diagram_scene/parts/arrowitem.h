@@ -52,19 +52,19 @@ class ArrowItem :
 public:
 
     enum Shaft {
-        SHAFT_SOLID,
-        SHAFT_DASHED
+        ShaftSolid,
+        ShaftDashed
     };
 
     enum Head {
-        HEAD_NONE,
-        HEAD_OPEN,
-        HEAD_TRIANGLE,
-        HEAD_FILLED_TRIANGLE,
-        HEAD_DIAMOND,
-        HEAD_FILLED_DIAMOND,
-        HEAD_DIAMOND_FILLED_TRIANGLE,
-        HEAD_FILLED_DIAMOND_FILLED_TRIANGLE
+        HeadNone,
+        HeadOpen,
+        HeadTriangle,
+        HeadFilledTriangle,
+        HeadDiamond,
+        HeadFilledDiamond,
+        HeadDiamondFilledTriangle,
+        HeadFilledDiamondFilledTriangle
     };
 
 public:

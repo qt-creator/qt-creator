@@ -49,13 +49,13 @@ class AlignButtonsItem :
 public:
 
     enum {
-        NORMAL_PIXMAP_WIDTH = 14,
-        NORMAL_PIXMAP_HEIGHT = NORMAL_PIXMAP_WIDTH,
-        INNER_BORDER = 2,
-        NORMAL_BUTTON_WIDTH = NORMAL_PIXMAP_WIDTH + 2 * INNER_BORDER,
-        NORMAL_BUTTON_HEIGHT = NORMAL_PIXMAP_HEIGHT + 2 * INNER_BORDER,
-        HORIZONTAL_DISTANCE_TO_OBJECT = 4,
-        VERTICAL_DISTANCE_TO_OBEJCT = HORIZONTAL_DISTANCE_TO_OBJECT
+        NormalPixmapWidth = 14,
+        NormalPixmapHeight = NormalPixmapWidth,
+        InnerBorder = 2,
+        NormalButtonWidth = NormalPixmapWidth + 2 * InnerBorder,
+        NormalButtonHeight = NormalPixmapHeight + 2 * InnerBorder,
+        HorizontalDistanceToObject = 4,
+        VerticalDistanceToObejct = HorizontalDistanceToObject
     };
 
 public:

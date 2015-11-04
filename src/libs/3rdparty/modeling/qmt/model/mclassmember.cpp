@@ -33,7 +33,7 @@
 namespace qmt {
 
 MClassMember::MClassMember(MemberType memberType)
-    : m_visibility(VISIBILITY_UNDEFINED),
+    : m_visibility(VisibilityUndefined),
       m_memberType(memberType)
 {
 }

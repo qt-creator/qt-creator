@@ -166,7 +166,7 @@ void DiagramSceneController::createDependency(DObject *endAObject, DObject *endB
     MDependency *modelDependency = new MDependency();
     modelDependency->setEndAUid(endAModelObject->uid());
     modelDependency->setEndBUid(endBModelObject->uid());
-    modelDependency->setDirection(MDependency::A_TO_B);
+    modelDependency->setDirection(MDependency::AToB);
     m_modelController->addRelation(endAModelObject, modelDependency);
 
     DRelation *relation = addRelation(modelDependency, intermediatePoints, diagram);
@@ -519,7 +519,7 @@ void DiagramSceneController::alignPosition(DObject *object, const DSelection &se
             if (selectedObject != object) {
                 QPointF newPos = aligner(object, selectedObject);
                 if (newPos != selectedObject->pos()) {
-                    m_diagramController->startUpdateElement(selectedObject, diagram, DiagramController::UPDATE_GEOMETRY);
+                    m_diagramController->startUpdateElement(selectedObject, diagram, DiagramController::UpdateGeometry);
                     selectedObject->setPos(newPos);
                     m_diagramController->finishUpdateElement(selectedObject, diagram, false);
                 }
@@ -546,7 +546,7 @@ void DiagramSceneController::alignSize(DObject *object, const DSelection &select
         if (DObject *selectedObject = dynamic_cast<DObject *>(element)) {
             QRectF newRect = aligner(selectedObject, size);
             if (newRect != selectedObject->rect()) {
-                m_diagramController->startUpdateElement(selectedObject, diagram, DiagramController::UPDATE_GEOMETRY);
+                m_diagramController->startUpdateElement(selectedObject, diagram, DiagramController::UpdateGeometry);
                 selectedObject->setAutoSize(false);
                 selectedObject->setRect(newRect);
                 m_diagramController->finishUpdateElement(selectedObject, diagram, false);

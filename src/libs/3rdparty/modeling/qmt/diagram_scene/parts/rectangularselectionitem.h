@@ -51,37 +51,37 @@ class RectangularSelectionItem :
     friend class GraphicsHandleItem;
 
     enum Handle {
-        HANDLE_FIRST = 0,
-        HANDLE_TOP_LEFT = HANDLE_FIRST,
-        HANDLE_TOP,
-        HANDLE_TOP_RIGHT,
-        HANDLE_LEFT,
-        HANDLE_RIGHT,
-        HANDLE_BOTTOM_LEFT,
-        HANDLE_BOTTOM,
-        HANDLE_BOTTOM_RIGHT,
-        HANDLE_LAST = HANDLE_BOTTOM_RIGHT
+        HandleFirst = 0,
+        HandleTopLeft = HandleFirst,
+        HandleTop,
+        HandleTopRight,
+        HandleLeft,
+        HandleRight,
+        HandleBottomLeft,
+        HandleBottom,
+        HandleBottomRight,
+        HandleLast = HandleBottomRight
     };
 
     enum HandleStatus {
-        PRESS,
-        MOVE,
-        RELEASE,
-        CANCEL
+        Press,
+        Move,
+        Release,
+        Cancel
     };
 
     enum HandleQualifier {
-        NONE,
-        KEEP_POS
+        None,
+        KeepPos
     };
 
 public:
 
     enum Freedom {
-        FREEDOM_ANY,
-        FREEDOM_VERTICAL_ONLY,
-        FREEDOM_HORIZONTAL_ONLY,
-        FREEDOM_KEEP_RATIO
+        FreedomAny,
+        FreedomVerticalOnly,
+        FreedomHorizontalOnly,
+        FreedomKeepRatio
     };
 
 public:

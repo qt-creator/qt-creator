@@ -70,7 +70,7 @@ class ArrowItem::GraphicsHeadItem :
 public:
     GraphicsHeadItem(QGraphicsItem *parent)
         : QGraphicsItem(parent),
-          m_head(ArrowItem::HEAD_NONE),
+          m_head(ArrowItem::HeadNone),
           m_arrowSize(10.0),
           m_diamondSize(15.0),
           m_arrowItem(0),
@@ -152,19 +152,19 @@ public:
     {
         double length = 0.0;
         switch (m_head) {
-        case ArrowItem::HEAD_NONE:
+        case ArrowItem::HeadNone:
             break;
-        case ArrowItem::HEAD_OPEN:
-        case ArrowItem::HEAD_TRIANGLE:
-        case ArrowItem::HEAD_FILLED_TRIANGLE:
+        case ArrowItem::HeadOpen:
+        case ArrowItem::HeadTriangle:
+        case ArrowItem::HeadFilledTriangle:
             length = calcArrowLength();
             break;
-        case ArrowItem::HEAD_DIAMOND:
-        case ArrowItem::HEAD_FILLED_DIAMOND:
+        case ArrowItem::HeadDiamond:
+        case ArrowItem::HeadFilledDiamond:
             length = calcDiamondLength();
             break;
-        case ArrowItem::HEAD_DIAMOND_FILLED_TRIANGLE:
-        case ArrowItem::HEAD_FILLED_DIAMOND_FILLED_TRIANGLE:
+        case ArrowItem::HeadDiamondFilledTriangle:
+        case ArrowItem::HeadFilledDiamondFilledTriangle:
             length = calcDiamondLength() + calcArrowLength();
             break;
         }
@@ -190,19 +190,19 @@ public:
         bool hasArrow = false;
         bool hasDiamond = false;
         switch (m_head) {
-        case ArrowItem::HEAD_NONE:
+        case ArrowItem::HeadNone:
             break;
-        case ArrowItem::HEAD_OPEN:
-        case ArrowItem::HEAD_TRIANGLE:
-        case ArrowItem::HEAD_FILLED_TRIANGLE:
+        case ArrowItem::HeadOpen:
+        case ArrowItem::HeadTriangle:
+        case ArrowItem::HeadFilledTriangle:
             hasArrow = true;
             break;
-        case ArrowItem::HEAD_DIAMOND:
-        case ArrowItem::HEAD_FILLED_DIAMOND:
+        case ArrowItem::HeadDiamond:
+        case ArrowItem::HeadFilledDiamond:
             hasDiamond = true;
             break;
-        case ArrowItem::HEAD_DIAMOND_FILLED_TRIANGLE:
-        case ArrowItem::HEAD_FILLED_DIAMOND_FILLED_TRIANGLE:
+        case ArrowItem::HeadDiamondFilledTriangle:
+        case ArrowItem::HeadFilledDiamondFilledTriangle:
             hasArrow = true;
             hasDiamond = true;
             break;
@@ -213,7 +213,7 @@ public:
                 m_arrowItem = new ArrowItem::GraphicsPathItem(this);
             }
 
-            if (m_head == ArrowItem::HEAD_OPEN || m_head == ArrowItem::HEAD_TRIANGLE) {
+            if (m_head == ArrowItem::HeadOpen || m_head == ArrowItem::HeadTriangle) {
                 m_arrowItem->setPen(style->linePen());
                 m_arrowItem->setBrush(QBrush());
             } else {
@@ -226,7 +226,7 @@ public:
             path.moveTo(-h, -m_arrowSize * 0.5);
             path.lineTo(0.0, 0.0);
             path.lineTo(-h, m_arrowSize * 0.5);
-            if (m_head != ArrowItem::HEAD_OPEN) {
+            if (m_head != ArrowItem::HeadOpen) {
                 path.closeSubpath();
             }
             if (hasDiamond) {
@@ -244,7 +244,7 @@ public:
                 m_diamondItem = new ArrowItem::GraphicsPathItem(this);
             }
 
-            if (m_head == ArrowItem::HEAD_DIAMOND || m_head == ArrowItem::HEAD_DIAMOND_FILLED_TRIANGLE) {
+            if (m_head == ArrowItem::HeadDiamond || m_head == ArrowItem::HeadDiamondFilledTriangle) {
                 m_diamondItem->setPen(style->linePen());
                 m_diamondItem->setBrush(QBrush());
             } else {
@@ -294,13 +294,13 @@ public:
 
 ArrowItem::ArrowItem(QGraphicsItem *parent)
     : QGraphicsItem(parent),
-      m_shaft(SHAFT_SOLID),
+      m_shaft(ShaftSolid),
       m_shaftItem(new GraphicsShaftItem(this)),
       m_arrowSize(10.0),
       m_diamondSize(15.0),
-      m_startHead(HEAD_NONE),
+      m_startHead(HeadNone),
       m_startHeadItem(0),
-      m_endHead(HEAD_NONE),
+      m_endHead(HeadNone),
       m_endHeadItem(0)
 {
 }
@@ -458,7 +458,7 @@ void ArrowItem::updateShaft(const Style *style)
     QMT_CHECK(m_shaftItem);
 
     QPen pen(style->linePen());
-    if (m_shaft == SHAFT_DASHED) {
+    if (m_shaft == ShaftDashed) {
         pen.setDashPattern(QVector<qreal>() << (4.0 / pen.widthF()) << (4.0 / pen.widthF()));
     }
     m_shaftItem->setPen(pen);
@@ -466,7 +466,7 @@ void ArrowItem::updateShaft(const Style *style)
 
 void ArrowItem::updateHead(GraphicsHeadItem **headItem, Head head, const Style *style)
 {
-    if (head == HEAD_NONE) {
+    if (head == HeadNone) {
         if (*headItem) {
             if ((*headItem)->scene()) {
                 (*headItem)->scene()->removeItem(*headItem);

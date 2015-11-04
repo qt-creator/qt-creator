@@ -46,30 +46,30 @@ qreal ShapeValueF::mapScaledTo(qreal scaledOrigin, qreal originalSize, qreal bas
 {
     qreal v = 0.0;
     switch (m_unit) {
-    case UNIT_ABSOLUTE:
+    case UnitAbsolute:
         v = m_value;
         break;
-    case UNIT_RELATIVE:
+    case UnitRelative:
         v = originalSize != 0 ? (m_value * baseSize / originalSize) : m_value;
         break;
-    case UNIT_SCALED:
+    case UnitScaled:
         v = originalSize != 0 ? (m_value * actualSize / originalSize) : m_value;
         break;
-    case UNIT_PERCENTAGE:
+    case UnitPercentage:
         v = m_value * actualSize;
         break;
     }
     switch (m_origin) {
-    case ORIGIN_SMART:
+    case OriginSmart:
         v = scaledOrigin + v;
         break;
-    case ORIGIN_TOP_OR_LEFT:
+    case OriginTopOrLeft:
         v = scaledOrigin + v;
         break;
-    case ORIGIN_BOTTOM_OR_RIGHT:
+    case OriginBottomOrRight:
         v = actualSize - v;
         break;
-    case ORIGIN_CENTER:
+    case OriginCenter:
         v = actualSize * 0.5 + v;
         break;
     }

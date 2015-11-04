@@ -147,21 +147,21 @@ void PathShape::accept(ShapeConstVisitor *visitor) const
 
 void PathShape::moveTo(const ShapePointF &pos)
 {
-    Element element(TYPE_MOVETO);
+    Element element(TypeMoveto);
     element.m_position = pos;
     m_elements.append(element);
 }
 
 void PathShape::lineTo(const ShapePointF &pos)
 {
-    Element element(TYPE_LINETO);
+    Element element(TypeLineto);
     element.m_position = pos;
     m_elements.append(element);
 }
 
 void PathShape::arcMoveTo(const ShapePointF &center, const ShapeSizeF &radius, qreal angle)
 {
-    Element element(TYPE_ARCMOVETO);
+    Element element(TypeArcmoveto);
     element.m_position = center;
     element.m_size = radius;
     element.m_angle1 = angle;
@@ -170,7 +170,7 @@ void PathShape::arcMoveTo(const ShapePointF &center, const ShapeSizeF &radius, q
 
 void PathShape::arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal sweepLength)
 {
-    Element element(TYPE_ARCTO);
+    Element element(TypeArcto);
     element.m_position = center;
     element.m_size = radius;
     element.m_angle1 = startAngle;
@@ -180,7 +180,7 @@ void PathShape::arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal
 
 void PathShape::close()
 {
-    Element element(TYPE_CLOSE);
+    Element element(TypeClose);
     m_elements.append(element);
 }
 

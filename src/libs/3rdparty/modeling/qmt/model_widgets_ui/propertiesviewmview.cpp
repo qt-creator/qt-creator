@@ -90,11 +90,11 @@ namespace qmt {
 static int translateDirectionToIndex(MDependency::Direction direction)
 {
     switch (direction) {
-    case MDependency::A_TO_B:
+    case MDependency::AToB:
         return 0;
-    case MDependency::B_TO_A:
+    case MDependency::BToA:
         return 1;
-    case MDependency::BIDIRECTIONAL:
+    case MDependency::Bidirectional:
         return 2;
     }
     return 0;
@@ -108,7 +108,7 @@ static bool isValidDirectionIndex(int index)
 static MDependency::Direction translateIndexToDirection(int index)
 {
     static const MDependency::Direction map[] = {
-        MDependency::A_TO_B, MDependency::B_TO_A, MDependency::BIDIRECTIONAL
+        MDependency::AToB, MDependency::BToA, MDependency::Bidirectional
     };
     QMT_CHECK(isValidDirectionIndex(index));
     return map[index];
@@ -117,11 +117,11 @@ static MDependency::Direction translateIndexToDirection(int index)
 static int translateAssociationKindToIndex(MAssociationEnd::Kind kind)
 {
     switch (kind) {
-    case MAssociationEnd::ASSOCIATION:
+    case MAssociationEnd::Association:
         return 0;
-    case MAssociationEnd::AGGREGATION:
+    case MAssociationEnd::Aggregation:
         return 1;
-    case MAssociationEnd::COMPOSITION:
+    case MAssociationEnd::Composition:
         return 2;
     }
     return 0;
@@ -135,7 +135,7 @@ static bool isValidAssociationKindIndex(int index)
 static MAssociationEnd::Kind translateIndexToAssociationKind(int index)
 {
     static const MAssociationEnd::Kind map[] = {
-        MAssociationEnd::ASSOCIATION, MAssociationEnd::AGGREGATION, MAssociationEnd::COMPOSITION
+        MAssociationEnd::Association, MAssociationEnd::Aggregation, MAssociationEnd::Composition
     };
     QMT_CHECK(isValidAssociationKindIndex(index));
     return map[index];
@@ -144,22 +144,22 @@ static MAssociationEnd::Kind translateIndexToAssociationKind(int index)
 static int translateVisualPrimaryRoleToIndex(DObject::VisualPrimaryRole visualRole)
 {
     switch (visualRole) {
-    case DObject::PRIMARY_ROLE_NORMAL:
+    case DObject::PrimaryRoleNormal:
         return 0;
-    case DObject::PRIMARY_ROLE_CUSTOM1:
+    case DObject::PrimaryRoleCustom1:
         return 1;
-    case DObject::PRIMARY_ROLE_CUSTOM2:
+    case DObject::PrimaryRoleCustom2:
         return 2;
-    case DObject::PRIMARY_ROLE_CUSTOM3:
+    case DObject::PrimaryRoleCustom3:
         return 3;
-    case DObject::PRIMARY_ROLE_CUSTOM4:
+    case DObject::PrimaryRoleCustom4:
         return 4;
-    case DObject::PRIMARY_ROLE_CUSTOM5:
+    case DObject::PrimaryRoleCustom5:
         return 5;
-    case DObject::DEPRECATED_PRIMARY_ROLE_LIGHTER:
-    case DObject::DEPRECATED_PRIMARY_ROLE_DARKER:
-    case DObject::DEPRECATED_PRIMARY_ROLE_SOFTEN:
-    case DObject::DEPRECATED_PRIMARY_ROLE_OUTLINE:
+    case DObject::DeprecatedPrimaryRoleLighter:
+    case DObject::DeprecatedPrimaryRoleDarker:
+    case DObject::DeprecatedPrimaryRoleSoften:
+    case DObject::DeprecatedPrimaryRoleOutline:
         return 0;
     }
     return 0;
@@ -168,9 +168,9 @@ static int translateVisualPrimaryRoleToIndex(DObject::VisualPrimaryRole visualRo
 static DObject::VisualPrimaryRole translateIndexToVisualPrimaryRole(int index)
 {
     static const DObject::VisualPrimaryRole map[] = {
-        DObject::PRIMARY_ROLE_NORMAL,
-        DObject::PRIMARY_ROLE_CUSTOM1, DObject::PRIMARY_ROLE_CUSTOM2, DObject::PRIMARY_ROLE_CUSTOM3,
-        DObject::PRIMARY_ROLE_CUSTOM4, DObject::PRIMARY_ROLE_CUSTOM5
+        DObject::PrimaryRoleNormal,
+        DObject::PrimaryRoleCustom1, DObject::PrimaryRoleCustom2, DObject::PrimaryRoleCustom3,
+        DObject::PrimaryRoleCustom4, DObject::PrimaryRoleCustom5
     };
     QMT_CHECK(index >= 0 && index <= 5);
     return map[index];
@@ -179,15 +179,15 @@ static DObject::VisualPrimaryRole translateIndexToVisualPrimaryRole(int index)
 static int translateVisualSecondaryRoleToIndex(DObject::VisualSecondaryRole visualRole)
 {
     switch (visualRole) {
-    case DObject::SECONDARY_ROLE_NONE:
+    case DObject::SecondaryRoleNone:
         return 0;
-    case DObject::SECONDARY_ROLE_LIGHTER:
+    case DObject::SecondaryRoleLighter:
         return 1;
-    case DObject::SECONDARY_ROLE_DARKER:
+    case DObject::SecondaryRoleDarker:
         return 2;
-    case DObject::SECONDARY_ROLE_SOFTEN:
+    case DObject::SecondaryRoleSoften:
         return 3;
-    case DObject::SECONDARY_ROLE_OUTLINE:
+    case DObject::SecondaryRoleOutline:
         return 4;
     }
     return 0;
@@ -196,9 +196,9 @@ static int translateVisualSecondaryRoleToIndex(DObject::VisualSecondaryRole visu
 static DObject::VisualSecondaryRole translateIndexToVisualSecondaryRole(int index)
 {
     static const DObject::VisualSecondaryRole map[] = {
-        DObject::SECONDARY_ROLE_NONE,
-        DObject::SECONDARY_ROLE_LIGHTER, DObject::SECONDARY_ROLE_DARKER,
-        DObject::SECONDARY_ROLE_SOFTEN, DObject::SECONDARY_ROLE_OUTLINE
+        DObject::SecondaryRoleNone,
+        DObject::SecondaryRoleLighter, DObject::SecondaryRoleDarker,
+        DObject::SecondaryRoleSoften, DObject::SecondaryRoleOutline
     };
     QMT_CHECK(index >= 0 && index <= 4);
     return map[index];
@@ -207,15 +207,15 @@ static DObject::VisualSecondaryRole translateIndexToVisualSecondaryRole(int inde
 static int translateStereotypeDisplayToIndex(DObject::StereotypeDisplay stereotypeDisplay)
 {
     switch (stereotypeDisplay) {
-    case DObject::STEREOTYPE_NONE:
+    case DObject::StereotypeNone:
         return 1;
-    case DObject::STEREOTYPE_LABEL:
+    case DObject::StereotypeLabel:
         return 2;
-    case DObject::STEREOTYPE_DECORATION:
+    case DObject::StereotypeDecoration:
         return 3;
-    case DObject::STEREOTYPE_ICON:
+    case DObject::StereotypeIcon:
         return 4;
-    case DObject::STEREOTYPE_SMART:
+    case DObject::StereotypeSmart:
         return 0;
     }
     return 0;
@@ -224,11 +224,11 @@ static int translateStereotypeDisplayToIndex(DObject::StereotypeDisplay stereoty
 static DObject::StereotypeDisplay translateIndexToStereotypeDisplay(int index)
 {
     static const DObject::StereotypeDisplay map[] = {
-        DObject::STEREOTYPE_SMART,
-        DObject::STEREOTYPE_NONE,
-        DObject::STEREOTYPE_LABEL,
-        DObject::STEREOTYPE_DECORATION,
-        DObject::STEREOTYPE_ICON
+        DObject::StereotypeSmart,
+        DObject::StereotypeNone,
+        DObject::StereotypeLabel,
+        DObject::StereotypeDecoration,
+        DObject::StereotypeIcon
     };
     QMT_CHECK(index >= 0 && index <= 4);
     return map[index];
@@ -237,11 +237,11 @@ static DObject::StereotypeDisplay translateIndexToStereotypeDisplay(int index)
 static int translateTemplateDisplayToIndex(DClass::TemplateDisplay templateDisplay)
 {
     switch (templateDisplay) {
-    case DClass::TEMPLATE_SMART:
+    case DClass::TemplateSmart:
         return 0;
-    case DClass::TEMPLATE_BOX:
+    case DClass::TemplateBox:
         return 1;
-    case DClass::TEMPLATE_NAME:
+    case DClass::TemplateName:
         return 2;
     }
     return 0;
@@ -250,9 +250,9 @@ static int translateTemplateDisplayToIndex(DClass::TemplateDisplay templateDispl
 static DClass::TemplateDisplay translateIndexToTemplateDisplay(int index)
 {
     static const DClass::TemplateDisplay map[] = {
-        DClass::TEMPLATE_SMART,
-        DClass::TEMPLATE_BOX,
-        DClass::TEMPLATE_NAME
+        DClass::TemplateSmart,
+        DClass::TemplateBox,
+        DClass::TemplateName
     };
     QMT_CHECK(index >= 0 && index <= 2);
     return map[index];
@@ -261,17 +261,17 @@ static DClass::TemplateDisplay translateIndexToTemplateDisplay(int index)
 static int translateAnnotationVisualRoleToIndex(DAnnotation::VisualRole visualRole)
 {
     switch (visualRole) {
-    case DAnnotation::ROLE_NORMAL:
+    case DAnnotation::RoleNormal:
         return 0;
-    case DAnnotation::ROLE_TITLE:
+    case DAnnotation::RoleTitle:
         return 1;
-    case DAnnotation::ROLE_SUBTITLE:
+    case DAnnotation::RoleSubtitle:
         return 2;
-    case DAnnotation::ROLE_EMPHASIZED:
+    case DAnnotation::RoleEmphasized:
         return 3;
-    case DAnnotation::ROLE_SOFTEN:
+    case DAnnotation::RoleSoften:
         return 4;
-    case DAnnotation::ROLE_FOOTNOTE:
+    case DAnnotation::RoleFootnote:
         return 5;
     }
     return 0;
@@ -280,8 +280,8 @@ static int translateAnnotationVisualRoleToIndex(DAnnotation::VisualRole visualRo
 static DAnnotation::VisualRole translateIndexToAnnotationVisualRole(int index)
 {
     static const DAnnotation::VisualRole map[] = {
-        DAnnotation::ROLE_NORMAL, DAnnotation::ROLE_TITLE, DAnnotation::ROLE_SUBTITLE,
-        DAnnotation::ROLE_EMPHASIZED, DAnnotation::ROLE_SOFTEN, DAnnotation::ROLE_FOOTNOTE
+        DAnnotation::RoleNormal, DAnnotation::RoleTitle, DAnnotation::RoleSubtitle,
+        DAnnotation::RoleEmphasized, DAnnotation::RoleSoften, DAnnotation::RoleFootnote
     };
     QMT_CHECK(index >= 0 && index <= 5);
     return map[index];
@@ -294,7 +294,7 @@ PropertiesView::MView::MView(PropertiesView *propertiesView)
       m_stereotypesController(new StereotypesController(this)),
       m_topWidget(0),
       m_topLayout(0),
-      m_stereotypeElement(StereotypeIcon::ELEMENT_ANY),
+      m_stereotypeElement(StereotypeIcon::ElementAny),
       m_classNameLabel(0),
       m_stereotypeComboBox(0),
       m_reverseEngineeredLabel(0),
@@ -320,7 +320,7 @@ PropertiesView::MView::MView(PropertiesView *propertiesView)
       m_endBNavigable(0),
       m_endBKind(0),
       m_separatorLine(0),
-      m_styleElementType(StyleEngine::TYPE_OTHER),
+      m_styleElementType(StyleEngine::TypeOther),
       m_posRectLabel(0),
       m_autoSizedCheckbox(0),
       m_visualPrimaryRoleSelector(0),
@@ -416,7 +416,7 @@ void PropertiesView::MView::visitMElement(const MElement *element)
         m_reverseEngineeredLabel = new QLabel(m_topWidget);
         m_topLayout->addRow(tr("Reverese engineered:"), m_reverseEngineeredLabel);
     }
-    QString text = element->flags().testFlag(MElement::REVERSE_ENGINEERED) ? tr("Yes") : tr("No");
+    QString text = element->flags().testFlag(MElement::ReverseEngineered) ? tr("Yes") : tr("No");
     m_reverseEngineeredLabel->setText(text);
 #endif
 }
@@ -848,11 +848,11 @@ void PropertiesView::MView::visitDObject(const DObject *object)
     }
     if (m_visualPrimaryRoleSelector == 0) {
         m_visualPrimaryRoleSelector = new PaletteBox(m_topWidget);
-        setPrimaryRolePalette(m_styleElementType, DObject::PRIMARY_ROLE_CUSTOM1, QColor());
-        setPrimaryRolePalette(m_styleElementType, DObject::PRIMARY_ROLE_CUSTOM2, QColor());
-        setPrimaryRolePalette(m_styleElementType, DObject::PRIMARY_ROLE_CUSTOM3, QColor());
-        setPrimaryRolePalette(m_styleElementType, DObject::PRIMARY_ROLE_CUSTOM4, QColor());
-        setPrimaryRolePalette(m_styleElementType, DObject::PRIMARY_ROLE_CUSTOM5, QColor());
+        setPrimaryRolePalette(m_styleElementType, DObject::PrimaryRoleCustom1, QColor());
+        setPrimaryRolePalette(m_styleElementType, DObject::PrimaryRoleCustom2, QColor());
+        setPrimaryRolePalette(m_styleElementType, DObject::PrimaryRoleCustom3, QColor());
+        setPrimaryRolePalette(m_styleElementType, DObject::PrimaryRoleCustom4, QColor());
+        setPrimaryRolePalette(m_styleElementType, DObject::PrimaryRoleCustom5, QColor());
         m_topLayout->addRow(tr("Color:"), m_visualPrimaryRoleSelector);
         connect(m_visualPrimaryRoleSelector, SIGNAL(activated(int)), this, SLOT(onVisualPrimaryRoleChanged(int)));
     }
@@ -867,7 +867,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
             StereotypeIcon stereotypeIcon = m_propertiesView->stereotypeController()->findStereotypeIcon(shapeId);
             baseColor = stereotypeIcon.baseColor();
         }
-        setPrimaryRolePalette(m_styleElementType, DObject::PRIMARY_ROLE_NORMAL, baseColor);
+        setPrimaryRolePalette(m_styleElementType, DObject::PrimaryRoleNormal, baseColor);
         DObject::VisualPrimaryRole visualPrimaryRole;
         if (haveSameValue(m_diagramElements, &DObject::visualPrimaryRole, &visualPrimaryRole)) {
             m_visualPrimaryRoleSelector->setCurrentIndex(translateVisualPrimaryRoleToIndex(visualPrimaryRole));
@@ -931,16 +931,16 @@ void PropertiesView::MView::visitDObject(const DObject *object)
 void PropertiesView::MView::visitDPackage(const DPackage *package)
 {
     setTitle<DPackage>(m_diagramElements, tr("Package"), tr("Packages"));
-    setStereotypeIconElement(StereotypeIcon::ELEMENT_PACKAGE);
-    setStyleElementType(StyleEngine::TYPE_PACKAGE);
+    setStereotypeIconElement(StereotypeIcon::ElementPackage);
+    setStyleElementType(StyleEngine::TypePackage);
     visitDObject(package);
 }
 
 void PropertiesView::MView::visitDClass(const DClass *klass)
 {
     setTitle<DClass>(m_diagramElements, tr("Class"), tr("Classes"));
-    setStereotypeIconElement(StereotypeIcon::ELEMENT_CLASS);
-    setStyleElementType(StyleEngine::TYPE_CLASS);
+    setStereotypeIconElement(StereotypeIcon::ElementClass);
+    setStyleElementType(StyleEngine::TypeClass);
     visitDObject(klass);
     if (m_templateDisplaySelector == 0) {
         m_templateDisplaySelector = new QComboBox(m_topWidget);
@@ -974,8 +974,8 @@ void PropertiesView::MView::visitDClass(const DClass *klass)
 void PropertiesView::MView::visitDComponent(const DComponent *component)
 {
     setTitle<DComponent>(m_diagramElements, tr("Component"), tr("Components"));
-    setStereotypeIconElement(StereotypeIcon::ELEMENT_COMPONENT);
-    setStyleElementType(StyleEngine::TYPE_COMPONENT);
+    setStereotypeIconElement(StereotypeIcon::ElementComponent);
+    setStyleElementType(StyleEngine::TypeComponent);
     visitDObject(component);
     if (m_plainShapeCheckbox == 0) {
         m_plainShapeCheckbox = new QCheckBox(tr("Plain shape"), m_topWidget);
@@ -995,15 +995,15 @@ void PropertiesView::MView::visitDComponent(const DComponent *component)
 void PropertiesView::MView::visitDDiagram(const DDiagram *diagram)
 {
     setTitle<DDiagram>(m_diagramElements, tr("Diagram"), tr("Diagrams"));
-    setStyleElementType(StyleEngine::TYPE_OTHER);
+    setStyleElementType(StyleEngine::TypeOther);
     visitDObject(diagram);
 }
 
 void PropertiesView::MView::visitDItem(const DItem *item)
 {
     setTitle<DItem>(m_diagramElements, tr("Item"), tr("Items"));
-    setStereotypeIconElement(StereotypeIcon::ELEMENT_ITEM);
-    setStyleElementType(StyleEngine::TYPE_ITEM);
+    setStereotypeIconElement(StereotypeIcon::ElementItem);
+    setStyleElementType(StyleEngine::TypeItem);
     visitDObject(item);
     QList<DItem *> selection = filter<DItem>(m_diagramElements);
     bool isSingleSelection = selection.size() == 1;
@@ -1091,23 +1091,23 @@ void PropertiesView::MView::visitDBoundary(const DBoundary *boundary)
 void PropertiesView::MView::onStereotypesChanged(const QString &stereotypes)
 {
     QList<QString> set = m_stereotypesController->fromString(stereotypes);
-    assignModelElement<MElement, QList<QString> >(m_modelElements, SELECTION_MULTI, set, &MElement::stereotypes, &MElement::setStereotypes);
+    assignModelElement<MElement, QList<QString> >(m_modelElements, SelectionMulti, set, &MElement::stereotypes, &MElement::setStereotypes);
 }
 
 void PropertiesView::MView::onObjectNameChanged(const QString &name)
 {
-    assignModelElement<MObject, QString>(m_modelElements, SELECTION_SINGLE, name, &MObject::name, &MObject::setName);
+    assignModelElement<MObject, QString>(m_modelElements, SelectionSingle, name, &MObject::name, &MObject::setName);
 }
 
 void PropertiesView::MView::onNamespaceChanged(const QString &nameSpace)
 {
-    assignModelElement<MClass, QString>(m_modelElements, SELECTION_MULTI, nameSpace, &MClass::nameSpace, &MClass::setNameSpace);
+    assignModelElement<MClass, QString>(m_modelElements, SelectionMulti, nameSpace, &MClass::nameSpace, &MClass::setNameSpace);
 }
 
 void PropertiesView::MView::onTemplateParametersChanged(const QString &templateParameters)
 {
     QList<QString> templateParametersList = splitTemplateParameters(templateParameters);
-    assignModelElement<MClass, QList<QString> >(m_modelElements, SELECTION_SINGLE, templateParametersList, &MClass::templateParameters, &MClass::setTemplateParameters);
+    assignModelElement<MClass, QList<QString> >(m_modelElements, SelectionSingle, templateParametersList, &MClass::templateParameters, &MClass::setTemplateParameters);
 }
 
 void PropertiesView::MView::onClassMembersStatusChanged(bool valid)
@@ -1126,125 +1126,125 @@ void PropertiesView::MView::onParseClassMembers()
 
 void PropertiesView::MView::onClassMembersChanged(QList<MClassMember> &classMembers)
 {
-    assignModelElement<MClass, QList<MClassMember> >(m_modelElements, SELECTION_SINGLE, classMembers, &MClass::members, &MClass::setMembers);
+    assignModelElement<MClass, QList<MClassMember> >(m_modelElements, SelectionSingle, classMembers, &MClass::members, &MClass::setMembers);
 }
 
 void PropertiesView::MView::onItemVarietyChanged(const QString &variety)
 {
-    assignModelElement<MItem, QString>(m_modelElements, SELECTION_SINGLE, variety, &MItem::variety, &MItem::setVariety);
+    assignModelElement<MItem, QString>(m_modelElements, SelectionSingle, variety, &MItem::variety, &MItem::setVariety);
 }
 
 void PropertiesView::MView::onRelationNameChanged(const QString &name)
 {
-    assignModelElement<MRelation, QString>(m_modelElements, SELECTION_SINGLE, name, &MRelation::name, &MRelation::setName);
+    assignModelElement<MRelation, QString>(m_modelElements, SelectionSingle, name, &MRelation::name, &MRelation::setName);
 }
 
 void PropertiesView::MView::onDependencyDirectionChanged(int directionIndex)
 {
     MDependency::Direction direction = translateIndexToDirection(directionIndex);
-    assignModelElement<MDependency, MDependency::Direction>(m_modelElements, SELECTION_SINGLE, direction, &MDependency::direction, &MDependency::setDirection);
+    assignModelElement<MDependency, MDependency::Direction>(m_modelElements, SelectionSingle, direction, &MDependency::direction, &MDependency::setDirection);
 }
 
 void PropertiesView::MView::onAssociationEndANameChanged(const QString &name)
 {
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SELECTION_SINGLE, name, &MAssociation::endA, &MAssociation::setEndA, &MAssociationEnd::name, &MAssociationEnd::setName);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SelectionSingle, name, &MAssociation::endA, &MAssociation::setEndA, &MAssociationEnd::name, &MAssociationEnd::setName);
 }
 
 void PropertiesView::MView::onAssociationEndACardinalityChanged(const QString &cardinality)
 {
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SELECTION_SINGLE, cardinality, &MAssociation::endA, &MAssociation::setEndA, &MAssociationEnd::cardinality, &MAssociationEnd::setCardinality);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SelectionSingle, cardinality, &MAssociation::endA, &MAssociation::setEndA, &MAssociationEnd::cardinality, &MAssociationEnd::setCardinality);
 }
 
 void PropertiesView::MView::onAssociationEndANavigableChanged(bool navigable)
 {
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, bool>(m_modelElements, SELECTION_SINGLE, navigable, &MAssociation::endA, &MAssociation::setEndA, &MAssociationEnd::isNavigable, &MAssociationEnd::setNavigable);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, bool>(m_modelElements, SelectionSingle, navigable, &MAssociation::endA, &MAssociation::setEndA, &MAssociationEnd::isNavigable, &MAssociationEnd::setNavigable);
 }
 
 void PropertiesView::MView::onAssociationEndAKindChanged(int kindIndex)
 {
     MAssociationEnd::Kind kind = translateIndexToAssociationKind(kindIndex);
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, MAssociationEnd::Kind>(m_modelElements, SELECTION_SINGLE, kind, &MAssociation::endA, &MAssociation::setEndA, &MAssociationEnd::kind, &MAssociationEnd::setKind);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, MAssociationEnd::Kind>(m_modelElements, SelectionSingle, kind, &MAssociation::endA, &MAssociation::setEndA, &MAssociationEnd::kind, &MAssociationEnd::setKind);
 }
 
 void PropertiesView::MView::onAssociationEndBNameChanged(const QString &name)
 {
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SELECTION_SINGLE, name, &MAssociation::endB, &MAssociation::setEndB, &MAssociationEnd::name, &MAssociationEnd::setName);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SelectionSingle, name, &MAssociation::endB, &MAssociation::setEndB, &MAssociationEnd::name, &MAssociationEnd::setName);
 }
 
 void PropertiesView::MView::onAssociationEndBCardinalityChanged(const QString &cardinality)
 {
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SELECTION_SINGLE, cardinality, &MAssociation::endB, &MAssociation::setEndB, &MAssociationEnd::cardinality, &MAssociationEnd::setCardinality);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SelectionSingle, cardinality, &MAssociation::endB, &MAssociation::setEndB, &MAssociationEnd::cardinality, &MAssociationEnd::setCardinality);
 }
 
 void PropertiesView::MView::onAssociationEndBNavigableChanged(bool navigable)
 {
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, bool>(m_modelElements, SELECTION_SINGLE, navigable, &MAssociation::endB, &MAssociation::setEndB, &MAssociationEnd::isNavigable, &MAssociationEnd::setNavigable);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, bool>(m_modelElements, SelectionSingle, navigable, &MAssociation::endB, &MAssociation::setEndB, &MAssociationEnd::isNavigable, &MAssociationEnd::setNavigable);
 }
 
 void PropertiesView::MView::onAssociationEndBKindChanged(int kindIndex)
 {
     MAssociationEnd::Kind kind = translateIndexToAssociationKind(kindIndex);
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, MAssociationEnd::Kind>(m_modelElements, SELECTION_SINGLE, kind, &MAssociation::endB, &MAssociation::setEndB, &MAssociationEnd::kind, &MAssociationEnd::setKind);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, MAssociationEnd::Kind>(m_modelElements, SelectionSingle, kind, &MAssociation::endB, &MAssociation::setEndB, &MAssociationEnd::kind, &MAssociationEnd::setKind);
 }
 
 void PropertiesView::MView::onAutoSizedChanged(bool autoSized)
 {
-    assignModelElement<DObject, bool>(m_diagramElements, SELECTION_MULTI, autoSized, &DObject::hasAutoSize, &DObject::setAutoSize);
+    assignModelElement<DObject, bool>(m_diagramElements, SelectionMulti, autoSized, &DObject::hasAutoSize, &DObject::setAutoSize);
 }
 
 void PropertiesView::MView::onVisualPrimaryRoleChanged(int visualRoleIndex)
 {
     DObject::VisualPrimaryRole visualRole = translateIndexToVisualPrimaryRole(visualRoleIndex);
-    assignModelElement<DObject, DObject::VisualPrimaryRole>(m_diagramElements, SELECTION_MULTI, visualRole, &DObject::visualPrimaryRole, &DObject::setVisualPrimaryRole);
+    assignModelElement<DObject, DObject::VisualPrimaryRole>(m_diagramElements, SelectionMulti, visualRole, &DObject::visualPrimaryRole, &DObject::setVisualPrimaryRole);
 }
 
 void PropertiesView::MView::onVisualSecondaryRoleChanged(int visualRoleIndex)
 {
     DObject::VisualSecondaryRole visualRole = translateIndexToVisualSecondaryRole(visualRoleIndex);
-    assignModelElement<DObject, DObject::VisualSecondaryRole>(m_diagramElements, SELECTION_MULTI, visualRole, &DObject::visualSecondaryRole, &DObject::setVisualSecondaryRole);
+    assignModelElement<DObject, DObject::VisualSecondaryRole>(m_diagramElements, SelectionMulti, visualRole, &DObject::visualSecondaryRole, &DObject::setVisualSecondaryRole);
 }
 
 void PropertiesView::MView::onVisualEmphasizedChanged(bool visualEmphasized)
 {
-    assignModelElement<DObject, bool>(m_diagramElements, SELECTION_MULTI, visualEmphasized, &DObject::isVisualEmphasized, &DObject::setVisualEmphasized);
+    assignModelElement<DObject, bool>(m_diagramElements, SelectionMulti, visualEmphasized, &DObject::isVisualEmphasized, &DObject::setVisualEmphasized);
 }
 
 void PropertiesView::MView::onStereotypeDisplayChanged(int stereotypeDisplayIndex)
 {
     DObject::StereotypeDisplay stereotypeDisplay = translateIndexToStereotypeDisplay(stereotypeDisplayIndex);
-    assignModelElement<DObject, DObject::StereotypeDisplay>(m_diagramElements, SELECTION_MULTI, stereotypeDisplay, &DObject::stereotypeDisplay, &DObject::setStereotypeDisplay);
+    assignModelElement<DObject, DObject::StereotypeDisplay>(m_diagramElements, SelectionMulti, stereotypeDisplay, &DObject::stereotypeDisplay, &DObject::setStereotypeDisplay);
 }
 
 void PropertiesView::MView::onTemplateDisplayChanged(int templateDisplayIndex)
 {
     DClass::TemplateDisplay templateDisplay = translateIndexToTemplateDisplay(templateDisplayIndex);
-    assignModelElement<DClass, DClass::TemplateDisplay>(m_diagramElements, SELECTION_MULTI, templateDisplay, &DClass::templateDisplay, &DClass::setTemplateDisplay);
+    assignModelElement<DClass, DClass::TemplateDisplay>(m_diagramElements, SelectionMulti, templateDisplay, &DClass::templateDisplay, &DClass::setTemplateDisplay);
 }
 
 void PropertiesView::MView::onShowAllMembersChanged(bool showAllMembers)
 {
-    assignModelElement<DClass, bool>(m_diagramElements, SELECTION_MULTI, showAllMembers, &DClass::showAllMembers, &DClass::setShowAllMembers);
+    assignModelElement<DClass, bool>(m_diagramElements, SelectionMulti, showAllMembers, &DClass::showAllMembers, &DClass::setShowAllMembers);
 }
 
 void PropertiesView::MView::onPlainShapeChanged(bool plainShape)
 {
-    assignModelElement<DComponent, bool>(m_diagramElements, SELECTION_MULTI, plainShape, &DComponent::plainShape, &DComponent::setPlainShape);
+    assignModelElement<DComponent, bool>(m_diagramElements, SelectionMulti, plainShape, &DComponent::plainShape, &DComponent::setPlainShape);
 }
 
 void PropertiesView::MView::onItemShapeChanged(const QString &shape)
 {
-    assignModelElement<DItem, QString>(m_diagramElements, SELECTION_SINGLE, shape, &DItem::shape, &DItem::setShape);
+    assignModelElement<DItem, QString>(m_diagramElements, SelectionSingle, shape, &DItem::shape, &DItem::setShape);
 }
 
 void PropertiesView::MView::onAutoWidthChanged(bool autoWidthed)
 {
-    assignModelElement<DAnnotation, bool>(m_diagramElements, SELECTION_MULTI, autoWidthed, &DAnnotation::hasAutoSize, &DAnnotation::setAutoSize);
+    assignModelElement<DAnnotation, bool>(m_diagramElements, SelectionMulti, autoWidthed, &DAnnotation::hasAutoSize, &DAnnotation::setAutoSize);
 }
 
 void PropertiesView::MView::onAnnotationVisualRoleChanged(int visualRoleIndex)
 {
     DAnnotation::VisualRole visualRole = translateIndexToAnnotationVisualRole((visualRoleIndex));
-    assignModelElement<DAnnotation, DAnnotation::VisualRole>(m_diagramElements, SELECTION_MULTI, visualRole, &DAnnotation::visualRole, &DAnnotation::setVisualRole);
+    assignModelElement<DAnnotation, DAnnotation::VisualRole>(m_diagramElements, SelectionMulti, visualRole, &DAnnotation::visualRole, &DAnnotation::setVisualRole);
 }
 
 void PropertiesView::MView::prepare()
@@ -1288,7 +1288,7 @@ void PropertiesView::MView::setTitle(const MItem *item, const QList<V *> &elemen
         if (filtered.size() == elements.size()) {
             if (elements.size() == 1) {
                 if (item && !item->isVarietyEditable()) {
-                    QString stereotypeIconId = m_propertiesView->stereotypeController()->findStereotypeIconId(StereotypeIcon::ELEMENT_ITEM, QStringList() << item->variety());
+                    QString stereotypeIconId = m_propertiesView->stereotypeController()->findStereotypeIconId(StereotypeIcon::ElementItem, QStringList() << item->variety());
                     if (!stereotypeIconId.isEmpty()) {
                         StereotypeIcon stereotypeIcon = m_propertiesView->stereotypeController()->findStereotypeIcon(stereotypeIconId);
                         m_propertiesTitle = stereotypeIcon.title();
@@ -1308,14 +1308,14 @@ void PropertiesView::MView::setTitle(const MItem *item, const QList<V *> &elemen
 
 void PropertiesView::MView::setStereotypeIconElement(StereotypeIcon::Element stereotypeElement)
 {
-    if (m_stereotypeElement == StereotypeIcon::ELEMENT_ANY) {
+    if (m_stereotypeElement == StereotypeIcon::ElementAny) {
         m_stereotypeElement = stereotypeElement;
     }
 }
 
 void PropertiesView::MView::setStyleElementType(StyleEngine::ElementType elementType)
 {
-    if (m_styleElementType == StyleEngine::TYPE_OTHER) {
+    if (m_styleElementType == StyleEngine::TypeOther) {
         m_styleElementType = elementType;
     }
 }
@@ -1323,7 +1323,7 @@ void PropertiesView::MView::setStyleElementType(StyleEngine::ElementType element
 void PropertiesView::MView::setPrimaryRolePalette(StyleEngine::ElementType elementType, DObject::VisualPrimaryRole visualPrimaryRole, const QColor &baseColor)
 {
     int index = translateVisualPrimaryRoleToIndex(visualPrimaryRole);
-    const Style *style = m_propertiesView->styleController()->adaptObjectStyle(elementType, ObjectVisuals(visualPrimaryRole, DObject::SECONDARY_ROLE_NONE, false, baseColor, 0));
+    const Style *style = m_propertiesView->styleController()->adaptObjectStyle(elementType, ObjectVisuals(visualPrimaryRole, DObject::SecondaryRoleNone, false, baseColor, 0));
     m_visualPrimaryRoleSelector->setBrush(index, style->fillBrush());
     m_visualPrimaryRoleSelector->setLinePen(index, style->linePen());
 }
@@ -1412,7 +1412,7 @@ template<class T, class V, class BASE>
 void PropertiesView::MView::assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, V (T::*getter)() const, void (T::*setter)(const V &))
 {
     QList<T *> elements = filter<T>(baseElements);
-    if ((selectionType == SELECTION_SINGLE && elements.size() == 1) || selectionType == SELECTION_MULTI) {
+    if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
         foreach (T *element, elements) {
             if (value != ((*element).*getter)()) {
                 m_propertiesView->beginUpdate(element);
@@ -1427,7 +1427,7 @@ template<class T, class V, class BASE>
 void PropertiesView::MView::assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, V (T::*getter)() const, void (T::*setter)(V))
 {
     QList<T *> elements = filter<T>(baseElements);
-    if ((selectionType == SELECTION_SINGLE && elements.size() == 1) || selectionType == SELECTION_MULTI) {
+    if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
         foreach (T *element, elements) {
             if (value != ((*element).*getter)()) {
                 m_propertiesView->beginUpdate(element);
@@ -1442,7 +1442,7 @@ template<class T, class E, class V, class BASE>
 void PropertiesView::MView::assignEmbeddedModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, E (T::*getter)() const, void (T::*setter)(const E &), V (E::*vGetter)() const, void (E::*vSetter)(const V &))
 {
     QList<T *> elements = filter<T>(baseElements);
-    if ((selectionType == SELECTION_SINGLE && elements.size() == 1) || selectionType == SELECTION_MULTI) {
+    if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
         foreach (T *element, elements) {
             E embedded = ((*element).*getter)();
             if (value != (embedded.*vGetter)()) {
@@ -1459,7 +1459,7 @@ template<class T, class E, class V, class BASE>
 void PropertiesView::MView::assignEmbeddedModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, E (T::*getter)() const, void (T::*setter)(const E &), V (E::*vGetter)() const, void (E::*vSetter)(V))
 {
     QList<T *> elements = filter<T>(baseElements);
-    if ((selectionType == SELECTION_SINGLE && elements.size() == 1) || selectionType == SELECTION_MULTI) {
+    if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
         foreach (T *element, elements) {
             E embedded = ((*element).*getter)();
             if (value != (embedded.*vGetter)()) {

@@ -81,7 +81,7 @@ void DiagramItem::update()
     const Style *style = adaptedStyle(stereotypeIconId());
 
     // custom icon
-    if (stereotypeIconDisplay() == StereotypeIcon::DISPLAY_ICON) {
+    if (stereotypeIconDisplay() == StereotypeIcon::DisplayIcon) {
         if (!m_customIcon) {
             m_customIcon = new CustomIconItem(diagramSceneModel(), this);
         }

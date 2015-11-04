@@ -82,7 +82,7 @@ bool GeometryUtilities::intersect(const QPolygonF &polygon, const QLineF &line, 
 namespace {
 
 struct Candidate {
-    Candidate() : third(GeometryUtilities::SIDE_UNSPECIFIED) { }
+    Candidate() : third(GeometryUtilities::SideUnspecified) { }
 
     Candidate(const QVector2D &f, const QPointF &s, GeometryUtilities::Side t) : first(f), second(s), third(t) { }
 
@@ -98,14 +98,14 @@ bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, 
     QMT_CHECK(placement);
 
     QList<Candidate> candidates;
-    candidates << Candidate(QVector2D(rect.topRight() - rect.topLeft()), QPointF(0.0, 0.0), SIDE_TOP)
-               << Candidate(QVector2D(rect.topLeft() - rect.topRight()), rect.topRight() - rect.topLeft(), SIDE_TOP)
-               << Candidate(QVector2D(rect.bottomLeft() - rect.topLeft()), QPointF(0.0, 0.0), SIDE_LEFT)
-               << Candidate(QVector2D(rect.topLeft() - rect.bottomLeft()), rect.bottomLeft() - rect.topLeft(), SIDE_LEFT)
-               << Candidate(QVector2D(rect.bottomRight() - rect.bottomLeft()), rect.bottomLeft() - rect.topLeft(), SIDE_BOTTOM)
-               << Candidate(QVector2D(rect.bottomLeft() - rect.bottomRight()), rect.bottomRight() - rect.topLeft(), SIDE_BOTTOM)
-               << Candidate(QVector2D(rect.bottomRight() - rect.topRight()), rect.topRight() - rect.topLeft(), SIDE_RIGHT)
-               << Candidate(QVector2D(rect.topRight() - rect.bottomRight()), rect.bottomRight() - rect.topLeft(), SIDE_RIGHT);
+    candidates << Candidate(QVector2D(rect.topRight() - rect.topLeft()), QPointF(0.0, 0.0), SideTop)
+               << Candidate(QVector2D(rect.topLeft() - rect.topRight()), rect.topRight() - rect.topLeft(), SideTop)
+               << Candidate(QVector2D(rect.bottomLeft() - rect.topLeft()), QPointF(0.0, 0.0), SideLeft)
+               << Candidate(QVector2D(rect.topLeft() - rect.bottomLeft()), rect.bottomLeft() - rect.topLeft(), SideLeft)
+               << Candidate(QVector2D(rect.bottomRight() - rect.bottomLeft()), rect.bottomLeft() - rect.topLeft(), SideBottom)
+               << Candidate(QVector2D(rect.bottomLeft() - rect.bottomRight()), rect.bottomRight() - rect.topLeft(), SideBottom)
+               << Candidate(QVector2D(rect.bottomRight() - rect.topRight()), rect.topRight() - rect.topLeft(), SideRight)
+               << Candidate(QVector2D(rect.topRight() - rect.bottomRight()), rect.bottomRight() - rect.topLeft(), SideRight);
 
     QVector<QVector2D> rectEdgeVectors;
     rectEdgeVectors << QVector2D(rect.topLeft() - rect.topLeft())
@@ -129,7 +129,7 @@ bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, 
 
     double smallestA = -1.0;
     QPointF rectTranslation;
-    Side side = SIDE_UNSPECIFIED;
+    Side side = SideUnspecified;
     int bestSign = 0;
 
     foreach (const Candidate &candidate, candidates) {
@@ -173,11 +173,11 @@ bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, 
     if (horizontalAlignedSide) {
         // convert side into a horizontal side depending on placement relative to direction vector
         switch (side) {
-        case SIDE_TOP:
-            side = bestSign == -1 ? SIDE_RIGHT : SIDE_LEFT;
+        case SideTop:
+            side = bestSign == -1 ? SideRight : SideLeft;
             break;
-        case SIDE_BOTTOM:
-            side = bestSign == -1 ? SIDE_LEFT : SIDE_RIGHT;
+        case SideBottom:
+            side = bestSign == -1 ? SideLeft : SideRight;
             break;
         default:
             break;

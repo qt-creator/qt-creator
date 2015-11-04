@@ -41,8 +41,8 @@ class AlignLineItem :
 public:
 
     enum Direction {
-        HORIZONTAL,
-        VERTICAL
+        Horizontal,
+        Vertical
     };
 
 public:

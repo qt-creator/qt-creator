@@ -46,9 +46,9 @@ class IResizable {
 public:
 
     enum Side {
-        SIDE_NONE,
-        SIDE_LEFT_OR_TOP,
-        SIDE_RIGHT_OR_BOTTOM
+        SideNone,
+        SideLeftOrTop,
+        SideRightOrBottom
     };
 
 public:

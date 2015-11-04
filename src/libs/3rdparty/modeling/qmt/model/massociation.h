@@ -47,9 +47,9 @@ class QMT_EXPORT MAssociationEnd
 public:
 
     enum Kind {
-        ASSOCIATION,
-        AGGREGATION,
-        COMPOSITION
+        Association,
+        Aggregation,
+        Composition
     };
 
 public:

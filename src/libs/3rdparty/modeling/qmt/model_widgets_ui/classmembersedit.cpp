@@ -371,7 +371,7 @@ void ClassMembersEdit::onTextChanged()
 
 QString ClassMembersEdit::build(const QList<MClassMember> &members)
 {
-    MClassMember::Visibility currentVisibility = MClassMember::VISIBILITY_UNDEFINED;
+    MClassMember::Visibility currentVisibility = MClassMember::VisibilityUndefined;
     QString currentGroup;
 
     QString text;
@@ -379,30 +379,30 @@ QString ClassMembersEdit::build(const QList<MClassMember> &members)
         bool addNewline = false;
         bool addSpace = false;
         if (member.visibility() != currentVisibility) {
-            if (member.visibility() != MClassMember::VISIBILITY_UNDEFINED) {
+            if (member.visibility() != MClassMember::VisibilityUndefined) {
                 QString vis;
                 switch (member.visibility()) {
-                case MClassMember::VISIBILITY_UNDEFINED:
+                case MClassMember::VisibilityUndefined:
                     break;
-                case MClassMember::VISIBILITY_PUBLIC:
+                case MClassMember::VisibilityPublic:
                     vis = QStringLiteral("public:");
                     break;
-                case MClassMember::VISIBILITY_PROTECTED:
+                case MClassMember::VisibilityProtected:
                     vis = QStringLiteral("protected:");
                     break;
-                case MClassMember::VISIBILITY_PRIVATE:
+                case MClassMember::VisibilityPrivate:
                     vis = QStringLiteral("private:");
                     break;
-                case MClassMember::VISIBILITY_SIGNALS:
+                case MClassMember::VisibilitySignals:
                     vis = QStringLiteral("signals:");
                     break;
-                case MClassMember::VISIBILITY_PRIVATE_SLOTS:
+                case MClassMember::VisibilityPrivateSlots:
                     vis = QStringLiteral("private slots:");
                     break;
-                case MClassMember::VISIBILITY_PROTECTED_SLOTS:
+                case MClassMember::VisibilityProtectedSlots:
                     vis = QStringLiteral("protected slots:");
                     break;
-                case MClassMember::VISIBILITY_PUBLIC_SLOTS:
+                case MClassMember::VisibilityPublicSlots:
                     vis = QStringLiteral("public slots:");
                     break;
                 }
@@ -433,29 +433,29 @@ QString ClassMembersEdit::build(const QList<MClassMember> &members)
             StereotypesController ctrl;
             text += QString(QStringLiteral("<<%1>> ")).arg(ctrl.toString(member.stereotypes()));
         }
-        if (member.properties() & MClassMember::PROPERTY_QSIGNAL) {
+        if (member.properties() & MClassMember::PropertyQsignal) {
             text += QStringLiteral("signal ");
         }
-        if (member.properties() & MClassMember::PROPERTY_QSLOT) {
+        if (member.properties() & MClassMember::PropertyQslot) {
             text += QStringLiteral("slot ");
         }
-        if (member.properties() & MClassMember::PROPERTY_QINVOKABLE) {
+        if (member.properties() & MClassMember::PropertyQinvokable) {
             text += QStringLiteral("invokable ");
         }
-        if (member.properties() & MClassMember::PROPERTY_VIRTUAL) {
+        if (member.properties() & MClassMember::PropertyVirtual) {
             text += QStringLiteral("virtual ");
         }
         text += member.declaration();
-        if (member.properties() & MClassMember::PROPERTY_CONST) {
+        if (member.properties() & MClassMember::PropertyConst) {
             text += QStringLiteral(" const");
         }
-        if (member.properties() & MClassMember::PROPERTY_OVERRIDE) {
+        if (member.properties() & MClassMember::PropertyOverride) {
             text += QStringLiteral(" override");
         }
-        if (member.properties() & MClassMember::PROPERTY_FINAL) {
+        if (member.properties() & MClassMember::PropertyFinal) {
             text += QStringLiteral(" final");
         }
-        if (member.properties() & MClassMember::PROPERTY_ABSTRACT) {
+        if (member.properties() & MClassMember::PropertyAbstract) {
             text += QStringLiteral(" = 0");
         }
         text += QStringLiteral(";\n");
@@ -471,7 +471,7 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
     *ok = true;
     QList<MClassMember> members;
     MClassMember member;
-    MClassMember::Visibility currentVisibility = MClassMember::VISIBILITY_UNDEFINED;
+    MClassMember::Visibility currentVisibility = MClassMember::VisibilityUndefined;
     QString currentGroup;
 
     Cursor cursor(text);
@@ -484,30 +484,30 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
         QString word = cursor.readWord().toLower();
         for (;;) {
             if (word == QStringLiteral("public")) {
-                currentVisibility = MClassMember::VISIBILITY_PUBLIC;
+                currentVisibility = MClassMember::VisibilityPublic;
                 word = cursor.readWord().toLower();
             } else if (word == QStringLiteral("protected")) {
-                currentVisibility = MClassMember::VISIBILITY_PROTECTED;
+                currentVisibility = MClassMember::VisibilityProtected;
                 word = cursor.readWord().toLower();
             } else if (word == QStringLiteral("private")) {
-                currentVisibility = MClassMember::VISIBILITY_PRIVATE;
+                currentVisibility = MClassMember::VisibilityPrivate;
                 word = cursor.readWord().toLower();
             } else if (word == QStringLiteral("signals")) {
-                currentVisibility = MClassMember::VISIBILITY_SIGNALS;
+                currentVisibility = MClassMember::VisibilitySignals;
                 word = cursor.readWord().toLower();
             } else if (word == QStringLiteral("slots")) {
                 switch (currentVisibility) {
-                case MClassMember::VISIBILITY_PRIVATE:
-                    currentVisibility = MClassMember::VISIBILITY_PRIVATE_SLOTS;
+                case MClassMember::VisibilityPrivate:
+                    currentVisibility = MClassMember::VisibilityPrivateSlots;
                     break;
-                case MClassMember::VISIBILITY_PROTECTED:
-                    currentVisibility = MClassMember::VISIBILITY_PROTECTED_SLOTS;
+                case MClassMember::VisibilityProtected:
+                    currentVisibility = MClassMember::VisibilityProtectedSlots;
                     break;
-                case MClassMember::VISIBILITY_PUBLIC:
-                    currentVisibility = MClassMember::VISIBILITY_PUBLIC_SLOTS;
+                case MClassMember::VisibilityPublic:
+                    currentVisibility = MClassMember::VisibilityPublicSlots;
                     break;
                 default:
-                    currentVisibility = MClassMember::VISIBILITY_PRIVATE_SLOTS;
+                    currentVisibility = MClassMember::VisibilityPrivateSlots;
                     break;
                 }
                 word = cursor.readWord().toLower();
@@ -520,16 +520,16 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
                 member.setStereotypes(ctrl.fromString(stereotypes));
                 word = cursor.readWord().toLower();
             } else if (word == QStringLiteral("virtual")) {
-                member.setProperties(member.properties() | MClassMember::PROPERTY_VIRTUAL);
+                member.setProperties(member.properties() | MClassMember::PropertyVirtual);
                 word = cursor.readWord().toLower();
             } else if (word == QStringLiteral("signal") || word == QStringLiteral("qSignal")) {
-                member.setProperties(member.properties() | MClassMember::PROPERTY_QSIGNAL);
+                member.setProperties(member.properties() | MClassMember::PropertyQsignal);
                 word = cursor.readWord().toLower();
             } else if (word == QStringLiteral("slot") || word == QStringLiteral("qSlot")) {
-                member.setProperties(member.properties() | MClassMember::PROPERTY_QSLOT);
+                member.setProperties(member.properties() | MClassMember::PropertyQslot);
                 word = cursor.readWord().toLower();
             } else if (word == QStringLiteral("invokable") || word == QStringLiteral("qInvokable")) {
-                member.setProperties(member.properties() | MClassMember::PROPERTY_QINVOKABLE);
+                member.setProperties(member.properties() | MClassMember::PropertyQinvokable);
             } else if (word == QStringLiteral(":")) {
                 word = cursor.readWord().toLower();
             } else {
@@ -550,18 +550,18 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
             }
             for (;;) {
                 if (word == QStringLiteral("0")) {
-                    member.setProperties(member.properties() | MClassMember::PROPERTY_ABSTRACT);
+                    member.setProperties(member.properties() | MClassMember::PropertyAbstract);
                     word = cursor.readWordFromRight().toLower();
                 } else if (word == QStringLiteral("=")) {
                     word = cursor.readWordFromRight().toLower();
                 } else if (word == QStringLiteral("final")) {
-                    member.setProperties(member.properties() | MClassMember::PROPERTY_FINAL);
+                    member.setProperties(member.properties() | MClassMember::PropertyFinal);
                     word = cursor.readWordFromRight().toLower();
                 } else if (word == QStringLiteral("override")) {
-                    member.setProperties(member.properties() | MClassMember::PROPERTY_OVERRIDE);
+                    member.setProperties(member.properties() | MClassMember::PropertyOverride);
                     word = cursor.readWordFromRight().toLower();
                 } else if (word == QStringLiteral("const")) {
-                    member.setProperties(member.properties() | MClassMember::PROPERTY_CONST);
+                    member.setProperties(member.properties() | MClassMember::PropertyConst);
                     word = cursor.readWordFromRight().toLower();
                 } else {
                     cursor.unreadWord();
@@ -576,9 +576,9 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
             if (!declaration.isEmpty()) {
                 member.setDeclaration(declaration);
                 if (declaration.endsWith(QStringLiteral(")"))) {
-                    member.setMemberType(MClassMember::MEMBER_METHOD);
+                    member.setMemberType(MClassMember::MemberMethod);
                 } else {
-                    member.setMemberType(MClassMember::MEMBER_ATTRIBUTE);
+                    member.setMemberType(MClassMember::MemberAttribute);
                 }
                 members.append(member);
             }

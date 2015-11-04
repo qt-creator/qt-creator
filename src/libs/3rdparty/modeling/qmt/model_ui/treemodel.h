@@ -68,14 +68,14 @@ class QMT_EXPORT TreeModel :
 public:
 
     enum ItemType {
-        PACKAGE,
-        DIAGRAM,
-        ELEMENT,
-        RELATION
+        Package,
+        Diagram,
+        Element,
+        Relation
     };
 
     enum Roles {
-        ROLE_ITEM_TYPE = Qt::UserRole + 1
+        RoleItemType = Qt::UserRole + 1
     };
 
 public:
@@ -169,20 +169,20 @@ private:
 
 private:
     enum Busy {
-        NOT_BUSY,
-        RESET_MODEL,
-        UPDATE_ELEMENT,
-        INSERT_ELEMENT,
-        REMOVE_ELEMENT,
-        MOVE_ELEMENT,
-        UPDATE_DIAGRAM,
-        INSERT_DIAGRAM,
-        REMOVE_DIAGRAM,
-        MOVE_DIAGRAM,
-        UPDATE_RELATION,
-        INSERT_RELATION,
-        REMOVE_RELATION,
-        MOVE_RELATION
+        NotBusy,
+        ResetModel,
+        UpdateElement,
+        InsertElement,
+        RemoveElement,
+        MoveElement,
+        UpdateDiagram,
+        InsertDiagram,
+        RemoveDiagram,
+        MoveDiagram,
+        UpdateRelation,
+        InsertRelation,
+        RemoveRelation,
+        MoveRelation
     };
 
 private:

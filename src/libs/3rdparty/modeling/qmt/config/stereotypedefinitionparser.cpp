@@ -121,7 +121,7 @@ struct StereotypeDefinitionParser::StereotypeDefinitionParserPrivate
 
 struct StereotypeDefinitionParser::IconCommandParameter
 {
-    IconCommandParameter(ShapeValueF::Unit unit, ShapeValueF::Origin origin = ShapeValueF::ORIGIN_SMART)
+    IconCommandParameter(ShapeValueF::Unit unit, ShapeValueF::Origin origin = ShapeValueF::OriginSmart)
         : m_unit(unit),
           m_origin(origin)
     {
@@ -202,19 +202,19 @@ void StereotypeDefinitionParser::parseFile()
 {
     for (;;) {
         Token token = readNextToken();
-        if (token.type() == Token::TOKEN_ENDOFINPUT) {
+        if (token.type() == Token::TokenEndOfInput) {
             break;
-        } else if (token.type() != Token::TOKEN_KEYWORD || token.subtype() == KEYWORD_ICON) {
+        } else if (token.type() != Token::TokenKeyword || token.subtype() == KEYWORD_ICON) {
             parseIcon();
-        } else if (token.type() != Token::TOKEN_KEYWORD || token.subtype() == KEYWORD_TOOLBAR) {
+        } else if (token.type() != Token::TokenKeyword || token.subtype() == KEYWORD_TOOLBAR) {
             parseToolbar();
         } else {
             throw StereotypeDefinitionParserError(QStringLiteral("Expected 'icon' or 'toolbar'."), token.sourcePos());
         }
         token = d->m_scanner->read();
-        if (token.type() == Token::TOKEN_OPERATOR && token.subtype() == OPERATOR_PERIOD) {
+        if (token.type() == Token::TokenOperator && token.subtype() == OPERATOR_PERIOD) {
             break;
-        } else if (token.type() != Token::TOKEN_OPERATOR || token.subtype() != OPERATOR_SEMICOLON) {
+        } else if (token.type() != Token::TokenOperator || token.subtype() != OPERATOR_SEMICOLON) {
             d->m_scanner->unread(token);
         }
     }
@@ -223,7 +223,7 @@ void StereotypeDefinitionParser::parseFile()
 void StereotypeDefinitionParser::parseIcon()
 {
     Token token = d->m_scanner->read();
-    if (token.type() != Token::TOKEN_IDENTIFIER && token.type() != Token::TOKEN_KEYWORD) {
+    if (token.type() != Token::TokenIdentifier && token.type() != Token::TokenKeyword) {
         throw StereotypeDefinitionParserError(QStringLiteral("Expected identifier."), token.sourcePos());
     }
     QString id = token.text();
@@ -231,12 +231,12 @@ void StereotypeDefinitionParser::parseIcon()
     stereotypeIcon.setId(id);
     parseIconProperties(&stereotypeIcon);
     token = readNextToken();
-    if (token.type() != Token::TOKEN_KEYWORD || token.subtype() != KEYWORD_BEGIN) {
+    if (token.type() != Token::TokenKeyword || token.subtype() != KEYWORD_BEGIN) {
         throw StereotypeDefinitionParserError(QStringLiteral("Expected token 'begin'."), token.sourcePos());
     }
     parseIconCommands(&stereotypeIcon);
     token = readNextToken();
-    if (token.type() != Token::TOKEN_KEYWORD || token.subtype() != KEYWORD_END) {
+    if (token.type() != Token::TokenKeyword || token.subtype() != KEYWORD_END) {
         throw StereotypeDefinitionParserError(QStringLiteral("Expected token 'end'."), token.sourcePos());
     }
     emit iconParsed(stereotypeIcon);
@@ -250,7 +250,7 @@ void StereotypeDefinitionParser::parseIconProperties(StereotypeIcon *stereotypeI
     QSet<QString> stereotypes;
     while (loop) {
         token = readNextToken();
-        if (token.type() != Token::TOKEN_KEYWORD) {
+        if (token.type() != Token::TokenKeyword) {
             loop = false;
         } else {
             switch (token.subtype()) {
@@ -263,11 +263,11 @@ void StereotypeDefinitionParser::parseIconProperties(StereotypeIcon *stereotypeI
                 QList<QString> identifiers = parseIdentifierListProperty();
                 foreach (const QString &identifier, identifiers) {
                     static QHash<QString, StereotypeIcon::Element> elementNames = QHash<QString, StereotypeIcon::Element>()
-                            << qMakePair(QString(QStringLiteral("package")), StereotypeIcon::ELEMENT_PACKAGE)
-                            << qMakePair(QString(QStringLiteral("component")), StereotypeIcon::ELEMENT_COMPONENT)
-                            << qMakePair(QString(QStringLiteral("class")), StereotypeIcon::ELEMENT_CLASS)
-                            << qMakePair(QString(QStringLiteral("diagram")), StereotypeIcon::ELEMENT_DIAGRAM)
-                            << qMakePair(QString(QStringLiteral("item")), StereotypeIcon::ELEMENT_ITEM);
+                            << qMakePair(QString(QStringLiteral("package")), StereotypeIcon::ElementPackage)
+                            << qMakePair(QString(QStringLiteral("component")), StereotypeIcon::ElementComponent)
+                            << qMakePair(QString(QStringLiteral("class")), StereotypeIcon::ElementClass)
+                            << qMakePair(QString(QStringLiteral("diagram")), StereotypeIcon::ElementDiagram)
+                            << qMakePair(QString(QStringLiteral("item")), StereotypeIcon::ElementItem);
                     QString elementName = identifier.toLower();
                     if (!elementNames.contains(elementName)) {
                         throw StereotypeDefinitionParserError(QString(QStringLiteral("Unexpected value \"%1\" for element.")).arg(identifier), token.sourcePos());
@@ -302,11 +302,11 @@ void StereotypeDefinitionParser::parseIconProperties(StereotypeIcon *stereotypeI
                 QString lockValue = parseIdentifierProperty();
                 QString lockName = lockValue.toLower();
                 static QHash<QString, StereotypeIcon::SizeLock> lockNames = QHash<QString, StereotypeIcon::SizeLock>()
-                        << qMakePair(QString(QStringLiteral("none")), StereotypeIcon::LOCK_NONE)
-                        << qMakePair(QString(QStringLiteral("width")), StereotypeIcon::LOCK_WIDTH)
-                        << qMakePair(QString(QStringLiteral("height")), StereotypeIcon::LOCK_HEIGHT)
-                        << qMakePair(QString(QStringLiteral("size")), StereotypeIcon::LOCK_SIZE)
-                        << qMakePair(QString(QStringLiteral("ratio")), StereotypeIcon::LOCK_RATIO);
+                        << qMakePair(QString(QStringLiteral("none")), StereotypeIcon::LockNone)
+                        << qMakePair(QString(QStringLiteral("width")), StereotypeIcon::LockWidth)
+                        << qMakePair(QString(QStringLiteral("height")), StereotypeIcon::LockHeight)
+                        << qMakePair(QString(QStringLiteral("size")), StereotypeIcon::LockSize)
+                        << qMakePair(QString(QStringLiteral("ratio")), StereotypeIcon::LockRatio);
                 if (lockNames.contains(lockName)) {
                     StereotypeIcon::SizeLock sizeLock = lockNames.value(lockName);
                     stereotypeIcon->setSizeLock(sizeLock);
@@ -320,11 +320,11 @@ void StereotypeDefinitionParser::parseIconProperties(StereotypeIcon *stereotypeI
                 QString displayValue = parseIdentifierProperty();
                 QString displayName = displayValue.toLower();
                 static QHash<QString, StereotypeIcon::Display> displayNames = QHash<QString, StereotypeIcon::Display>()
-                        << qMakePair(QString(QStringLiteral("none")), StereotypeIcon::DISPLAY_NONE)
-                        << qMakePair(QString(QStringLiteral("label")), StereotypeIcon::DISPLAY_LABEL)
-                        << qMakePair(QString(QStringLiteral("decoration")), StereotypeIcon::DISPLAY_DECORATION)
-                        << qMakePair(QString(QStringLiteral("icon")), StereotypeIcon::DISPLAY_ICON)
-                        << qMakePair(QString(QStringLiteral("smart")), StereotypeIcon::DISPLAY_SMART);
+                        << qMakePair(QString(QStringLiteral("none")), StereotypeIcon::DisplayNone)
+                        << qMakePair(QString(QStringLiteral("label")), StereotypeIcon::DisplayLabel)
+                        << qMakePair(QString(QStringLiteral("decoration")), StereotypeIcon::DisplayDecoration)
+                        << qMakePair(QString(QStringLiteral("icon")), StereotypeIcon::DisplayIcon)
+                        << qMakePair(QString(QStringLiteral("smart")), StereotypeIcon::DisplaySmart);
                 if (displayNames.contains(displayName)) {
                     StereotypeIcon::Display display = displayNames.value(displayName);
                     stereotypeIcon->setDisplay(display);
@@ -338,9 +338,9 @@ void StereotypeDefinitionParser::parseIconProperties(StereotypeIcon *stereotypeI
                 QString alignValue = parseIdentifierProperty();
                 QString alignName = alignValue.toLower();
                 static QHash<QString, StereotypeIcon::TextAlignment> alignNames = QHash<QString, StereotypeIcon::TextAlignment>()
-                        << qMakePair(QString(QStringLiteral("below")), StereotypeIcon::TEXTALIGN_BELOW)
-                        << qMakePair(QString(QStringLiteral("center")), StereotypeIcon::TEXTALIGN_CENTER)
-                        << qMakePair(QString(QStringLiteral("none")), StereotypeIcon::TEXTALIGN_NONE);
+                        << qMakePair(QString(QStringLiteral("below")), StereotypeIcon::TextalignBelow)
+                        << qMakePair(QString(QStringLiteral("center")), StereotypeIcon::TextalignCenter)
+                        << qMakePair(QString(QStringLiteral("none")), StereotypeIcon::TextalignNone);
                 if (alignNames.contains(alignName)) {
                     StereotypeIcon::TextAlignment textAlignment = alignNames.value(alignName);
                     stereotypeIcon->setTextAlignment(textAlignment);
@@ -367,7 +367,7 @@ void StereotypeDefinitionParser::parseIconProperties(StereotypeIcon *stereotypeI
 void StereotypeDefinitionParser::parseToolbar()
 {
     Token token = d->m_scanner->read();
-    if (token.type() != Token::TOKEN_IDENTIFIER && token.type() != Token::TOKEN_KEYWORD) {
+    if (token.type() != Token::TokenIdentifier && token.type() != Token::TokenKeyword) {
         throw StereotypeDefinitionParserError(QStringLiteral("Expected identifier."), token.sourcePos());
     }
     QString id = token.text();
@@ -375,12 +375,12 @@ void StereotypeDefinitionParser::parseToolbar()
     toolbar.setId(id);
     parseToolbarProperties(&toolbar);
     token = readNextToken();
-    if (token.type() != Token::TOKEN_KEYWORD || token.subtype() != KEYWORD_BEGIN) {
+    if (token.type() != Token::TokenKeyword || token.subtype() != KEYWORD_BEGIN) {
         throw StereotypeDefinitionParserError(QStringLiteral("Expected token 'begin'."), token.sourcePos());
     }
     parseToolbarCommands(&toolbar);
     token = readNextToken();
-    if (token.type() != Token::TOKEN_KEYWORD || token.subtype() != KEYWORD_END) {
+    if (token.type() != Token::TokenKeyword || token.subtype() != KEYWORD_END) {
         throw StereotypeDefinitionParserError(QStringLiteral("Expected token 'end'."), token.sourcePos());
     }
     emit toolbarParsed(toolbar);
@@ -392,7 +392,7 @@ void StereotypeDefinitionParser::parseToolbarProperties(Toolbar *toolbar)
     bool loop = true;
     while (loop) {
         token = readNextToken();
-        if (token.type() != Token::TOKEN_KEYWORD) {
+        if (token.type() != Token::TokenKeyword) {
             loop = false;
         } else {
             switch (token.subtype()) {
@@ -438,13 +438,13 @@ QList<QString> StereotypeDefinitionParser::parseIdentifierListProperty()
     expectColon();
     for (;;) {
         Token token = d->m_scanner->read();
-        if (token.type() != Token::TOKEN_IDENTIFIER && token.type() != Token::TOKEN_KEYWORD) {
+        if (token.type() != Token::TokenIdentifier && token.type() != Token::TokenKeyword) {
             qDebug() << "token" << token.type() << token.subtype() << token.text();
             throw StereotypeDefinitionParserError(QStringLiteral("Expected identifier."), token.sourcePos());
         }
         identifiers.append(token.text());
         token = d->m_scanner->read();
-        if (token.type() != Token::TOKEN_OPERATOR || token.subtype() != OPERATOR_COMMA) {
+        if (token.type() != Token::TokenOperator || token.subtype() != OPERATOR_COMMA) {
             d->m_scanner->unread(token);
             break;
         }
@@ -472,13 +472,13 @@ void StereotypeDefinitionParser::parseIconCommands(StereotypeIcon *stereotypeIco
     QList<ShapeValueF> parameters;
 
     typedef QList<IconCommandParameter> Parameters;
-    static const IconCommandParameter SCALED(ShapeValueF::UNIT_SCALED);
-    static const IconCommandParameter FIX(ShapeValueF::UNIT_RELATIVE);
-    static const IconCommandParameter ABSOLUTE(ShapeValueF::UNIT_ABSOLUTE);
+    static const IconCommandParameter SCALED(ShapeValueF::UnitScaled);
+    static const IconCommandParameter FIX(ShapeValueF::UnitRelative);
+    static const IconCommandParameter ABSOLUTE(ShapeValueF::UnitAbsolute);
 
     while (loop) {
         token = readNextToken();
-        if (token.type() != Token::TOKEN_KEYWORD) {
+        if (token.type() != Token::TokenKeyword) {
             loop = false;
         } else {
             switch (token.subtype()) {
@@ -568,7 +568,7 @@ QList<ShapeValueF> StereotypeDefinitionParser::parseIconCommandParameters(const 
             values << ShapeValueF(parseFloatExpression());
         }
         token = d->m_scanner->read();
-        if (token.type() != Token::TOKEN_OPERATOR || token.subtype() != OPERATOR_COMMA) {
+        if (token.type() != Token::TokenOperator || token.subtype() != OPERATOR_COMMA) {
             d->m_scanner->unread(token);
             break;
         }
@@ -588,7 +588,7 @@ void StereotypeDefinitionParser::parseToolbarCommands(Toolbar *toolbar)
     bool loop = true;
     while (loop) {
         token = readNextToken();
-        if (token.type() != Token::TOKEN_KEYWORD) {
+        if (token.type() != Token::TokenKeyword) {
             loop = false;
         } else {
             switch (token.subtype()) {
@@ -633,7 +633,7 @@ void StereotypeDefinitionParser::parseToolbarCommands(Toolbar *toolbar)
 QString StereotypeDefinitionParser::parseStringExpression()
 {
     Token token = d->m_scanner->read();
-    if (token.type() != Token::TOKEN_STRING) {
+    if (token.type() != Token::TokenString) {
         throw StereotypeDefinitionParserError(QStringLiteral("Expected string constant."), token.sourcePos());
     }
     return token.text();
@@ -643,15 +643,15 @@ qreal StereotypeDefinitionParser::parseFloatExpression()
 {
     Token token;
     token = d->m_scanner->read();
-    if (token.type() == Token::TOKEN_OPERATOR && token.subtype() == OPERATOR_MINUS) {
+    if (token.type() == Token::TokenOperator && token.subtype() == OPERATOR_MINUS) {
         return -parseFloatExpression();
     } else {
         bool ok = false;
-        if (token.type() == Token::TOKEN_INTEGER) {
+        if (token.type() == Token::TokenInteger) {
             int value = token.text().toInt(&ok);
             QMT_CHECK(ok);
             return value;
-        } else if (token.type() == Token::TOKEN_FLOAT) {
+        } else if (token.type() == Token::TokenFloat) {
             qreal value = token.text().toDouble(&ok);
             QMT_CHECK(ok);
             return value;
@@ -665,11 +665,11 @@ int StereotypeDefinitionParser::parseIntExpression()
 {
     Token token;
     token = d->m_scanner->read();
-    if (token.type() == Token::TOKEN_OPERATOR && token.subtype() == OPERATOR_MINUS) {
+    if (token.type() == Token::TokenOperator && token.subtype() == OPERATOR_MINUS) {
         return -parseIntExpression();
     } else {
         bool ok = false;
-        if (token.type() == Token::TOKEN_INTEGER) {
+        if (token.type() == Token::TokenInteger) {
             int value = token.text().toInt(&ok);
             QMT_CHECK(ok);
             return value;
@@ -682,7 +682,7 @@ int StereotypeDefinitionParser::parseIntExpression()
 QString StereotypeDefinitionParser::parseIdentifierExpression()
 {
     Token token = d->m_scanner->read();
-    if (token.type() != Token::TOKEN_IDENTIFIER && token.type() != Token::TOKEN_KEYWORD) {
+    if (token.type() != Token::TokenIdentifier && token.type() != Token::TokenKeyword) {
         throw StereotypeDefinitionParserError(QStringLiteral("Expected identifier."), token.sourcePos());
     }
     return token.text();
@@ -691,7 +691,7 @@ QString StereotypeDefinitionParser::parseIdentifierExpression()
 bool StereotypeDefinitionParser::parseBoolExpression()
 {
     Token token = d->m_scanner->read();
-    if (token.type() == Token::TOKEN_IDENTIFIER) {
+    if (token.type() == Token::TokenIdentifier) {
         QString value = token.text().toLower();
         if (value == QStringLiteral("yes") || value == QStringLiteral("true")) {
             return true;
@@ -705,7 +705,7 @@ bool StereotypeDefinitionParser::parseBoolExpression()
 QColor StereotypeDefinitionParser::parseColorExpression()
 {
     Token token = d->m_scanner->read();
-    if (token.type() == Token::TOKEN_IDENTIFIER || token.type() == Token::TOKEN_COLOR) {
+    if (token.type() == Token::TokenIdentifier || token.type() == Token::TokenColor) {
         QString value = token.text().toLower();
         QColor color;
         if (QColor::isValidColor(value)) {
@@ -721,7 +721,7 @@ Token StereotypeDefinitionParser::readNextToken()
     Token token;
     for (;;) {
         token = d->m_scanner->read();
-        if (token.type() != Token::TOKEN_ENDOFLINE) {
+        if (token.type() != Token::TokenEndOfLine) {
             return token;
         }
     }
@@ -729,7 +729,7 @@ Token StereotypeDefinitionParser::readNextToken()
 
 qreal StereotypeDefinitionParser::expectAbsoluteValue(const ShapeValueF &value, const SourcePos &sourcePos)
 {
-    if (value.unit() != ShapeValueF::UNIT_ABSOLUTE || value.origin() != ShapeValueF::ORIGIN_SMART) {
+    if (value.unit() != ShapeValueF::UnitAbsolute || value.origin() != ShapeValueF::OriginSmart) {
         throw StereotypeDefinitionParserError(QStringLiteral("Expected absolute value"), sourcePos);
     }
     return value.value();
@@ -738,7 +738,7 @@ qreal StereotypeDefinitionParser::expectAbsoluteValue(const ShapeValueF &value, 
 void StereotypeDefinitionParser::expectSemicolonOrEndOfLine()
 {
     Token token = d->m_scanner->read();
-    if (token.type() != Token::TOKEN_ENDOFLINE && (token.type() != Token::TOKEN_OPERATOR || token.subtype() != OPERATOR_SEMICOLON)) {
+    if (token.type() != Token::TokenEndOfLine && (token.type() != Token::TokenOperator || token.subtype() != OPERATOR_SEMICOLON)) {
         throw StereotypeDefinitionParserError(QStringLiteral("Expected ';' or end-of-line."), token.sourcePos());
     }
 }
@@ -746,7 +746,7 @@ void StereotypeDefinitionParser::expectSemicolonOrEndOfLine()
 bool StereotypeDefinitionParser::nextIsComma()
 {
     Token token = d->m_scanner->read();
-    if (token.type() != Token::TOKEN_OPERATOR || token.subtype() != OPERATOR_COMMA) {
+    if (token.type() != Token::TokenOperator || token.subtype() != OPERATOR_COMMA) {
         d->m_scanner->unread(token);
         return false;
     }
@@ -756,7 +756,7 @@ bool StereotypeDefinitionParser::nextIsComma()
 void StereotypeDefinitionParser::expectOperator(int op, const QString &opName)
 {
     Token token = d->m_scanner->read();
-    if (token.type() != Token::TOKEN_OPERATOR || token.subtype() != op) {
+    if (token.type() != Token::TokenOperator || token.subtype() != op) {
         throw StereotypeDefinitionParserError(QString(QStringLiteral("Expected '%1'.")).arg(opName), token.sourcePos());
     }
 }

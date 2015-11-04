@@ -96,8 +96,8 @@ QString StereotypeController::findStereotypeIconId(StereotypeIcon::Element eleme
     foreach (const QString &stereotype, stereotypes) {
         if (d->m_stereotypeToIconIdMap.contains(qMakePair(element, stereotype))) {
             return d->m_stereotypeToIconIdMap.value(qMakePair(element, stereotype));
-        } else if (d->m_stereotypeToIconIdMap.contains(qMakePair(StereotypeIcon::ELEMENT_ANY, stereotype))) {
-            return d->m_stereotypeToIconIdMap.value(qMakePair(StereotypeIcon::ELEMENT_ANY, stereotype));
+        } else if (d->m_stereotypeToIconIdMap.contains(qMakePair(StereotypeIcon::ElementAny, stereotype))) {
+            return d->m_stereotypeToIconIdMap.value(qMakePair(StereotypeIcon::ElementAny, stereotype));
         }
     }
     return QString();
@@ -179,7 +179,7 @@ void StereotypeController::addStereotypeIcon(const StereotypeIcon &stereotypeIco
 {
     if (stereotypeIcon.elements().isEmpty()) {
         foreach (const QString &stereotype, stereotypeIcon.stereotypes()) {
-            d->m_stereotypeToIconIdMap.insert(qMakePair(StereotypeIcon::ELEMENT_ANY, stereotype), stereotypeIcon.id());
+            d->m_stereotypeToIconIdMap.insert(qMakePair(StereotypeIcon::ElementAny, stereotype), stereotypeIcon.id());
         }
     } else {
         foreach (StereotypeIcon::Element element, stereotypeIcon.elements()) {

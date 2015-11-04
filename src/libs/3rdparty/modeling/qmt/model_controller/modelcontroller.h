@@ -60,7 +60,10 @@ class QMT_EXPORT ModelController :
 {
     Q_OBJECT
 
-    enum ElementType { TYPE_UNKNOWN, TYPE_OBJECT, TYPE_RELATION };
+    enum ElementType {
+        TypeUnknown,
+        TypeObject,
+        TypeRelation };
 
     struct Clone;
 

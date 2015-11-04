@@ -70,13 +70,13 @@ void load(Archive &archive, T *&p, const Parameters &)
 {
     typename Archive::ReferenceTag refTag = archive.readReferenceTag();
     switch (refTag.kind) {
-    case Archive::NULLPOINTER:
+    case Archive::Nullpointer:
         p = 0;
         break;
-    case Archive::POINTER:
+    case Archive::Pointer:
         archive.read(p);
         break;
-    case Archive::INSTANCE:
+    case Archive::Instance:
         if (refTag.typeName.isEmpty()) {
             registry::loadNonVirtualPointer<Archive,T>(archive, p);
         } else {

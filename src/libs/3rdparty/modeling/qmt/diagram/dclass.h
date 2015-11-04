@@ -45,9 +45,9 @@ class QMT_EXPORT DClass :
 public:
 
     enum TemplateDisplay {
-        TEMPLATE_SMART,
-        TEMPLATE_BOX,
-        TEMPLATE_NAME
+        TemplateSmart,
+        TemplateBox,
+        TemplateName
     };
 
 public:

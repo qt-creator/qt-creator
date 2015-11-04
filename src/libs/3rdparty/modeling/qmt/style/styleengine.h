@@ -53,14 +53,14 @@ class QMT_EXPORT StyleEngine
 public:
 
     enum ElementType {
-        TYPE_OTHER,
-        TYPE_PACKAGE,
-        TYPE_COMPONENT,
-        TYPE_CLASS,
-        TYPE_ITEM,
-        TYPE_RELATION,
-        TYPE_ANNOTATION,
-        TYPE_BOUNDARY
+        TypeOther,
+        TypePackage,
+        TypeComponent,
+        TypeClass,
+        TypeItem,
+        TypeRelation,
+        TypeAnnotation,
+        TypeBoundary
     };
 
     class Parameters

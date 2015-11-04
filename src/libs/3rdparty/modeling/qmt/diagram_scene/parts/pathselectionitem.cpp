@@ -54,9 +54,9 @@ class PathSelectionItem::GraphicsHandleItem :
 public:
 
     enum Selection {
-        NOT_SELECTED,
-        SELECTED,
-        SECONDARY_SELECTED
+        NotSelected,
+        Selected,
+        SecondarySelected
     };
 
 public:
@@ -65,7 +65,7 @@ public:
         : QGraphicsRectItem(parent),
           m_owner(parent),
           m_pointIndex(pointIndex),
-          m_selection(NOT_SELECTED)
+          m_selection(NotSelected)
     {
     }
 
@@ -92,20 +92,20 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
         m_startPos = mapToScene(event->pos());
-        m_qualifier = event->modifiers() & Qt::ControlModifier ? DELETE_HANDLE : NONE;
-        m_owner->moveHandle(m_pointIndex, QPointF(0.0, 0.0), PRESS, m_qualifier);
+        m_qualifier = event->modifiers() & Qt::ControlModifier ? DeleteHandle : None;
+        m_owner->moveHandle(m_pointIndex, QPointF(0.0, 0.0), Press, m_qualifier);
     }
 
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     {
         QPointF delta = mapToScene(event->pos()) - m_startPos;
-        m_owner->moveHandle(m_pointIndex, delta, MOVE, m_qualifier);
+        m_owner->moveHandle(m_pointIndex, delta, Move, m_qualifier);
     }
 
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     {
         QPointF delta = mapToScene(event->pos()) - m_startPos;
-        m_owner->moveHandle(m_pointIndex, delta, RELEASE, m_qualifier);
+        m_owner->moveHandle(m_pointIndex, delta, Release, m_qualifier);
     }
 
 private:
@@ -115,15 +115,15 @@ private:
         prepareGeometryChange();
         setRect(-m_pointSize.width() / 2.0, -m_pointSize.height() / 2.0, m_pointSize.width(), m_pointSize.height());
         switch (m_selection) {
-        case NOT_SELECTED:
+        case NotSelected:
             setPen(Qt::NoPen);
             setBrush(Qt::NoBrush);
             break;
-        case SELECTED:
+        case Selected:
             setPen(QPen(Qt::black));
             setBrush(QBrush(Qt::black));
             break;
-        case SECONDARY_SELECTED:
+        case SecondarySelected:
             setPen(QPen(Qt::lightGray));
             setBrush(Qt::NoBrush);
             break;
@@ -274,8 +274,8 @@ void PathSelectionItem::update()
         handle->setPointSize(m_pointSize);
         bool isEndPoint = (i == 0 || i == m_handles.size() - 1);
         handle->setSelection(m_secondarySelected
-                             ? (isEndPoint ? GraphicsHandleItem::NOT_SELECTED : GraphicsHandleItem::SECONDARY_SELECTED)
-                             : GraphicsHandleItem::SELECTED);
+                             ? (isEndPoint ? GraphicsHandleItem::NotSelected : GraphicsHandleItem::SecondarySelected)
+                             : GraphicsHandleItem::Selected);
         ++i;
     }
 }
@@ -285,20 +285,20 @@ void PathSelectionItem::moveHandle(int pointIndex, const QPointF &deltaMove, Han
     Q_UNUSED(handleStatus);
 
     switch (handleQualifier) {
-    case NONE:
+    case None:
     {
-        if (handleStatus == PRESS) {
+        if (handleStatus == Press) {
             m_originalHandlePos = m_windable->handlePos(pointIndex);
         }
         QPointF newPos = m_originalHandlePos + deltaMove;
         m_windable->setHandlePos(pointIndex, newPos);
-        if (handleStatus == RELEASE) {
+        if (handleStatus == Release) {
             m_windable->alignHandleToRaster(pointIndex, RASTER_WIDTH, RASTER_HEIGHT);
         }
         break;
     }
-    case DELETE_HANDLE:
-        if (handleStatus == PRESS) {
+    case DeleteHandle:
+        if (handleStatus == Press) {
             m_windable->deleteHandle(pointIndex);
         }
         break;

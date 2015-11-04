@@ -108,7 +108,7 @@ void ClassItem::update()
     }
 
     // custom icon
-    if (stereotypeIconDisplay() == StereotypeIcon::DISPLAY_ICON) {
+    if (stereotypeIconDisplay() == StereotypeIcon::DisplayIcon) {
         if (!m_customIcon) {
             m_customIcon = new CustomIconItem(diagramSceneModel(), this);
         }
@@ -155,11 +155,11 @@ void ClassItem::update()
     }
 
     DClass::TemplateDisplay templateDisplay = diagramClass->templateDisplay();
-    if (templateDisplay == DClass::TEMPLATE_SMART) {
+    if (templateDisplay == DClass::TemplateSmart) {
         if (m_customIcon) {
-            templateDisplay = DClass::TEMPLATE_NAME;
+            templateDisplay = DClass::TemplateName;
         } else {
-            templateDisplay = DClass::TEMPLATE_BOX;
+            templateDisplay = DClass::TemplateBox;
         }
     }
 
@@ -169,7 +169,7 @@ void ClassItem::update()
     }
     m_className->setFont(style->headerFont());
     m_className->setBrush(style->textBrush());
-    if (templateDisplay == DClass::TEMPLATE_NAME && !diagramClass->templateParameters().isEmpty()) {
+    if (templateDisplay == DClass::TemplateName && !diagramClass->templateParameters().isEmpty()) {
         QString name = object()->name();
         name += QLatin1Char('<');
         bool first = true;
@@ -257,7 +257,7 @@ void ClassItem::update()
     }
 
     // template parameters
-    if (templateDisplay == DClass::TEMPLATE_BOX && !diagramClass->templateParameters().isEmpty()) {
+    if (templateDisplay == DClass::TemplateBox && !diagramClass->templateParameters().isEmpty()) {
         if (!m_templateParameterBox) {
             m_templateParameterBox = new TemplateParameterBox(this);
         }
@@ -282,9 +282,9 @@ void ClassItem::update()
             m_relationStarter = new RelationStarter(this, diagramSceneModel(), 0);
             scene()->addItem(m_relationStarter);
             m_relationStarter->setZValue(RELATION_STARTER_ZVALUE);
-            m_relationStarter->addArrow(QLatin1String("inheritance"), ArrowItem::SHAFT_SOLID, ArrowItem::HEAD_TRIANGLE);
-            m_relationStarter->addArrow(QLatin1String("dependency"), ArrowItem::SHAFT_DASHED, ArrowItem::HEAD_OPEN);
-            m_relationStarter->addArrow(QLatin1String("association"), ArrowItem::SHAFT_SOLID, ArrowItem::HEAD_FILLED_TRIANGLE);
+            m_relationStarter->addArrow(QLatin1String("inheritance"), ArrowItem::ShaftSolid, ArrowItem::HeadTriangle);
+            m_relationStarter->addArrow(QLatin1String("dependency"), ArrowItem::ShaftDashed, ArrowItem::HeadOpen);
+            m_relationStarter->addArrow(QLatin1String("association"), ArrowItem::ShaftSolid, ArrowItem::HeadFilledTriangle);
         }
     } else if (m_relationStarter) {
         scene()->removeItem(m_relationStarter);
@@ -564,8 +564,8 @@ void ClassItem::updateMembers(const Style *style)
     m_attributesText.clear();
     m_methodsText.clear();
 
-    MClassMember::Visibility attributesVisibility = MClassMember::VISIBILITY_UNDEFINED;
-    MClassMember::Visibility methodsVisibility = MClassMember::VISIBILITY_UNDEFINED;
+    MClassMember::Visibility attributesVisibility = MClassMember::VisibilityUndefined;
+    MClassMember::Visibility methodsVisibility = MClassMember::VisibilityUndefined;
     QString attributesGroup;
     QString methodsGroup;
 
@@ -584,15 +584,15 @@ void ClassItem::updateMembers(const Style *style)
     foreach (const MClassMember &member, dclass->members()) {
 
         switch (member.memberType()) {
-        case MClassMember::MEMBER_UNDEFINED:
+        case MClassMember::MemberUndefined:
             QMT_CHECK(false);
             break;
-        case MClassMember::MEMBER_ATTRIBUTE:
+        case MClassMember::MemberAttribute:
             currentVisibility = &attributesVisibility;
             currentGroup = &attributesGroup;
             text = &m_attributesText;
             break;
-        case MClassMember::MEMBER_METHOD:
+        case MClassMember::MemberMethod:
             currentVisibility = &methodsVisibility;
             currentGroup = &methodsGroup;
             text = &m_methodsText;
@@ -607,30 +607,30 @@ void ClassItem::updateMembers(const Style *style)
         bool addSpace = false;
         if (member.visibility() != *currentVisibility) {
             if (useGroupVisibility) {
-                if (member.visibility() != MClassMember::VISIBILITY_UNDEFINED) {
+                if (member.visibility() != MClassMember::VisibilityUndefined) {
                     QString vis;
                     switch (member.visibility()) {
-                    case MClassMember::VISIBILITY_UNDEFINED:
+                    case MClassMember::VisibilityUndefined:
                         break;
-                    case MClassMember::VISIBILITY_PUBLIC:
+                    case MClassMember::VisibilityPublic:
                         vis = QStringLiteral("public:");
                         break;
-                    case MClassMember::VISIBILITY_PROTECTED:
+                    case MClassMember::VisibilityProtected:
                         vis = QStringLiteral("protected:");
                         break;
-                    case MClassMember::VISIBILITY_PRIVATE:
+                    case MClassMember::VisibilityPrivate:
                         vis = QStringLiteral("private:");
                         break;
-                    case MClassMember::VISIBILITY_SIGNALS:
+                    case MClassMember::VisibilitySignals:
                         vis = QStringLiteral("signals:");
                         break;
-                    case MClassMember::VISIBILITY_PRIVATE_SLOTS:
+                    case MClassMember::VisibilityPrivateSlots:
                         vis = QStringLiteral("private slots:");
                         break;
-                    case MClassMember::VISIBILITY_PROTECTED_SLOTS:
+                    case MClassMember::VisibilityProtectedSlots:
                         vis = QStringLiteral("protected slots:");
                         break;
-                    case MClassMember::VISIBILITY_PUBLIC_SLOTS:
+                    case MClassMember::VisibilityPublicSlots:
                         vis = QStringLiteral("public slots:");
                         break;
                     }
@@ -657,41 +657,41 @@ void ClassItem::updateMembers(const Style *style)
         bool haveSignal = false;
         bool haveSlot = false;
         if (!useGroupVisibility) {
-            if (member.visibility() != MClassMember::VISIBILITY_UNDEFINED) {
+            if (member.visibility() != MClassMember::VisibilityUndefined) {
                 QString vis;
                 switch (member.visibility()) {
-                case MClassMember::VISIBILITY_UNDEFINED:
+                case MClassMember::VisibilityUndefined:
                     break;
-                case MClassMember::VISIBILITY_PUBLIC:
+                case MClassMember::VisibilityPublic:
                     vis = haveIconFonts ? QString(QChar(0xe990)) : QStringLiteral("+");
                     addSpace = true;
                     break;
-                case MClassMember::VISIBILITY_PROTECTED:
+                case MClassMember::VisibilityProtected:
                     vis = haveIconFonts ? QString(QChar(0xe98e)) : QStringLiteral("#");
                     addSpace = true;
                     break;
-                case MClassMember::VISIBILITY_PRIVATE:
+                case MClassMember::VisibilityPrivate:
                     vis = haveIconFonts ? QString(QChar(0xe98f)) : QStringLiteral("-");
                     addSpace = true;
                     break;
-                case MClassMember::VISIBILITY_SIGNALS:
+                case MClassMember::VisibilitySignals:
                     vis = haveIconFonts ? QString(QChar(0xe994)) : QStringLiteral(">");
                     haveSignal = true;
                     addSpace = true;
                     break;
-                case MClassMember::VISIBILITY_PRIVATE_SLOTS:
+                case MClassMember::VisibilityPrivateSlots:
                     vis = haveIconFonts ? QString(QChar(0xe98f)) + QChar(0xe9cb)
                                           : QStringLiteral("-$");
                     haveSlot = true;
                     addSpace = true;
                     break;
-                case MClassMember::VISIBILITY_PROTECTED_SLOTS:
+                case MClassMember::VisibilityProtectedSlots:
                     vis = haveIconFonts ? QString(QChar(0xe98e)) + QChar(0xe9cb)
                                           : QStringLiteral("#$");
                     haveSlot = true;
                     addSpace = true;
                     break;
-                case MClassMember::VISIBILITY_PUBLIC_SLOTS:
+                case MClassMember::VisibilityPublicSlots:
                     vis = haveIconFonts ? QString(QChar(0xe990)) + QChar(0xe9cb)
                                           : QStringLiteral("+$");
                     haveSlot = true;
@@ -702,38 +702,38 @@ void ClassItem::updateMembers(const Style *style)
             }
         }
 
-        if (member.properties() & MClassMember::PROPERTY_QSIGNAL && !haveSignal) {
+        if (member.properties() & MClassMember::PropertyQsignal && !haveSignal) {
             *text += haveIconFonts ? QString(QChar(0xe994)) : QStringLiteral(">");
             addSpace = true;
         }
-        if (member.properties() & MClassMember::PROPERTY_QSLOT && !haveSlot) {
+        if (member.properties() & MClassMember::PropertyQslot && !haveSlot) {
             *text += haveIconFonts ? QString(QChar(0xe9cb)) : QStringLiteral("$");
             addSpace = true;
         }
         if (addSpace) {
             *text += QStringLiteral(" ");
         }
-        if (member.properties() & MClassMember::PROPERTY_QINVOKABLE) {
+        if (member.properties() & MClassMember::PropertyQinvokable) {
             *text += QStringLiteral("invokable ");
         }
         if (!member.stereotypes().isEmpty()) {
             *text += StereotypesItem::format(member.stereotypes());
             *text += QStringLiteral(" ");
         }
-        if (member.properties() & MClassMember::PROPERTY_VIRTUAL) {
+        if (member.properties() & MClassMember::PropertyVirtual) {
             *text += QStringLiteral("virtual ");
         }
         *text += member.declaration();
-        if (member.properties() & MClassMember::PROPERTY_CONST) {
+        if (member.properties() & MClassMember::PropertyConst) {
             *text += QStringLiteral(" const");
         }
-        if (member.properties() & MClassMember::PROPERTY_OVERRIDE) {
+        if (member.properties() & MClassMember::PropertyOverride) {
             *text += QStringLiteral(" override");
         }
-        if (member.properties() & MClassMember::PROPERTY_FINAL) {
+        if (member.properties() & MClassMember::PropertyFinal) {
             *text += QStringLiteral(" final");
         }
-        if (member.properties() & MClassMember::PROPERTY_ABSTRACT) {
+        if (member.properties() & MClassMember::PropertyAbstract) {
             *text += QStringLiteral(" = 0");
         }
     }

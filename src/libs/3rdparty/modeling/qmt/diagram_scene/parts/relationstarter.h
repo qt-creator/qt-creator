@@ -60,7 +60,7 @@ public:
 
 public:
 
-    void addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowItem::Head endHead, ArrowItem::Head startHead = ArrowItem::HEAD_NONE);
+    void addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowItem::Head endHead, ArrowItem::Head startHead = ArrowItem::HeadNone);
 
 protected:
 

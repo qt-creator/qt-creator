@@ -143,7 +143,7 @@ void AssociationItem::placeEndLabels(const QLineF &lineSegment, QGraphicsItem *e
         }
 
         QPointF rectPlacement;
-        GeometryUtilities::Side alignedSide = GeometryUtilities::SIDE_UNSPECIFIED;
+        GeometryUtilities::Side alignedSide = GeometryUtilities::SideUnspecified;
 
         if (IIntersectionable *objectItem = dynamic_cast<IIntersectionable *>(endItem)) {
             QPointF intersectionPoint;
@@ -161,7 +161,7 @@ void AssociationItem::placeEndLabels(const QLineF &lineSegment, QGraphicsItem *e
         }
 
         if (endCardinality) {
-            if (alignedSide == GeometryUtilities::SIDE_RIGHT) {
+            if (alignedSide == GeometryUtilities::SideRight) {
                 endCardinality->setPos(rectPlacement + QPointF(rect.width() - endCardinality->boundingRect().width(), 0.0));
             } else {
                 endCardinality->setPos(rectPlacement);
@@ -169,7 +169,7 @@ void AssociationItem::placeEndLabels(const QLineF &lineSegment, QGraphicsItem *e
             rectPlacement += endCardinality->boundingRect().bottomLeft();
         }
         if (endName) {
-            if (alignedSide == GeometryUtilities::SIDE_RIGHT) {
+            if (alignedSide == GeometryUtilities::SideRight) {
                 endName->setPos(rectPlacement + QPointF(rect.width() - endName->boundingRect().width(), 0.0));
             } else {
                 endName->setPos(rectPlacement);

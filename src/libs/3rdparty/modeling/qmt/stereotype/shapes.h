@@ -286,16 +286,16 @@ class QMT_EXPORT PathShape
 public:
 
     enum ElementType {
-        TYPE_NONE,
-        TYPE_MOVETO,
-        TYPE_LINETO,
-        TYPE_ARCMOVETO,
-        TYPE_ARCTO,
-        TYPE_CLOSE
+        TypeNone,
+        TypeMoveto,
+        TypeLineto,
+        TypeArcmoveto,
+        TypeArcto,
+        TypeClose
     };
 
     struct Element {
-        explicit Element(ElementType element = TYPE_NONE)
+        explicit Element(ElementType element = TypeNone)
             : m_elementType(element),
               m_angle1(0.0),
               m_angle2(0.0)

@@ -79,7 +79,7 @@ protected:
     {
         m_startPos = mapToScene(event->pos());
         if (!m_secondarySelected) {
-            m_owner->moveHandle(m_handle, QPointF(0.0, 0.0), PRESS, NONE);
+            m_owner->moveHandle(m_handle, QPointF(0.0, 0.0), Press, None);
         }
     }
 
@@ -87,7 +87,7 @@ protected:
     {
         QPointF pos = mapToScene(event->pos()) - m_startPos;
         if (!m_secondarySelected) {
-            m_owner->moveHandle(m_handle, pos, MOVE, NONE);
+            m_owner->moveHandle(m_handle, pos, Move, None);
         }
 
     }
@@ -96,7 +96,7 @@ protected:
     {
         QPointF pos = mapToScene(event->pos()) - m_startPos;
         if (!m_secondarySelected) {
-            m_owner->moveHandle(m_handle, pos, RELEASE, NONE);
+            m_owner->moveHandle(m_handle, pos, Release, None);
         }
     }
 
@@ -119,7 +119,7 @@ RectangularSelectionItem::RectangularSelectionItem(IResizable *itemResizer, QGra
       m_points(8),
       m_showBorder(false),
       m_borderItem(0),
-      m_freedom(FREEDOM_ANY),
+      m_freedom(FreedomAny),
       m_secondarySelected(false)
 {
 }
@@ -181,7 +181,7 @@ void RectangularSelectionItem::setSecondarySelected(bool secondarySelected)
 
 void RectangularSelectionItem::update()
 {
-    QMT_CHECK(HANDLE_FIRST == 0 && HANDLE_LAST == 7);
+    QMT_CHECK(HandleFirst == 0 && HandleLast == 7);
     prepareGeometryChange();
 
     for (int i = 0; i <= 7; ++i) {
@@ -191,29 +191,29 @@ void RectangularSelectionItem::update()
         m_points[i]->setRect(-m_pointSize.width() / 2.0, -m_pointSize.height() / 2.0, m_pointSize.width(), m_pointSize.height());
         bool visible = false;
         switch ((Handle) i) {
-        case HANDLE_TOP_LEFT:
-            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
+        case HandleTopLeft:
+            visible = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
             break;
-        case HANDLE_TOP:
-            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_VERTICAL_ONLY;
+        case HandleTop:
+            visible = m_freedom == FreedomAny || m_freedom == FreedomVerticalOnly;
             break;
-        case HANDLE_TOP_RIGHT:
-            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
+        case HandleTopRight:
+            visible = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
             break;
-        case HANDLE_LEFT:
-            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_HORIZONTAL_ONLY;
+        case HandleLeft:
+            visible = m_freedom == FreedomAny || m_freedom == FreedomHorizontalOnly;
             break;
-        case HANDLE_RIGHT:
-            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_HORIZONTAL_ONLY;
+        case HandleRight:
+            visible = m_freedom == FreedomAny || m_freedom == FreedomHorizontalOnly;
             break;
-        case HANDLE_BOTTOM_LEFT:
-            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
+        case HandleBottomLeft:
+            visible = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
             break;
-        case HANDLE_BOTTOM:
-            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_VERTICAL_ONLY;
+        case HandleBottom:
+            visible = m_freedom == FreedomAny || m_freedom == FreedomVerticalOnly;
             break;
-        case HANDLE_BOTTOM_RIGHT:
-            visible = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
+        case HandleBottomRight:
+            visible = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
             break;
         }
         m_points[i]->setSecondarySelected(m_secondarySelected);
@@ -253,36 +253,36 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
 {
     Q_UNUSED(handleQualifier);
 
-    if (handleStatus == PRESS) {
+    if (handleStatus == Press) {
         m_originalResizePos = m_itemResizer->pos();
         m_originalResizeRect = m_itemResizer->rect();
     }
 
     bool moveable = false;
     switch (handle) {
-    case HANDLE_TOP_LEFT:
-        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
+    case HandleTopLeft:
+        moveable = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
         break;
-    case HANDLE_TOP:
-        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_VERTICAL_ONLY;
+    case HandleTop:
+        moveable = m_freedom == FreedomAny || m_freedom == FreedomVerticalOnly;
         break;
-    case HANDLE_TOP_RIGHT:
-        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
+    case HandleTopRight:
+        moveable = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
         break;
-    case HANDLE_LEFT:
-        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_HORIZONTAL_ONLY;
+    case HandleLeft:
+        moveable = m_freedom == FreedomAny || m_freedom == FreedomHorizontalOnly;
         break;
-    case HANDLE_RIGHT:
-        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_HORIZONTAL_ONLY;
+    case HandleRight:
+        moveable = m_freedom == FreedomAny || m_freedom == FreedomHorizontalOnly;
         break;
-    case HANDLE_BOTTOM_LEFT:
-        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
+    case HandleBottomLeft:
+        moveable = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
         break;
-    case HANDLE_BOTTOM:
-        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_VERTICAL_ONLY;
+    case HandleBottom:
+        moveable = m_freedom == FreedomAny || m_freedom == FreedomVerticalOnly;
         break;
-    case HANDLE_BOTTOM_RIGHT:
-        moveable = m_freedom == FREEDOM_ANY || m_freedom == FREEDOM_KEEP_RATIO;
+    case HandleBottomRight:
+        moveable = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
         break;
     }
     if (!moveable) {
@@ -295,22 +295,22 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
     QPointF bottomRightDelta;
 
     // calculate movements of corners
-    if (m_freedom == FREEDOM_KEEP_RATIO) {
+    if (m_freedom == FreedomKeepRatio) {
         qreal minimumLength = qSqrt(minimumSize.width() * minimumSize.width() + minimumSize.height() * minimumSize.height());
         QPointF v(minimumSize.width() / minimumLength, minimumSize.height() / minimumLength);
         qreal deltaLength = qSqrt(deltaMove.x() * deltaMove.x() + deltaMove.y() * deltaMove.y());
         switch (handle) {
-        case HANDLE_TOP_LEFT:
+        case HandleTopLeft:
             if (deltaMove.x() > 0 && deltaMove.y() > 0) {
                 topLeftDelta = v * deltaLength;
             } else if (deltaMove.x() < 0 && deltaMove.y() < 0) {
                 topLeftDelta = -(v * deltaLength);
             }
             break;
-        case HANDLE_TOP:
+        case HandleTop:
             QMT_CHECK(false);
             break;
-        case HANDLE_TOP_RIGHT:
+        case HandleTopRight:
             if (deltaMove.x() > 0 && deltaMove.y() < 0) {
                 topLeftDelta = QPointF(0.0, -(v.x() * deltaLength));
                 bottomRightDelta = QPointF(v.y() * deltaLength, 0.0);
@@ -319,13 +319,13 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
                 bottomRightDelta = QPointF(-(v.y() * deltaLength), 0.0);
             }
             break;
-        case HANDLE_LEFT:
+        case HandleLeft:
             QMT_CHECK(false);
             break;
-        case HANDLE_RIGHT:
+        case HandleRight:
             QMT_CHECK(false);
             break;
-        case HANDLE_BOTTOM_LEFT:
+        case HandleBottomLeft:
             if (deltaMove.x() < 0 && deltaMove.y() > 0) {
                 topLeftDelta = QPointF(-(v.x() * deltaLength), 0.0);
                 bottomRightDelta = QPointF(0.0, v.y() * deltaLength);
@@ -334,10 +334,10 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
                 bottomRightDelta = QPointF(0.0, -(v.y() * deltaLength));
             }
             break;
-        case HANDLE_BOTTOM:
+        case HandleBottom:
             QMT_CHECK(false);
             break;
-        case HANDLE_BOTTOM_RIGHT:
+        case HandleBottomRight:
             if (deltaMove.x() > 0 && deltaMove.y() > 0) {
                 bottomRightDelta = v * deltaLength;
             } else if (deltaMove.x() < 0 && deltaMove.y() < 0) {
@@ -347,30 +347,30 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
         }
     } else {
         switch (handle) {
-        case HANDLE_TOP_LEFT:
+        case HandleTopLeft:
             topLeftDelta = deltaMove;
             break;
-        case HANDLE_TOP:
+        case HandleTop:
             topLeftDelta = QPointF(0.0, deltaMove.y());
             break;
-        case HANDLE_TOP_RIGHT:
+        case HandleTopRight:
             topLeftDelta = QPointF(0, deltaMove.y());
             bottomRightDelta = QPointF(deltaMove.x(), 0.0);
             break;
-        case HANDLE_LEFT:
+        case HandleLeft:
             topLeftDelta = QPointF(deltaMove.x(), 0.0);
             break;
-        case HANDLE_RIGHT:
+        case HandleRight:
             bottomRightDelta = QPointF(deltaMove.x(), 0.0);
             break;
-        case HANDLE_BOTTOM_LEFT:
+        case HandleBottomLeft:
             topLeftDelta = QPointF(deltaMove.x(), 0.0);
             bottomRightDelta = QPointF(0.0, deltaMove.y());
             break;
-        case HANDLE_BOTTOM:
+        case HandleBottom:
             bottomRightDelta = QPointF(0.0, deltaMove.y());
             break;
-        case HANDLE_BOTTOM_RIGHT:
+        case HandleBottomRight:
             bottomRightDelta = deltaMove;
             break;
         }
@@ -381,19 +381,19 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
 
     // correct horizontal resize against minimum width
     switch (handle) {
-    case HANDLE_TOP_LEFT:
-    case HANDLE_LEFT:
-    case HANDLE_BOTTOM_LEFT:
+    case HandleTopLeft:
+    case HandleLeft:
+    case HandleBottomLeft:
         if (sizeDelta.width() > 0.0) {
             topLeftDelta.setX(topLeftDelta.x() - sizeDelta.width());
         }
         break;
-    case HANDLE_TOP:
-    case HANDLE_BOTTOM:
+    case HandleTop:
+    case HandleBottom:
         break;
-    case HANDLE_TOP_RIGHT:
-    case HANDLE_RIGHT:
-    case HANDLE_BOTTOM_RIGHT:
+    case HandleTopRight:
+    case HandleRight:
+    case HandleBottomRight:
         if (sizeDelta.width() > 0.0) {
             bottomRightDelta.setX(bottomRightDelta.x() + sizeDelta.width());
         }
@@ -402,19 +402,19 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
 
     // correct vertical resize against minimum height
     switch (handle) {
-    case HANDLE_TOP_LEFT:
-    case HANDLE_TOP:
-    case HANDLE_TOP_RIGHT:
+    case HandleTopLeft:
+    case HandleTop:
+    case HandleTopRight:
         if (sizeDelta.height() > 0.0) {
             topLeftDelta.setY(topLeftDelta.y() - sizeDelta.height());
         }
         break;
-    case HANDLE_LEFT:
-    case HANDLE_RIGHT:
+    case HandleLeft:
+    case HandleRight:
         break;
-    case HANDLE_BOTTOM_LEFT:
-    case HANDLE_BOTTOM:
-    case HANDLE_BOTTOM_RIGHT:
+    case HandleBottomLeft:
+    case HandleBottom:
+    case HandleBottomRight:
         if (sizeDelta.height() > 0.0) {
             bottomRightDelta.setY(bottomRightDelta.y() + sizeDelta.height());
         }
@@ -423,38 +423,38 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
 
     m_itemResizer->setPosAndRect(m_originalResizePos, m_originalResizeRect, topLeftDelta, bottomRightDelta);
 
-    if (handleStatus == RELEASE) {
-        IResizable::Side horiz = IResizable::SIDE_NONE;
-        IResizable::Side vert = IResizable::SIDE_NONE;
+    if (handleStatus == Release) {
+        IResizable::Side horiz = IResizable::SideNone;
+        IResizable::Side vert = IResizable::SideNone;
         switch (handle) {
-        case HANDLE_TOP_LEFT:
-        case HANDLE_LEFT:
-        case HANDLE_BOTTOM_LEFT:
-            horiz = IResizable::SIDE_LEFT_OR_TOP;
+        case HandleTopLeft:
+        case HandleLeft:
+        case HandleBottomLeft:
+            horiz = IResizable::SideLeftOrTop;
             break;
-        case HANDLE_TOP_RIGHT:
-        case HANDLE_RIGHT:
-        case HANDLE_BOTTOM_RIGHT:
-            horiz = IResizable::SIDE_RIGHT_OR_BOTTOM;
+        case HandleTopRight:
+        case HandleRight:
+        case HandleBottomRight:
+            horiz = IResizable::SideRightOrBottom;
             break;
-        case HANDLE_TOP:
-        case HANDLE_BOTTOM:
+        case HandleTop:
+        case HandleBottom:
             // nothing
             break;
         }
         switch (handle) {
-        case HANDLE_TOP_LEFT:
-        case HANDLE_TOP:
-        case HANDLE_TOP_RIGHT:
-            vert = IResizable::SIDE_LEFT_OR_TOP;
+        case HandleTopLeft:
+        case HandleTop:
+        case HandleTopRight:
+            vert = IResizable::SideLeftOrTop;
             break;
-        case HANDLE_BOTTOM_LEFT:
-        case HANDLE_BOTTOM:
-        case HANDLE_BOTTOM_RIGHT:
-            vert = IResizable::SIDE_RIGHT_OR_BOTTOM;
+        case HandleBottomLeft:
+        case HandleBottom:
+        case HandleBottomRight:
+            vert = IResizable::SideRightOrBottom;
             break;
-        case HANDLE_LEFT:
-        case HANDLE_RIGHT:
+        case HandleLeft:
+        case HandleRight:
             // nothing
             break;
         }

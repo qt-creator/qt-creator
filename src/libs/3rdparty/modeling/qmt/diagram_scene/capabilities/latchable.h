@@ -39,26 +39,26 @@ class ILatchable {
 public:
 
     enum Action {
-        MOVE,
-        RESIZE_LEFT,
-        RESIZE_TOP,
-        RESIZE_RIGHT,
-        RESIZE_BOTTOM
+        Move,
+        ResizeLeft,
+        ResizeTop,
+        ResizeRight,
+        ResizeBottom
     };
 
     enum LatchType {
-        NONE,
-        LEFT,
-        TOP,
-        RIGHT,
-        BOTTOM,
-        HCENTER,
-        VCENTER
+        None,
+        Left,
+        Top,
+        Right,
+        Bottom,
+        Hcenter,
+        Vcenter
     };
 
     struct Latch {
         Latch()
-            : m_latchType(NONE),
+            : m_latchType(None),
               m_pos(0.0),
               m_otherPos1(0.0),
               m_otherPos2(0.0),

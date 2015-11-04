@@ -227,8 +227,8 @@ private:
     QString formatTemplateParameters(const QList<QString> &templateParametersList);
 
     enum SelectionType {
-        SELECTION_SINGLE,
-        SELECTION_MULTI
+        SelectionSingle,
+        SelectionMulti
     };
 
     template<class T, class V>

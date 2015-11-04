@@ -37,9 +37,9 @@ StereotypeIcon::StereotypeIcon()
       m_height(100.0),
       m_minWidth(-1),
       m_minHeight(-1),
-      m_sizeLock(LOCK_NONE),
-      m_display(DISPLAY_SMART),
-      m_textAlignment(TEXTALIGN_BELOW)
+      m_sizeLock(LockNone),
+      m_display(DisplaySmart),
+      m_textAlignment(TextalignBelow)
 {
 }
 

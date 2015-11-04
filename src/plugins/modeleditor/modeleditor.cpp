@@ -805,7 +805,7 @@ void ModelEditor::onNewElementCreated(qmt::DElement *element, qmt::MDiagram *dia
 
         documentController->diagramsManager()->diagramSceneModel(diagram)->selectElement(element);
         qmt::MElement *melement = documentController->modelController()->findElement(element->modelUid());
-        if (!(melement && melement->flags().testFlag(qmt::MElement::REVERSE_ENGINEERED)))
+        if (!(melement && melement->flags().testFlag(qmt::MElement::ReverseEngineered)))
             QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
     }
 }
@@ -871,36 +871,36 @@ void ModelEditor::initToolbars()
         }
         foreach (const qmt::Toolbar::Tool &tool, toolbar.tools()) {
             switch (tool.m_toolType) {
-            case qmt::Toolbar::TOOLTYPE_TOOL:
+            case qmt::Toolbar::TooltypeTool:
             {
                 QString iconPath;
-                qmt::StereotypeIcon::Element stereotypeIconElement = qmt::StereotypeIcon::ELEMENT_ANY;
-                qmt::StyleEngine::ElementType styleEngineElementType = qmt::StyleEngine::TYPE_OTHER;
+                qmt::StereotypeIcon::Element stereotypeIconElement = qmt::StereotypeIcon::ElementAny;
+                qmt::StyleEngine::ElementType styleEngineElementType = qmt::StyleEngine::TypeOther;
                 if (tool.m_elementType == QLatin1String(qmt::ELEMENT_TYPE_PACKAGE)) {
                     iconPath = QStringLiteral(":/modelinglib/48x48/package.png");
-                    stereotypeIconElement = qmt::StereotypeIcon::ELEMENT_PACKAGE;
-                    styleEngineElementType = qmt::StyleEngine::TYPE_PACKAGE;
+                    stereotypeIconElement = qmt::StereotypeIcon::ElementPackage;
+                    styleEngineElementType = qmt::StyleEngine::TypePackage;
                 } else if (tool.m_elementType == QLatin1String(qmt::ELEMENT_TYPE_COMPONENT)) {
                     iconPath = QStringLiteral(":/modelinglib/48x48/component.png");
-                    stereotypeIconElement = qmt::StereotypeIcon::ELEMENT_COMPONENT;
-                    styleEngineElementType = qmt::StyleEngine::TYPE_COMPONENT;
+                    stereotypeIconElement = qmt::StereotypeIcon::ElementComponent;
+                    styleEngineElementType = qmt::StyleEngine::TypeComponent;
                 } else if (tool.m_elementType == QLatin1String(qmt::ELEMENT_TYPE_CLASS)) {
                     iconPath = QStringLiteral(":/modelinglib/48x48/class.png");
-                    stereotypeIconElement = qmt::StereotypeIcon::ELEMENT_CLASS;
-                    styleEngineElementType = qmt::StyleEngine::TYPE_CLASS;
+                    stereotypeIconElement = qmt::StereotypeIcon::ElementClass;
+                    styleEngineElementType = qmt::StyleEngine::TypeClass;
                 } else if (tool.m_elementType == QLatin1String(qmt::ELEMENT_TYPE_ITEM)) {
                     iconPath = QStringLiteral(":/modelinglib/48x48/item.png");
-                    stereotypeIconElement = qmt::StereotypeIcon::ELEMENT_ITEM;
-                    styleEngineElementType = qmt::StyleEngine::TYPE_ITEM;
+                    stereotypeIconElement = qmt::StereotypeIcon::ElementItem;
+                    styleEngineElementType = qmt::StyleEngine::TypeItem;
                 } else if (tool.m_elementType == QLatin1String(qmt::ELEMENT_TYPE_ANNOTATION)) {
                     iconPath = QStringLiteral(":/modelinglib/48x48/annotation.png");
-                    styleEngineElementType = qmt::StyleEngine::TYPE_ANNOTATION;
+                    styleEngineElementType = qmt::StyleEngine::TypeAnnotation;
                 } else if (tool.m_elementType == QLatin1String(qmt::ELEMENT_TYPE_BOUNDARY)) {
                     iconPath = QStringLiteral(":/modelinglib/48x48/boundary.png");
-                    styleEngineElementType = qmt::StyleEngine::TYPE_BOUNDARY;
+                    styleEngineElementType = qmt::StyleEngine::TypeBoundary;
                 }
                 QIcon icon;
-                if (!tool.m_stereotype.isEmpty() && stereotypeIconElement != qmt::StereotypeIcon::ELEMENT_ANY) {
+                if (!tool.m_stereotype.isEmpty() && stereotypeIconElement != qmt::StereotypeIcon::ElementAny) {
                     const qmt::Style *style = documentController->styleController()->adaptStyle(styleEngineElementType);
                     icon = stereotypeController->createIcon(
                                 stereotypeIconElement, QStringList() << tool.m_stereotype,
@@ -914,7 +914,7 @@ void ModelEditor::initToolbars()
                 }
                 break;
             }
-            case qmt::Toolbar::TOOLTYPE_SEPARATOR:
+            case qmt::Toolbar::TooltypeSeparator:
             {
                 auto horizLine1 = new QFrame(d->leftToolBox);
                 horizLine1->setFrameShape(QFrame::HLine);

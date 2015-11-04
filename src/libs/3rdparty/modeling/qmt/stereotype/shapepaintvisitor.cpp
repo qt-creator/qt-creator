@@ -111,16 +111,16 @@ void ShapePaintVisitor::visitPath(const PathShape *shapePath)
     QPainterPath path;
     foreach (const PathShape::Element &element, shapePath->elements()) {
         switch (element.m_elementType) {
-        case PathShape::TYPE_NONE:
+        case PathShape::TypeNone:
             // nothing to do
             break;
-        case PathShape::TYPE_MOVETO:
+        case PathShape::TypeMoveto:
             path.moveTo(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size));
             break;
-        case PathShape::TYPE_LINETO:
+        case PathShape::TypeLineto:
             path.lineTo(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size));
             break;
-        case PathShape::TYPE_ARCMOVETO:
+        case PathShape::TypeArcmoveto:
         {
             QSizeF radius = element.m_size.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
             path.arcMoveTo(QRectF(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size) - QPointF(radius.width(), radius.height()),
@@ -128,7 +128,7 @@ void ShapePaintVisitor::visitPath(const PathShape *shapePath)
                            element.m_angle1);
             break;
         }
-        case PathShape::TYPE_ARCTO:
+        case PathShape::TypeArcto:
         {
             QSizeF radius = element.m_size.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
             path.arcTo(QRectF(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size) - QPointF(radius.width(), radius.height()),
@@ -136,7 +136,7 @@ void ShapePaintVisitor::visitPath(const PathShape *shapePath)
                        element.m_angle1, element.m_angle2);
             break;
         }
-        case PathShape::TYPE_CLOSE:
+        case PathShape::TypeClose:
             path.closeSubpath();
             break;
         }
@@ -197,16 +197,16 @@ void ShapeSizeVisitor::visitPath(const PathShape *shapePath)
     QPainterPath path;
     foreach (const PathShape::Element &element, shapePath->elements()) {
         switch (element.m_elementType) {
-        case PathShape::TYPE_NONE:
+        case PathShape::TypeNone:
             // nothing to do
             break;
-        case PathShape::TYPE_MOVETO:
+        case PathShape::TypeMoveto:
             path.moveTo(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size));
             break;
-        case PathShape::TYPE_LINETO:
+        case PathShape::TypeLineto:
             path.lineTo(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size));
             break;
-        case PathShape::TYPE_ARCMOVETO:
+        case PathShape::TypeArcmoveto:
         {
             QSizeF radius = element.m_size.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
             path.arcMoveTo(QRectF(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size) - QPointF(radius.width(), radius.height()),
@@ -214,7 +214,7 @@ void ShapeSizeVisitor::visitPath(const PathShape *shapePath)
                            element.m_angle1);
             break;
         }
-        case PathShape::TYPE_ARCTO:
+        case PathShape::TypeArcto:
         {
             QSizeF radius = element.m_size.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
             path.arcTo(QRectF(element.m_position.mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size) - QPointF(radius.width(), radius.height()),
@@ -222,7 +222,7 @@ void ShapeSizeVisitor::visitPath(const PathShape *shapePath)
                        element.m_angle1, element.m_angle2);
             break;
         }
-        case PathShape::TYPE_CLOSE:
+        case PathShape::TypeClose:
             path.closeSubpath();
             break;
         }

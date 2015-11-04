@@ -75,11 +75,11 @@ class ObjectItem :
 protected:
 
     enum ResizeFlags {
-        RESIZE_UNLOCKED,
-        RESIZE_LOCKED_SIZE,
-        RESIZE_LOCKED_WIDTH,
-        RESIZE_LOCKED_HEIGHT,
-        RESIZE_LOCKED_RATIO
+        ResizeUnlocked,
+        ResizeLockedSize,
+        ResizeLockedWidth,
+        ResizeLockedHeight,
+        ResizeLockedRatio
     };
 
 public:

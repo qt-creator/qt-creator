@@ -512,13 +512,13 @@ public:
 public:
 
     enum ReferenceKind {
-        NULLPOINTER,
-        POINTER,
-        INSTANCE
+        Nullpointer,
+        Pointer,
+        Instance
     };
 
     struct ReferenceTag {
-        explicit ReferenceTag(ReferenceKind k = NULLPOINTER, const QString &string = QLatin1String("")) : kind(k), typeName(string) { }
+        explicit ReferenceTag(ReferenceKind k = Nullpointer, const QString &string = QLatin1String("")) : kind(k), typeName(string) { }
 
         ReferenceKind kind;
         QString typeName;
@@ -528,11 +528,11 @@ public:
     {
         XmlTag tag = readTag();
         if (tag.m_tagName == QLatin1String("null")) {
-            return ReferenceTag(NULLPOINTER);
+            return ReferenceTag(Nullpointer);
         } else if (tag.m_tagName == QLatin1String("reference")) {
-            return ReferenceTag(POINTER);
+            return ReferenceTag(Pointer);
         } else if (tag.m_tagName == QLatin1String("instance")) {
-            return ReferenceTag(INSTANCE, tag.m_attributes.value(QLatin1String("type")));
+            return ReferenceTag(Instance, tag.m_attributes.value(QLatin1String("type")));
         } else {
             throw FileFormatException();
         }
@@ -543,11 +543,11 @@ public:
         XmlTag tag = readTag();
         if (!tag.m_endTag) {
             throw FileFormatException();
-        } else if (tag.m_tagName == QLatin1String("null") && kind != NULLPOINTER) {
+        } else if (tag.m_tagName == QLatin1String("null") && kind != Nullpointer) {
             throw FileFormatException();
-        } else if (tag.m_tagName == QLatin1String("reference") && kind != POINTER) {
+        } else if (tag.m_tagName == QLatin1String("reference") && kind != Pointer) {
             throw FileFormatException();
-        } else if (tag.m_tagName == QLatin1String("instance") && kind != INSTANCE) {
+        } else if (tag.m_tagName == QLatin1String("instance") && kind != Instance) {
             throw FileFormatException();
         }
     }

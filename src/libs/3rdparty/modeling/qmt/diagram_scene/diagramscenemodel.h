@@ -76,9 +76,9 @@ class QMT_EXPORT DiagramSceneModel :
 public:
 
     enum CollidingMode {
-        COLLIDING_INNER_ITEMS,
-        COLLIDING_ITEMS,
-        COLLIDING_OUTER_ITEMS
+        CollidingInnerItems,
+        CollidingItems,
+        CollidingOuterItems
     };
 
 
@@ -237,11 +237,11 @@ private:
 private:
 
     enum Busy {
-        NOT_BUSY,
-        RESET_DIAGRAM,
-        UPDATE_ELEMENT,
-        INSERT_ELEMENT,
-        REMOVE_ELEMENT
+        NotBusy,
+        ResetDiagram,
+        UpdateElement,
+        InsertElement,
+        RemoveElement
     };
 
 private:

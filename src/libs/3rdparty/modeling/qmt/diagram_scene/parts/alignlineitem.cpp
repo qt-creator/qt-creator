@@ -60,11 +60,11 @@ void AlignLineItem::setLine(qreal pos, qreal otherPos1, qreal otherPos2)
 {
     QRectF sceneRect = scene()->sceneRect();
     switch (m_direction) {
-    case HORIZONTAL:
+    case Horizontal:
         m_alignLine->setLine(sceneRect.left() + 1.0, pos, sceneRect.right() - 1.0, pos);
         m_highlightLine->setLine(otherPos1, pos, otherPos2, pos);
         break;
-    case VERTICAL:
+    case Vertical:
         m_alignLine->setLine(pos, sceneRect.top() + 1.0, pos, sceneRect.bottom() - 1.0);
         m_highlightLine->setLine(pos, otherPos1, pos, otherPos2);
         break;

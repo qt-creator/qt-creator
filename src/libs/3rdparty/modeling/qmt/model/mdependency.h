@@ -45,9 +45,9 @@ class QMT_EXPORT MDependency :
 public:
 
     enum Direction {
-        A_TO_B,
-        B_TO_A,
-        BIDIRECTIONAL
+        AToB,
+        BToA,
+        Bidirectional
     };
 
 public:

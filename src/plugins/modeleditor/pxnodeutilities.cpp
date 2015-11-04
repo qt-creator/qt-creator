@@ -175,7 +175,7 @@ qmt::MPackage *PxNodeUtilities::createBestMatchingPackagePath(
     int i = maxChainLength;
     while (i < relativeElements.size()) {
         auto newPackage = new qmt::MPackage();
-        newPackage->setFlags(qmt::MElement::REVERSE_ENGINEERED);
+        newPackage->setFlags(qmt::MElement::ReverseEngineered);
         newPackage->setName(relativeElements.at(i));
         d->diagramSceneController->modelController()->addObject(bestParentPackage, newPackage);
         bestParentPackage = newPackage;

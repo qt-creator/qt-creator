@@ -38,7 +38,7 @@ namespace qmt {
 
 MDependency::MDependency()
     : MRelation(),
-      m_direction(A_TO_B)
+      m_direction(AToB)
 {
 }
 
@@ -68,12 +68,12 @@ void MDependency::setDirection(MDependency::Direction direction)
 
 Uid MDependency::source() const
 {
-    return m_direction == B_TO_A ? endBUid() : endAUid();
+    return m_direction == BToA ? endBUid() : endAUid();
 }
 
 void MDependency::setSource(const Uid &source)
 {
-    if (m_direction == B_TO_A) {
+    if (m_direction == BToA) {
         setEndBUid(source);
     } else {
         setEndAUid(source);
@@ -82,12 +82,12 @@ void MDependency::setSource(const Uid &source)
 
 Uid MDependency::target() const
 {
-    return m_direction == B_TO_A ? endAUid() : endBUid();
+    return m_direction == BToA ? endAUid() : endBUid();
 }
 
 void MDependency::setTarget(const Uid &target)
 {
-    if (m_direction == B_TO_A) {
+    if (m_direction == BToA) {
         setEndAUid(target);
     } else {
         setEndBUid(target);

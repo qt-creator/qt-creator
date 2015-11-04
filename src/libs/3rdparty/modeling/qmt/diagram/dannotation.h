@@ -44,12 +44,12 @@ class QMT_EXPORT DAnnotation :
 public:
 
     enum VisualRole {
-        ROLE_NORMAL,
-        ROLE_TITLE,
-        ROLE_SUBTITLE,
-        ROLE_EMPHASIZED,
-        ROLE_SOFTEN,
-        ROLE_FOOTNOTE
+        RoleNormal,
+        RoleTitle,
+        RoleSubtitle,
+        RoleEmphasized,
+        RoleSoften,
+        RoleFootnote
     };
 
 public:

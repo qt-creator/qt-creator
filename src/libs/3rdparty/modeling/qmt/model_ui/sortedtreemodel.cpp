@@ -62,8 +62,8 @@ void SortedTreeModel::setTreeModel(TreeModel *treeModel)
 
 bool SortedTreeModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    TreeModel::ItemType leftItemType = (TreeModel::ItemType) sourceModel()->data(left, TreeModel::ROLE_ITEM_TYPE).toInt();
-    TreeModel::ItemType rightItemType = (TreeModel::ItemType) sourceModel()->data(right, TreeModel::ROLE_ITEM_TYPE).toInt();
+    TreeModel::ItemType leftItemType = (TreeModel::ItemType) sourceModel()->data(left, TreeModel::RoleItemType).toInt();
+    TreeModel::ItemType rightItemType = (TreeModel::ItemType) sourceModel()->data(right, TreeModel::RoleItemType).toInt();
     if (leftItemType < rightItemType) {
         return true;
     } else if (leftItemType > rightItemType) {

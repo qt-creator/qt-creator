@@ -46,15 +46,15 @@ class PathSelectionItem :
     friend class GraphicsHandleItem;
 
     enum HandleStatus {
-        PRESS,
-        MOVE,
-        RELEASE,
-        CANCEL
+        Press,
+        Move,
+        Release,
+        Cancel
     };
 
     enum HandleQualifier {
-        NONE,
-        DELETE_HANDLE
+        None,
+        DeleteHandle
     };
 
 public:

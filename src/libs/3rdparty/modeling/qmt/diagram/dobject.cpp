@@ -39,9 +39,9 @@ DObject::DObject()
     : DElement(),
       m_modelUid(Uid::invalidUid()),
       m_depth(0),
-      m_visualPrimaryRole(PRIMARY_ROLE_NORMAL),
-      m_visualSecondaryRole(SECONDARY_ROLE_NONE),
-      m_stereotypeDisplay(STEREOTYPE_SMART),
+      m_visualPrimaryRole(PrimaryRoleNormal),
+      m_visualSecondaryRole(SecondaryRoleNone),
+      m_stereotypeDisplay(StereotypeSmart),
       m_autoSized(true),
       m_visualEmphasized(false)
 {

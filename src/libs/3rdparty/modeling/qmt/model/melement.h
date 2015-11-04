@@ -65,7 +65,7 @@ class QMT_EXPORT MElement
 public:
 
     enum Flag {
-        REVERSE_ENGINEERED = 0x01
+        ReverseEngineered = 0x01
     };
 
     Q_DECLARE_FLAGS(Flags, Flag)

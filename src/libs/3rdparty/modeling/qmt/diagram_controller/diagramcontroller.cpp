@@ -131,7 +131,7 @@ public:
         if (diagramKey() != otherUpdateCommand->diagramKey()) {
             return false;
         }
-        if (m_updateAction == DiagramController::UPDATE_MAJOR || otherUpdateCommand->m_updateAction == DiagramController::UPDATE_MAJOR
+        if (m_updateAction == DiagramController::UpdateMajor || otherUpdateCommand->m_updateAction == DiagramController::UpdateMajor
                 || m_updateAction != otherUpdateCommand->m_updateAction) {
             return false;
         }

@@ -51,32 +51,32 @@ class QMT_EXPORT DObject :
 public:
 
     enum VisualPrimaryRole {
-        PRIMARY_ROLE_NORMAL,
-        DEPRECATED_PRIMARY_ROLE_LIGHTER,
-        DEPRECATED_PRIMARY_ROLE_DARKER,
-        DEPRECATED_PRIMARY_ROLE_SOFTEN,
-        DEPRECATED_PRIMARY_ROLE_OUTLINE,
-        PRIMARY_ROLE_CUSTOM1,
-        PRIMARY_ROLE_CUSTOM2,
-        PRIMARY_ROLE_CUSTOM3,
-        PRIMARY_ROLE_CUSTOM4,
-        PRIMARY_ROLE_CUSTOM5
+        PrimaryRoleNormal,
+        DeprecatedPrimaryRoleLighter,
+        DeprecatedPrimaryRoleDarker,
+        DeprecatedPrimaryRoleSoften,
+        DeprecatedPrimaryRoleOutline,
+        PrimaryRoleCustom1,
+        PrimaryRoleCustom2,
+        PrimaryRoleCustom3,
+        PrimaryRoleCustom4,
+        PrimaryRoleCustom5
     };
 
     enum VisualSecondaryRole {
-        SECONDARY_ROLE_NONE,
-        SECONDARY_ROLE_LIGHTER,
-        SECONDARY_ROLE_DARKER,
-        SECONDARY_ROLE_SOFTEN,
-        SECONDARY_ROLE_OUTLINE
+        SecondaryRoleNone,
+        SecondaryRoleLighter,
+        SecondaryRoleDarker,
+        SecondaryRoleSoften,
+        SecondaryRoleOutline
     };
 
     enum StereotypeDisplay {
-        STEREOTYPE_NONE,
-        STEREOTYPE_LABEL,
-        STEREOTYPE_DECORATION,
-        STEREOTYPE_ICON,
-        STEREOTYPE_SMART
+        StereotypeNone,
+        StereotypeLabel,
+        StereotypeDecoration,
+        StereotypeIcon,
+        StereotypeSmart
     };
 
 public:
