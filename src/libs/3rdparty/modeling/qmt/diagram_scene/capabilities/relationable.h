@@ -46,7 +46,7 @@ class IRelationable {
 public:
     virtual ~IRelationable() { }
 
-    virtual QPointF getRelationStartPos() const = 0;
+    virtual QPointF relationStartPos() const = 0;
 
     virtual void relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints) = 0;
 };

@@ -50,9 +50,9 @@ public:
         {
         }
 
-        Uid getElementKey() const { return m_elementKey; }
+        Uid elementKey() const { return m_elementKey; }
 
-        Uid getOwnerKey() const { return m_ownerKey; }
+        Uid ownerKey() const { return m_ownerKey; }
 
     private:
 
@@ -73,7 +73,7 @@ public:
 
     bool isEmpty() const { return m_indices.isEmpty(); }
 
-    QList<Index> getIndices() const { return m_indices; }
+    QList<Index> indices() const { return m_indices; }
 
     void setIndices(const QList<Index> &indices);
 

@@ -62,7 +62,7 @@ MSourceExpansion &MSourceExpansion::operator=(const MSourceExpansion &rhs)
 
 MSourceExpansion *MSourceExpansion::clone(const MElement &rhs) const
 {
-    MSourceExpansion *rightExpansion = dynamic_cast<MSourceExpansion *>(rhs.getExpansion());
+    MSourceExpansion *rightExpansion = dynamic_cast<MSourceExpansion *>(rhs.expansion());
     QMT_CHECK(rightExpansion);
     MSourceExpansion *expansion = new MSourceExpansion(*rightExpansion);
     return expansion;

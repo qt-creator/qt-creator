@@ -59,7 +59,7 @@ bool SavingRefMap::hasDefinedRef(const void *address, const char *typeName)
     return it.value().second;
 }
 
-ObjectId SavingRefMap::getRef(const void *address, const char *typeName, bool define)
+ObjectId SavingRefMap::ref(const void *address, const char *typeName, bool define)
 {
     keyType k = keyType(address, typeName);
     mapType::iterator it = m_references.find(k);

@@ -61,8 +61,8 @@ template<class Archive>
 void serialize(Archive &archive, Project &project)
 {
     archive || qark::tag(QStringLiteral("project"), project)
-            || qark::attr(QStringLiteral("uid"), project, &Project::getUid, &Project::setUid)
-            || qark::attr(QStringLiteral("root-package"), project, &Project::getRootPackage, &Project::setRootPackage)
+            || qark::attr(QStringLiteral("uid"), project, &Project::uid, &Project::setUid)
+            || qark::attr(QStringLiteral("root-package"), project, &Project::rootPackage, &Project::setRootPackage)
             || qark::end;
 }
 

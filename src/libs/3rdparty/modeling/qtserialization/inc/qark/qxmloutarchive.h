@@ -85,7 +85,7 @@ public:
         if (!m_savingRefMap.hasDefinedRef(p)) {
             throw UnsupportedForwardReference();
         }
-        write(m_savingRefMap.getRef(p).get());
+        write(m_savingRefMap.ref(p).get());
     }
 
 #define QARK_WRITENUMBER(T) \
@@ -134,13 +134,13 @@ public:
 
     void beginElement(const Tag &tag)
     {
-        m_stream.writeStartElement(tag.getQualifiedName());
+        m_stream.writeStartElement(tag.qualifiedName());
     }
 
     template<class T>
     void beginElement(const Object<T> &object)
     {
-        m_stream.writeStartElement(object.getQualifiedName());
+        m_stream.writeStartElement(object.qualifiedName());
         // TODO implement key attribute
         // Currently qmodel files do not use references at all
         // so writing reference keys are not needed. If this
@@ -157,7 +157,7 @@ public:
     template<class T, class U>
     void beginBase(const Base<T, U> &base)
     {
-        m_stream.writeStartElement(base.getQualifiedName());
+        m_stream.writeStartElement(base.qualifiedName());
     }
 
     template<class T, class U>
@@ -169,7 +169,7 @@ public:
     template<class T>
     void beginAttribute(const Attr<T> &attr)
     {
-        m_stream.writeStartElement(attr.getQualifiedName());
+        m_stream.writeStartElement(attr.qualifiedName());
     }
 
     template<class T>
@@ -181,7 +181,7 @@ public:
     template<class U, typename T>
     void beginAttribute(const GetterAttr<U, T> &attr)
     {
-        m_stream.writeStartElement(attr.getQualifiedName());
+        m_stream.writeStartElement(attr.qualifiedName());
     }
 
     template<class U, typename T>
@@ -193,7 +193,7 @@ public:
     template<class U, typename T, typename V>
     void beginAttribute(const GetterSetterAttr<U, T, V> &attr)
     {
-        m_stream.writeStartElement(attr.getQualifiedName());
+        m_stream.writeStartElement(attr.qualifiedName());
     }
 
     template<class U, typename T, typename V>
@@ -205,7 +205,7 @@ public:
     template<class U, typename T>
     void beginAttribute(const GetFuncAttr<U, T> &attr)
     {
-        m_stream.writeStartElement(attr.getQualifiedName());
+        m_stream.writeStartElement(attr.qualifiedName());
     }
 
     template<class U, typename T>
@@ -217,7 +217,7 @@ public:
     template<class U, typename T, typename V>
     void beginAttribute(const GetSetFuncAttr<U, T, V> &attr)
     {
-        m_stream.writeStartElement(attr.getQualifiedName());
+        m_stream.writeStartElement(attr.qualifiedName());
     }
 
     template<class U, typename T, typename V>
@@ -229,7 +229,7 @@ public:
     template<class T>
     void beginReference(const Ref<T> &ref)
     {
-        m_stream.writeStartElement(ref.getQualifiedName());
+        m_stream.writeStartElement(ref.qualifiedName());
         m_nextPointerIsReference = true;
     }
 
@@ -243,7 +243,7 @@ public:
     template<class U, typename T>
     void beginReference(const GetterRef<U, T> &ref)
     {
-        m_stream.writeStartElement(ref.getQualifiedName());
+        m_stream.writeStartElement(ref.qualifiedName());
         m_nextPointerIsReference = true;
     }
 
@@ -257,7 +257,7 @@ public:
     template<class U, typename T, typename V>
     void beginReference(const GetterSetterRef<U, T, V> &ref)
     {
-        m_stream.writeStartElement(ref.getQualifiedName());
+        m_stream.writeStartElement(ref.qualifiedName());
         m_nextPointerIsReference = true;
     }
 
@@ -271,7 +271,7 @@ public:
     template<class U, typename T>
     void beginReference(const GetFuncRef<U, T> &ref)
     {
-        m_stream.writeStartElement(ref.getQualifiedName());
+        m_stream.writeStartElement(ref.qualifiedName());
         m_nextPointerIsReference = true;
     }
 
@@ -285,7 +285,7 @@ public:
     template<class U, typename T, typename V>
     void beginReference(const GetSetFuncRef<U, T, V> &ref)
     {
-        m_stream.writeStartElement(ref.getQualifiedName());
+        m_stream.writeStartElement(ref.qualifiedName());
         m_nextPointerIsReference = true;
     }
 

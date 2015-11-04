@@ -68,42 +68,42 @@ void AssociationItem::update(const Style *style)
 {
     RelationItem::update(style);
 
-    updateEndLabels(m_association->getA(), m_association->getB(), &m_endAName, &m_endACardinality, style);
-    updateEndLabels(m_association->getB(), m_association->getA(), &m_endBName, &m_endBCardinality, style);
+    updateEndLabels(m_association->endA(), m_association->endB(), &m_endAName, &m_endACardinality, style);
+    updateEndLabels(m_association->endB(), m_association->endA(), &m_endBName, &m_endBCardinality, style);
 
     QMT_CHECK(m_arrow);
-    QGraphicsItem *endAItem = m_diagramSceneModel->getGraphicsItem(m_association->getEndA());
+    QGraphicsItem *endAItem = m_diagramSceneModel->graphicsItem(m_association->endAUid());
     QMT_CHECK(endAItem);
-    placeEndLabels(m_arrow->getFirstLineSegment(), m_endAName, m_endACardinality, endAItem, m_arrow->getStartHeadLength());
-    QGraphicsItem *endBItem = m_diagramSceneModel->getGraphicsItem(m_association->getEndB());
+    placeEndLabels(m_arrow->firstLineSegment(), m_endAName, m_endACardinality, endAItem, m_arrow->startHeadLength());
+    QGraphicsItem *endBItem = m_diagramSceneModel->graphicsItem(m_association->endBUid());
     QMT_CHECK(endBItem);
-    placeEndLabels(m_arrow->getLastLineSegment(), m_endBName, m_endBCardinality, endBItem, m_arrow->getEndHeadLength());
+    placeEndLabels(m_arrow->lastLineSegment(), m_endBName, m_endBCardinality, endBItem, m_arrow->endHeadLength());
 }
 
 void AssociationItem::updateEndLabels(const DAssociationEnd &end, const DAssociationEnd &otherEnd, QGraphicsSimpleTextItem **endName, QGraphicsSimpleTextItem **endCardinality, const Style *style)
 {
     Q_UNUSED(end);
 
-    if (!otherEnd.getName().isEmpty()) {
+    if (!otherEnd.name().isEmpty()) {
         if (!*endName) {
             *endName = new QGraphicsSimpleTextItem(this);
         }
-        (*endName)->setFont(style->getSmallFont());
-        (*endName)->setBrush(style->getTextBrush());
-        (*endName)->setText(otherEnd.getName());
+        (*endName)->setFont(style->smallFont());
+        (*endName)->setBrush(style->textBrush());
+        (*endName)->setText(otherEnd.name());
     } else if (*endName) {
         (*endName)->scene()->removeItem(*endName);
         delete *endName;
         *endName = 0;
     }
 
-    if (!otherEnd.getCardinality().isEmpty()) {
+    if (!otherEnd.cardinality().isEmpty()) {
         if (!*endCardinality) {
             *endCardinality = new QGraphicsSimpleTextItem(this);
         }
-        (*endCardinality)->setFont(style->getSmallFont());
-        (*endCardinality)->setBrush(style->getTextBrush());
-        (*endCardinality)->setText(otherEnd.getCardinality());
+        (*endCardinality)->setFont(style->smallFont());
+        (*endCardinality)->setBrush(style->textBrush());
+        (*endCardinality)->setText(otherEnd.cardinality());
     } else if (*endCardinality) {
         (*endCardinality)->scene()->removeItem(*endCardinality);
         delete *endCardinality;

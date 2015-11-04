@@ -94,14 +94,14 @@ void ObjectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     Q_UNUSED(widget);
 }
 
-QPointF ObjectItem::getPos() const
+QPointF ObjectItem::pos() const
 {
-    return m_object->getPos();
+    return m_object->pos();
 }
 
-QRectF ObjectItem::getRect() const
+QRectF ObjectItem::rect() const
 {
-    return m_object->getRect();
+    return m_object->rect();
 }
 
 void ObjectItem::setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta)
@@ -109,27 +109,27 @@ void ObjectItem::setPosAndRect(const QPointF &originalPos, const QRectF &origina
     QPointF newPos = originalPos;
     QRectF newRect = originalRect;
     GeometryUtilities::adjustPosAndRect(&newPos, &newRect, topLeftDelta, bottomRightDelta, QPointF(0.5, 0.5));
-    if (newPos != m_object->getPos() || newRect != m_object->getRect()) {
-        m_diagramSceneModel->getDiagramController()->startUpdateElement(m_object, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
+    if (newPos != m_object->pos() || newRect != m_object->rect()) {
+        m_diagramSceneModel->diagramController()->startUpdateElement(m_object, m_diagramSceneModel->diagram(), DiagramController::UPDATE_GEOMETRY);
         m_object->setPos(newPos);
-        if (newRect.size() != m_object->getRect().size()) {
+        if (newRect.size() != m_object->rect().size()) {
             m_object->setAutoSize(false);
         }
         m_object->setRect(newRect);
-        m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_object, m_diagramSceneModel->getDiagram(), false);
+        m_diagramSceneModel->diagramController()->finishUpdateElement(m_object, m_diagramSceneModel->diagram(), false);
     }
 }
 
 void ObjectItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, IResizable::Side adjustVerticalSide, double rasterWidth, double rasterHeight)
 {
-    QPointF pos = m_object->getPos();
-    QRectF rect = m_object->getRect();
+    QPointF pos = m_object->pos();
+    QRectF rect = m_object->rect();
 
     double horizDelta = rect.width() - qRound(rect.width() / rasterWidth) * rasterWidth;
     double vertDelta = rect.height() - qRound(rect.height() / rasterHeight) * rasterHeight;
 
     // make sure the new size is at least the minimum size
-    QSizeF minimumSize = getMinimumSize();
+    QSizeF minimumSize = ObjectItem::minimumSize();
     while (rect.width() + horizDelta < minimumSize.width()) {
         horizDelta += rasterWidth;
     }
@@ -171,15 +171,15 @@ void ObjectItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, IR
 
 void ObjectItem::moveDelta(const QPointF &delta)
 {
-    m_diagramSceneModel->getDiagramController()->startUpdateElement(m_object, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
-    m_object->setPos(m_object->getPos() + delta);
-    m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_object, m_diagramSceneModel->getDiagram(), false);
+    m_diagramSceneModel->diagramController()->startUpdateElement(m_object, m_diagramSceneModel->diagram(), DiagramController::UPDATE_GEOMETRY);
+    m_object->setPos(m_object->pos() + delta);
+    m_diagramSceneModel->diagramController()->finishUpdateElement(m_object, m_diagramSceneModel->diagram(), false);
 }
 
 void ObjectItem::alignItemPositionToRaster(double rasterWidth, double rasterHeight)
 {
-    QPointF pos = m_object->getPos();
-    QRectF rect = m_object->getRect();
+    QPointF pos = m_object->pos();
+    QRectF rect = m_object->rect();
     QPointF topLeft = pos + rect.topLeft();
 
     double leftDelta = qRound(topLeft.x() / rasterWidth) * rasterWidth - topLeft.x();
@@ -215,12 +215,12 @@ void ObjectItem::setFocusSelected(bool focusSelected)
     }
 }
 
-QList<ILatchable::Latch> ObjectItem::getHorizontalLatches(ILatchable::Action action, bool grabbedItem) const
+QList<ILatchable::Latch> ObjectItem::horizontalLatches(ILatchable::Action action, bool grabbedItem) const
 {
     Q_UNUSED(grabbedItem);
 
-    QRectF rect = getObject()->getRect();
-    rect.translate(getObject()->getPos());
+    QRectF rect = object()->rect();
+    rect.translate(object()->pos());
     QList<ILatchable::Latch> result;
     switch (action) {
     case ILatchable::MOVE:
@@ -244,12 +244,12 @@ QList<ILatchable::Latch> ObjectItem::getHorizontalLatches(ILatchable::Action act
     return result;
 }
 
-QList<ILatchable::Latch> ObjectItem::getVerticalLatches(ILatchable::Action action, bool grabbedItem) const
+QList<ILatchable::Latch> ObjectItem::verticalLatches(ILatchable::Action action, bool grabbedItem) const
 {
     Q_UNUSED(grabbedItem);
 
-    QRectF rect = getObject()->getRect();
-    rect.translate(getObject()->getPos());
+    QRectF rect = object()->rect();
+    rect.translate(object()->pos());
     QList<ILatchable::Latch> result;
     switch (action) {
     case ILatchable::MOVE:
@@ -282,42 +282,42 @@ void ObjectItem::align(IAlignable::AlignType alignType, const QString &identifie
     switch (alignType) {
     case IAlignable::ALIGN_LEFT:
         QMT_CHECK(identifier == QStringLiteral("left"));
-        m_diagramSceneModel->getDiagramSceneController()->alignLeft(m_object, m_diagramSceneModel->getSelectedElements(), m_diagramSceneModel->getDiagram());
+        m_diagramSceneModel->diagramSceneController()->alignLeft(m_object, m_diagramSceneModel->selectedElements(), m_diagramSceneModel->diagram());
         break;
     case IAlignable::ALIGN_RIGHT:
         QMT_CHECK(identifier == QStringLiteral("right"));
-        m_diagramSceneModel->getDiagramSceneController()->alignRight(m_object, m_diagramSceneModel->getSelectedElements(), m_diagramSceneModel->getDiagram());
+        m_diagramSceneModel->diagramSceneController()->alignRight(m_object, m_diagramSceneModel->selectedElements(), m_diagramSceneModel->diagram());
         break;
     case IAlignable::ALIGN_TOP:
         QMT_CHECK(identifier == QStringLiteral("top"));
-        m_diagramSceneModel->getDiagramSceneController()->alignTop(m_object, m_diagramSceneModel->getSelectedElements(), m_diagramSceneModel->getDiagram());
+        m_diagramSceneModel->diagramSceneController()->alignTop(m_object, m_diagramSceneModel->selectedElements(), m_diagramSceneModel->diagram());
         break;
     case IAlignable::ALIGN_BOTTOM:
         QMT_CHECK(identifier == QStringLiteral("bottom"));
-        m_diagramSceneModel->getDiagramSceneController()->alignBottom(m_object, m_diagramSceneModel->getSelectedElements(), m_diagramSceneModel->getDiagram());
+        m_diagramSceneModel->diagramSceneController()->alignBottom(m_object, m_diagramSceneModel->selectedElements(), m_diagramSceneModel->diagram());
         break;
     case IAlignable::ALIGN_HCENTER:
         QMT_CHECK(identifier == QStringLiteral("center"));
-        m_diagramSceneModel->getDiagramSceneController()->alignHCenter(m_object, m_diagramSceneModel->getSelectedElements(), m_diagramSceneModel->getDiagram());
+        m_diagramSceneModel->diagramSceneController()->alignHCenter(m_object, m_diagramSceneModel->selectedElements(), m_diagramSceneModel->diagram());
         break;
     case IAlignable::ALIGN_VCENTER:
         QMT_CHECK(identifier == QStringLiteral("center"));
-        m_diagramSceneModel->getDiagramSceneController()->alignVCenter(m_object, m_diagramSceneModel->getSelectedElements(), m_diagramSceneModel->getDiagram());
+        m_diagramSceneModel->diagramSceneController()->alignVCenter(m_object, m_diagramSceneModel->selectedElements(), m_diagramSceneModel->diagram());
         break;
     case IAlignable::ALIGN_WIDTH:
         QMT_CHECK(identifier == QStringLiteral("width"));
-        m_diagramSceneModel->getDiagramSceneController()->alignWidth(m_object, m_diagramSceneModel->getSelectedElements(),
-                                                                      getMinimumSize(m_diagramSceneModel->getSelectedItems()), m_diagramSceneModel->getDiagram());
+        m_diagramSceneModel->diagramSceneController()->alignWidth(m_object, m_diagramSceneModel->selectedElements(),
+                                                                      minimumSize(m_diagramSceneModel->selectedItems()), m_diagramSceneModel->diagram());
         break;
     case IAlignable::ALIGN_HEIGHT:
         QMT_CHECK(identifier == QStringLiteral("height"));
-        m_diagramSceneModel->getDiagramSceneController()->alignHeight(m_object, m_diagramSceneModel->getSelectedElements(),
-                                                                       getMinimumSize(m_diagramSceneModel->getSelectedItems()), m_diagramSceneModel->getDiagram());
+        m_diagramSceneModel->diagramSceneController()->alignHeight(m_object, m_diagramSceneModel->selectedElements(),
+                                                                       minimumSize(m_diagramSceneModel->selectedItems()), m_diagramSceneModel->diagram());
         break;
     case IAlignable::ALIGN_SIZE:
         QMT_CHECK(identifier == QStringLiteral("size"));
-        m_diagramSceneModel->getDiagramSceneController()->alignSize(m_object, m_diagramSceneModel->getSelectedElements(),
-                                                                     getMinimumSize(m_diagramSceneModel->getSelectedItems()), m_diagramSceneModel->getDiagram());
+        m_diagramSceneModel->diagramSceneController()->alignSize(m_object, m_diagramSceneModel->selectedElements(),
+                                                                     minimumSize(m_diagramSceneModel->selectedItems()), m_diagramSceneModel->diagram());
         break;
     }
 }
@@ -325,29 +325,29 @@ void ObjectItem::align(IAlignable::AlignType alignType, const QString &identifie
 void ObjectItem::updateStereotypeIconDisplay()
 {
     StereotypeDisplayVisitor stereotypeDisplayVisitor;
-    stereotypeDisplayVisitor.setModelController(m_diagramSceneModel->getDiagramSceneController()->getModelController());
-    stereotypeDisplayVisitor.setStereotypeController(m_diagramSceneModel->getStereotypeController());
+    stereotypeDisplayVisitor.setModelController(m_diagramSceneModel->diagramSceneController()->modelController());
+    stereotypeDisplayVisitor.setStereotypeController(m_diagramSceneModel->stereotypeController());
     m_object->accept(&stereotypeDisplayVisitor);
-    m_stereotypeIconId = stereotypeDisplayVisitor.getStereotypeIconId();
-    m_shapeIconId = stereotypeDisplayVisitor.getShapeIconId();
-    m_stereotypeIconDisplay = stereotypeDisplayVisitor.getStereotypeIconDisplay();
+    m_stereotypeIconId = stereotypeDisplayVisitor.stereotypeIconId();
+    m_shapeIconId = stereotypeDisplayVisitor.shapeIconId();
+    m_stereotypeIconDisplay = stereotypeDisplayVisitor.stereotypeIconDisplay();
 }
 
 void ObjectItem::updateStereotypes(const QString &stereotypeIconId, StereotypeIcon::Display stereotypeDisplay, const Style *style)
 {
-    QList<QString> stereotypes = m_object->getStereotypes();
+    QList<QString> stereotypes = m_object->stereotypes();
     if (!stereotypeIconId.isEmpty()
             && (stereotypeDisplay == StereotypeIcon::DISPLAY_DECORATION || stereotypeDisplay == StereotypeIcon::DISPLAY_ICON)) {
-        stereotypes = m_diagramSceneModel->getStereotypeController()->filterStereotypesByIconId(stereotypeIconId, stereotypes);
+        stereotypes = m_diagramSceneModel->stereotypeController()->filterStereotypesByIconId(stereotypeIconId, stereotypes);
     }
     if (!stereotypeIconId.isEmpty() && stereotypeDisplay == StereotypeIcon::DISPLAY_DECORATION) {
         if (!m_stereotypeIcon) {
             m_stereotypeIcon = new CustomIconItem(m_diagramSceneModel, this);
         }
         m_stereotypeIcon->setStereotypeIconId(stereotypeIconId);
-        m_stereotypeIcon->setBaseSize(QSizeF(m_stereotypeIcon->getShapeWidth(), m_stereotypeIcon->getShapeHeight()));
-        m_stereotypeIcon->setBrush(style->getFillBrush());
-        m_stereotypeIcon->setPen(style->getInnerLinePen());
+        m_stereotypeIcon->setBaseSize(QSizeF(m_stereotypeIcon->shapeWidth(), m_stereotypeIcon->shapeHeight()));
+        m_stereotypeIcon->setBrush(style->fillBrush());
+        m_stereotypeIcon->setPen(style->innerLinePen());
     } else if (m_stereotypeIcon) {
         m_stereotypeIcon->scene()->removeItem(m_stereotypeIcon);
         delete m_stereotypeIcon;
@@ -357,8 +357,8 @@ void ObjectItem::updateStereotypes(const QString &stereotypeIconId, StereotypeIc
         if (!m_stereotypes) {
             m_stereotypes = new StereotypesItem(this);
         }
-        m_stereotypes->setFont(style->getSmallFont());
-        m_stereotypes->setBrush(style->getTextBrush());
+        m_stereotypes->setFont(style->smallFont());
+        m_stereotypes->setBrush(style->textBrush());
         m_stereotypes->setStereotypes(stereotypes);
     } else if (m_stereotypes) {
         m_stereotypes->scene()->removeItem(m_stereotypes);
@@ -367,57 +367,57 @@ void ObjectItem::updateStereotypes(const QString &stereotypeIconId, StereotypeIc
     }
 }
 
-QSizeF ObjectItem::getStereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon, qreal minimumWidth, qreal minimumHeight) const
+QSizeF ObjectItem::stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon, qreal minimumWidth, qreal minimumHeight) const
 {
     Q_UNUSED(minimumWidth);
 
     qreal width = 0.0;
     qreal height = 0.0;
     if (stereotypeIcon.hasMinWidth() && !stereotypeIcon.hasMinHeight()) {
-        width = stereotypeIcon.getMinWidth();
-        if (stereotypeIcon.getSizeLock() == StereotypeIcon::LOCK_HEIGHT || stereotypeIcon.getSizeLock() == StereotypeIcon::LOCK_SIZE) {
-            height = stereotypeIcon.getMinHeight();
+        width = stereotypeIcon.minWidth();
+        if (stereotypeIcon.sizeLock() == StereotypeIcon::LOCK_HEIGHT || stereotypeIcon.sizeLock() == StereotypeIcon::LOCK_SIZE) {
+            height = stereotypeIcon.minHeight();
         } else {
-            height = width * stereotypeIcon.getHeight() / stereotypeIcon.getWidth();
+            height = width * stereotypeIcon.height() / stereotypeIcon.width();
         }
     } else if (!stereotypeIcon.hasMinWidth() && stereotypeIcon.hasMinHeight()) {
-        height = stereotypeIcon.getMinHeight();
-        if (stereotypeIcon.getSizeLock() == StereotypeIcon::LOCK_WIDTH || stereotypeIcon.getSizeLock() == StereotypeIcon::LOCK_SIZE) {
-            width = stereotypeIcon.getMinWidth();
+        height = stereotypeIcon.minHeight();
+        if (stereotypeIcon.sizeLock() == StereotypeIcon::LOCK_WIDTH || stereotypeIcon.sizeLock() == StereotypeIcon::LOCK_SIZE) {
+            width = stereotypeIcon.minWidth();
         } else {
-            width = height * stereotypeIcon.getWidth() / stereotypeIcon.getHeight();
+            width = height * stereotypeIcon.width() / stereotypeIcon.height();
         }
     } else if (stereotypeIcon.hasMinWidth() && stereotypeIcon.hasMinHeight()) {
-        if (stereotypeIcon.getSizeLock() == StereotypeIcon::LOCK_RATIO) {
-            width = stereotypeIcon.getMinWidth();
-            height = width * stereotypeIcon.getHeight() / stereotypeIcon.getWidth();
-            if (height < stereotypeIcon.getMinHeight()) {
-                height = stereotypeIcon.getMinHeight();
-                width = height * stereotypeIcon.getWidth() / stereotypeIcon.getHeight();
-                QMT_CHECK(width <= stereotypeIcon.getMinWidth());
+        if (stereotypeIcon.sizeLock() == StereotypeIcon::LOCK_RATIO) {
+            width = stereotypeIcon.minWidth();
+            height = width * stereotypeIcon.height() / stereotypeIcon.width();
+            if (height < stereotypeIcon.minHeight()) {
+                height = stereotypeIcon.minHeight();
+                width = height * stereotypeIcon.width() / stereotypeIcon.height();
+                QMT_CHECK(width <= stereotypeIcon.minWidth());
             }
         } else {
-            width = stereotypeIcon.getMinWidth();
-            height = stereotypeIcon.getMinHeight();
+            width = stereotypeIcon.minWidth();
+            height = stereotypeIcon.minHeight();
         }
     } else {
         height = minimumHeight;
-        width = height * stereotypeIcon.getWidth() / stereotypeIcon.getHeight();
+        width = height * stereotypeIcon.width() / stereotypeIcon.height();
     }
     return QSizeF(width, height);
 }
 
 void ObjectItem::updateDepth()
 {
-    setZValue(m_object->getDepth());
+    setZValue(m_object->depth());
 }
 
 void ObjectItem::updateSelectionMarker(CustomIconItem *customIconItem)
 {
     if (customIconItem) {
-        StereotypeIcon stereotypeIcon = customIconItem->getStereotypeIcon();
+        StereotypeIcon stereotypeIcon = customIconItem->stereotypeIcon();
         ResizeFlags resizeFlags = RESIZE_UNLOCKED;
-        switch (stereotypeIcon.getSizeLock()) {
+        switch (stereotypeIcon.sizeLock()) {
         case StereotypeIcon::LOCK_NONE:
             resizeFlags = RESIZE_UNLOCKED;
             break;
@@ -518,14 +518,14 @@ void ObjectItem::updateAlignmentButtonsGeometry(const QRectF &objectRect)
     if (m_horizontalAlignButtons) {
         m_horizontalAlignButtons->clear();
         m_horizontalAlignButtons->setPos(mapToScene(QPointF(0.0, objectRect.top() - AlignButtonsItem::NORMAL_BUTTON_HEIGHT - AlignButtonsItem::VERTICAL_DISTANCE_TO_OBEJCT)));
-        foreach (const ILatchable::Latch &latch, getHorizontalLatches(ILatchable::MOVE, true)) {
+        foreach (const ILatchable::Latch &latch, horizontalLatches(ILatchable::MOVE, true)) {
             m_horizontalAlignButtons->addButton(translateLatchTypeToAlignType(latch.m_latchType), latch.m_identifier, mapFromScene(QPointF(latch.m_pos, 0.0)).x());
         }
     }
     if (m_verticalAlignButtons) {
         m_verticalAlignButtons->clear();
         m_verticalAlignButtons->setPos(mapToScene(QPointF(objectRect.left() - AlignButtonsItem::NORMAL_BUTTON_WIDTH - AlignButtonsItem::HORIZONTAL_DISTANCE_TO_OBJECT, 0.0)));
-        foreach (const ILatchable::Latch &latch, getVerticalLatches(ILatchable::MOVE, true)) {
+        foreach (const ILatchable::Latch &latch, verticalLatches(ILatchable::MOVE, true)) {
             m_verticalAlignButtons->addButton(translateLatchTypeToAlignType(latch.m_latchType), latch.m_identifier, mapFromScene(QPointF(0.0, latch.m_pos)).y());
         }
     }
@@ -560,43 +560,43 @@ IAlignable::AlignType ObjectItem::translateLatchTypeToAlignType(ILatchable::Latc
     return alignType;
 }
 
-const Style *ObjectItem::getAdaptedStyle(const QString &stereotypeIconId)
+const Style *ObjectItem::adaptedStyle(const QString &stereotypeIconId)
 {
     QList<const DObject *> collidingObjects;
     foreach (const QGraphicsItem *item, m_diagramSceneModel->collectCollidingObjectItems(this, DiagramSceneModel::COLLIDING_ITEMS)) {
         if (const ObjectItem *objectItem = dynamic_cast<const ObjectItem *>(item)) {
-            collidingObjects.append(objectItem->getObject());
+            collidingObjects.append(objectItem->object());
         }
     }
     QColor baseColor;
     if (!stereotypeIconId.isEmpty()) {
-        StereotypeIcon stereotypeIcon = m_diagramSceneModel->getStereotypeController()->findStereotypeIcon(stereotypeIconId);
-        baseColor = stereotypeIcon.getBaseColor();
+        StereotypeIcon stereotypeIcon = m_diagramSceneModel->stereotypeController()->findStereotypeIcon(stereotypeIconId);
+        baseColor = stereotypeIcon.baseColor();
     }
-    return m_diagramSceneModel->getStyleController()->adaptObjectStyle(
-                StyledObject(getObject(),
+    return m_diagramSceneModel->styleController()->adaptObjectStyle(
+                StyledObject(object(),
                              ObjectVisuals(
-                                 getObject()->getVisualPrimaryRole(),
-                                 getObject()->getVisualSecondaryRole(),
-                                 getObject()->isVisualEmphasized(),
+                                 object()->visualPrimaryRole(),
+                                 object()->visualSecondaryRole(),
+                                 object()->isVisualEmphasized(),
                                  baseColor,
-                                 getObject()->getDepth()),
+                                 object()->depth()),
                              collidingObjects));
 }
 
 bool ObjectItem::showContext() const
 {
-    bool showContext = !m_object->getContext().isEmpty();
+    bool showContext = !m_object->context().isEmpty();
     if (showContext) {
         // TODO Because of this algorithm adding, moving, removing of one item need to update() all colliding items as well
-        QMT_CHECK(getObject()->getModelUid().isValid());
-        MObject *mobject = m_diagramSceneModel->getDiagramController()->getModelController()->findObject(getObject()->getModelUid());
+        QMT_CHECK(object()->modelUid().isValid());
+        MObject *mobject = m_diagramSceneModel->diagramController()->modelController()->findObject(object()->modelUid());
         QMT_CHECK(mobject);
-        MObject *owner = mobject->getOwner();
+        MObject *owner = mobject->owner();
         if (owner) {
             foreach (QGraphicsItem *item, m_diagramSceneModel->collectCollidingObjectItems(this, DiagramSceneModel::COLLIDING_OUTER_ITEMS)) {
                 if (ObjectItem *objectItem = dynamic_cast<ObjectItem *>(item)) {
-                    if (objectItem->getObject()->getModelUid().isValid() && objectItem->getObject()->getModelUid() == owner->getUid()) {
+                    if (objectItem->object()->modelUid().isValid() && objectItem->object()->modelUid() == owner->uid()) {
                         showContext = false;
                         break;
                     }
@@ -660,10 +660,10 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     QMenu menu;
 
     bool addSeparator = false;
-    if (getDiagramSceneModel()->getDiagramSceneController()->getElementTasks()->hasDiagram(m_object, m_diagramSceneModel->getDiagram())) {
+    if (diagramSceneModel()->diagramSceneController()->elementTasks()->hasDiagram(m_object, m_diagramSceneModel->diagram())) {
         menu.addAction(new ContextMenuAction(QObject::tr("Open Diagram"), QStringLiteral("openDiagram"), &menu));
         addSeparator = true;
-    } else if (getDiagramSceneModel()->getDiagramSceneController()->getElementTasks()->mayCreateDiagram(m_object, m_diagramSceneModel->getDiagram())) {
+    } else if (diagramSceneModel()->diagramSceneController()->elementTasks()->mayCreateDiagram(m_object, m_diagramSceneModel->diagram())) {
         menu.addAction(new ContextMenuAction(QObject::tr("Create Diagram"), QStringLiteral("createDiagram"), &menu));
         addSeparator = true;
     }
@@ -697,53 +697,53 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         if (!handleSelectedContextMenuAction(selectedAction)) {
             ContextMenuAction *action = dynamic_cast<ContextMenuAction *>(selectedAction);
             QMT_CHECK(action);
-            if (action->getId() == QStringLiteral("openDiagram")) {
-                m_diagramSceneModel->getDiagramSceneController()->getElementTasks()->openDiagram(m_object, m_diagramSceneModel->getDiagram());
-            } else if (action->getId() == QStringLiteral("createDiagram")) {
-                m_diagramSceneModel->getDiagramSceneController()->getElementTasks()->createAndOpenDiagram(m_object, m_diagramSceneModel->getDiagram());
-            } else if (action->getId() == QStringLiteral("remove")) {
-                DSelection selection = m_diagramSceneModel->getSelectedElements();
+            if (action->id() == QStringLiteral("openDiagram")) {
+                m_diagramSceneModel->diagramSceneController()->elementTasks()->openDiagram(m_object, m_diagramSceneModel->diagram());
+            } else if (action->id() == QStringLiteral("createDiagram")) {
+                m_diagramSceneModel->diagramSceneController()->elementTasks()->createAndOpenDiagram(m_object, m_diagramSceneModel->diagram());
+            } else if (action->id() == QStringLiteral("remove")) {
+                DSelection selection = m_diagramSceneModel->selectedElements();
                 if (selection.isEmpty()) {
-                    selection.append(m_object->getUid(), m_diagramSceneModel->getDiagram()->getUid());
+                    selection.append(m_object->uid(), m_diagramSceneModel->diagram()->uid());
                 }
-                m_diagramSceneModel->getDiagramController()->deleteElements(selection, m_diagramSceneModel->getDiagram());
-            } else if (action->getId() == QStringLiteral("delete")) {
-                DSelection selection = m_diagramSceneModel->getSelectedElements();
+                m_diagramSceneModel->diagramController()->deleteElements(selection, m_diagramSceneModel->diagram());
+            } else if (action->id() == QStringLiteral("delete")) {
+                DSelection selection = m_diagramSceneModel->selectedElements();
                 if (selection.isEmpty()) {
-                    selection.append(m_object->getUid(), m_diagramSceneModel->getDiagram()->getUid());
+                    selection.append(m_object->uid(), m_diagramSceneModel->diagram()->uid());
                 }
-                m_diagramSceneModel->getDiagramSceneController()->deleteFromDiagram(selection, m_diagramSceneModel->getDiagram());
-            } else if (action->getId() == QStringLiteral("selectInModelTree")) {
+                m_diagramSceneModel->diagramSceneController()->deleteFromDiagram(selection, m_diagramSceneModel->diagram());
+            } else if (action->id() == QStringLiteral("selectInModelTree")) {
                 // TODO implement
-            } else if (action->getId() == QStringLiteral("alignLeft")) {
+            } else if (action->id() == QStringLiteral("alignLeft")) {
                 align(IAlignable::ALIGN_LEFT, QStringLiteral("left"));
-            } else if (action->getId() == QStringLiteral("centerVertically")) {
+            } else if (action->id() == QStringLiteral("centerVertically")) {
                 align(IAlignable::ALIGN_VCENTER, QStringLiteral("center"));
-            } else if (action->getId() == QStringLiteral("alignRight")) {
+            } else if (action->id() == QStringLiteral("alignRight")) {
                 align(IAlignable::ALIGN_RIGHT, QStringLiteral("right"));
-            } else if (action->getId() == QStringLiteral("alignTop")) {
+            } else if (action->id() == QStringLiteral("alignTop")) {
                 align(IAlignable::ALIGN_TOP, QStringLiteral("top"));
-            } else if (action->getId() == QStringLiteral("centerHorizontally")) {
+            } else if (action->id() == QStringLiteral("centerHorizontally")) {
                 align(IAlignable::ALIGN_HCENTER, QStringLiteral("center"));
-            } else if (action->getId() == QStringLiteral("alignBottom")) {
+            } else if (action->id() == QStringLiteral("alignBottom")) {
                 align(IAlignable::ALIGN_BOTTOM, QStringLiteral("bottom"));
-            } else if (action->getId() == QStringLiteral("sameWidth")) {
+            } else if (action->id() == QStringLiteral("sameWidth")) {
                 align(IAlignable::ALIGN_WIDTH, QStringLiteral("width"));
-            } else if (action->getId() == QStringLiteral("sameHeight")) {
+            } else if (action->id() == QStringLiteral("sameHeight")) {
                 align(IAlignable::ALIGN_HEIGHT, QStringLiteral("height"));
-            } else if (action->getId() == QStringLiteral("sameSize")) {
+            } else if (action->id() == QStringLiteral("sameSize")) {
                 align(IAlignable::ALIGN_SIZE, QStringLiteral("size"));
             }
         }
     }
 }
 
-QSizeF ObjectItem::getMinimumSize(const QSet<QGraphicsItem *> &items) const
+QSizeF ObjectItem::minimumSize(const QSet<QGraphicsItem *> &items) const
 {
     QSizeF minimumSize(0.0, 0.0);
     foreach (QGraphicsItem *item, items) {
         if (IResizable *resizable = dynamic_cast<IResizable *>(item)) {
-            QSizeF size = resizable->getMinimumSize();
+            QSizeF size = resizable->minimumSize();
             if (size.width() > minimumSize.width()) {
                 minimumSize.setWidth(size.width());
             }

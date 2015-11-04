@@ -65,9 +65,9 @@ public:
     }
 
     template<typename T>
-    ObjectId getRef(const T *object, bool define = false)
+    ObjectId ref(const T *object, bool define = false)
     {
-        return getRef(reinterpret_cast<const void *>(object), typeid(*object).name(), define);
+        return ref(reinterpret_cast<const void *>(object), typeid(*object).name(), define);
     }
 
     int countDanglingReferences();
@@ -78,7 +78,7 @@ private:
 
     bool hasDefinedRef(const void *address, const char *typeName);
 
-    ObjectId getRef(const void *address, const char *typeName, bool define);
+    ObjectId ref(const void *address, const char *typeName, bool define);
 
 private:
 

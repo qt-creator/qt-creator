@@ -92,43 +92,43 @@ public:
 
 public:
 
-    Uid getModelUid() const { return m_modelUid; }
+    Uid modelUid() const { return m_modelUid; }
 
     void setModelUid(const Uid &uid);
 
-    QList<QString> getStereotypes() const { return m_stereotypes; }
+    QList<QString> stereotypes() const { return m_stereotypes; }
 
     void setStereotypes(const QList<QString> &stereotypes);
 
-    QString getContext() const { return m_context; }
+    QString context() const { return m_context; }
 
     void setContext(const QString &context);
 
-    QString getName() const { return m_name; }
+    QString name() const { return m_name; }
 
     void setName(const QString &name);
 
-    QPointF getPos() const { return m_pos; }
+    QPointF pos() const { return m_pos; }
 
     void setPos(const QPointF &pos);
 
-    QRectF getRect() const { return m_rect; }
+    QRectF rect() const { return m_rect; }
 
     void setRect(const QRectF &rect);
 
-    int getDepth() const { return m_depth; }
+    int depth() const { return m_depth; }
 
     void setDepth(int depth);
 
-    VisualPrimaryRole getVisualPrimaryRole() const { return m_visualPrimaryRole; }
+    VisualPrimaryRole visualPrimaryRole() const { return m_visualPrimaryRole; }
 
     void setVisualPrimaryRole(VisualPrimaryRole visualPrimaryRole);
 
-    VisualSecondaryRole getVisualSecondaryRole() const { return m_visualSecondaryRole; }
+    VisualSecondaryRole visualSecondaryRole() const { return m_visualSecondaryRole; }
 
     void setVisualSecondaryRole(VisualSecondaryRole visualSecondaryRole);
 
-    StereotypeDisplay getStereotypeDisplay() const { return m_stereotypeDisplay; }
+    StereotypeDisplay stereotypeDisplay() const { return m_stereotypeDisplay; }
 
     void setStereotypeDisplay(StereotypeDisplay stereotypeDisplay);
 

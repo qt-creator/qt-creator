@@ -60,14 +60,14 @@ void StackedDiagramsView::setDiagramsManager(DiagramsManager *diagramsManager)
 void StackedDiagramsView::openDiagram(MDiagram *diagram)
 {
     QMT_CHECK(diagram);
-    DiagramView *diagramView = m_diagramViews.value(diagram->getUid());
+    DiagramView *diagramView = m_diagramViews.value(diagram->uid());
     if (!diagramView) {
         DiagramSceneModel *diagramSceneModel = m_diagramsManager->bindDiagramSceneModel(diagram);
         DiagramView *diagramView = new DiagramView(this);
         diagramView->setDiagramSceneModel(diagramSceneModel);
         int tabIndex = addWidget(diagramView);
         setCurrentIndex(tabIndex);
-        m_diagramViews.insert(diagram->getUid(), diagramView);
+        m_diagramViews.insert(diagram->uid(), diagramView);
     } else {
         setCurrentWidget(diagramView);
     }
@@ -80,11 +80,11 @@ void StackedDiagramsView::closeDiagram(const MDiagram *diagram)
         return;
     }
 
-    DiagramView *diagramView = m_diagramViews.value(diagram->getUid());
+    DiagramView *diagramView = m_diagramViews.value(diagram->uid());
     if (diagramView) {
         removeWidget(diagramView);
         delete diagramView;
-        m_diagramViews.remove(diagram->getUid());
+        m_diagramViews.remove(diagram->uid());
     }
     emit someDiagramOpened(!m_diagramViews.isEmpty());
 }
@@ -104,7 +104,7 @@ void StackedDiagramsView::closeAllDiagrams()
 
 void StackedDiagramsView::onCurrentChanged(int tabIndex)
 {
-    emit currentDiagramChanged(getDiagram(tabIndex));
+    emit currentDiagramChanged(diagram(tabIndex));
 }
 
 void StackedDiagramsView::onDiagramRenamed(const MDiagram *diagram)
@@ -114,18 +114,18 @@ void StackedDiagramsView::onDiagramRenamed(const MDiagram *diagram)
     // nothing to do!
 }
 
-MDiagram *StackedDiagramsView::getDiagram(int tabIndex) const
+MDiagram *StackedDiagramsView::diagram(int tabIndex) const
 {
     DiagramView *diagramView = dynamic_cast<DiagramView *>(widget(tabIndex));
-    return getDiagram(diagramView);
+    return diagram(diagramView);
 }
 
-MDiagram *StackedDiagramsView::getDiagram(DiagramView *diagramView) const
+MDiagram *StackedDiagramsView::diagram(DiagramView *diagramView) const
 {
-    if (!diagramView || !diagramView->getDiagramSceneModel()) {
+    if (!diagramView || !diagramView->diagramSceneModel()) {
         return 0;
     }
-    return diagramView->getDiagramSceneModel()->getDiagram();
+    return diagramView->diagramSceneModel()->diagram();
 }
 
 }

@@ -62,19 +62,19 @@ public:
 
 public:
 
-    Type getType() const { return m_type; }
+    Type type() const { return m_type; }
 
     void setType(Type type);
 
-    int getSubtype() const { return m_subtype; }
+    int subtype() const { return m_subtype; }
 
     void setSubtype(int subtype);
 
-    QString getText() const { return m_text; }
+    QString text() const { return m_text; }
 
     void setText(const QString &text);
 
-    SourcePos getSourcePos() const { return m_sourcePos; }
+    SourcePos sourcePos() const { return m_sourcePos; }
 
     void setSourcePos(const SourcePos &sourcePos);
 

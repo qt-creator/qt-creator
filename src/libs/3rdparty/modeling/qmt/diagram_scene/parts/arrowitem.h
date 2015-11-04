@@ -101,13 +101,13 @@ public:
 
     QPointF calcPointAtPercent(double percentage) const;
 
-    QLineF getFirstLineSegment() const;
+    QLineF firstLineSegment() const;
 
-    QLineF getLastLineSegment() const;
+    QLineF lastLineSegment() const;
 
-    double getStartHeadLength() const;
+    double startHeadLength() const;
 
-    double getEndHeadLength() const;
+    double endHeadLength() const;
 
     void update(const Style *style);
 

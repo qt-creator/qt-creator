@@ -56,8 +56,8 @@ void CustomIconItem::setStereotypeIconId(const QString &stereotypeIconId)
 {
     if (m_stereotypeIconId != stereotypeIconId) {
         m_stereotypeIconId = stereotypeIconId;
-        m_stereotypeIcon = m_diagramSceneModel->getStereotypeController()->findStereotypeIcon(m_stereotypeIconId);
-        m_baseSize = QSizeF(m_stereotypeIcon.getWidth(), m_stereotypeIcon.getHeight());
+        m_stereotypeIcon = m_diagramSceneModel->stereotypeController()->findStereotypeIcon(m_stereotypeIconId);
+        m_baseSize = QSizeF(m_stereotypeIcon.width(), m_stereotypeIcon.height());
         m_actualSize = m_baseSize;
     }
 }
@@ -82,21 +82,21 @@ void CustomIconItem::setPen(const QPen &pen)
     m_pen = pen;
 }
 
-double CustomIconItem::getShapeWidth() const
+double CustomIconItem::shapeWidth() const
 {
-    return m_stereotypeIcon.getWidth();
+    return m_stereotypeIcon.width();
 }
 
-double CustomIconItem::getShapeHeight() const
+double CustomIconItem::shapeHeight() const
 {
-    return m_stereotypeIcon.getHeight();
+    return m_stereotypeIcon.height();
 }
 
 QRectF CustomIconItem::boundingRect() const
 {
-    ShapeSizeVisitor visitor(QPointF(0.0, 0.0), QSizeF(m_stereotypeIcon.getWidth(), m_stereotypeIcon.getHeight()), m_baseSize, m_actualSize);
-    m_stereotypeIcon.getIconShape().visitShapes(&visitor);
-    return visitor.getBoundingRect() | childrenBoundingRect();
+    ShapeSizeVisitor visitor(QPointF(0.0, 0.0), QSizeF(m_stereotypeIcon.width(), m_stereotypeIcon.height()), m_baseSize, m_actualSize);
+    m_stereotypeIcon.iconShape().visitShapes(&visitor);
+    return visitor.boundingRect() | childrenBoundingRect();
 }
 
 void CustomIconItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -107,8 +107,8 @@ void CustomIconItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     painter->save();
     painter->setBrush(m_brush);
     painter->setPen(m_pen);
-    ShapePaintVisitor visitor(painter, QPointF(0.0, 0.0), QSizeF(m_stereotypeIcon.getWidth(), m_stereotypeIcon.getHeight()), m_baseSize, m_actualSize);
-    m_stereotypeIcon.getIconShape().visitShapes(&visitor);
+    ShapePaintVisitor visitor(painter, QPointF(0.0, 0.0), QSizeF(m_stereotypeIcon.width(), m_stereotypeIcon.height()), m_baseSize, m_actualSize);
+    m_stereotypeIcon.iconShape().visitShapes(&visitor);
     //painter->setBrush(Qt::NoBrush);
     //painter->setPen(Qt::red);
     //painter->drawRect(boundingRect());

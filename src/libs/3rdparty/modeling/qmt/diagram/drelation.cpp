@@ -48,15 +48,15 @@ void DRelation::IntermediatePoint::setPos(const QPointF &pos)
 
 bool operator==(const DRelation::IntermediatePoint &lhs, const DRelation::IntermediatePoint &rhs)
 {
-    return lhs.getPos() == rhs.getPos();
+    return lhs.pos() == rhs.pos();
 }
 
 
 DRelation::DRelation()
     : DElement(),
-      m_modelUid(Uid::getInvalidUid()),
-      m_endAUid(Uid::getInvalidUid()),
-      m_endBUid(Uid::getInvalidUid())
+      m_modelUid(Uid::invalidUid()),
+      m_endAUid(Uid::invalidUid()),
+      m_endBUid(Uid::invalidUid())
 {
 }
 
@@ -74,12 +74,12 @@ void DRelation::setStereotypes(const QList<QString> &stereotypes)
     m_stereotypes = stereotypes;
 }
 
-void DRelation::setEndA(const Uid &uid)
+void DRelation::setEndAUid(const Uid &uid)
 {
     m_endAUid = uid;
 }
 
-void DRelation::setEndB(const Uid &uid)
+void DRelation::setEndBUid(const Uid &uid)
 {
     m_endBUid = uid;
 }

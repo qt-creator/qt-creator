@@ -73,11 +73,11 @@ public:
 
 public:
 
-    QSizeF getPointSize() const { return m_pointSize; }
+    QSizeF pointSize() const { return m_pointSize; }
 
     void setPointSize(const QSizeF &size);
 
-    QList<QPointF> getPoints() const;
+    QList<QPointF> points() const;
 
     void setPoints(const QList<QPointF> &points);
 

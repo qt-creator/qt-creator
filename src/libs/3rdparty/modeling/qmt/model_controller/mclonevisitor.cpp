@@ -95,10 +95,10 @@ void MCloneVisitor::visitMDiagram(const MDiagram *diagram)
     QMT_CHECK(m_cloned);
     MDiagram *cloned = dynamic_cast<MDiagram *>(m_cloned);
     QMT_CHECK(cloned);
-    foreach (const DElement *element, diagram->getDiagramElements()) {
+    foreach (const DElement *element, diagram->diagramElements()) {
         DCloneDeepVisitor visitor;
         element->accept(&visitor);
-        DElement *clonedElement = visitor.getCloned();
+        DElement *clonedElement = visitor.cloned();
         cloned->addDiagramElement(clonedElement);
     }
     visitMObject(diagram);
@@ -168,26 +168,26 @@ void MCloneDeepVisitor::visitMObject(const MObject *object)
     visitMElement(object);
     MObject *cloned = dynamic_cast<MObject *>(m_cloned);
     QMT_CHECK(cloned);
-    foreach (const Handle<MObject> &handle, object->getChildren()) {
+    foreach (const Handle<MObject> &handle, object->children()) {
         if (handle.hasTarget()) {
             MCloneDeepVisitor visitor;
-            handle.getTarget()->accept(&visitor);
-            MObject *clonedChild = dynamic_cast<MObject *>(visitor.getCloned());
+            handle.target()->accept(&visitor);
+            MObject *clonedChild = dynamic_cast<MObject *>(visitor.cloned());
             QMT_CHECK(clonedChild);
             cloned->addChild(clonedChild);
         } else {
-            cloned->addChild(handle.getUid());
+            cloned->addChild(handle.uid());
         }
     }
-    foreach (const Handle<MRelation> &handle, object->getRelations()) {
+    foreach (const Handle<MRelation> &handle, object->relations()) {
         if (handle.hasTarget()) {
             MCloneDeepVisitor visitor;
-            handle.getTarget()->accept(&visitor);
-            MRelation *clonedRelation = dynamic_cast<MRelation *>(visitor.getCloned());
+            handle.target()->accept(&visitor);
+            MRelation *clonedRelation = dynamic_cast<MRelation *>(visitor.cloned());
             QMT_CHECK(clonedRelation);
             cloned->addRelation(clonedRelation);
         } else {
-            cloned->addRelation(handle.getUid());
+            cloned->addRelation(handle.uid());
         }
     }
 }
@@ -221,10 +221,10 @@ void MCloneDeepVisitor::visitMDiagram(const MDiagram *diagram)
     QMT_CHECK(m_cloned);
     MDiagram *cloned = dynamic_cast<MDiagram *>(m_cloned);
     QMT_CHECK(cloned);
-    foreach (const DElement *element, diagram->getDiagramElements()) {
+    foreach (const DElement *element, diagram->diagramElements()) {
         DCloneDeepVisitor visitor;
         element->accept(&visitor);
-        DElement *clonedElement = visitor.getCloned();
+        DElement *clonedElement = visitor.cloned();
         cloned->addDiagramElement(clonedElement);
     }
     visitMObject(diagram);
@@ -252,8 +252,8 @@ void MCloneDeepVisitor::visitMRelation(const MRelation *relation)
     visitMElement(relation);
     MRelation *cloned = dynamic_cast<MRelation *>(m_cloned);
     QMT_CHECK(cloned);
-    cloned->setEndA(relation->getEndA());
-    cloned->setEndB(relation->getEndB());
+    cloned->setEndAUid(relation->endAUid());
+    cloned->setEndBUid(relation->endBUid());
 }
 
 void MCloneDeepVisitor::visitMDependency(const MDependency *dependency)

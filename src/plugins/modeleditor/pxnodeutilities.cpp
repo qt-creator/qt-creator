@@ -100,11 +100,11 @@ qmt::MPackage *PxNodeUtilities::createBestMatchingPackagePath(
     qmt::MPackage *suggestedParent = suggestedParentPackage;
     while (suggestedParent) {
         suggestedParents.insert(suggestedParent);
-        suggestedParent = dynamic_cast<qmt::MPackage *>(suggestedParent->getOwner());
+        suggestedParent = dynamic_cast<qmt::MPackage *>(suggestedParent->owner());
     }
 
     QQueue<QPair<qmt::MPackage *, int> > roots;
-    roots.append(qMakePair(d->diagramSceneController->getModelController()->getRootPackage(), 0));
+    roots.append(qMakePair(d->diagramSceneController->modelController()->rootPackage(), 0));
 
     int maxChainLength = -1;
     int minChainDepth = -1;
@@ -116,9 +116,9 @@ qmt::MPackage *PxNodeUtilities::createBestMatchingPackagePath(
         roots.takeFirst();
 
         // append all sub-packages of the same level as next root packages
-        foreach (const qmt::Handle<qmt::MObject> &handle, package->getChildren()) {
+        foreach (const qmt::Handle<qmt::MObject> &handle, package->children()) {
             if (handle.hasTarget()) {
-                if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.getTarget())) {
+                if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.target())) {
                     // only accept root packages in the same path as the suggested parent package
                     if (suggestedParents.contains(childPackage)) {
                         roots.append(qMakePair(childPackage, depth + 1));
@@ -135,10 +135,10 @@ qmt::MPackage *PxNodeUtilities::createBestMatchingPackagePath(
             QString relativeSearchId = qmt::NameController::calcElementNameSearchId(
                         relativeElements.at(relativeIndex));
             found = false;
-            foreach (const qmt::Handle<qmt::MObject> &handle, package->getChildren()) {
+            foreach (const qmt::Handle<qmt::MObject> &handle, package->children()) {
                 if (handle.hasTarget()) {
-                    if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.getTarget())) {
-                        if (qmt::NameController::calcElementNameSearchId(childPackage->getName()) == relativeSearchId) {
+                    if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.target())) {
+                        if (qmt::NameController::calcElementNameSearchId(childPackage->name()) == relativeSearchId) {
                             package = childPackage;
                             ++relativeIndex;
                             found = true;
@@ -177,7 +177,7 @@ qmt::MPackage *PxNodeUtilities::createBestMatchingPackagePath(
         auto newPackage = new qmt::MPackage();
         newPackage->setFlags(qmt::MElement::REVERSE_ENGINEERED);
         newPackage->setName(relativeElements.at(i));
-        d->diagramSceneController->getModelController()->addObject(bestParentPackage, newPackage);
+        d->diagramSceneController->modelController()->addObject(bestParentPackage, newPackage);
         bestParentPackage = newPackage;
         ++i;
     }
@@ -188,15 +188,15 @@ qmt::MObject *PxNodeUtilities::findSameObject(const QStringList &relativeElement
                                               const qmt::MObject *object)
 {
     QQueue<qmt::MPackage *> roots;
-    roots.append(d->diagramSceneController->getModelController()->getRootPackage());
+    roots.append(d->diagramSceneController->modelController()->rootPackage());
 
     while (!roots.isEmpty()) {
         qmt::MPackage *package = roots.takeFirst();
 
         // append all sub-packages of the same level as next root packages
-        foreach (const qmt::Handle<qmt::MObject> &handle, package->getChildren()) {
+        foreach (const qmt::Handle<qmt::MObject> &handle, package->children()) {
             if (handle.hasTarget()) {
-                if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.getTarget()))
+                if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.target()))
                     roots.append(childPackage);
             }
         }
@@ -208,10 +208,10 @@ qmt::MObject *PxNodeUtilities::findSameObject(const QStringList &relativeElement
             QString relativeSearchId = qmt::NameController::calcElementNameSearchId(
                         relativeElements.at(relativeIndex));
             found = false;
-            foreach (const qmt::Handle<qmt::MObject> &handle, package->getChildren()) {
+            foreach (const qmt::Handle<qmt::MObject> &handle, package->children()) {
                 if (handle.hasTarget()) {
-                    if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.getTarget())) {
-                        if (qmt::NameController::calcElementNameSearchId(childPackage->getName()) == relativeSearchId) {
+                    if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.target())) {
+                        if (qmt::NameController::calcElementNameSearchId(childPackage->name()) == relativeSearchId) {
                             package = childPackage;
                             ++relativeIndex;
                             found = true;
@@ -225,12 +225,12 @@ qmt::MObject *PxNodeUtilities::findSameObject(const QStringList &relativeElement
         if (found) {
             QTC_CHECK(relativeIndex >= relativeElements.size());
             // chain was found so check for given object within deepest package
-            QString objectSearchId = qmt::NameController::calcElementNameSearchId(object->getName());
-            foreach (const qmt::Handle<qmt::MObject> &handle, package->getChildren()) {
+            QString objectSearchId = qmt::NameController::calcElementNameSearchId(object->name());
+            foreach (const qmt::Handle<qmt::MObject> &handle, package->children()) {
                 if (handle.hasTarget()) {
-                    qmt::MObject *target = handle.getTarget();
+                    qmt::MObject *target = handle.target();
                     if (typeid(*target) == typeid(*object)
-                            && qmt::NameController::calcElementNameSearchId(target->getName()) == objectSearchId) {
+                            && qmt::NameController::calcElementNameSearchId(target->name()) == objectSearchId) {
                         return target;
                     }
                 }

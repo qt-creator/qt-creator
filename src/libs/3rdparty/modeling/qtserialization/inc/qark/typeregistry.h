@@ -67,9 +67,9 @@ public:
 
 public:
 
-    static mapType &getNameToUidMap() { return *typeidNameToUidMap; }
+    static mapType &nameToUidMap() { return *typeidNameToUidMap; }
 
-    static mapType &getUidToNameMap() { return *typeidUidToNameMap; }
+    static mapType &uidToNameMap() { return *typeidUidToNameMap; }
 
 #if !defined(QT_NO_DEBUG)
     static bool hasNameToUidMap() { return typeidNameToUidMap != 0; }
@@ -121,10 +121,10 @@ private:
     static int __init(const QString &name)
     {
         base::init();
-        QMT_CHECK(!base::getNameToUidMap().contains(QLatin1String(typeid(T).name())) || base::getNameToUidMap().value(QLatin1String(typeid(T).name())) == name);
-        QMT_CHECK(!base::getUidToNameMap().contains(name) || base::getUidToNameMap().value(name) == QLatin1String(typeid(T).name()));
-        base::getNameToUidMap().insert(QLatin1String(typeid(T).name()), name);
-        base::getUidToNameMap().insert(name, QLatin1String(typeid(T).name()));
+        QMT_CHECK(!base::nameToUidMap().contains(QLatin1String(typeid(T).name())) || base::nameToUidMap().value(QLatin1String(typeid(T).name())) == name);
+        QMT_CHECK(!base::uidToNameMap().contains(name) || base::uidToNameMap().value(name) == QLatin1String(typeid(T).name()));
+        base::nameToUidMap().insert(QLatin1String(typeid(T).name()), name);
+        base::uidToNameMap().insert(name, QLatin1String(typeid(T).name()));
         return 0;
     }
 };
@@ -165,10 +165,10 @@ public:
 
 public:
 
-    static mapType &getMap() { return *map; }
+    static mapType &map() { return *m_map; }
 
 #if !defined(QT_NO_DEBUG)
-    static bool hasMap() { return map != 0; }
+    static bool hasMap() { return m_map != 0; }
 #endif
 
 protected:
@@ -178,18 +178,18 @@ protected:
         static mapType theMap;
 
         if (!initialized) {
-            map = &theMap;
+            m_map = &theMap;
             initialized = true;
         }
     }
 
 private:
 
-    static mapType *map;
+    static mapType *m_map;
 };
 
 template<class Archive, class BASE>
-typename TypeRegistry<Archive, BASE>::mapType *TypeRegistry<Archive,BASE>::map;
+typename TypeRegistry<Archive, BASE>::mapType *TypeRegistry<Archive,BASE>::m_map;
 
 
 template<class Archive, class BASE, class DERIVED>
@@ -211,8 +211,8 @@ private:
     static int __init(saveFuncType sfunc, loadFuncType lfunc)
     {
         base::init();
-        QMT_CHECK(!base::getMap().contains(QLatin1String(typeid(DERIVED).name())) || base::getMap().value(QLatin1String(typeid(DERIVED).name())) == typename base::typeInfo(sfunc, lfunc));
-        base::getMap().insert(QLatin1String(typeid(DERIVED).name()), typename base::typeInfo(sfunc, lfunc));
+        QMT_CHECK(!base::map().contains(QLatin1String(typeid(DERIVED).name())) || base::map().value(QLatin1String(typeid(DERIVED).name())) == typename base::typeInfo(sfunc, lfunc));
+        base::map().insert(QLatin1String(typeid(DERIVED).name()), typename base::typeInfo(sfunc, lfunc));
         return 0;
     }
 };
@@ -264,50 +264,50 @@ inline QString flattenTypename(const char *typeName)
 }
 
 template<class T>
-QString getTypeUid()
+QString typeUid()
 {
 #if !defined(QT_NO_DEBUG) // avoid warning about unused function ::hasNameToUidMap in Qt >= 5.5
-    QMT_CHECK_X((registry::TypeNameRegistry<T>::hasNameToUidMap()), "getTypeUid<T>()", "type maps are not correctly initialized");
-    QMT_CHECK_X((registry::TypeNameRegistry<T>::getNameToUidMap().contains(QLatin1String(typeid(T).name()))), "getTypeUid<T>()",
+    QMT_CHECK_X((registry::TypeNameRegistry<T>::hasNameToUidMap()), "typeUid<T>()", "type maps are not correctly initialized");
+    QMT_CHECK_X((registry::TypeNameRegistry<T>::nameToUidMap().contains(QLatin1String(typeid(T).name()))), "typeUid<T>()",
                 qPrintable(QString(QLatin1String("type with typeid %1 is not registered. Use QARK_REGISTER_TYPE or QARK_REGISTER_TYPE_NAME.")).arg(registry::demangleTypename(typeid(T).name()))));
 #endif
-    return registry::TypeNameRegistry<T>::getNameToUidMap().value(QLatin1String(typeid(T).name()));
+    return registry::TypeNameRegistry<T>::nameToUidMap().value(QLatin1String(typeid(T).name()));
 }
 
 template<class T>
-QString getTypeUid(const T &t)
+QString typeUid(const T &t)
 {
     Q_UNUSED(t);
 #if !defined(QT_NO_DEBUG) // avoid warning about unused function ::hasNameToUidMap in Qt >= 5.5
-    QMT_CHECK_X((registry::TypeNameRegistry<T>::hasNameToUidMap()), "getTypeUid<T>()", "type maps are not correctly initialized");
-    QMT_CHECK_X((registry::TypeNameRegistry<T>::getNameToUidMap().contains(QLatin1String(typeid(t).name()))), "getTypeUid<T>()",
+    QMT_CHECK_X((registry::TypeNameRegistry<T>::hasNameToUidMap()), "typeUid<T>()", "type maps are not correctly initialized");
+    QMT_CHECK_X((registry::TypeNameRegistry<T>::nameToUidMap().contains(QLatin1String(typeid(t).name()))), "typeUid<T>()",
                 qPrintable(QString(QLatin1String("type with typeid %1 is not registered. Use QARK_REGISTER_TYPE or QARK_REGISTER_TYPE_NAME.")).arg(registry::demangleTypename(typeid(t).name()))));
 #endif
-    return registry::TypeNameRegistry<T>::getNameToUidMap().value(QLatin1String(typeid(t).name()));
+    return registry::TypeNameRegistry<T>::nameToUidMap().value(QLatin1String(typeid(t).name()));
 }
 
 template<class Archive, class T>
-typename registry::TypeRegistry<Archive, T>::typeInfo getTypeInfo(const T &t)
+typename registry::TypeRegistry<Archive, T>::typeInfo typeInfo(const T &t)
 {
     Q_UNUSED(t);
 #if !defined(QT_NO_DEBUG) // avoid warning about unused function ::hasNameToUidMap in Qt >= 5.5
     QMT_CHECK_X((registry::TypeRegistry<Archive,T>::hasMap()),
-                qPrintable(QString(QLatin1String("TypeRegistry<Archive, %1>::getTypeInfo(const T&)")).arg(getTypeUid<T>())),
-                qPrintable(QString(QLatin1String("%1 is not a registered base class. Declare your derived classes with QARK_REGISTER_DERIVED_CLASS.")).arg(getTypeUid<T>())));
+                qPrintable(QString(QLatin1String("TypeRegistry<Archive, %1>::typeInfo(const T&)")).arg(typeUid<T>())),
+                qPrintable(QString(QLatin1String("%1 is not a registered base class. Declare your derived classes with QARK_REGISTER_DERIVED_CLASS.")).arg(typeUid<T>())));
 #endif
-    return registry::TypeRegistry<Archive,T>::getMap()[QLatin1String(typeid(t).name())];
+    return registry::TypeRegistry<Archive,T>::map()[QLatin1String(typeid(t).name())];
 }
 
 template<class Archive, class T>
-typename registry::TypeRegistry<Archive,T>::typeInfo getTypeInfo(const QString &uid)
+typename registry::TypeRegistry<Archive,T>::typeInfo typeInfo(const QString &uid)
 {
 #if !defined(QT_NO_DEBUG) // avoid warning about unused function ::hasNameToUidMap in Qt >= 5.5
-    QMT_CHECK_X((registry::TypeNameRegistry<T>::hasUidToNameMap()), "getTypeInfo<T>(const QString &)", "type maps are not correctly initialized");
+    QMT_CHECK_X((registry::TypeNameRegistry<T>::hasUidToNameMap()), "typeInfo<T>(const QString &)", "type maps are not correctly initialized");
     QMT_CHECK_X((registry::TypeRegistry<Archive,T>::hasMap()),
-                qPrintable(QString(QLatin1String("TypeRegistry<Archive, %1>::getTypeInfo(const QString &)")).arg(getTypeUid<T>())),
-                qPrintable(QString(QLatin1String("%1 is not a registered base class. Declare your derived classes with QARK_REGISTER_DERIVED_CLASS.")).arg(getTypeUid<T>())));
+                qPrintable(QString(QLatin1String("TypeRegistry<Archive, %1>::typeInfo(const QString &)")).arg(typeUid<T>())),
+                qPrintable(QString(QLatin1String("%1 is not a registered base class. Declare your derived classes with QARK_REGISTER_DERIVED_CLASS.")).arg(typeUid<T>())));
 #endif
-    return registry::TypeRegistry<Archive,T>::getMap().value(registry::TypeNameRegistry<T>::getUidToNameMap().value(uid));
+    return registry::TypeRegistry<Archive,T>::map().value(registry::TypeNameRegistry<T>::uidToNameMap().value(uid));
 }
 
 }

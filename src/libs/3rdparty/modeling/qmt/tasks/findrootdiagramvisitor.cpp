@@ -47,9 +47,9 @@ FindRootDiagramVisitor::~FindRootDiagramVisitor()
 void FindRootDiagramVisitor::visitMObject(MObject *object)
 {
     // first search flat
-    foreach(const Handle<MObject> &child, object->getChildren()) {
+    foreach(const Handle<MObject> &child, object->children()) {
         if (child.hasTarget()) {
-            MDiagram *diagram = dynamic_cast<MDiagram *>(child.getTarget());
+            MDiagram *diagram = dynamic_cast<MDiagram *>(child.target());
             if (diagram) {
                 m_diagram = diagram;
                 return;
@@ -57,9 +57,9 @@ void FindRootDiagramVisitor::visitMObject(MObject *object)
         }
     }
     // then search in children
-    foreach(const Handle<MObject> &child, object->getChildren()) {
+    foreach(const Handle<MObject> &child, object->children()) {
         if (child.hasTarget()) {
-            child.getTarget()->accept(this);
+            child.target()->accept(this);
             if (m_diagram) {
                 return;
             }

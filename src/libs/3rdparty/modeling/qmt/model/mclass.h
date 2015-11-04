@@ -56,15 +56,15 @@ public:
 
 public:
 
-    QString getNamespace() const { return m_namespace; }
+    QString nameSpace() const { return m_namespace; }
 
-    void setNamespace(const QString &nameSpace);
+    void setNameSpace(const QString &nameSpace);
 
-    QList<QString> getTemplateParameters() const { return m_templateParameters; }
+    QList<QString> templateParameters() const { return m_templateParameters; }
 
     void setTemplateParameters(const QList<QString> &templateParameters);
 
-    QList<MClassMember> getMembers() const { return m_members; }
+    QList<MClassMember> members() const { return m_members; }
 
     void setMembers(const QList<MClassMember> &members);
 

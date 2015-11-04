@@ -68,7 +68,7 @@ void ContextLabelItem::setContext(const QString &context)
     }
 }
 
-double ContextLabelItem::getHeight() const
+double ContextLabelItem::height() const
 {
     return QFontMetricsF(font()).height();
 }

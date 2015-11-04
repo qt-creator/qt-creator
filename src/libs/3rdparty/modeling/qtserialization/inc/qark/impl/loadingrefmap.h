@@ -48,7 +48,7 @@ public:
     }
 
     template<typename T>
-    T getObject(const ObjectId &id)
+    T object(const ObjectId &id)
     {
         return reinterpret_cast<T>(m_references.value(id));
     }

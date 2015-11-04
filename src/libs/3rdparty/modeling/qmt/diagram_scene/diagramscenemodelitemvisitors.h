@@ -46,7 +46,7 @@ public:
 
 public:
 
-    QGraphicsItem *getCreatedGraphicsItem() const { return m_graphicsItem; }
+    QGraphicsItem *createdGraphicsItem() const { return m_graphicsItem; }
 
 public:
 

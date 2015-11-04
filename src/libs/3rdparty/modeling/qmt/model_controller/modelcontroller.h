@@ -123,17 +123,17 @@ signals:
 
 public:
 
-    MPackage *getRootPackage() const { return m_rootPackage; }
+    MPackage *rootPackage() const { return m_rootPackage; }
 
     void setRootPackage(MPackage *rootPackage);
 
-    UndoController *getUndoController() const { return m_undoController; }
+    UndoController *undoController() const { return m_undoController; }
 
     void setUndoController(UndoController *undoController);
 
 public:
 
-    Uid getOwnerKey(const MElement *element) const;
+    Uid ownerKey(const MElement *element) const;
 
     MElement *findElement(const Uid &key);
 
@@ -148,7 +148,7 @@ public:
 
 public:
 
-    MObject *getObject(int row, const MObject *owner) const;
+    MObject *object(int row, const MObject *owner) const;
 
     MObject *findObject(const Uid &key) const;
 

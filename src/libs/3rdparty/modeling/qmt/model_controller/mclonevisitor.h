@@ -44,7 +44,7 @@ class QMT_EXPORT MCloneVisitor :
 public:
     MCloneVisitor();
 
-    MElement *getCloned() const { return m_cloned; }
+    MElement *cloned() const { return m_cloned; }
 
     void visitMElement(const MElement *element);
 
@@ -80,7 +80,7 @@ class QMT_EXPORT MCloneDeepVisitor :
 public:
     MCloneDeepVisitor();
 
-    MElement *getCloned() const { return m_cloned; }
+    MElement *cloned() const { return m_cloned; }
 
     void visitMElement(const MElement *element);
 

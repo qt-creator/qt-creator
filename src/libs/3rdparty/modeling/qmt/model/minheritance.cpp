@@ -59,24 +59,24 @@ MInheritance MInheritance::operator =(const MInheritance &rhs)
     return *this;
 }
 
-Uid MInheritance::getDerived() const
+Uid MInheritance::derived() const
 {
-    return getEndA();
+    return endAUid();
 }
 
 void MInheritance::setDerived(const Uid &derived)
 {
-    setEndA(derived);
+    setEndAUid(derived);
 }
 
-Uid MInheritance::getBase() const
+Uid MInheritance::base() const
 {
-    return getEndB();
+    return endBUid();
 }
 
 void MInheritance::setBase(const Uid &base)
 {
-    setEndB(base);
+    setEndBUid(base);
 }
 
 void MInheritance::accept(MVisitor *visitor)

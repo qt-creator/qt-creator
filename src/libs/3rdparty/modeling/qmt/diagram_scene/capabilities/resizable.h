@@ -54,11 +54,11 @@ public:
 public:
     virtual ~IResizable() { }
 
-    virtual QPointF getPos() const = 0;
+    virtual QPointF pos() const = 0;
 
-    virtual QRectF getRect() const = 0;
+    virtual QRectF rect() const = 0;
 
-    virtual QSizeF getMinimumSize() const = 0;
+    virtual QSizeF minimumSize() const = 0;
 
     virtual void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta) = 0;
 

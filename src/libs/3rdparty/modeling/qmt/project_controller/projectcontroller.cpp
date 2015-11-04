@@ -68,16 +68,16 @@ void ProjectController::newProject(const QString &fileName)
     m_project->setRootPackage(rootPackage);
     m_project->setFileName(fileName);
     m_isModified = false;
-    emit fileNameChanged(m_project->getFileName());
+    emit fileNameChanged(m_project->fileName());
     emit changed();
 }
 
 void ProjectController::setFileName(const QString &fileName)
 {
-    if (fileName != m_project->getFileName()) {
+    if (fileName != m_project->fileName()) {
         m_project->setFileName(fileName);
         setModified();
-        emit fileNameChanged(m_project->getFileName());
+        emit fileNameChanged(m_project->fileName());
     }
 }
 
@@ -98,7 +98,7 @@ void ProjectController::load()
         throw NoFileNameException();
     }
     ProjectSerializer serializer;
-    serializer.load(m_project->getFileName(), m_project.data());
+    serializer.load(m_project->fileName(), m_project.data());
     m_isModified = false;
     emit changed();
 }
@@ -109,7 +109,7 @@ void ProjectController::save()
         throw NoFileNameException();
     }
     ProjectSerializer serializer;
-    serializer.save(m_project->getFileName(), m_project.data());
+    serializer.save(m_project->fileName(), m_project.data());
     m_isModified = false;
     emit changed();
 }

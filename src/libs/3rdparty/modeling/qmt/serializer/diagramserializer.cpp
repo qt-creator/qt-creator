@@ -69,7 +69,7 @@ template<class Archive>
 inline void Access<Archive, DElement>::serialize(Archive &archive, DElement &element)
 {
     archive || tag(element)
-            || attr(QStringLiteral("uid"), element, &DElement::getUid, &DElement::setUid)
+            || attr(QStringLiteral("uid"), element, &DElement::uid, &DElement::setUid)
             || end;
 }
 
@@ -79,9 +79,9 @@ QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DElement)
 // DObject
 
 // functions for backward compatibility to old visual role
-static DObject::VisualPrimaryRole getVisualRole(const DObject &object)
+static DObject::VisualPrimaryRole visualRole(const DObject &object)
 {
-    DObject::VisualPrimaryRole visualRole = object.getVisualPrimaryRole();
+    DObject::VisualPrimaryRole visualRole = object.visualPrimaryRole();
     if (visualRole == DObject::DEPRECATED_PRIMARY_ROLE_DARKER
             || visualRole == DObject::DEPRECATED_PRIMARY_ROLE_LIGHTER
             || visualRole == DObject::DEPRECATED_PRIMARY_ROLE_OUTLINE
@@ -120,17 +120,17 @@ inline void Access<Archive, DObject>::serialize(Archive &archive, DObject &objec
 {
     archive || tag(object)
             || base<DElement>(object)
-            || attr(QStringLiteral("object"), object, &DObject::getModelUid, &DObject::setModelUid)
-            || attr(QStringLiteral("stereotypes"), object, &DObject::getStereotypes, &DObject::setStereotypes)
-            || attr(QStringLiteral("context"), object, &DObject::getContext, &DObject::setContext)
-            || attr(QStringLiteral("name"), object, &DObject::getName, &DObject::setName)
-            || attr(QStringLiteral("pos"), object, &DObject::getPos, &DObject::setPos)
-            || attr(QStringLiteral("rect"), object, &DObject::getRect, &DObject::setRect)
+            || attr(QStringLiteral("object"), object, &DObject::modelUid, &DObject::setModelUid)
+            || attr(QStringLiteral("stereotypes"), object, &DObject::stereotypes, &DObject::setStereotypes)
+            || attr(QStringLiteral("context"), object, &DObject::context, &DObject::setContext)
+            || attr(QStringLiteral("name"), object, &DObject::name, &DObject::setName)
+            || attr(QStringLiteral("pos"), object, &DObject::pos, &DObject::setPos)
+            || attr(QStringLiteral("rect"), object, &DObject::rect, &DObject::setRect)
             || attr(QStringLiteral("auto-sized"), object, &DObject::hasAutoSize, &DObject::setAutoSize)
-            || attr(QStringLiteral("visual-role"), object, &getVisualRole, &setVisualRole)
-            || attr(QStringLiteral("visual-role2"), object, &DObject::getVisualSecondaryRole, &DObject::setVisualSecondaryRole)
+            || attr(QStringLiteral("visual-role"), object, &visualRole, &setVisualRole)
+            || attr(QStringLiteral("visual-role2"), object, &DObject::visualSecondaryRole, &DObject::setVisualSecondaryRole)
             || attr(QStringLiteral("visual-emphasized"), object, &DObject::isVisualEmphasized, &DObject::setVisualEmphasized)
-            || attr(QStringLiteral("stereotype-display"), object, &DObject::getStereotypeDisplay, &DObject::setStereotypeDisplay)
+            || attr(QStringLiteral("stereotype-display"), object, &DObject::stereotypeDisplay, &DObject::setStereotypeDisplay)
             // depth is not persistent
             || end;
 }
@@ -168,11 +168,11 @@ inline void Access<Archive, DClass>::serialize(Archive &archive, DClass &klass)
 {
     archive || tag(klass)
             || base<DObject>(klass)
-            || attr(QStringLiteral("namespace"), klass, &DClass::getNamespace, &DClass::setNamespace)
-            || attr(QStringLiteral("template"), klass, &DClass::getTemplateParameters, &DClass::setTemplateParameters)
-            || attr(QStringLiteral("template-display"), klass, &DClass::getTemplateDisplay, &DClass::setTemplateDisplay)
-            || attr(QStringLiteral("show-all-members"), klass, &DClass::getShowAllMembers, &DClass::setShowAllMembers)
-            || attr(QStringLiteral("visible-members"), klass, &DClass::getVisibleMembers, &DClass::setVisibleMembers)
+            || attr(QStringLiteral("namespace"), klass, &DClass::nameSpace, &DClass::setNameSpace)
+            || attr(QStringLiteral("template"), klass, &DClass::templateParameters, &DClass::setTemplateParameters)
+            || attr(QStringLiteral("template-display"), klass, &DClass::templateDisplay, &DClass::setTemplateDisplay)
+            || attr(QStringLiteral("show-all-members"), klass, &DClass::showAllMembers, &DClass::setShowAllMembers)
+            || attr(QStringLiteral("visible-members"), klass, &DClass::visibleMembers, &DClass::setVisibleMembers)
             || end;
 }
 
@@ -191,7 +191,7 @@ inline void Access<Archive, DComponent>::serialize(Archive &archive, DComponent 
 {
     archive || tag(component)
             || base<DObject>(component)
-            || attr(QStringLiteral("plain-shape"), component, &DComponent::getPlainShape, &DComponent::setPlainShape)
+            || attr(QStringLiteral("plain-shape"), component, &DComponent::plainShape, &DComponent::setPlainShape)
             || end;
 }
 
@@ -228,9 +228,9 @@ inline void Access<Archive, DItem>::serialize(Archive &archive, DItem &item)
 {
     archive || tag(item)
             || base<DObject>(item)
-            || attr(QStringLiteral("variety"), item, &DItem::getVariety, &DItem::setVariety)
+            || attr(QStringLiteral("variety"), item, &DItem::variety, &DItem::setVariety)
             || attr(QStringLiteral("shape-editable"), item, &DItem::isShapeEditable, &DItem::setShapeEditable)
-            || attr(QStringLiteral("shape"), item, &DItem::getShape, &DItem::setShape)
+            || attr(QStringLiteral("shape"), item, &DItem::shape, &DItem::setShape)
             || end;
 }
 
@@ -248,12 +248,12 @@ inline void Access<Archive, DRelation>::serialize(Archive &archive, DRelation &r
 {
     archive || tag(relation)
             || base<DElement>(relation)
-            || attr(QStringLiteral("object"), relation, &DRelation::getModelUid, &DRelation::setModelUid)
-            || attr(QStringLiteral("stereotypes"), relation, &DRelation::getStereotypes, &DRelation::setStereotypes)
-            || attr(QStringLiteral("a"), relation, &DRelation::getEndA, &DRelation::setEndA)
-            || attr(QStringLiteral("b"), relation, &DRelation::getEndB, &DRelation::setEndB)
-            || attr(QStringLiteral("name"), relation, &DRelation::getName, &DRelation::setName)
-            || attr(QStringLiteral("points"), relation, &DRelation::getIntermediatePoints, &DRelation::setIntermediatePoints)
+            || attr(QStringLiteral("object"), relation, &DRelation::modelUid, &DRelation::setModelUid)
+            || attr(QStringLiteral("stereotypes"), relation, &DRelation::stereotypes, &DRelation::setStereotypes)
+            || attr(QStringLiteral("a"), relation, &DRelation::endAUid, &DRelation::setEndAUid)
+            || attr(QStringLiteral("b"), relation, &DRelation::endBUid, &DRelation::setEndBUid)
+            || attr(QStringLiteral("name"), relation, &DRelation::name, &DRelation::setName)
+            || attr(QStringLiteral("points"), relation, &DRelation::intermediatePoints, &DRelation::setIntermediatePoints)
             || end;
 }
 
@@ -269,7 +269,7 @@ template<class Archive>
 inline void Access<Archive, DRelation::IntermediatePoint>::serialize(Archive &archive, DRelation::IntermediatePoint &point)
 {
     archive || tag(point)
-            || attr(QStringLiteral("pos"), point, &DRelation::IntermediatePoint::getPos, &DRelation::IntermediatePoint::setPos)
+            || attr(QStringLiteral("pos"), point, &DRelation::IntermediatePoint::pos, &DRelation::IntermediatePoint::setPos)
             || end;
 }
 
@@ -306,7 +306,7 @@ inline void Access<Archive, DDependency>::serialize(Archive &archive, DDependenc
 {
     archive || tag(dependency)
             || base<DRelation>(dependency)
-            || attr(QStringLiteral("direction"), dependency, &DDependency::getDirection, &DDependency::setDirection)
+            || attr(QStringLiteral("direction"), dependency, &DDependency::direction, &DDependency::setDirection)
             || end;
 }
 
@@ -322,10 +322,10 @@ template<class Archive>
 inline void Access<Archive, DAssociationEnd>::serialize(Archive &archive, DAssociationEnd &associationEnd)
 {
     archive || tag(associationEnd)
-            || attr(QStringLiteral("name"), associationEnd, &DAssociationEnd::getName, &DAssociationEnd::setName)
-            || attr(QStringLiteral("cradinality"), associationEnd, &DAssociationEnd::getCardinality, &DAssociationEnd::setCardinatlity)
+            || attr(QStringLiteral("name"), associationEnd, &DAssociationEnd::name, &DAssociationEnd::setName)
+            || attr(QStringLiteral("cradinality"), associationEnd, &DAssociationEnd::cardinality, &DAssociationEnd::setCardinatlity)
             || attr(QStringLiteral("navigable"), associationEnd, &DAssociationEnd::isNavigable, &DAssociationEnd::setNavigable)
-            || attr(QStringLiteral("kind"), associationEnd, &DAssociationEnd::getKind, &DAssociationEnd::setKind)
+            || attr(QStringLiteral("kind"), associationEnd, &DAssociationEnd::kind, &DAssociationEnd::setKind)
             || end;
 }
 
@@ -339,9 +339,9 @@ inline void Access<Archive, DAssociation>::serialize(Archive &archive, DAssociat
 {
     archive || tag(association)
             || base<DRelation>(association)
-            || attr(QStringLiteral("class"), association, &DAssociation::getAssoicationClassUid, &DAssociation::setAssociationClassUid)
-            || attr(QStringLiteral("a"), association, &DAssociation::getA, &DAssociation::setA)
-            || attr(QStringLiteral("b"), association, &DAssociation::getB, &DAssociation::setB)
+            || attr(QStringLiteral("class"), association, &DAssociation::assoicationClassUid, &DAssociation::setAssociationClassUid)
+            || attr(QStringLiteral("a"), association, &DAssociation::endA, &DAssociation::setEndA)
+            || attr(QStringLiteral("b"), association, &DAssociation::endB, &DAssociation::setEndB)
             || end;
 }
 
@@ -359,11 +359,11 @@ inline void Access<Archive, DAnnotation>::serialize(Archive &archive, DAnnotatio
 {
     archive || tag(annotation)
             || base<DElement>(annotation)
-            || attr(QStringLiteral("text"), annotation, &DAnnotation::getText, &DAnnotation::setText)
-            || attr(QStringLiteral("pos"), annotation, &DAnnotation::getPos, &DAnnotation::setPos)
-            || attr(QStringLiteral("rect"), annotation, &DAnnotation::getRect, &DAnnotation::setRect)
+            || attr(QStringLiteral("text"), annotation, &DAnnotation::text, &DAnnotation::setText)
+            || attr(QStringLiteral("pos"), annotation, &DAnnotation::pos, &DAnnotation::setPos)
+            || attr(QStringLiteral("rect"), annotation, &DAnnotation::rect, &DAnnotation::setRect)
             || attr(QStringLiteral("auto-sized"), annotation, &DAnnotation::hasAutoSize, &DAnnotation::setAutoSize)
-            || attr(QStringLiteral("visual-role"), annotation, &DAnnotation::getVisualRole, &DAnnotation::setVisualRole)
+            || attr(QStringLiteral("visual-role"), annotation, &DAnnotation::visualRole, &DAnnotation::setVisualRole)
             || end;
 }
 
@@ -381,9 +381,9 @@ inline void Access<Archive, DBoundary>::serialize(Archive &archive, DBoundary &b
 {
     archive || tag(boundary)
             || base<DElement>(boundary)
-            || attr(QStringLiteral("text"), boundary, &DBoundary::getText, &DBoundary::setText)
-            || attr(QStringLiteral("pos"), boundary, &DBoundary::getPos, &DBoundary::setPos)
-            || attr(QStringLiteral("rect"), boundary, &DBoundary::getRect, &DBoundary::setRect)
+            || attr(QStringLiteral("text"), boundary, &DBoundary::text, &DBoundary::setText)
+            || attr(QStringLiteral("pos"), boundary, &DBoundary::pos, &DBoundary::setPos)
+            || attr(QStringLiteral("rect"), boundary, &DBoundary::rect, &DBoundary::setRect)
             || end;
 }
 

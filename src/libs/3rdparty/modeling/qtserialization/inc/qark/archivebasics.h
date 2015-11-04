@@ -44,13 +44,13 @@ class ArchiveBasics
 public:
     ArchiveBasics() : m_flags(0) { }
 
-    void setFlag(const Flag &flag) { m_flags |= flag.getMask(); }
+    void setFlag(const Flag &flag) { m_flags |= flag.mask(); }
 
-    void clearFlag(const Flag &flag) { m_flags &= ~flag.getMask(); }
+    void clearFlag(const Flag &flag) { m_flags &= ~flag.mask(); }
 
-    bool hasFlag(const Flag &flag) const { return (m_flags & flag.getMask()) != 0; }
+    bool hasFlag(const Flag &flag) const { return (m_flags & flag.mask()) != 0; }
 
-    bool takeFlag(const Flag &flag) { bool f = (m_flags & flag.getMask()) != 0; m_flags &= ~flag.getMask(); return f; }
+    bool takeFlag(const Flag &flag) { bool f = (m_flags & flag.mask()) != 0; m_flags &= ~flag.mask(); return f; }
 
     bool hasUserData(const QString &key)
     {
@@ -58,13 +58,13 @@ public:
     }
 
     template<typename T>
-    T getUserData(const QString &key)
+    T userData(const QString &key)
     {
         return m_userData.value(key).value<T>();
     }
 
     template<typename T>
-    T getUserData(const QString &key, const T &defaultValue)
+    T userData(const QString &key, const T &defaultValue)
     {
         // gcc 4.8.2 fails to compile if the following 2 statements are written in one expression
         //return m_userData.value(key, data).value<T>();

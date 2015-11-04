@@ -52,7 +52,7 @@ public:
 
     void setContext(const QString &context);
 
-    double getHeight() const;
+    double height() const;
 
 private:
 

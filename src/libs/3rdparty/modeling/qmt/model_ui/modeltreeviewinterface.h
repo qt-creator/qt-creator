@@ -45,9 +45,9 @@ public:
 
     virtual ~ModelTreeViewInterface() { }
 
-    virtual QModelIndex getCurrentSourceModelIndex() const = 0;
+    virtual QModelIndex currentSourceModelIndex() const = 0;
 
-    virtual QList<QModelIndex> getSelectedSourceModelIndexes() const = 0;
+    virtual QList<QModelIndex> selectedSourceModelIndexes() const = 0;
 };
 
 }

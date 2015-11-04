@@ -56,13 +56,13 @@ public:
 
     void setStereotypeController(StereotypeController *stereotypeController);
 
-    DObject::StereotypeDisplay getStereotypeDisplay() const { return m_stereotypeDisplay; }
+    DObject::StereotypeDisplay stereotypeDisplay() const { return m_stereotypeDisplay; }
 
-    StereotypeIcon::Display getStereotypeIconDisplay() const;
+    StereotypeIcon::Display stereotypeIconDisplay() const;
 
-    QString getStereotypeIconId() const { return m_stereotypeIconId; }
+    QString stereotypeIconId() const { return m_stereotypeIconId; }
 
-    QString getShapeIconId() const { return m_shapeIconId; }
+    QString shapeIconId() const { return m_shapeIconId; }
 
 public:
 

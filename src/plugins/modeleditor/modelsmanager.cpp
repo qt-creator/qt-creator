@@ -139,7 +139,7 @@ ExtDocumentController *ModelsManager::createModel(ModelDocument *modelDocument)
     QDir dir;
     dir.setPath(Core::ICore::resourcePath() + QLatin1String("/modeleditor"));
     // TODO error output on reading definition files
-    documentController->getConfigController()->readStereotypeDefinitions(dir.path());
+    documentController->configController()->readStereotypeDefinitions(dir.path());
 
     d->managedModels.append(ManagedModel(documentController, modelDocument));
     return documentController;
@@ -161,8 +161,8 @@ void ModelsManager::releaseModel(ExtDocumentController *documentController)
 void ModelsManager::openDiagram(const qmt::Uid &modelUid, const qmt::Uid &diagramUid)
 {
     foreach (const ManagedModel &managedModel, d->managedModels) {
-        if (managedModel.m_documentController->getProjectController()->getProject()->getUid() == modelUid) {
-            qmt::MDiagram *diagram = managedModel.m_documentController->getModelController()->findObject<qmt::MDiagram>(diagramUid);
+        if (managedModel.m_documentController->projectController()->project()->uid() == modelUid) {
+            qmt::MDiagram *diagram = managedModel.m_documentController->modelController()->findObject<qmt::MDiagram>(diagramUid);
             QTC_ASSERT(diagram, continue);
             openDiagram(managedModel.m_documentController, diagram);
             return;

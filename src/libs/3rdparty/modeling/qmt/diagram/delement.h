@@ -50,13 +50,13 @@ public:
     virtual ~DElement();
 
 public:
-    Uid getUid() const { return m_uid; }
+    Uid uid() const { return m_uid; }
 
     void setUid(const Uid &uid);
 
     void renewUid();
 
-    virtual Uid getModelUid() const = 0;
+    virtual Uid modelUid() const = 0;
 
 public:
 

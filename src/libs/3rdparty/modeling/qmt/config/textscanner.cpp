@@ -115,7 +115,7 @@ void TextScanner::setSource(ITextSource *textSource)
     d->m_source = textSource;
 }
 
-SourcePos TextScanner::getSourcePos() const
+SourcePos TextScanner::sourcePos() const
 {
     return d->m_lastSourcePos;
 }

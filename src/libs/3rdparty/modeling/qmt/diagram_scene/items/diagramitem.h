@@ -59,7 +59,7 @@ public:
 
 public:
 
-    QSizeF getMinimumSize() const;
+    QSizeF minimumSize() const;
 
 private:
 

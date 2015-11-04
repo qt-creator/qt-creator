@@ -72,12 +72,12 @@ ModelTreeView::~ModelTreeView()
 {
 }
 
-QModelIndex ModelTreeView::getCurrentSourceModelIndex() const
+QModelIndex ModelTreeView::currentSourceModelIndex() const
 {
     return m_sortedTreeModel->mapToSource(currentIndex());
 }
 
-QList<QModelIndex> ModelTreeView::getSelectedSourceModelIndexes() const
+QList<QModelIndex> ModelTreeView::selectedSourceModelIndexes() const
 {
     QList<QModelIndex> indexes;
     if (selectionModel()) {
@@ -121,7 +121,7 @@ void ModelTreeView::startDrag(Qt::DropActions supportedActions)
 {
     Q_UNUSED(supportedActions);
 
-    TreeModel *treeModel = m_sortedTreeModel->getTreeModel();
+    TreeModel *treeModel = m_sortedTreeModel->treeModel();
     QMT_CHECK(treeModel);
 
     QByteArray dragData;
@@ -131,17 +131,17 @@ void ModelTreeView::startDrag(Qt::DropActions supportedActions)
 
     QModelIndexList indexes;
     if (selectionModel()) {
-        indexes = getSelectedSourceModelIndexes();
-    } else if (getCurrentSourceModelIndex().isValid()) {
-        indexes.append(getCurrentSourceModelIndex());
+        indexes = selectedSourceModelIndexes();
+    } else if (currentSourceModelIndex().isValid()) {
+        indexes.append(currentSourceModelIndex());
     }
     if (!indexes.isEmpty()) {
         foreach (const QModelIndex &index, indexes) {
-            MElement *element = treeModel->getElement(index);
+            MElement *element = treeModel->element(index);
             if (element) {
-                dataStream << element->getUid().toString();
+                dataStream << element->uid().toString();
                 if (dragIcon.isNull()) {
-                    QIcon icon = treeModel->getIcon(index);
+                    QIcon icon = treeModel->icon(index);
                     if (!icon.isNull()) {
                         dragIcon = icon;
                     }
@@ -181,9 +181,9 @@ void ModelTreeView::dragMoveEvent(QDragMoveEvent *event)
     QModelIndex dropIndex = indexAt(event->pos());
     QModelIndex dropSourceModelIndex = m_sortedTreeModel->mapToSource(dropIndex);
     if (dropSourceModelIndex.isValid()) {
-        TreeModel *treeModel = m_sortedTreeModel->getTreeModel();
+        TreeModel *treeModel = m_sortedTreeModel->treeModel();
         QMT_CHECK(treeModel);
-        MElement *modelElement = treeModel->getElement(dropSourceModelIndex);
+        MElement *modelElement = treeModel->element(dropSourceModelIndex);
         if (dynamic_cast<MObject*>(modelElement)) {
             accept = true;
         }
@@ -214,27 +214,27 @@ void ModelTreeView::dropEvent(QDropEvent *event)
         QModelIndex dropIndex = indexAt(event->pos());
         QModelIndex dropSourceModelIndex = m_sortedTreeModel->mapToSource(dropIndex);
         if (dropSourceModelIndex.isValid()) {
-            TreeModel *treeModel = m_sortedTreeModel->getTreeModel();
+            TreeModel *treeModel = m_sortedTreeModel->treeModel();
             QMT_CHECK(treeModel);
-            MElement *targetModelElement = treeModel->getElement(dropSourceModelIndex);
+            MElement *targetModelElement = treeModel->element(dropSourceModelIndex);
             if (MObject *targetModelObject = dynamic_cast<MObject *>(targetModelElement)) {
                 QDataStream dataStream(event->mimeData()->data(QStringLiteral("text/model-elements")));
                 while (dataStream.status() == QDataStream::Ok) {
                     QString key;
                     dataStream >> key;
                     if (!key.isEmpty()) {
-                        MElement *modelElement = treeModel->getModelController()->findElement(Uid(key));
+                        MElement *modelElement = treeModel->modelController()->findElement(Uid(key));
                         if (modelElement) {
                             if (MObject *modelObject = dynamic_cast<MObject*>(modelElement)) {
                                 if (MPackage *targetModelPackage = dynamic_cast<MPackage*>(targetModelObject)) {
-                                    treeModel->getModelController()->moveObject(targetModelPackage, modelObject);
-                                } else if ((targetModelPackage = dynamic_cast<MPackage *>(targetModelObject->getOwner()))) {
-                                    treeModel->getModelController()->moveObject(targetModelPackage, modelObject);
+                                    treeModel->modelController()->moveObject(targetModelPackage, modelObject);
+                                } else if ((targetModelPackage = dynamic_cast<MPackage *>(targetModelObject->owner()))) {
+                                    treeModel->modelController()->moveObject(targetModelPackage, modelObject);
                                 } else {
                                     QMT_CHECK(false);
                                 }
                             } else if (MRelation *modelRelation = dynamic_cast<MRelation *>(modelElement)) {
-                                treeModel->getModelController()->moveRelation(targetModelObject, modelRelation);
+                                treeModel->modelController()->moveRelation(targetModelObject, modelRelation);
                             }
                         }
                     }
@@ -257,9 +257,9 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
     QModelIndex index = indexAt(event->pos());
     QModelIndex sourceModelIndex = m_sortedTreeModel->mapToSource(index);
     if (sourceModelIndex.isValid()) {
-        TreeModel *treeModel = m_sortedTreeModel->getTreeModel();
+        TreeModel *treeModel = m_sortedTreeModel->treeModel();
         QMT_CHECK(treeModel);
-        MElement *melement = treeModel->getElement(sourceModelIndex);
+        MElement *melement = treeModel->element(sourceModelIndex);
         QMT_CHECK(melement);
 
         QMenu menu;
@@ -272,7 +272,7 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
             menu.addAction(new ContextMenuAction(tr("Open Diagram"), QStringLiteral("openDiagram"), &menu));
             addSeparator = true;
         }
-        if (melement->getOwner()) {
+        if (melement->owner()) {
             if (addSeparator) {
                 menu.addSeparator();
             }
@@ -282,14 +282,14 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
         if (selectedAction) {
             ContextMenuAction *action = dynamic_cast<ContextMenuAction *>(selectedAction);
             QMT_CHECK(action);
-            if (action->getId() == QStringLiteral("showDefinition")) {
+            if (action->id() == QStringLiteral("showDefinition")) {
                 m_elementTasks->openClassDefinition(melement);
-            } else if (action->getId() == QStringLiteral("openDiagram")) {
+            } else if (action->id() == QStringLiteral("openDiagram")) {
                 m_elementTasks->openDiagram(melement);
-            } else if (action->getId() == QStringLiteral("delete")) {
+            } else if (action->id() == QStringLiteral("delete")) {
                 MSelection selection;
-                selection.append(melement->getUid(), melement->getOwner()->getUid());
-                m_sortedTreeModel->getTreeModel()->getModelController()->deleteElements(selection);
+                selection.append(melement->uid(), melement->owner()->uid());
+                m_sortedTreeModel->treeModel()->modelController()->deleteElements(selection);
             }
         }
         event->accept();

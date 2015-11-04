@@ -46,7 +46,7 @@ public:
 
 public:
 
-    const MDiagram *getDiagram() const { return m_diagram; }
+    const MDiagram *diagram() const { return m_diagram; }
 
 public:
 

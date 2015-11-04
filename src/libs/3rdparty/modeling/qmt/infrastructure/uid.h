@@ -44,7 +44,7 @@ class QMT_EXPORT Uid
 {
 public:
 
-    static const Uid getInvalidUid() { return Uid(QUuid()); }
+    static const Uid invalidUid() { return Uid(QUuid()); }
 
 public:
     Uid() : m_uuid(QUuid::createUuid()) { }

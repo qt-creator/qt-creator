@@ -72,7 +72,7 @@ DElement *MDiagram::findDiagramElement(const Uid &key) const
 {
     // PERFORM introduce map for better performance
     foreach (DElement *element, m_elements) {
-        if (element->getUid() == key) {
+        if (element->uid() == key) {
             return element;
         }
     }

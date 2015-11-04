@@ -109,7 +109,7 @@ void MClassMember::setProperties(Properties properties)
 
 bool operator==(const MClassMember &lhs, const MClassMember &rhs)
 {
-    return lhs.getUid() == rhs.getUid();
+    return lhs.uid() == rhs.uid();
 }
 
 }

@@ -54,7 +54,7 @@ public:
 
 public:
 
-    SourcePos getSourcePos() const { return m_sourcePos; }
+    SourcePos sourcePos() const { return m_sourcePos; }
 
 private:
     SourcePos m_sourcePos;
@@ -82,7 +82,7 @@ public:
 
     void setSource(ITextSource *textSource);
 
-    SourcePos getSourcePos() const;
+    SourcePos sourcePos() const;
 
 public:
 

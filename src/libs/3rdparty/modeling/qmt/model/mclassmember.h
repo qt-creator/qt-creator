@@ -87,33 +87,33 @@ public:
 
 public:
 
-    Uid getUid() const { return m_uid; }
+    Uid uid() const { return m_uid; }
 
     void setUid(const Uid &uid);
 
     void renewUid();
 
-    QList<QString> getStereotypes() const { return m_stereotypes; }
+    QList<QString> stereotypes() const { return m_stereotypes; }
 
     void setStereotypes(const QList<QString> &stereotypes);
 
-    QString getGroup() const { return m_group; }
+    QString group() const { return m_group; }
 
     void setGroup(const QString &group);
 
-    QString getDeclaration() const { return m_declaration; }
+    QString declaration() const { return m_declaration; }
 
     void setDeclaration(const QString &declaration);
 
-    Visibility getVisibility() const { return m_visibility; }
+    Visibility visibility() const { return m_visibility; }
 
     void setVisibility(Visibility visibility);
 
-    MemberType getMemberType() const { return m_memberType; }
+    MemberType memberType() const { return m_memberType; }
 
     void setMemberType(MemberType memberType);
 
-    Properties getProperties() const { return m_properties; }
+    Properties properties() const { return m_properties; }
 
     void setProperties(Properties properties);
 

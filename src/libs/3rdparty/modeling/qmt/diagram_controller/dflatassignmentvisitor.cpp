@@ -65,16 +65,16 @@ void DFlatAssignmentVisitor::visitDObject(const DObject *object)
     visitDElement(object);
     DObject *target = dynamic_cast<DObject *>(m_target);
     QMT_CHECK(target);
-    target->setStereotypes(object->getStereotypes());
-    target->setName(object->getName());
-    target->setPos(object->getPos());
-    target->setRect(object->getRect());
+    target->setStereotypes(object->stereotypes());
+    target->setName(object->name());
+    target->setPos(object->pos());
+    target->setRect(object->rect());
     target->setAutoSize(object->hasAutoSize());
-    target->setDepth(object->getDepth());
-    target->setVisualPrimaryRole(object->getVisualPrimaryRole());
-    target->setVisualSecondaryRole(object->getVisualSecondaryRole());
+    target->setDepth(object->depth());
+    target->setVisualPrimaryRole(object->visualPrimaryRole());
+    target->setVisualSecondaryRole(object->visualSecondaryRole());
     target->setVisualEmphasized(object->isVisualEmphasized());
-    target->setStereotypeDisplay(object->getStereotypeDisplay());
+    target->setStereotypeDisplay(object->stereotypeDisplay());
 }
 
 void DFlatAssignmentVisitor::visitDPackage(const DPackage *package)
@@ -87,12 +87,12 @@ void DFlatAssignmentVisitor::visitDClass(const DClass *klass)
     visitDObject(klass);
     DClass *target = dynamic_cast<DClass *>(m_target);
     QMT_CHECK(target);
-    target->setNamespace(klass->getNamespace());
-    target->setTemplateParameters(klass->getTemplateParameters());
-    target->setTemplateDisplay(klass->getTemplateDisplay());
-    target->setMembers(klass->getMembers());
-    target->setShowAllMembers(klass->getShowAllMembers());
-    target->setVisibleMembers(klass->getVisibleMembers());
+    target->setNameSpace(klass->nameSpace());
+    target->setTemplateParameters(klass->templateParameters());
+    target->setTemplateDisplay(klass->templateDisplay());
+    target->setMembers(klass->members());
+    target->setShowAllMembers(klass->showAllMembers());
+    target->setVisibleMembers(klass->visibleMembers());
 }
 
 void DFlatAssignmentVisitor::visitDComponent(const DComponent *component)
@@ -100,7 +100,7 @@ void DFlatAssignmentVisitor::visitDComponent(const DComponent *component)
     visitDObject(component);
     DComponent *target = dynamic_cast<DComponent *>(m_target);
     QMT_CHECK(target);
-    target->setPlainShape(component->getPlainShape());
+    target->setPlainShape(component->plainShape());
 }
 
 void DFlatAssignmentVisitor::visitDDiagram(const DDiagram *diagram)
@@ -113,9 +113,9 @@ void DFlatAssignmentVisitor::visitDItem(const DItem *item)
     visitDObject(item);
     DItem *target = dynamic_cast<DItem *>(m_target);
     QMT_CHECK(target);
-    target->setVariety(target->getVariety());
+    target->setVariety(target->variety());
     target->setShapeEditable(target->isShapeEditable());
-    target->setShape(target->getShape());
+    target->setShape(target->shape());
 }
 
 void DFlatAssignmentVisitor::visitDRelation(const DRelation *relation)
@@ -123,8 +123,8 @@ void DFlatAssignmentVisitor::visitDRelation(const DRelation *relation)
     visitDElement(relation);
     DRelation *target = dynamic_cast<DRelation *>(m_target);
     QMT_CHECK(target);
-    target->setStereotypes(relation->getStereotypes());
-    target->setIntermediatePoints(relation->getIntermediatePoints());
+    target->setStereotypes(relation->stereotypes());
+    target->setIntermediatePoints(relation->intermediatePoints());
 }
 
 void DFlatAssignmentVisitor::visitDInheritance(const DInheritance *inheritance)
@@ -137,7 +137,7 @@ void DFlatAssignmentVisitor::visitDDependency(const DDependency *dependency)
     visitDRelation(dependency);
     DDependency *target = dynamic_cast<DDependency *>(m_target);
     QMT_CHECK(target);
-    target->setDirection(dependency->getDirection());
+    target->setDirection(dependency->direction());
 }
 
 void DFlatAssignmentVisitor::visitDAssociation(const DAssociation *association)
@@ -145,28 +145,28 @@ void DFlatAssignmentVisitor::visitDAssociation(const DAssociation *association)
     visitDRelation(association);
     DAssociation *target = dynamic_cast<DAssociation *>(m_target);
     QMT_CHECK(target);
-    target->setA(association->getA());
-    target->setB(association->getB());
+    target->setEndA(association->endA());
+    target->setEndB(association->endB());
 }
 
 void DFlatAssignmentVisitor::visitDAnnotation(const DAnnotation *annotation)
 {
     visitDElement(annotation);
     DAnnotation *target = dynamic_cast<DAnnotation *>(m_target);
-    target->setText(annotation->getText());
-    target->setPos(annotation->getPos());
-    target->setRect(annotation->getRect());
+    target->setText(annotation->text());
+    target->setPos(annotation->pos());
+    target->setRect(annotation->rect());
     target->setAutoSize(annotation->hasAutoSize());
-    target->setVisualRole(annotation->getVisualRole());
+    target->setVisualRole(annotation->visualRole());
 }
 
 void DFlatAssignmentVisitor::visitDBoundary(const DBoundary *boundary)
 {
     visitDElement(boundary);
     DBoundary *target = dynamic_cast<DBoundary *>(m_target);
-    target->setText(boundary->getText());
-    target->setPos(boundary->getPos());
-    target->setRect(boundary->getRect());
+    target->setText(boundary->text());
+    target->setPos(boundary->pos());
+    target->setRect(boundary->rect());
 }
 
 }

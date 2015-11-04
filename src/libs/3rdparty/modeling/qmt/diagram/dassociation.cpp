@@ -71,9 +71,9 @@ bool operator==(const DAssociationEnd &lhs, const DAssociationEnd &rhs)
     if (&lhs == &rhs) {
         return true;
     }
-    return lhs.getName() == rhs.getName()
-            && lhs.getCardinality() == rhs.getCardinality()
-            && lhs.getKind() == rhs.getKind()
+    return lhs.name() == rhs.name()
+            && lhs.cardinality() == rhs.cardinality()
+            && lhs.kind() == rhs.kind()
             && lhs.isNavigable() == rhs.isNavigable();
 }
 
@@ -85,7 +85,7 @@ bool operator!=(const DAssociationEnd &lhs, const DAssociationEnd &rhs)
 
 
 DAssociation::DAssociation()
-    : m_associationClassUid(Uid::getInvalidUid())
+    : m_associationClassUid(Uid::invalidUid())
 {
 }
 
@@ -93,12 +93,12 @@ DAssociation::~DAssociation()
 {
 }
 
-void DAssociation::setA(const DAssociationEnd &endA)
+void DAssociation::setEndA(const DAssociationEnd &endA)
 {
     m_endA = endA;
 }
 
-void DAssociation::setB(const DAssociationEnd &endB)
+void DAssociation::setEndB(const DAssociationEnd &endB)
 {
     m_endB = endB;
 }

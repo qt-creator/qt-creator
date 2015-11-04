@@ -58,11 +58,11 @@ signals:
 
 public:
 
-    TreeModel *getTreeModel() const { return m_treeModel; }
+    TreeModel *treeModel() const { return m_treeModel; }
 
     void setTreeModel(TreeModel *treeModel);
 
-    ModelTreeViewInterface *getModelTreeView() const { return m_modelTreeView; }
+    ModelTreeViewInterface *modelTreeView() const { return m_modelTreeView; }
 
     void setModelTreeView(ModelTreeViewInterface *modelTreeView);
 
@@ -70,11 +70,11 @@ public:
 
     bool isRootPackageSelected() const;
 
-    MObject *getSelectedObject() const;
+    MObject *selectedObject() const;
 
-    MPackage *getSelectedPackage() const;
+    MPackage *selectedPackage() const;
 
-    MSelection getSelectedObjects() const;
+    MSelection selectedObjects() const;
 
 private:
 

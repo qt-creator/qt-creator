@@ -90,7 +90,7 @@ void RelationStarter::addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowI
     arrow->setEndHead(endHead);
     arrow->setPoints(QList<QPointF>() << QPointF(0.0, 10.0) << QPointF(15.0, 0.0));
     arrow->setPos(6.0, m_arrows.size() * 20.0 + 8.0);
-    arrow->update(m_diagramSceneModel->getStyleController()->getRelationStarterStyle());
+    arrow->update(m_diagramSceneModel->styleController()->relationStarterStyle());
     m_arrows.append(arrow);
     m_arrowIds.insert(arrow, id);
     setRect(0.0, 0.0, 26.0, m_arrows.size() * 20.0 + 6.0);
@@ -106,8 +106,8 @@ void RelationStarter::mousePressEvent(QGraphicsSceneMouseEvent *event)
             m_currentPreviewArrowId = m_arrowIds.value(item);
             QMT_CHECK(!m_currentPreviewArrowId.isEmpty());
             m_currentPreviewArrow = new ArrowItem(*item);
-            m_currentPreviewArrow->setPoints(QList<QPointF>() << m_owner->getRelationStartPos() << mapToScene(event->pos()));
-            m_currentPreviewArrow->update(m_diagramSceneModel->getStyleController()->getRelationStarterStyle());
+            m_currentPreviewArrow->setPoints(QList<QPointF>() << m_owner->relationStartPos() << mapToScene(event->pos()));
+            m_currentPreviewArrow->update(m_diagramSceneModel->styleController()->relationStarterStyle());
             m_currentPreviewArrow->setZValue(PREVIEW_RELATION_ZVALUE);
             scene()->addItem(m_currentPreviewArrow);
             setFocus(); // receive keyboard events
@@ -141,7 +141,7 @@ void RelationStarter::keyPressEvent(QKeyEvent *event)
         return;
     }
     if (event->key() == Qt::Key_Shift) {
-        QPointF p = m_currentPreviewArrow->getLastLineSegment().p1();
+        QPointF p = m_currentPreviewArrow->lastLineSegment().p1();
         if (m_currentPreviewArrowIntermediatePoints.isEmpty() || m_currentPreviewArrowIntermediatePoints.last() != p) {
             m_currentPreviewArrowIntermediatePoints.append(p);
             // Do not update the preview arrow here because last two points are now identical which looks wired
@@ -149,7 +149,7 @@ void RelationStarter::keyPressEvent(QKeyEvent *event)
     } else if (event->key() == Qt::Key_Control) {
         if (!m_currentPreviewArrowIntermediatePoints.isEmpty()) {
             m_currentPreviewArrowIntermediatePoints.removeLast();
-            updateCurrentPreviewArrow(m_currentPreviewArrow->getLastLineSegment().p1());
+            updateCurrentPreviewArrow(m_currentPreviewArrow->lastLineSegment().p1());
         }
     }
 }
@@ -157,9 +157,9 @@ void RelationStarter::keyPressEvent(QKeyEvent *event)
 void RelationStarter::updateCurrentPreviewArrow(const QPointF &headPoint)
 {
     prepareGeometryChange();
-    m_currentPreviewArrow->setPoints(QList<QPointF>() << m_owner->getRelationStartPos()
+    m_currentPreviewArrow->setPoints(QList<QPointF>() << m_owner->relationStartPos()
                                       << m_currentPreviewArrowIntermediatePoints << headPoint);
-    m_currentPreviewArrow->update(m_diagramSceneModel->getStyleController()->getRelationStarterStyle());
+    m_currentPreviewArrow->update(m_diagramSceneModel->styleController()->relationStarterStyle());
 }
 
 }

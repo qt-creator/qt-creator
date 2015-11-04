@@ -63,9 +63,9 @@ public:
 
 public:
 
-    DBoundary *getBoundary() const { return m_boundary; }
+    DBoundary *boundary() const { return m_boundary; }
 
-    DiagramSceneModel *getDiagramSceneModel() const { return m_diagramSceneModel; }
+    DiagramSceneModel *diagramSceneModel() const { return m_diagramSceneModel; }
 
 public:
 
@@ -79,11 +79,11 @@ public:
 
 public:
 
-    QPointF getPos() const;
+    QPointF pos() const;
 
-    QRectF getRect() const;
+    QRectF rect() const;
 
-    QSizeF getMinimumSize() const;
+    QSizeF minimumSize() const;
 
     void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta);
 
@@ -125,7 +125,7 @@ protected:
 
     void updateSelectionMarkerGeometry(const QRectF &boundaryRect);
 
-    const Style *getAdaptedStyle();
+    const Style *adaptedStyle();
 
     bool sceneEventFilter(QGraphicsItem *watched, QEvent *event);
 

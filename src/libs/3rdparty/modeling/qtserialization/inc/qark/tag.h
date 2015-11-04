@@ -52,9 +52,9 @@ public:
     {
     }
 
-    const QString &getQualifiedName() const { return m_qualifiedName; }
+    const QString &qualifiedName() const { return m_qualifiedName; }
 
-    Parameters getParameters() const { return m_parameters; }
+    Parameters parameters() const { return m_parameters; }
 
 private:
     QString m_qualifiedName;
@@ -79,7 +79,7 @@ public:
     {
     }
 
-    T *getObject() const { return m_object; }
+    T *object() const { return m_object; }
 
 private:
     T *m_object;
@@ -109,13 +109,13 @@ inline Tag tag(const char *qualifiedName, const Parameters &parameters)
 template<class T>
 inline Object<T> tag(T &object)
 {
-    return Object<T>(getTypeUid<T>(), &object);
+    return Object<T>(typeUid<T>(), &object);
 }
 
 template<class T>
 inline Object<T> tag(T &object, const Parameters &parameters)
 {
-    return Object<T>(getTypeUid<T>(), &object, parameters);
+    return Object<T>(typeUid<T>(), &object, parameters);
 }
 
 template<class T>
@@ -142,7 +142,7 @@ public:
     {
     }
 
-    Parameters getParameters() const { return m_parameters; }
+    Parameters parameters() const { return m_parameters; }
 
 private:
     Parameters m_parameters;

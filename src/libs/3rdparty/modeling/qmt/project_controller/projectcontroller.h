@@ -76,7 +76,7 @@ signals:
 
 public:
 
-    Project *getProject() const { return m_project.data(); }
+    Project *project() const { return m_project.data(); }
 
     bool isModified() const { return m_isModified; }
 

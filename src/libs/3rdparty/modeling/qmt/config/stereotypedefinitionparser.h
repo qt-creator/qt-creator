@@ -56,7 +56,7 @@ public:
 
 public:
 
-    SourcePos getSourcePos() const { return m_sourcePos; }
+    SourcePos sourcePos() const { return m_sourcePos; }
 
 private:
     SourcePos m_sourcePos;

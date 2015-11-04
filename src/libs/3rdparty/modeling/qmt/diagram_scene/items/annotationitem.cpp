@@ -115,7 +115,7 @@ void AnnotationItem::update()
 
     prepareGeometryChange();
 
-    const Style *style = getAdaptedStyle();
+    const Style *style = adaptedStyle();
 
     // text
     if (!m_textItem) {
@@ -125,10 +125,10 @@ void AnnotationItem::update()
         QObject::connect(m_textItem->document(), &QTextDocument::contentsChanged, m_textItem,
                          [=]() { this->onContentsChanged(); } );
     }
-    m_textItem->setFont(style->getNormalFont());
-    m_textItem->setDefaultTextColor(style->getTextBrush().color());
+    m_textItem->setFont(style->normalFont());
+    m_textItem->setDefaultTextColor(style->textBrush().color());
     if (!m_onChanged) {
-        m_textItem->setPlainText(getAnnotation()->getText());
+        m_textItem->setPlainText(annotation()->text());
     }
 
     // item shown if annotation has no text and is not selected
@@ -147,17 +147,17 @@ void AnnotationItem::update()
     m_onUpdate = false;
 }
 
-QPointF AnnotationItem::getPos() const
+QPointF AnnotationItem::pos() const
 {
-    return m_annotation->getPos();
+    return m_annotation->pos();
 }
 
-QRectF AnnotationItem::getRect() const
+QRectF AnnotationItem::rect() const
 {
-    return m_annotation->getRect();
+    return m_annotation->rect();
 }
 
-QSizeF AnnotationItem::getMinimumSize() const
+QSizeF AnnotationItem::minimumSize() const
 {
     return calcMinimumGeometry();
 }
@@ -167,14 +167,14 @@ void AnnotationItem::setPosAndRect(const QPointF &originalPos, const QRectF &ori
     QPointF newPos = originalPos;
     QRectF newRect = originalRect;
     GeometryUtilities::adjustPosAndRect(&newPos, &newRect, topLeftDelta, bottomRightDelta, QPointF(0.0, 0.0));
-    if (newPos != m_annotation->getPos() || newRect != m_annotation->getRect()) {
-        m_diagramSceneModel->getDiagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
+    if (newPos != m_annotation->pos() || newRect != m_annotation->rect()) {
+        m_diagramSceneModel->diagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->diagram(), DiagramController::UPDATE_GEOMETRY);
         m_annotation->setPos(newPos);
-        if (newRect.size() != m_annotation->getRect().size()) {
+        if (newRect.size() != m_annotation->rect().size()) {
             m_annotation->setAutoSize(false);
         }
         m_annotation->setRect(newRect);
-        m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_annotation, m_diagramSceneModel->getDiagram(), false);
+        m_diagramSceneModel->diagramController()->finishUpdateElement(m_annotation, m_diagramSceneModel->diagram(), false);
     }
 }
 
@@ -188,15 +188,15 @@ void AnnotationItem::alignItemSizeToRaster(Side adjustHorizontalSide, Side adjus
 
 void AnnotationItem::moveDelta(const QPointF &delta)
 {
-    m_diagramSceneModel->getDiagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
-    m_annotation->setPos(m_annotation->getPos() + delta);
-    m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_annotation, m_diagramSceneModel->getDiagram(), false);
+    m_diagramSceneModel->diagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->diagram(), DiagramController::UPDATE_GEOMETRY);
+    m_annotation->setPos(m_annotation->pos() + delta);
+    m_diagramSceneModel->diagramController()->finishUpdateElement(m_annotation, m_diagramSceneModel->diagram(), false);
 }
 
 void AnnotationItem::alignItemPositionToRaster(double rasterWidth, double rasterHeight)
 {
-    QPointF pos = m_annotation->getPos();
-    QRectF rect = m_annotation->getRect();
+    QPointF pos = m_annotation->pos();
+    QRectF rect = m_annotation->rect();
     QPointF topLeft = pos + rect.topLeft();
 
     double leftDelta = qRound(topLeft.x() / rasterWidth) * rasterWidth - topLeft.x();
@@ -296,9 +296,9 @@ void AnnotationItem::updateSelectionMarkerGeometry(const QRectF &annotationRect)
     }
 }
 
-const Style *AnnotationItem::getAdaptedStyle()
+const Style *AnnotationItem::adaptedStyle()
 {
-    return m_diagramSceneModel->getStyleController()->adaptAnnotationStyle(m_annotation);
+    return m_diagramSceneModel->styleController()->adaptAnnotationStyle(m_annotation);
 }
 
 bool AnnotationItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
@@ -319,10 +319,10 @@ void AnnotationItem::onContentsChanged()
 
     if (!m_onUpdate) {
         QString plainText = m_textItem->toPlainText();
-        if (m_annotation->getText() != plainText) {
-            m_diagramSceneModel->getDiagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_MINOR);
+        if (m_annotation->text() != plainText) {
+            m_diagramSceneModel->diagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->diagram(), DiagramController::UPDATE_MINOR);
             m_annotation->setText(plainText);
-            m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_annotation, m_diagramSceneModel->getDiagram(), false);
+            m_diagramSceneModel->diagramController()->finishUpdateElement(m_annotation, m_diagramSceneModel->diagram(), false);
         }
     }
 
@@ -334,7 +334,7 @@ QSizeF AnnotationItem::calcMinimumGeometry() const
     qreal width = MINIMUM_TEXT_WIDTH + 2 * CONTENTS_BORDER_HORIZONTAL;
     qreal height = 0.0; // irrelevant; cannot be modified by user and will always be overwritten
 
-    if (getAnnotation()->hasAutoSize()) {
+    if (annotation()->hasAutoSize()) {
         if (m_textItem) {
             m_textItem->setTextWidth(-1);
             QSizeF textSize = m_textItem->document()->size();
@@ -352,7 +352,7 @@ void AnnotationItem::updateGeometry()
     qreal width = geometry.width();
     qreal height = geometry.height();
 
-    if (getAnnotation()->hasAutoSize()) {
+    if (annotation()->hasAutoSize()) {
         if (m_textItem) {
             m_textItem->setTextWidth(-1);
             QSizeF textSize = m_textItem->document()->size();
@@ -360,7 +360,7 @@ void AnnotationItem::updateGeometry()
             height = textSize.height() + 2 * CONTENTS_BORDER_VERTICAL;
         }
     } else {
-        QRectF rect = getAnnotation()->getRect();
+        QRectF rect = annotation()->rect();
         width = rect.width();
         if (m_textItem) {
             m_textItem->setTextWidth(width - 2 * CONTENTS_BORDER_HORIZONTAL);
@@ -372,14 +372,14 @@ void AnnotationItem::updateGeometry()
     double left = 0.0;
     double top = 0.0;
 
-    setPos(getAnnotation()->getPos());
+    setPos(annotation()->pos());
 
     QRectF rect(left, top, width, height);
 
     // the object is updated without calling DiagramController intentionally.
     // attribute rect is not a real attribute stored on DObject but
     // a backup for the graphics item used for manual resized and persistency.
-    getAnnotation()->setRect(rect);
+    annotation()->setRect(rect);
 
     if (m_noTextItem) {
         m_noTextItem->setRect(rect);

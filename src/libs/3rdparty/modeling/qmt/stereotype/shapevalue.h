@@ -79,15 +79,15 @@ public:
 
 public:
 
-    qreal getValue() const { return m_value; }
+    qreal value() const { return m_value; }
 
     void setValue(qreal value) { m_value = value; }
 
-    Unit getUnit() const { return m_unit; }
+    Unit unit() const { return m_unit; }
 
     void setUnit(Unit unit) { m_unit = unit; }
 
-    Origin getOrigin() const { return m_origin; }
+    Origin origin() const { return m_origin; }
 
     void setOrigin(Origin origin) { m_origin = origin; }
 
@@ -124,11 +124,11 @@ public:
 
 public:
 
-    ShapeValueF getX() const { return m_x; }
+    ShapeValueF x() const { return m_x; }
 
     void setX(const ShapeValueF &x) { m_x = x; }
 
-    ShapeValueF getY() const { return m_y; }
+    ShapeValueF y() const { return m_y; }
 
     void setY(const ShapeValueF &y) { m_y = y; }
 
@@ -163,11 +163,11 @@ public:
 
 public:
 
-    ShapeValueF getWidth() const { return m_width; }
+    ShapeValueF width() const { return m_width; }
 
     void setWidth(const ShapeValueF &width) { m_width = width; }
 
-    ShapeValueF getHeight() const { return m_height; }
+    ShapeValueF height() const { return m_height; }
 
     void setHeight(const ShapeValueF &height) { m_height = height; }
 

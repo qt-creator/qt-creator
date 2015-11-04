@@ -66,21 +66,21 @@ public:
 
 public:
 
-    Uid getModelUid() const { return Uid::getInvalidUid(); }
+    Uid modelUid() const { return Uid::invalidUid(); }
 
-    QString getText() const { return m_text; }
+    QString text() const { return m_text; }
 
     void setText(const QString &text);
 
-    QPointF getPos() const { return m_pos; }
+    QPointF pos() const { return m_pos; }
 
     void setPos(const QPointF &pos);
 
-    QRectF getRect() const { return m_rect; }
+    QRectF rect() const { return m_rect; }
 
     void setRect(const QRectF &rect);
 
-    VisualRole getVisualRole() const { return m_visualRole; }
+    VisualRole visualRole() const { return m_visualRole; }
 
     void setVisualRole(VisualRole visualRole);
 

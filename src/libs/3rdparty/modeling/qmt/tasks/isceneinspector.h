@@ -51,13 +51,13 @@ public:
 
 public:
 
-    virtual QSizeF getRasterSize() const = 0;
+    virtual QSizeF rasterSize() const = 0;
 
-    virtual QSizeF getMinimalSize(const DElement *element, const MDiagram *diagram) const = 0;
+    virtual QSizeF minimalSize(const DElement *element, const MDiagram *diagram) const = 0;
 
-    virtual IMoveable *getMoveable(const DElement *element, const MDiagram *diagram) const = 0;
+    virtual IMoveable *moveable(const DElement *element, const MDiagram *diagram) const = 0;
 
-    virtual IResizable *getResizable(const DElement *element, const MDiagram *diagram) const = 0;
+    virtual IResizable *resizable(const DElement *element, const MDiagram *diagram) const = 0;
 
 };
 

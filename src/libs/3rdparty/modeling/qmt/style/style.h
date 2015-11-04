@@ -58,45 +58,45 @@ public:
 
 public:
 
-    Type getType() const { return m_type; }
+    Type type() const { return m_type; }
 
-    QPen getLinePen() const { return m_linePen; }
+    QPen linePen() const { return m_linePen; }
 
     void setLinePen(const QPen &pen);
 
-    QPen getOuterLinePen() const { return m_outerLinePen; }
+    QPen outerLinePen() const { return m_outerLinePen; }
 
     void setOuterLinePen(const QPen &pen);
 
-    QPen getInnerLinePen() const { return m_innerLinePen; }
+    QPen innerLinePen() const { return m_innerLinePen; }
 
     void setInnerLinePen(const QPen &pen);
 
-    QPen getExtraLinePen() const { return m_extraLinePen; }
+    QPen extraLinePen() const { return m_extraLinePen; }
 
     void setExtraLinePen(const QPen &pen);
 
-    QBrush getTextBrush() const { return m_textBrush; }
+    QBrush textBrush() const { return m_textBrush; }
 
     void setTextBrush(const QBrush &brush);
 
-    QBrush getFillBrush() const { return m_fillBrush; }
+    QBrush fillBrush() const { return m_fillBrush; }
 
     void setFillBrush(const QBrush &brush);
 
-    QBrush getExtraFillBrush() const { return m_extraFillBrush; }
+    QBrush extraFillBrush() const { return m_extraFillBrush; }
 
     void setExtraFillBrush(const QBrush &brush);
 
-    QFont getNormalFont() const { return m_normalFont; }
+    QFont normalFont() const { return m_normalFont; }
 
     void setNormalFont(const QFont &font);
 
-    QFont getSmallFont() const { return m_smallFont; }
+    QFont smallFont() const { return m_smallFont; }
 
     void setSmallFont(const QFont &font);
 
-    QFont getHeaderFont() const { return m_headerFont; }
+    QFont headerFont() const { return m_headerFont; }
 
     void setHeaderFont(const QFont &font);
 

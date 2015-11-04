@@ -53,7 +53,7 @@ MFlatAssignmentVisitor::MFlatAssignmentVisitor(MElement *target)
 
 void MFlatAssignmentVisitor::visitMElement(const MElement *element)
 {
-    m_target->setStereotypes(element->getStereotypes());
+    m_target->setStereotypes(element->stereotypes());
 }
 
 void MFlatAssignmentVisitor::visitMObject(const MObject *object)
@@ -61,7 +61,7 @@ void MFlatAssignmentVisitor::visitMObject(const MObject *object)
     visitMElement(object);
     MObject *targetObject = dynamic_cast<MObject *>(m_target);
     QMT_CHECK(targetObject);
-    targetObject->setName(object->getName());
+    targetObject->setName(object->name());
 }
 
 void MFlatAssignmentVisitor::visitMPackage(const MPackage *package)
@@ -74,9 +74,9 @@ void MFlatAssignmentVisitor::visitMClass(const MClass *klass)
     visitMObject(klass);
     MClass *targetClass = dynamic_cast<MClass *>(m_target);
     QMT_CHECK(targetClass);
-    targetClass->setNamespace(klass->getNamespace());
-    targetClass->setTemplateParameters(klass->getTemplateParameters());
-    targetClass->setMembers(klass->getMembers());
+    targetClass->setNameSpace(klass->nameSpace());
+    targetClass->setTemplateParameters(klass->templateParameters());
+    targetClass->setMembers(klass->members());
 }
 
 void MFlatAssignmentVisitor::visitMComponent(const MComponent *component)
@@ -100,7 +100,7 @@ void MFlatAssignmentVisitor::visitMItem(const MItem *item)
     MItem *targetItem = dynamic_cast<MItem *>(m_target);
     QMT_CHECK(targetItem);
     targetItem->setVarietyEditable(item->isVarietyEditable());
-    targetItem->setVariety(item->getVariety());
+    targetItem->setVariety(item->variety());
     targetItem->setShapeEditable(item->isShapeEditable());
 }
 
@@ -109,7 +109,7 @@ void MFlatAssignmentVisitor::visitMRelation(const MRelation *relation)
     visitMElement(relation);
     MRelation *targetRelation = dynamic_cast<MRelation *>(m_target);
     QMT_CHECK(targetRelation);
-    targetRelation->setName(relation->getName());
+    targetRelation->setName(relation->name());
 }
 
 void MFlatAssignmentVisitor::visitMDependency(const MDependency *dependency)
@@ -117,7 +117,7 @@ void MFlatAssignmentVisitor::visitMDependency(const MDependency *dependency)
     visitMRelation(dependency);
     MDependency *targetDependency = dynamic_cast<MDependency *>(m_target);
     QMT_CHECK(targetDependency);
-    targetDependency->setDirection(dependency->getDirection());
+    targetDependency->setDirection(dependency->direction());
 }
 
 void MFlatAssignmentVisitor::visitMInheritance(const MInheritance *inheritance)
@@ -130,8 +130,8 @@ void MFlatAssignmentVisitor::visitMAssociation(const MAssociation *association)
     visitMRelation(association);
     MAssociation *targetAssociation = dynamic_cast<MAssociation *>(m_target);
     QMT_CHECK(targetAssociation);
-    targetAssociation->setA(association->getA());
-    targetAssociation->setB(association->getB());
+    targetAssociation->setEndA(association->endA());
+    targetAssociation->setEndB(association->endB());
 }
 
 }

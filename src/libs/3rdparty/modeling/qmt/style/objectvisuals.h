@@ -48,11 +48,11 @@ public:
 
 public:
 
-    DObject::VisualPrimaryRole getVisualPrimaryRole() const { return m_visualPrimaryRole; }
+    DObject::VisualPrimaryRole visualPrimaryRole() const { return m_visualPrimaryRole; }
 
     void setVisualPrimaryRole(DObject::VisualPrimaryRole visualPrimaryRole);
 
-    DObject::VisualSecondaryRole getVisualSecondaryRole() const { return m_visualSecondaryRole; }
+    DObject::VisualSecondaryRole visualSecondaryRole() const { return m_visualSecondaryRole; }
 
     void setVisualSecondaryRole(DObject::VisualSecondaryRole visualSecondaryRole);
 
@@ -60,11 +60,11 @@ public:
 
     void setEmphasized(bool emphasized);
 
-    QColor getBaseColor() const { return m_baseColor; }
+    QColor baseColor() const { return m_baseColor; }
 
     void setBaseColor(const QColor &baseColor);
 
-    int getDepth() const { return m_depth; }
+    int depth() const { return m_depth; }
 
     void setDepth(int depth);
 

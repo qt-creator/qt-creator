@@ -139,7 +139,7 @@ void PropertiesView::setSelectedModelElements(const QList<MElement *> &modelElem
         m_selectedDiagram = 0;
         m_mview.reset(new MView(this));
         m_mview->update(m_selectedModelElements);
-        m_widget = m_mview->getTopLevelWidget();
+        m_widget = m_mview->topLevelWidget();
     }
 }
 
@@ -154,7 +154,7 @@ void PropertiesView::setSelectedDiagramElements(const QList<DElement *> &diagram
         m_selectedModelElements.clear();
         m_mview.reset(new MView(this));
         m_mview->update(m_selectedDiagramElements, m_selectedDiagram);
-        m_widget = m_mview->getTopLevelWidget();
+        m_widget = m_mview->topLevelWidget();
     }
 }
 
@@ -167,7 +167,7 @@ void PropertiesView::clearSelection()
     m_widget = 0;
 }
 
-QWidget *PropertiesView::getWidget() const
+QWidget *PropertiesView::widget() const
 {
     return m_widget;
 }
@@ -196,7 +196,7 @@ void PropertiesView::onBeginUpdateObject(int row, const MObject *parent)
 
 void PropertiesView::onEndUpdateObject(int row, const MObject *parent)
 {
-    MObject *mobject = m_modelController->getObject(row, parent);
+    MObject *mobject = m_modelController->object(row, parent);
     if (mobject && m_selectedModelElements.contains(mobject)) {
         m_mview->update(m_selectedModelElements);
     }
@@ -216,7 +216,7 @@ void PropertiesView::onEndInsertObject(int row, const MObject *parent)
 
 void PropertiesView::onBeginRemoveObject(int row, const MObject *parent)
 {
-    MObject *mobject = m_modelController->getObject(row, parent);
+    MObject *mobject = m_modelController->object(row, parent);
     if (mobject && m_selectedModelElements.contains(mobject)) {
         clearSelection();
     }
@@ -236,7 +236,7 @@ void PropertiesView::onBeginMoveObject(int formerRow, const MObject *formerOwner
 
 void PropertiesView::onEndMoveObject(int row, const MObject *owner)
 {
-    MObject *mobject = m_modelController->getObject(row, owner);
+    MObject *mobject = m_modelController->object(row, owner);
     if (mobject && m_selectedModelElements.contains(mobject)) {
         m_mview->update(m_selectedModelElements);
     }
@@ -250,7 +250,7 @@ void PropertiesView::onBeginUpdateRelation(int row, const MObject *parent)
 
 void PropertiesView::onEndUpdateRelation(int row, const MObject *parent)
 {
-    MRelation *mrelation = parent->getRelations().at(row);
+    MRelation *mrelation = parent->relations().at(row);
     if (mrelation && m_selectedModelElements.contains(mrelation)) {
         m_mview->update(m_selectedModelElements);
     }
@@ -270,7 +270,7 @@ void PropertiesView::onEndInsertRelation(int row, const MObject *parent)
 
 void PropertiesView::onBeginRemoveRelation(int row, const MObject *parent)
 {
-    MRelation *mrelation = parent->getRelations().at(row);
+    MRelation *mrelation = parent->relations().at(row);
     if (mrelation && m_selectedModelElements.contains(mrelation)) {
         clearSelection();
     }
@@ -290,7 +290,7 @@ void PropertiesView::onBeginMoveRelation(int formerRow, const MObject *formerOwn
 
 void PropertiesView::onEndMoveRelation(int row, const MObject *owner)
 {
-    MRelation *mrelation = owner->getRelations().at(row);
+    MRelation *mrelation = owner->relations().at(row);
     if (mrelation && m_selectedModelElements.contains(mrelation)) {
         m_mview->update(m_selectedModelElements);
     }
@@ -334,7 +334,7 @@ void PropertiesView::onBeginUpdateElement(int row, const MDiagram *diagram)
 void PropertiesView::onEndUpdateElement(int row, const MDiagram *diagram)
 {
     if (diagram == m_selectedDiagram) {
-        DElement *delement = diagram->getDiagramElements().at(row);
+        DElement *delement = diagram->diagramElements().at(row);
         if (m_selectedDiagramElements.contains(delement)) {
             m_mview->update(m_selectedDiagramElements, m_selectedDiagram);
         }
@@ -356,7 +356,7 @@ void PropertiesView::onEndInsertElement(int row, const MDiagram *diagram)
 void PropertiesView::onBeginRemoveElement(int row, const MDiagram *diagram)
 {
     if (diagram == m_selectedDiagram) {
-        DElement *delement = diagram->getDiagramElements().at(row);
+        DElement *delement = diagram->diagramElements().at(row);
         if (m_selectedDiagramElements.contains(delement)) {
             clearSelection();
         }
@@ -399,7 +399,7 @@ void PropertiesView::beginUpdate(DElement *diagramElement)
 {
     QMT_CHECK(diagramElement);
     QMT_CHECK(m_selectedDiagram != 0);
-    QMT_CHECK(m_diagramController->findElement(diagramElement->getUid(), m_selectedDiagram) == diagramElement);
+    QMT_CHECK(m_diagramController->findElement(diagramElement->uid(), m_selectedDiagram) == diagramElement);
 
     m_diagramController->startUpdateElement(diagramElement, m_selectedDiagram, DiagramController::UPDATE_MINOR);
 }
@@ -408,7 +408,7 @@ void PropertiesView::endUpdate(DElement *diagramElement, bool cancelled)
 {
     QMT_CHECK(diagramElement);
     QMT_CHECK(m_selectedDiagram != 0);
-    QMT_CHECK(m_diagramController->findElement(diagramElement->getUid(), m_selectedDiagram) == diagramElement);
+    QMT_CHECK(m_diagramController->findElement(diagramElement->uid(), m_selectedDiagram) == diagramElement);
 
     m_diagramController->finishUpdateElement(diagramElement, m_selectedDiagram, cancelled);
 }

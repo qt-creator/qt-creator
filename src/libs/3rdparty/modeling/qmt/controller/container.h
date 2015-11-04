@@ -73,7 +73,7 @@ public:
 
     int size() const { return m_elements.size(); }
 
-    QList<T *> getElements() const { return m_elements; }
+    QList<T *> elements() const { return m_elements; }
 
     QList<T *> takeElements() const
     {

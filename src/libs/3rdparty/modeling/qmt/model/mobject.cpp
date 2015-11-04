@@ -77,7 +77,7 @@ void MObject::setChildren(const Handles<MObject> &children)
     m_children = children;
     foreach (const Handle<MObject> &handle, children) {
         if (handle.hasTarget()) {
-            handle.getTarget()->setOwner(this);
+            handle.target()->setOwner(this);
         }
     }
 }
@@ -90,7 +90,7 @@ void MObject::addChild(const Uid &uid)
 void MObject::addChild(MObject *child)
 {
     QMT_CHECK(child);
-    QMT_CHECK(child->getOwner() == 0);
+    QMT_CHECK(child->owner() == 0);
     m_children.add(child);
     child->setOwner(this);
 }
@@ -103,7 +103,7 @@ void MObject::insertChild(int beforeIndex, const Uid &uid)
 void MObject::insertChild(int beforeIndex, MObject *child)
 {
     QMT_CHECK(child);
-    QMT_CHECK(child->getOwner() == 0);
+    QMT_CHECK(child->owner() == 0);
     m_children.insert(beforeIndex, child);
     child->setOwner(this);
 }
@@ -149,7 +149,7 @@ void MObject::setRelations(const Handles<MRelation> &relations)
     m_relations = relations;
     foreach (const Handle<MRelation> &handle, relations) {
         if (handle.hasTarget()) {
-            handle.getTarget()->setOwner(this);
+            handle.target()->setOwner(this);
         }
     }
 }
@@ -162,7 +162,7 @@ void MObject::addRelation(const Uid &uid)
 void MObject::addRelation(MRelation *relation)
 {
     QMT_CHECK(relation);
-    QMT_CHECK(relation->getOwner() == 0);
+    QMT_CHECK(relation->owner() == 0);
     relation->setOwner(this);
     m_relations.add(relation);
 }
@@ -170,7 +170,7 @@ void MObject::addRelation(MRelation *relation)
 void MObject::insertRelation(int beforeIndex, MRelation *relation)
 {
     QMT_CHECK(relation);
-    QMT_CHECK(relation->getOwner() == 0);
+    QMT_CHECK(relation->owner() == 0);
     relation->setOwner(this);
     m_relations.insert(beforeIndex, relation);
 }

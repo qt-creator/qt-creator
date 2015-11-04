@@ -90,9 +90,9 @@ private slots:
 
 private:
 
-    MDiagram *getDiagram(int tabIndex) const;
+    MDiagram *diagram(int tabIndex) const;
 
-    MDiagram *getDiagram(DiagramView * diagramView) const;
+    MDiagram *diagram(DiagramView * diagramView) const;
 
 private:
 

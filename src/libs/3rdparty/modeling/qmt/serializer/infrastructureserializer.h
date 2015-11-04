@@ -66,8 +66,8 @@ template<class Archive, class T>
 inline void serialize(Archive &archive, qmt::Handle<T> &handle)
 {
     archive || tag(QStringLiteral("handle"), handle)
-            || attr(QStringLiteral("uid"), handle, &qmt::Handle<T>::getUid, &qmt::Handle<T>::setUid)
-            || attr(QStringLiteral("target"), handle, &qmt::Handle<T>::getTarget, &qmt::Handle<T>::setTarget)
+            || attr(QStringLiteral("uid"), handle, &qmt::Handle<T>::uid, &qmt::Handle<T>::setUid)
+            || attr(QStringLiteral("target"), handle, &qmt::Handle<T>::target, &qmt::Handle<T>::setTarget)
             || end;
 }
 

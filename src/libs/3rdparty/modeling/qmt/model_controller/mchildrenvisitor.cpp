@@ -53,8 +53,8 @@ void MChildrenVisitor::visitMElement(MElement *element)
 
 void MChildrenVisitor::visitMObject(MObject *object)
 {
-    foreach (const Handle<MObject> &handle, object->getChildren()) {
-        MObject *child = handle.getTarget();
+    foreach (const Handle<MObject> &handle, object->children()) {
+        MObject *child = handle.target();
         if (child) {
             child->accept(this);
         }

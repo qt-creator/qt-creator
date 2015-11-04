@@ -59,9 +59,9 @@ public:
 
 public:
 
-    ShapePointF getPos1() const { return m_pos1; }
+    ShapePointF pos1() const { return m_pos1; }
 
-    ShapePointF getPos2() const { return m_pos2; }
+    ShapePointF pos2() const { return m_pos2; }
 
 public:
 
@@ -97,9 +97,9 @@ public:
 
 public:
 
-    ShapePointF getPos() const { return m_pos; }
+    ShapePointF pos() const { return m_pos; }
 
-    ShapeSizeF getSize() const { return m_size; }
+    ShapeSizeF size() const { return m_size; }
 
 public:
 
@@ -136,11 +136,11 @@ public:
 
 public:
 
-    ShapePointF getPos() const { return m_pos; }
+    ShapePointF pos() const { return m_pos; }
 
-    ShapeSizeF getSize() const { return m_size; }
+    ShapeSizeF size() const { return m_size; }
 
-    ShapeValueF getRadius() const { return m_radius; }
+    ShapeValueF radius() const { return m_radius; }
 
 public:
 
@@ -177,9 +177,9 @@ public:
 
 public:
 
-    ShapePointF getCenter() const { return m_center; }
+    ShapePointF center() const { return m_center; }
 
-    ShapeValueF getRadius() const { return m_radius; }
+    ShapeValueF radius() const { return m_radius; }
 
 public:
 
@@ -214,9 +214,9 @@ public:
 
 public:
 
-    ShapePointF getCenter() const { return m_center; }
+    ShapePointF center() const { return m_center; }
 
-    ShapeSizeF getRadius() const { return m_radius; }
+    ShapeSizeF radius() const { return m_radius; }
 
 public:
 
@@ -253,13 +253,13 @@ public:
 
 public:
 
-    ShapePointF getCenter() const { return m_center; }
+    ShapePointF center() const { return m_center; }
 
-    ShapeSizeF getRadius() const { return m_radius; }
+    ShapeSizeF radius() const { return m_radius; }
 
-    qreal getStartAngle() const { return m_startAngle; }
+    qreal startAngle() const { return m_startAngle; }
 
-    qreal getSpanAngle() const { return m_spanAngle; }
+    qreal spanAngle() const { return m_spanAngle; }
 
 public:
 
@@ -316,7 +316,7 @@ public:
 
 public:
 
-    QList<Element> getElements() const { return m_elements; }
+    QList<Element> elements() const { return m_elements; }
 
 public:
 

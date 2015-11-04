@@ -68,7 +68,7 @@ void OpenDiagramElementVisitor::setElementTasks(ElementTasks *elementTasks)
 
 void OpenDiagramElementVisitor::visitDElement(const qmt::DElement *element)
 {
-    qmt::MElement *modelElement = m_modelController->findElement(element->getModelUid());
+    qmt::MElement *modelElement = m_modelController->findElement(element->modelUid());
     if (modelElement) {
         OpenModelElementVisitor visitor;
         visitor.setElementTasks(m_elementTasks);

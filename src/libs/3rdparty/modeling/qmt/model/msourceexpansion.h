@@ -54,7 +54,7 @@ public:
 
 public:
 
-    QString getSourceId() const { return m_sourceId; }
+    QString sourceId() const { return m_sourceId; }
 
     void setSourceId(const QString &sourceId);
 

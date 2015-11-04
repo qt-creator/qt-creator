@@ -62,9 +62,9 @@ signals:
 
 public:
 
-    QModelIndex getCurrentSourceModelIndex() const;
+    QModelIndex currentSourceModelIndex() const;
 
-    QList<QModelIndex> getSelectedSourceModelIndexes() const;
+    QList<QModelIndex> selectedSourceModelIndexes() const;
 
 public:
 

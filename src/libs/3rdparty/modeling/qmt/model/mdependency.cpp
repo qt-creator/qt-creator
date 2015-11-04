@@ -66,31 +66,31 @@ void MDependency::setDirection(MDependency::Direction direction)
     m_direction = direction;
 }
 
-Uid MDependency::getSource() const
+Uid MDependency::source() const
 {
-    return m_direction == B_TO_A ? getEndB() : getEndA();
+    return m_direction == B_TO_A ? endBUid() : endAUid();
 }
 
 void MDependency::setSource(const Uid &source)
 {
     if (m_direction == B_TO_A) {
-        setEndB(source);
+        setEndBUid(source);
     } else {
-        setEndA(source);
+        setEndAUid(source);
     }
 }
 
-Uid MDependency::getTarget() const
+Uid MDependency::target() const
 {
-    return m_direction == B_TO_A ? getEndA() : getEndB();
+    return m_direction == B_TO_A ? endAUid() : endBUid();
 }
 
 void MDependency::setTarget(const Uid &target)
 {
     if (m_direction == B_TO_A) {
-        setEndA(target);
+        setEndAUid(target);
     } else {
-        setEndB(target);
+        setEndBUid(target);
     }
 }
 

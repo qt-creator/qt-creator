@@ -75,15 +75,15 @@ public:
 
 public:
 
-    QString getId() const { return m_id; }
+    QString id() const { return m_id; }
 
     void setId(const QString &id);
 
-    int getPriority() const { return m_priority; }
+    int priority() const { return m_priority; }
 
     void setPriority(int priority);
 
-    QList<Tool> getTools() const { return m_tools; }
+    QList<Tool> tools() const { return m_tools; }
 
     void setTools(const QList<Tool> &tools);
 

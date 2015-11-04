@@ -49,7 +49,7 @@ public:
 
     void setText(const QString &text);
 
-    int getSourceId() const { return m_sourceId; }
+    int sourceId() const { return m_sourceId; }
 
     void setSourceId(int sourceId);
 

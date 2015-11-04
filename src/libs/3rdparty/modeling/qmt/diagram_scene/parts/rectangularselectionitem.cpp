@@ -254,8 +254,8 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
     Q_UNUSED(handleQualifier);
 
     if (handleStatus == PRESS) {
-        m_originalResizePos = m_itemResizer->getPos();
-        m_originalResizeRect = m_itemResizer->getRect();
+        m_originalResizePos = m_itemResizer->pos();
+        m_originalResizeRect = m_itemResizer->rect();
     }
 
     bool moveable = false;
@@ -289,7 +289,7 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
         return;
     }
 
-    QSizeF minimumSize = m_itemResizer->getMinimumSize();
+    QSizeF minimumSize = m_itemResizer->minimumSize();
 
     QPointF topLeftDelta;
     QPointF bottomRightDelta;

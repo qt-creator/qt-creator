@@ -114,11 +114,11 @@ signals:
 
 public:
 
-    ModelController *getModelController() const { return m_modelController; }
+    ModelController *modelController() const { return m_modelController; }
 
     void setModelController(ModelController *modelController);
 
-    UndoController *getUndoController() const { return m_undoController; }
+    UndoController *undoController() const { return m_undoController; }
 
     void setUndoController(UndoController *undoController);
 
@@ -219,7 +219,7 @@ private:
 
     DReferences simplify(const DSelection &diagramSelection, const MDiagram *diagram);
 
-    MElement *getDelegatedElement(const DElement *element) const;
+    MElement *delegatedElement(const DElement *element) const;
 
     bool isDelegatedElementOnDiagram(const DElement *element, const MDiagram *diagram) const;
 

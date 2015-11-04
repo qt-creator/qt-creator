@@ -219,15 +219,15 @@ qmt::MDiagram *PxNodeController::findDiagramForExplorerNode(const ProjectExplore
                 d->pxnodeUtilities->calcRelativePath(node, d->anchorFolder), false);
 
     QQueue<qmt::MPackage *> roots;
-    roots.append(d->diagramSceneController->getModelController()->getRootPackage());
+    roots.append(d->diagramSceneController->modelController()->rootPackage());
 
     while (!roots.isEmpty()) {
         qmt::MPackage *package = roots.takeFirst();
 
         // append all sub-packages of the same level as next root packages
-        foreach (const qmt::Handle<qmt::MObject> &handle, package->getChildren()) {
+        foreach (const qmt::Handle<qmt::MObject> &handle, package->children()) {
             if (handle.hasTarget()) {
-                if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.getTarget()))
+                if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.target()))
                     roots.append(childPackage);
             }
         }
@@ -239,10 +239,10 @@ qmt::MDiagram *PxNodeController::findDiagramForExplorerNode(const ProjectExplore
             QString relativeSearchId = qmt::NameController::calcElementNameSearchId(
                         relativeElements.at(relativeIndex));
             found = false;
-            foreach (const qmt::Handle<qmt::MObject> &handle, package->getChildren()) {
+            foreach (const qmt::Handle<qmt::MObject> &handle, package->children()) {
                 if (handle.hasTarget()) {
-                    if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.getTarget())) {
-                        if (qmt::NameController::calcElementNameSearchId(childPackage->getName()) == relativeSearchId) {
+                    if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.target())) {
+                        if (qmt::NameController::calcElementNameSearchId(childPackage->name()) == relativeSearchId) {
                             package = childPackage;
                             ++relativeIndex;
                             found = true;
@@ -257,13 +257,13 @@ qmt::MDiagram *PxNodeController::findDiagramForExplorerNode(const ProjectExplore
             QTC_ASSERT(relativeIndex >= relativeElements.size(), return 0);
             // complete package chain found so check for appropriate diagram within deepest package
             qmt::MDiagram *diagram = d->diagramSceneController->findDiagramBySearchId(
-                        package, package->getName());
+                        package, package->name());
             if (diagram)
                 return diagram;
             // find first diagram within deepest package
-            foreach (const qmt::Handle<qmt::MObject> &handle, package->getChildren()) {
+            foreach (const qmt::Handle<qmt::MObject> &handle, package->children()) {
                 if (handle.hasTarget()) {
-                    if (auto diagram = dynamic_cast<qmt::MDiagram *>(handle.getTarget()))
+                    if (auto diagram = dynamic_cast<qmt::MDiagram *>(handle.target()))
                         return diagram;
                 }
             }
@@ -299,7 +299,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
         QString qualifiedName = action->className;
         int i = qualifiedName.lastIndexOf(QStringLiteral("::"));
         if (i >= 0) {
-            klass->setNamespace(qualifiedName.left(i));
+            klass->setNameSpace(qualifiedName.left(i));
             klass->setName(qualifiedName.mid(i + 2));
         } else {
             klass->setName(qualifiedName);
@@ -333,14 +333,14 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
         auto folderNode = dynamic_cast<const ProjectExplorer::FolderNode *>(node);
         QTC_CHECK(folderNode);
         if (folderNode) {
-            d->diagramSceneController->getModelController()->getUndoController()->beginMergeSequence(tr("Create Component Model"));
+            d->diagramSceneController->modelController()->undoController()->beginMergeSequence(tr("Create Component Model"));
             QStringList relativeElements = qmt::NameController::buildElementsPath(
                         d->pxnodeUtilities->calcRelativePath(folderNode, d->anchorFolder), true);
             if (qmt::MObject *existingObject = d->pxnodeUtilities->findSameObject(relativeElements, package)) {
                 delete package;
                 package = dynamic_cast<qmt::MPackage *>(existingObject);
                 QTC_ASSERT(package, return);
-                d->diagramSceneController->addExistingModelElement(package->getUid(), pos, diagram);
+                d->diagramSceneController->addExistingModelElement(package->uid(), pos, diagram);
             } else {
                 qmt::MPackage *requestedRootPackage = d->diagramSceneController->findSuitableParentPackage(topMostElementAtPos, diagram);
                 qmt::MPackage *bestParentPackage = d->pxnodeUtilities->createBestMatchingPackagePath(requestedRootPackage, relativeElements);
@@ -348,14 +348,14 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
             }
             d->componentViewController->createComponentModel(folderNode, diagram, d->anchorFolder);
             d->componentViewController->updateIncludeDependencies(package);
-            d->diagramSceneController->getModelController()->getUndoController()->endMergeSequence();
+            d->diagramSceneController->modelController()->undoController()->endMergeSequence();
         }
         break;
     }
     }
 
     if (newObject) {
-        d->diagramSceneController->getModelController()->getUndoController()->beginMergeSequence(tr("Drop Node"));
+        d->diagramSceneController->modelController()->undoController()->beginMergeSequence(tr("Drop Node"));
         qmt::MObject *parentForDiagram = 0;
         QStringList relativeElements = qmt::NameController::buildElementsPath(
                     d->pxnodeUtilities->calcRelativePath(node, d->anchorFolder),
@@ -363,7 +363,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
         if (qmt::MObject *existingObject = d->pxnodeUtilities->findSameObject(relativeElements, newObject)) {
             delete newObject;
             newObject = 0;
-            d->diagramSceneController->addExistingModelElement(existingObject->getUid(), pos, diagram);
+            d->diagramSceneController->addExistingModelElement(existingObject->uid(), pos, diagram);
             parentForDiagram = existingObject;
         } else {
             qmt::MPackage *requestedRootPackage = d->diagramSceneController->findSuitableParentPackage(topMostElementAtPos, diagram);
@@ -376,12 +376,12 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
         if (newDiagramInObject) {
             auto package = dynamic_cast<qmt::MPackage *>(parentForDiagram);
             QTC_ASSERT(package, return);
-            if (d->diagramSceneController->findDiagramBySearchId(package, newDiagramInObject->getName()))
+            if (d->diagramSceneController->findDiagramBySearchId(package, newDiagramInObject->name()))
                 delete newDiagramInObject;
             else
-                d->diagramSceneController->getModelController()->addObject(package, newDiagramInObject);
+                d->diagramSceneController->modelController()->addObject(package, newDiagramInObject);
         }
-        d->diagramSceneController->getModelController()->getUndoController()->endMergeSequence();
+        d->diagramSceneController->modelController()->undoController()->endMergeSequence();
     }
 }
 

@@ -47,11 +47,11 @@ public:
 
 public:
 
-    QString getVariety() const { return m_variety; }
+    QString variety() const { return m_variety; }
 
     void setVariety(const QString &variety);
 
-    QString getShape() const { return m_shape; }
+    QString shape() const { return m_shape; }
 
     void setShape(const QString &shape);
 

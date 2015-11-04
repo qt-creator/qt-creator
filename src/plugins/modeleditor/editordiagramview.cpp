@@ -63,8 +63,8 @@ EditorDiagramView::EditorDiagramView(QWidget *parent)
                 auto node = value.value<ProjectExplorer::Node *>();
                 QPointF scenePos = mapToScene(pos);
                 d->pxNodeController->addExplorerNode(
-                            node, getDiagramSceneModel()->findTopmostElement(scenePos),
-                            scenePos, getDiagramSceneModel()->getDiagram());
+                            node, diagramSceneModel()->findTopmostElement(scenePos),
+                            scenePos, diagramSceneModel()->diagram());
             }
         }
     });

@@ -59,11 +59,11 @@ signals:
 
 public:
 
-    QList<StereotypeIcon> getStereotypeIcons() const;
+    QList<StereotypeIcon> stereotypeIcons() const;
 
-    QList<Toolbar> getToolbars() const;
+    QList<Toolbar> toolbars() const;
 
-    QList<QString> getKnownStereotypes(StereotypeIcon::Element stereotypeElement) const;
+    QList<QString> knownStereotypes(StereotypeIcon::Element stereotypeElement) const;
 
 public:
 

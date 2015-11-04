@@ -54,11 +54,11 @@ ExtDocumentController::ExtDocumentController(QObject *parent)
     d->elementTasks = new ElementTasks;
     d->pxNodeController = new PxNodeController(this);
     d->elementTasks->setDocumentController(this);
-    getDiagramSceneController()->setElementTasks(d->elementTasks);
+    diagramSceneController()->setElementTasks(d->elementTasks);
 
-    d->pxNodeController->setDiagramSceneController(getDiagramSceneController());
+    d->pxNodeController->setDiagramSceneController(diagramSceneController());
 
-    connect(getProjectController(), &qmt::ProjectController::fileNameChanged,
+    connect(projectController(), &qmt::ProjectController::fileNameChanged,
             this, &ExtDocumentController::onProjectFileNameChanged);
 }
 

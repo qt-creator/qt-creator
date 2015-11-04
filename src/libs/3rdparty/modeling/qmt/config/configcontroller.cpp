@@ -90,9 +90,9 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
             try {
                 parser.parse(&source);
             } catch (StereotypeDefinitionParserError x) {
-                qDebug() << x.getErrorMsg() << "in line" << x.getSourcePos().getLineNumber();
+                qDebug() << x.errorMessage() << "in line" << x.sourcePos().lineNumber();
             } catch (TextScannerError x) {
-                qDebug() << x.getErrorMsg() << "in line" << x.getSourcePos().getLineNumber();
+                qDebug() << x.errorMessage() << "in line" << x.sourcePos().lineNumber();
             } catch (...) {
             }
         }

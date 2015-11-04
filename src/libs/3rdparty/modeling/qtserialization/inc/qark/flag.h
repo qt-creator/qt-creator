@@ -39,7 +39,7 @@ public:
 
     explicit Flag() : m_mask(m_nextMask) { m_nextMask *= 2; }
 
-    maskType getMask() const { return m_mask; }
+    maskType mask() const { return m_mask; }
 
 private:
     static maskType m_nextMask;

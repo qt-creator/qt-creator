@@ -183,7 +183,7 @@ template<class Archive, class T, class U>
 Archive &operator<<(Archive &archive, const Base<T, U> &base)
 {
     archive.beginBase(base);
-    archive << base.getBase();
+    archive << base.base();
     archive.endBase(base);
     return archive;
 }
@@ -211,7 +211,7 @@ template<class Archive, typename T>
 Archive &operator<<(Archive &archive, const Attr<T> &attr)
 {
     archive.beginAttribute(attr);
-    save(archive, *attr.getValue(), attr.getParameters());
+    save(archive, *attr.value(), attr.parameters());
     archive.endAttribute(attr);
     return archive;
 }
@@ -239,9 +239,9 @@ template<class Archive, class U, typename T>
 typename std::enable_if<!std::is_abstract<U>::value, Archive &>::type
 operator<<(Archive &archive, const GetterAttr<U, T> &attr)
 {
-    if (!((attr.getObject().*(attr.getGetter()))() == (U().*(attr.getGetter()))())) {
+    if (!((attr.object().*(attr.getter()))() == (U().*(attr.getter()))())) {
         archive.beginAttribute(attr);
-        save(archive, (attr.getObject().*(attr.getGetter()))(), attr.getParameters());
+        save(archive, (attr.object().*(attr.getter()))(), attr.parameters());
         archive.endAttribute(attr);
     }
     return archive;
@@ -252,7 +252,7 @@ typename std::enable_if<std::is_abstract<U>::value, Archive &>::type
 operator<<(Archive &archive, const GetterAttr<U, T> &attr)
 {
     archive.beginAttribute(attr);
-    save(archive, (attr.getObject().*(attr.getGetter()))(), attr.getParameters());
+    save(archive, (attr.object().*(attr.getter()))(), attr.parameters());
     archive.endAttribute(attr);
     return archive;
 }
@@ -269,9 +269,9 @@ template<class Archive, class U, typename T, typename V>
 typename std::enable_if<!std::is_abstract<U>::value, Archive &>::type
 operator<<(Archive &archive, const GetterSetterAttr<U, T, V> &attr)
 {
-    if (!((attr.getObject().*(attr.getGetter()))() == (U().*(attr.getGetter()))())) {
+    if (!((attr.object().*(attr.getter()))() == (U().*(attr.getter()))())) {
         archive.beginAttribute(attr);
-        save(archive, (attr.getObject().*(attr.getGetter()))(), attr.getParameters());
+        save(archive, (attr.object().*(attr.getter()))(), attr.parameters());
         archive.endAttribute(attr);
     }
     return archive;
@@ -283,7 +283,7 @@ typename std::enable_if<std::is_abstract<U>::value, Archive &>::type
 operator<<(Archive &archive, const GetterSetterAttr<U, T, V> &attr)
 {
     archive.beginAttribute(attr);
-    save(archive, (attr.getObject().*(attr.getGetter()))(), attr.getParameters());
+    save(archive, (attr.object().*(attr.getter()))(), attr.parameters());
     archive.endAttribute(attr);
     return archive;
 }
@@ -311,7 +311,7 @@ template<class Archive, class U, typename T>
 Archive &operator<<(Archive &archive, const GetFuncAttr<U, T> &attr)
 {
     archive.beginAttribute(attr);
-    save(archive, ((*attr.getGetFunc())(attr.getObject())), attr.getParameters());
+    save(archive, ((*attr.getterFunc())(attr.object())), attr.parameters());
     archive.endAttribute(attr);
     return archive;
 }
@@ -327,7 +327,7 @@ template<class Archive, class U, typename T, typename V>
 Archive &operator<<(Archive &archive, const GetSetFuncAttr<U, T, V> &attr)
 {
     archive.beginAttribute(attr);
-    save(archive, ((*attr.getGetFunc())(attr.getObject())), attr.getParameters());
+    save(archive, ((*attr.getterFunc())(attr.object())), attr.parameters());
     archive.endAttribute(attr);
     return archive;
 }
@@ -355,7 +355,7 @@ template<class Archive, typename T>
 Archive &operator<<(Archive &archive, const Ref<T *> &ref)
 {
     archive.beginReference(ref);
-    save(archive, *ref.getValue(), ref.getParameters());
+    save(archive, *ref.value(), ref.parameters());
     archive.endReference(ref);
     return archive;
 }
@@ -364,7 +364,7 @@ template<class Archive, typename T>
 Archive &operator<<(Archive &archive, const Ref<T * const> &ref)
 {
     archive.beginReference(ref);
-    save(archive, *ref.getValue(), ref.getParameters());
+    save(archive, *ref.value(), ref.parameters());
     archive.endReference(ref);
     return archive;
 }
@@ -380,7 +380,7 @@ template<class Archive, typename T>
 typename std::enable_if<Archive::outArchive, Archive &>::type operator||(Archive &archive, const Ref<T *> &ref)
 {
     archive.beginReference(ref);
-    save(archive, *ref.getValue(), ref.getParameters());
+    save(archive, *ref.value(), ref.parameters());
     archive.endReference(ref);
     return archive;
 }
@@ -395,7 +395,7 @@ template<class Archive, class U, typename T>
 Archive &operator<<(Archive &archive, const GetterRef<U, T> &ref)
 {
     archive.beginReference(ref);
-    save(archive, (ref.getObject().*(ref.getGetter()))(), ref.getParameters());
+    save(archive, (ref.object().*(ref.getter()))(), ref.parameters());
     archive.endReference(ref);
     return archive;
 }
@@ -411,7 +411,7 @@ template<class Archive, class U, typename T, typename V>
 Archive &operator<<(Archive &archive, const GetterSetterRef<U, T, V> &ref)
 {
     archive.beginReference(ref);
-    save(archive, (ref.getObject().*(ref.getGetter()))(), ref.getParameters());
+    save(archive, (ref.object().*(ref.getter()))(), ref.parameters());
     archive.endReference(ref);
     return archive;
 }
@@ -439,7 +439,7 @@ template<class Archive, class U, typename T>
 Archive &operator<<(Archive &archive, const GetFuncRef<U, T> &ref)
 {
     archive.beginReference(ref);
-    save(archive, ref.getGetFunc()(ref.getObject()), ref.getParameters());
+    save(archive, ref.getterFunc()(ref.object()), ref.parameters());
     archive.endReference(ref);
     return archive;
 }
@@ -455,7 +455,7 @@ template<class Archive, class U, typename T, typename V>
 Archive &operator<<(Archive &archive, const GetSetFuncRef<U, T, V> &ref)
 {
     archive.beginReference(ref);
-    save(archive, ref.getGetFunc()(ref.getObject()), ref.getParameters());
+    save(archive, ref.getterFunc()(ref.object()), ref.parameters());
     archive.endReference(ref);
     return archive;
 }

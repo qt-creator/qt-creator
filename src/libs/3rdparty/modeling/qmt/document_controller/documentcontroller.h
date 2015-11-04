@@ -78,29 +78,29 @@ signals:
 
 public:
 
-    ProjectController *getProjectController() const { return m_projectController; }
+    ProjectController *projectController() const { return m_projectController; }
 
-    UndoController *getUndoController() const { return m_undoController; }
+    UndoController *undoController() const { return m_undoController; }
 
-    ModelController *getModelController() const { return m_modelController; }
+    ModelController *modelController() const { return m_modelController; }
 
-    DiagramController *getDiagramController() const { return m_diagramController; }
+    DiagramController *diagramController() const { return m_diagramController; }
 
-    DiagramSceneController *getDiagramSceneController() const { return m_diagramSceneController; }
+    DiagramSceneController *diagramSceneController() const { return m_diagramSceneController; }
 
-    StyleController *getStyleController() const { return m_styleController; }
+    StyleController *styleController() const { return m_styleController; }
 
-    StereotypeController *getStereotypeController() const { return m_stereotypeController; }
+    StereotypeController *stereotypeController() const { return m_stereotypeController; }
 
-    ConfigController *getConfigController() const { return m_configController; }
+    ConfigController *configController() const { return m_configController; }
 
-    TreeModel *getTreeModel() const { return m_treeModel; }
+    TreeModel *treeModel() const { return m_treeModel; }
 
-    SortedTreeModel *getSortedTreeModel() const { return m_sortedTreeModel; }
+    SortedTreeModel *sortedTreeModel() const { return m_sortedTreeModel; }
 
-    DiagramsManager *getDiagramsManager() const { return m_diagramsManager; }
+    DiagramsManager *diagramsManager() const { return m_diagramsManager; }
 
-    SceneInspector *getSceneInspector() const { return m_sceneInspector; }
+    SceneInspector *sceneInspector() const { return m_sceneInspector; }
 
 public:
 

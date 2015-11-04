@@ -75,19 +75,19 @@ signals:
 
 public:
 
-    ModelController *getModelController() const { return m_modelController; }
+    ModelController *modelController() const { return m_modelController; }
 
     void setModelController(ModelController *modelController);
 
-    DiagramController *getDiagramController() const { return m_diagramController; }
+    DiagramController *diagramController() const { return m_diagramController; }
 
     void setDiagramController(DiagramController *diagramController);
 
-    IElementTasks *getElementTasks() const { return m_elementTasks; }
+    IElementTasks *elementTasks() const { return m_elementTasks; }
 
     void setElementTasks(IElementTasks *elementTasks);
 
-    ISceneInspector *getSceneInspector() const { return m_sceneInspector; }
+    ISceneInspector *sceneInspector() const { return m_sceneInspector; }
 
     void setSceneInspector(ISceneInspector *sceneInspector);
 

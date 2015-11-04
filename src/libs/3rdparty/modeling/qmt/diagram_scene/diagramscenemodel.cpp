@@ -117,7 +117,7 @@ DiagramSceneModel::DiagramSceneModel(QObject *parent)
       m_focusItem(0)
 {
     m_latchController->setDiagramSceneModel(this);
-    connect(m_graphicsScene, SIGNAL(selectionHasChanged()), this, SLOT(onSelectionChanged()));
+    connect(m_graphicsScene, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
 
     // add one item at origin to force scene rect to include origin always
     m_graphicsScene->addItem(m_originItem);
@@ -185,7 +185,7 @@ void DiagramSceneModel::setDiagram(MDiagram *diagram)
     }
 }
 
-QGraphicsScene *DiagramSceneModel::getGraphicsScene() const
+QGraphicsScene *DiagramSceneModel::graphicsScene() const
 {
     return m_graphicsScene;
 }
@@ -211,13 +211,13 @@ bool DiagramSceneModel::hasMultiObjectsSelection() const
     return false;
 }
 
-DSelection DiagramSceneModel::getSelectedElements() const
+DSelection DiagramSceneModel::selectedElements() const
 {
     DSelection selection;
     foreach (QGraphicsItem *item, m_graphicsScene->selectedItems()) {
         DElement *element = m_itemToElementMap.value(item);
         QMT_CHECK(element);
-        selection.append(element->getUid(), m_diagram->getUid());
+        selection.append(element->uid(), m_diagram->uid());
     }
     return selection;
 }
@@ -234,12 +234,12 @@ DElement *DiagramSceneModel::findTopmostElement(const QPointF &scenePos) const
     return 0;
 }
 
-QGraphicsItem *DiagramSceneModel::getGraphicsItem(DElement *element) const
+QGraphicsItem *DiagramSceneModel::graphicsItem(DElement *element) const
 {
     return m_elementToItemMap.value(element);
 }
 
-QGraphicsItem *DiagramSceneModel::getGraphicsItem(const Uid &uid) const
+QGraphicsItem *DiagramSceneModel::graphicsItem(const Uid &uid) const
 {
     return m_elementToItemMap.value(m_diagramController->findElement(uid, m_diagram));
 }
@@ -249,7 +249,7 @@ bool DiagramSceneModel::isSelectedItem(QGraphicsItem *item) const
     return m_selectedItems.contains(item);
 }
 
-DElement *DiagramSceneModel::getElement(QGraphicsItem *item) const
+DElement *DiagramSceneModel::element(QGraphicsItem *item) const
 {
     return m_itemToElementMap.value(item);
 }
@@ -499,7 +499,7 @@ void DiagramSceneModel::onDoubleClickedItem(QGraphicsItem *item)
 {
     DElement *element = m_itemToElementMap.value(item);
     if (item) {
-        m_diagramSceneController->getElementTasks()->openElement(element, m_diagram);
+        m_diagramSceneController->elementTasks()->openElement(element, m_diagram);
     }
 }
 
@@ -511,15 +511,15 @@ QList<QGraphicsItem *> DiagramSceneModel::collectCollidingObjectItems(const QGra
     if (!resizable) {
         return collidingItems;
     }
-    QRectF rect = resizable->getRect();
-    rect.translate(resizable->getPos());
+    QRectF rect = resizable->rect();
+    rect.translate(resizable->pos());
 
     switch (collidingMode) {
     case COLLIDING_INNER_ITEMS:
         foreach (QGraphicsItem *candidate, m_graphicsItems) {
             if (const IResizable *candidateResizable = dynamic_cast<const IResizable *>(candidate)) {
-                QRectF candidateRect = candidateResizable->getRect();
-                candidateRect.translate(candidateResizable->getPos());
+                QRectF candidateRect = candidateResizable->rect();
+                candidateRect.translate(candidateResizable->pos());
                 if (candidateRect.left() >= rect.left() && candidateRect.right() <= rect.right()
                         && candidateRect.top() >= rect.top() && candidateRect.bottom() <= rect.bottom()) {
                     collidingItems.append(candidate);
@@ -530,8 +530,8 @@ QList<QGraphicsItem *> DiagramSceneModel::collectCollidingObjectItems(const QGra
     case COLLIDING_ITEMS:
         foreach (QGraphicsItem *candidate, m_graphicsItems) {
             if (const IResizable *candidateResizable = dynamic_cast<const IResizable *>(candidate)) {
-                QRectF candidateRect = candidateResizable->getRect();
-                candidateRect.translate(candidateResizable->getPos());
+                QRectF candidateRect = candidateResizable->rect();
+                candidateRect.translate(candidateResizable->pos());
                 if (candidateRect.left() <= rect.right() && candidateRect.right() >= rect.left()
                         && candidateRect.top() <= rect.bottom() && candidateRect.bottom() >= rect.top()) {
                     collidingItems.append(candidate);
@@ -542,8 +542,8 @@ QList<QGraphicsItem *> DiagramSceneModel::collectCollidingObjectItems(const QGra
     case COLLIDING_OUTER_ITEMS:
         foreach (QGraphicsItem *candidate, m_graphicsItems) {
             if (const IResizable *candidateResizable = dynamic_cast<const IResizable *>(candidate)) {
-                QRectF candidateRect = candidateResizable->getRect();
-                candidateRect.translate(candidateResizable->getPos());
+                QRectF candidateRect = candidateResizable->rect();
+                candidateRect.translate(candidateResizable->pos());
                 if (candidateRect.left() <= rect.left() && candidateRect.right() >= rect.right()
                         && candidateRect.top() <= rect.top() && candidateRect.bottom() >= rect.bottom()) {
                     collidingItems.append(candidate);
@@ -605,7 +605,7 @@ void DiagramSceneModel::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 void DiagramSceneModel::mouseReleaseEventReparenting(QGraphicsSceneMouseEvent *event)
 {
     if (event->modifiers() & Qt::AltModifier) {
-        ModelController *modelController = getDiagramController()->getModelController();
+        ModelController *modelController = diagramController()->modelController();
         MPackage *newOwner = 0;
         QSet<QGraphicsItem *> selectedItemSet = m_graphicsScene->selectedItems().toSet();
         QList<QGraphicsItem *> itemsUnderMouse = m_graphicsScene->items(event->scenePos());
@@ -613,8 +613,8 @@ void DiagramSceneModel::mouseReleaseEventReparenting(QGraphicsSceneMouseEvent *e
             if (!selectedItemSet.contains(item)) {
                 // the item may be any graphics item not matching to a DElement
                 DElement *element = m_itemToElementMap.value(item);
-                if (element && element->getModelUid().isValid()) {
-                    newOwner = modelController->findElement<MPackage>(element->getModelUid());
+                if (element && element->modelUid().isValid()) {
+                    newOwner = modelController->findElement<MPackage>(element->modelUid());
                 }
             }
             if (newOwner) {
@@ -625,10 +625,10 @@ void DiagramSceneModel::mouseReleaseEventReparenting(QGraphicsSceneMouseEvent *e
             foreach (QGraphicsItem *item, m_graphicsScene->selectedItems()) {
                 DElement *element = m_itemToElementMap.value(item);
                 QMT_CHECK(element);
-                if (element->getModelUid().isValid()) {
-                    MObject *modelObject = modelController->findObject(element->getModelUid());
+                if (element->modelUid().isValid()) {
+                    MObject *modelObject = modelController->findObject(element->modelUid());
                     if (modelObject) {
-                        if (newOwner != modelObject->getOwner()) {
+                        if (newOwner != modelObject->owner()) {
                             modelController->moveObject(newOwner, modelObject);
                         }
                     }
@@ -666,7 +666,7 @@ void DiagramSceneModel::onEndResetDiagram(const MDiagram *diagram)
     if (diagram == m_diagram) {
         QMT_CHECK(m_graphicsItems.size() == 0);
         // create all items and update graphics item from element initially
-        foreach (DElement *element, diagram->getDiagramElements()) {
+        foreach (DElement *element, diagram->diagramElements()) {
             QGraphicsItem *item = createGraphicsItem(element);
             m_graphicsItems.append(item);
             updateGraphicsItem(item, element);
@@ -674,7 +674,7 @@ void DiagramSceneModel::onEndResetDiagram(const MDiagram *diagram)
         // invalidate scene
         m_graphicsScene->invalidate();
         // update graphics items again so every item gets a correct list of colliding items
-        foreach (DElement *element, diagram->getDiagramElements()) {
+        foreach (DElement *element, diagram->diagramElements()) {
             updateGraphicsItem(m_elementToItemMap.value(element), element);
         }
     }
@@ -695,7 +695,7 @@ void DiagramSceneModel::onEndUpdateElement(int row, const MDiagram *diagram)
     QMT_CHECK(m_busy == UPDATE_ELEMENT);
     if (diagram == m_diagram) {
         QGraphicsItem *item = m_graphicsItems.at(row);
-        updateGraphicsItem(item, diagram->getDiagramElements().at(row));
+        updateGraphicsItem(item, diagram->diagramElements().at(row));
     }
     m_busy = NOT_BUSY;
 }
@@ -713,7 +713,7 @@ void DiagramSceneModel::onEndInsertElement(int row, const MDiagram *diagram)
     QMT_CHECK(m_busy == INSERT_ELEMENT);
     QGraphicsItem *item = 0;
     if (diagram == m_diagram) {
-        DElement *element = diagram->getDiagramElements().at(row);
+        DElement *element = diagram->diagramElements().at(row);
         item = createGraphicsItem(element);
         m_graphicsItems.insert(row, item);
         updateGraphicsItem(item, element);
@@ -728,7 +728,7 @@ void DiagramSceneModel::onBeginRemoveElement(int row, const MDiagram *diagram)
     QMT_CHECK(m_busy == NOT_BUSY);
     if (diagram == m_diagram) {
         QGraphicsItem *item = m_graphicsItems.takeAt(row);
-        deleteGraphicsItem(item, diagram->getDiagramElements().at(row));
+        deleteGraphicsItem(item, diagram->diagramElements().at(row));
     }
     m_busy = REMOVE_ELEMENT;
 }
@@ -780,16 +780,16 @@ void DiagramSceneModel::onSelectionChanged()
     }
 
     // select all relations where both ends are primary or secondary selected
-    foreach (DElement *element, m_diagram->getDiagramElements()) {
+    foreach (DElement *element, m_diagram->diagramElements()) {
         DRelation *relation = dynamic_cast<DRelation *>(element);
         if (relation) {
             QGraphicsItem *relationItem = m_elementToItemMap.value(relation);
             QMT_CHECK(relationItem);
-            DObject *endAObject = m_diagramController->findElement<DObject>(relation->getEndA(), m_diagram);
+            DObject *endAObject = m_diagramController->findElement<DObject>(relation->endAUid(), m_diagram);
             QMT_CHECK(endAObject);
             QGraphicsItem *endAItem = m_elementToItemMap.value(endAObject);
             QMT_CHECK(endAItem);
-            DObject *endBObject = m_diagramController->findElement<DObject>(relation->getEndB(), m_diagram);
+            DObject *endBObject = m_diagramController->findElement<DObject>(relation->endBUid(), m_diagram);
             QMT_CHECK(endBObject);
             QGraphicsItem *endBItem = m_elementToItemMap.value(endBObject);
             QMT_CHECK(endBItem);
@@ -861,7 +861,7 @@ QGraphicsItem *DiagramSceneModel::createGraphicsItem(DElement *element)
 
     CreationVisitor visitor(this);
     element->accept(&visitor);
-    QGraphicsItem *item = visitor.getCreatedGraphicsItem();
+    QGraphicsItem *item = visitor.createdGraphicsItem();
     m_itemToElementMap.insert(item, element);
     m_elementToItemMap.insert(element, item);
     m_graphicsScene->addItem(item);

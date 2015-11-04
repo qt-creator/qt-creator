@@ -58,7 +58,7 @@ public:
 
 public:
 
-    QString getIdentifier() const { return m_identifier; }
+    QString identifier() const { return m_identifier; }
 
 public:
 

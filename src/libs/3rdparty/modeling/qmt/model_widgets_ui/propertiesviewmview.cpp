@@ -83,7 +83,7 @@
 #include <QPainter>
 
 
-#define SHOW_DEBUG_PROPERTIES
+//#define SHOW_DEBUG_PROPERTIES
 
 namespace qmt {
 
@@ -361,8 +361,8 @@ void PropertiesView::MView::update(QList<DElement *> &diagramElements, MDiagram 
     m_modelElements.clear();
     foreach (DElement *delement, diagramElements) {
         bool appendedMelement = false;
-        if (delement->getModelUid().isValid()) {
-            MElement *melement = m_propertiesView->getModelController()->findElement(delement->getModelUid());
+        if (delement->modelUid().isValid()) {
+            MElement *melement = m_propertiesView->modelController()->findElement(delement->modelUid());
             if (melement) {
                 m_modelElements.append(melement);
                 appendedMelement = true;
@@ -394,13 +394,13 @@ void PropertiesView::MView::visitMElement(const MElement *element)
         m_stereotypeComboBox->setEditable(true);
         m_stereotypeComboBox->setInsertPolicy(QComboBox::NoInsert);
         m_topLayout->addRow(tr("Stereotypes:"), m_stereotypeComboBox);
-        m_stereotypeComboBox->addItems(m_propertiesView->getStereotypeController()->getKnownStereotypes(m_stereotypeElement));
+        m_stereotypeComboBox->addItems(m_propertiesView->stereotypeController()->knownStereotypes(m_stereotypeElement));
         connect(m_stereotypeComboBox->lineEdit(), SIGNAL(textEdited(QString)), this, SLOT(onStereotypesChanged(QString)));
         connect(m_stereotypeComboBox, SIGNAL(activated(QString)), this, SLOT(onStereotypesChanged(QString)));
     }
     if (!m_stereotypeComboBox->hasFocus()) {
         QList<QString> stereotypeList;
-        if (haveSameValue(m_modelElements, &MElement::getStereotypes, &stereotypeList)) {
+        if (haveSameValue(m_modelElements, &MElement::stereotypes, &stereotypeList)) {
             QString stereotypes = m_stereotypesController->toString(stereotypeList);
             m_stereotypeComboBox->setEnabled(true);
             if (stereotypes != m_stereotypeComboBox->currentText()) {
@@ -416,7 +416,7 @@ void PropertiesView::MView::visitMElement(const MElement *element)
         m_reverseEngineeredLabel = new QLabel(m_topWidget);
         m_topLayout->addRow(tr("Reverese engineered:"), m_reverseEngineeredLabel);
     }
-    QString text = element->getFlags().testFlag(MElement::REVERSE_ENGINEERED) ? tr("Yes") : tr("No");
+    QString text = element->flags().testFlag(MElement::REVERSE_ENGINEERED) ? tr("Yes") : tr("No");
     m_reverseEngineeredLabel->setText(text);
 #endif
 }
@@ -432,8 +432,8 @@ void PropertiesView::MView::visitMObject(const MObject *object)
         connect(m_elementNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(onObjectNameChanged(QString)));
     }
     if (isSingleSelection) {
-        if (object->getName() != m_elementNameLineEdit->text() && !m_elementNameLineEdit->hasFocus()) {
-            m_elementNameLineEdit->setText(object->getName());
+        if (object->name() != m_elementNameLineEdit->text() && !m_elementNameLineEdit->hasFocus()) {
+            m_elementNameLineEdit->setText(object->name());
         }
     } else {
         m_elementNameLineEdit->clear();
@@ -447,18 +447,18 @@ void PropertiesView::MView::visitMObject(const MObject *object)
         m_childrenLabel = new QLabel(m_topWidget);
         m_topLayout->addRow(tr("Children:"), m_childrenLabel);
     }
-    m_childrenLabel->setText(QString::number(object->getChildren().size()));
+    m_childrenLabel->setText(QString::number(object->children().size()));
     if (m_relationsLabel == 0) {
         m_relationsLabel = new QLabel(m_topWidget);
         m_topLayout->addRow(tr("Relations:"), m_relationsLabel);
     }
-    m_relationsLabel->setText(QString::number(object->getRelations().size()));
+    m_relationsLabel->setText(QString::number(object->relations().size()));
 #endif
 }
 
 void PropertiesView::MView::visitMPackage(const MPackage *package)
 {
-    if (m_modelElements.size() == 1 && !package->getOwner()) {
+    if (m_modelElements.size() == 1 && !package->owner()) {
         setTitle<MPackage>(m_modelElements, tr("Model"), tr("Models"));
     } else {
         setTitle<MPackage>(m_modelElements, tr("Package"), tr("Packages"));
@@ -479,7 +479,7 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
     }
     if (!m_namespaceLineEdit->hasFocus()) {
         QString nameSpace;
-        if (haveSameValue(m_modelElements, &MClass::getNamespace, &nameSpace)) {
+        if (haveSameValue(m_modelElements, &MClass::nameSpace, &nameSpace)) {
             m_namespaceLineEdit->setEnabled(true);
             if (nameSpace != m_namespaceLineEdit->text()) {
                 m_namespaceLineEdit->setText(nameSpace);
@@ -497,8 +497,8 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
     if (isSingleSelection) {
         if (!m_templateParametersLineEdit->hasFocus()) {
             QList<QString> templateParameters = splitTemplateParameters(m_templateParametersLineEdit->text());
-            if (klass->getTemplateParameters() != templateParameters) {
-                m_templateParametersLineEdit->setText(formatTemplateParameters(klass->getTemplateParameters()));
+            if (klass->templateParameters() != templateParameters) {
+                m_templateParametersLineEdit->setText(formatTemplateParameters(klass->templateParameters()));
             }
         }
     } else {
@@ -530,8 +530,8 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
         connect(m_classMembersEdit, SIGNAL(statusChanged(bool)), this, SLOT(onClassMembersStatusChanged(bool)));
     }
     if (isSingleSelection) {
-        if (klass->getMembers() != m_classMembersEdit->getMembers() && !m_classMembersEdit->hasFocus()) {
-            m_classMembersEdit->setMembers(klass->getMembers());
+        if (klass->members() != m_classMembersEdit->members() && !m_classMembersEdit->hasFocus()) {
+            m_classMembersEdit->setMembers(klass->members());
         }
     } else {
         m_classMembersEdit->clear();
@@ -556,7 +556,7 @@ void PropertiesView::MView::visitMDiagram(const MDiagram *diagram)
         m_diagramsLabel = new QLabel(m_topWidget);
         m_topLayout->addRow(tr("Elements:"), m_diagramsLabel);
     }
-    m_diagramsLabel->setText(QString::number(diagram->getDiagramElements().size()));
+    m_diagramsLabel->setText(QString::number(diagram->diagramElements().size()));
 #endif
 }
 
@@ -579,8 +579,8 @@ void PropertiesView::MView::visitMItem(const MItem *item)
             connect(m_itemVarietyEdit, SIGNAL(textChanged(QString)), this, SLOT(onItemVarietyChanged(QString)));
         }
         if (isSingleSelection) {
-            if (item->getVariety() != m_itemVarietyEdit->text() && !m_itemVarietyEdit->hasFocus()) {
-                m_itemVarietyEdit->setText(item->getVariety());
+            if (item->variety() != m_itemVarietyEdit->text() && !m_itemVarietyEdit->hasFocus()) {
+                m_itemVarietyEdit->setText(item->variety());
             }
         } else {
             m_itemVarietyEdit->clear();
@@ -602,8 +602,8 @@ void PropertiesView::MView::visitMRelation(const MRelation *relation)
         connect(m_elementNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(onRelationNameChanged(QString)));
     }
     if (isSingleSelection) {
-        if (relation->getName() != m_elementNameLineEdit->text() && !m_elementNameLineEdit->hasFocus()) {
-            m_elementNameLineEdit->setText(relation->getName());
+        if (relation->name() != m_elementNameLineEdit->text() && !m_elementNameLineEdit->hasFocus()) {
+            m_elementNameLineEdit->setText(relation->name());
         }
     } else {
         m_elementNameLineEdit->clear();
@@ -611,12 +611,12 @@ void PropertiesView::MView::visitMRelation(const MRelation *relation)
     if (m_elementNameLineEdit->isEnabled() != isSingleSelection) {
         m_elementNameLineEdit->setEnabled(isSingleSelection);
     }
-    MObject *endAObject = m_propertiesView->getModelController()->findObject(relation->getEndA());
+    MObject *endAObject = m_propertiesView->modelController()->findObject(relation->endAUid());
     QMT_CHECK(endAObject);
-    setEndAName(tr("End A: %1").arg(endAObject->getName()));
-    MObject *endBObject = m_propertiesView->getModelController()->findObject(relation->getEndB());
+    setEndAName(tr("End A: %1").arg(endAObject->name()));
+    MObject *endBObject = m_propertiesView->modelController()->findObject(relation->endBUid());
     QMT_CHECK(endBObject);
-    setEndBName(tr("End B: %1").arg(endBObject->getName()));
+    setEndBName(tr("End B: %1").arg(endBObject->name()));
 }
 
 void PropertiesView::MView::visitMDependency(const MDependency *dependency)
@@ -632,9 +632,9 @@ void PropertiesView::MView::visitMDependency(const MDependency *dependency)
         connect(m_directionSelector, SIGNAL(activated(int)), this, SLOT(onDependencyDirectionChanged(int)));
     }
     if (isSingleSelection) {
-        if ((!isValidDirectionIndex(m_directionSelector->currentIndex()) || dependency->getDirection() != translateIndexToDirection(m_directionSelector->currentIndex()))
+        if ((!isValidDirectionIndex(m_directionSelector->currentIndex()) || dependency->direction() != translateIndexToDirection(m_directionSelector->currentIndex()))
                 && !m_directionSelector->hasFocus()) {
-            m_directionSelector->setCurrentIndex(translateDirectionToIndex(dependency->getDirection()));
+            m_directionSelector->setCurrentIndex(translateDirectionToIndex(dependency->direction()));
         }
     } else {
         m_directionSelector->setCurrentIndex(-1);
@@ -647,11 +647,11 @@ void PropertiesView::MView::visitMDependency(const MDependency *dependency)
 void PropertiesView::MView::visitMInheritance(const MInheritance *inheritance)
 {
     setTitle<MInheritance>(m_modelElements, tr("Inheritance"), tr("Inheritances"));
-    MObject *derivedClass = m_propertiesView->getModelController()->findObject(inheritance->getDerived());
+    MObject *derivedClass = m_propertiesView->modelController()->findObject(inheritance->derived());
     QMT_CHECK(derivedClass);
-    setEndAName(tr("Derived class: %1").arg(derivedClass->getName()));
-    MObject *baseClass = m_propertiesView->getModelController()->findObject(inheritance->getBase());
-    setEndBName(tr("Base class: %1").arg(baseClass->getName()));
+    setEndAName(tr("Derived class: %1").arg(derivedClass->name()));
+    MObject *baseClass = m_propertiesView->modelController()->findObject(inheritance->base());
+    setEndBName(tr("Base class: %1").arg(baseClass->name()));
     visitMRelation(inheritance);
 }
 
@@ -671,8 +671,8 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         connect(m_endAEndName, SIGNAL(textChanged(QString)), this, SLOT(onAssociationEndANameChanged(QString)));
     }
     if (isSingleSelection) {
-        if (association->getA().getName() != m_endAEndName->text() && !m_endAEndName->hasFocus()) {
-            m_endAEndName->setText(association->getA().getName());
+        if (association->endA().name() != m_endAEndName->text() && !m_endAEndName->hasFocus()) {
+            m_endAEndName->setText(association->endA().name());
         }
     } else {
         m_endAEndName->clear();
@@ -686,8 +686,8 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         connect(m_endACardinality, SIGNAL(textChanged(QString)), this, SLOT(onAssociationEndACardinalityChanged(QString)));
     }
     if (isSingleSelection) {
-        if (association->getA().getCardinality() != m_endACardinality->text() && !m_endACardinality->hasFocus()) {
-            m_endACardinality->setText(association->getA().getCardinality());
+        if (association->endA().cardinality() != m_endACardinality->text() && !m_endACardinality->hasFocus()) {
+            m_endACardinality->setText(association->endA().cardinality());
         }
     } else {
         m_endACardinality->clear();
@@ -701,8 +701,8 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         connect(m_endANavigable, SIGNAL(clicked(bool)), this, SLOT(onAssociationEndANavigableChanged(bool)));
     }
     if (isSingleSelection) {
-        if (association->getA().isNavigable() != m_endANavigable->isChecked()) {
-            m_endANavigable->setChecked(association->getA().isNavigable());
+        if (association->endA().isNavigable() != m_endANavigable->isChecked()) {
+            m_endANavigable->setChecked(association->endA().isNavigable());
         }
     } else {
         m_endANavigable->setChecked(false);
@@ -717,9 +717,9 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         connect(m_endAKind, SIGNAL(activated(int)), this, SLOT(onAssociationEndAKindChanged(int)));
     }
     if (isSingleSelection) {
-        if ((!isValidAssociationKindIndex(m_endAKind->currentIndex()) || association->getA().getKind() != translateIndexToAssociationKind(m_endAKind->currentIndex()))
+        if ((!isValidAssociationKindIndex(m_endAKind->currentIndex()) || association->endA().kind() != translateIndexToAssociationKind(m_endAKind->currentIndex()))
                 && !m_endAKind->hasFocus()) {
-            m_endAKind->setCurrentIndex(translateAssociationKindToIndex(association->getA().getKind()));
+            m_endAKind->setCurrentIndex(translateAssociationKindToIndex(association->endA().kind()));
         }
     } else {
         m_endAKind->setCurrentIndex(-1);
@@ -738,8 +738,8 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         connect(m_endBEndName, SIGNAL(textChanged(QString)), this, SLOT(onAssociationEndBNameChanged(QString)));
     }
     if (isSingleSelection) {
-        if (association->getB().getName() != m_endBEndName->text() && !m_endBEndName->hasFocus()) {
-            m_endBEndName->setText(association->getB().getName());
+        if (association->endB().name() != m_endBEndName->text() && !m_endBEndName->hasFocus()) {
+            m_endBEndName->setText(association->endB().name());
         }
     } else {
         m_endBEndName->clear();
@@ -753,8 +753,8 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         connect(m_endBCardinality, SIGNAL(textChanged(QString)), this, SLOT(onAssociationEndBCardinalityChanged(QString)));
     }
     if (isSingleSelection) {
-        if (association->getB().getCardinality() != m_endBCardinality->text() && !m_endBCardinality->hasFocus()) {
-            m_endBCardinality->setText(association->getB().getCardinality());
+        if (association->endB().cardinality() != m_endBCardinality->text() && !m_endBCardinality->hasFocus()) {
+            m_endBCardinality->setText(association->endB().cardinality());
         }
     } else {
         m_endBCardinality->clear();
@@ -768,8 +768,8 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         connect(m_endBNavigable, SIGNAL(clicked(bool)), this, SLOT(onAssociationEndBNavigableChanged(bool)));
     }
     if (isSingleSelection) {
-        if (association->getB().isNavigable() != m_endBNavigable->isChecked()) {
-            m_endBNavigable->setChecked(association->getB().isNavigable());
+        if (association->endB().isNavigable() != m_endBNavigable->isChecked()) {
+            m_endBNavigable->setChecked(association->endB().isNavigable());
         }
     } else {
         m_endBNavigable->setChecked(false);
@@ -784,9 +784,9 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         connect(m_endBKind, SIGNAL(activated(int)), this, SLOT(onAssociationEndBKindChanged(int)));
     }
     if (isSingleSelection) {
-        if ((!isValidAssociationKindIndex(m_endAKind->currentIndex()) || association->getB().getKind() != translateIndexToAssociationKind(m_endBKind->currentIndex()))
+        if ((!isValidAssociationKindIndex(m_endAKind->currentIndex()) || association->endB().kind() != translateIndexToAssociationKind(m_endBKind->currentIndex()))
                 && !m_endBKind->hasFocus()) {
-            m_endBKind->setCurrentIndex(translateAssociationKindToIndex(association->getB().getKind()));
+            m_endBKind->setCurrentIndex(translateAssociationKindToIndex(association->endB().kind()));
         }
     } else {
         m_endBKind->setCurrentIndex(-1);
@@ -826,12 +826,12 @@ void PropertiesView::MView::visitDObject(const DObject *object)
         m_topLayout->addRow(tr("Position and size:"), m_posRectLabel);
     }
     m_posRectLabel->setText(QString(QStringLiteral("(%1,%2):(%3,%4)-(%5,%6)"))
-                             .arg(object->getPos().x())
-                             .arg(object->getPos().y())
-                             .arg(object->getRect().left())
-                             .arg(object->getRect().top())
-                             .arg(object->getRect().right())
-                             .arg(object->getRect().bottom()));
+                             .arg(object->pos().x())
+                             .arg(object->pos().y())
+                             .arg(object->rect().left())
+                             .arg(object->rect().top())
+                             .arg(object->rect().right())
+                             .arg(object->rect().bottom()));
 #endif
     if (m_autoSizedCheckbox == 0) {
         m_autoSizedCheckbox = new QCheckBox(tr("Auto sized"), m_topWidget);
@@ -858,18 +858,18 @@ void PropertiesView::MView::visitDObject(const DObject *object)
     }
     if (!m_visualPrimaryRoleSelector->hasFocus()) {
         StereotypeDisplayVisitor stereotypeDisplayVisitor;
-        stereotypeDisplayVisitor.setModelController(m_propertiesView->getModelController());
-        stereotypeDisplayVisitor.setStereotypeController(m_propertiesView->getStereotypeController());
+        stereotypeDisplayVisitor.setModelController(m_propertiesView->modelController());
+        stereotypeDisplayVisitor.setStereotypeController(m_propertiesView->stereotypeController());
         object->accept(&stereotypeDisplayVisitor);
-        QString shapeId = stereotypeDisplayVisitor.getShapeIconId();
+        QString shapeId = stereotypeDisplayVisitor.shapeIconId();
         QColor baseColor;
         if (!shapeId.isEmpty()) {
-            StereotypeIcon stereotypeIcon = m_propertiesView->getStereotypeController()->findStereotypeIcon(shapeId);
-            baseColor = stereotypeIcon.getBaseColor();
+            StereotypeIcon stereotypeIcon = m_propertiesView->stereotypeController()->findStereotypeIcon(shapeId);
+            baseColor = stereotypeIcon.baseColor();
         }
         setPrimaryRolePalette(m_styleElementType, DObject::PRIMARY_ROLE_NORMAL, baseColor);
         DObject::VisualPrimaryRole visualPrimaryRole;
-        if (haveSameValue(m_diagramElements, &DObject::getVisualPrimaryRole, &visualPrimaryRole)) {
+        if (haveSameValue(m_diagramElements, &DObject::visualPrimaryRole, &visualPrimaryRole)) {
             m_visualPrimaryRoleSelector->setCurrentIndex(translateVisualPrimaryRoleToIndex(visualPrimaryRole));
         } else {
             m_visualPrimaryRoleSelector->setCurrentIndex(-1);
@@ -885,7 +885,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
     }
     if (!m_visualSecondaryRoleSelector->hasFocus()) {
         DObject::VisualSecondaryRole visualSecondaryRole;
-        if (haveSameValue(m_diagramElements, &DObject::getVisualSecondaryRole, &visualSecondaryRole)) {
+        if (haveSameValue(m_diagramElements, &DObject::visualSecondaryRole, &visualSecondaryRole)) {
             m_visualSecondaryRoleSelector->setCurrentIndex(translateVisualSecondaryRoleToIndex(visualSecondaryRole));
         } else {
             m_visualSecondaryRoleSelector->setCurrentIndex(-1);
@@ -913,7 +913,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
     }
     if (!m_stereotypeDisplaySelector->hasFocus()) {
         DObject::StereotypeDisplay stereotypeDisplay;
-        if (haveSameValue(m_diagramElements, &DObject::getStereotypeDisplay, &stereotypeDisplay)) {
+        if (haveSameValue(m_diagramElements, &DObject::stereotypeDisplay, &stereotypeDisplay)) {
             m_stereotypeDisplaySelector->setCurrentIndex(translateStereotypeDisplayToIndex(stereotypeDisplay));
         } else {
             m_stereotypeDisplaySelector->setCurrentIndex(-1);
@@ -924,7 +924,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
         m_depthLabel = new QLabel(m_topWidget);
         m_topLayout->addRow(tr("Depth:"), m_depthLabel);
     }
-    m_depthLabel->setText(QString::number(object->getDepth()));
+    m_depthLabel->setText(QString::number(object->depth()));
 #endif
 }
 
@@ -950,7 +950,7 @@ void PropertiesView::MView::visitDClass(const DClass *klass)
     }
     if (!m_templateDisplaySelector->hasFocus()) {
         DClass::TemplateDisplay templateDisplay;
-        if (haveSameValue(m_diagramElements, &DClass::getTemplateDisplay, &templateDisplay)) {
+        if (haveSameValue(m_diagramElements, &DClass::templateDisplay, &templateDisplay)) {
             m_templateDisplaySelector->setCurrentIndex(translateTemplateDisplayToIndex(templateDisplay));
         } else {
             m_templateDisplaySelector->setCurrentIndex(-1);
@@ -963,7 +963,7 @@ void PropertiesView::MView::visitDClass(const DClass *klass)
     }
     if (!m_showAllMembersCheckbox->hasFocus()) {
         bool showAllMembers;
-        if (haveSameValue(m_diagramElements, &DClass::getShowAllMembers, &showAllMembers)) {
+        if (haveSameValue(m_diagramElements, &DClass::showAllMembers, &showAllMembers)) {
             m_showAllMembersCheckbox->setChecked(showAllMembers);
         } else {
             m_showAllMembersCheckbox->setChecked(false);
@@ -984,7 +984,7 @@ void PropertiesView::MView::visitDComponent(const DComponent *component)
     }
     if (!m_plainShapeCheckbox->hasFocus()) {
         bool plainShape;
-        if (haveSameValue(m_diagramElements, &DComponent::getPlainShape, &plainShape)) {
+        if (haveSameValue(m_diagramElements, &DComponent::plainShape, &plainShape)) {
             m_plainShapeCheckbox->setChecked(plainShape);
         } else {
             m_plainShapeCheckbox->setChecked(false);
@@ -1014,8 +1014,8 @@ void PropertiesView::MView::visitDItem(const DItem *item)
             connect(m_itemShapeEdit, SIGNAL(textChanged(QString)), this, SLOT(onItemShapeChanged(QString)));
         }
         if (isSingleSelection) {
-            if (item->getShape() != m_itemShapeEdit->text() && !m_itemShapeEdit->hasFocus()) {
-                m_itemShapeEdit->setText(item->getShape());
+            if (item->shape() != m_itemShapeEdit->text() && !m_itemShapeEdit->hasFocus()) {
+                m_itemShapeEdit->setText(item->shape());
             }
         } else {
             m_itemShapeEdit->clear();
@@ -1074,7 +1074,7 @@ void PropertiesView::MView::visitDAnnotation(const DAnnotation *annotation)
     }
     if (!m_annotationVisualRoleSelector->hasFocus()) {
         DAnnotation::VisualRole visualRole;
-        if (haveSameValue(m_diagramElements, &DAnnotation::getVisualRole, &visualRole)) {
+        if (haveSameValue(m_diagramElements, &DAnnotation::visualRole, &visualRole)) {
             m_annotationVisualRoleSelector->setCurrentIndex(translateAnnotationVisualRoleToIndex(visualRole));
         } else {
             m_annotationVisualRoleSelector->setCurrentIndex(-1);
@@ -1091,23 +1091,23 @@ void PropertiesView::MView::visitDBoundary(const DBoundary *boundary)
 void PropertiesView::MView::onStereotypesChanged(const QString &stereotypes)
 {
     QList<QString> set = m_stereotypesController->fromString(stereotypes);
-    assignModelElement<MElement, QList<QString> >(m_modelElements, SELECTION_MULTI, set, &MElement::getStereotypes, &MElement::setStereotypes);
+    assignModelElement<MElement, QList<QString> >(m_modelElements, SELECTION_MULTI, set, &MElement::stereotypes, &MElement::setStereotypes);
 }
 
 void PropertiesView::MView::onObjectNameChanged(const QString &name)
 {
-    assignModelElement<MObject, QString>(m_modelElements, SELECTION_SINGLE, name, &MObject::getName, &MObject::setName);
+    assignModelElement<MObject, QString>(m_modelElements, SELECTION_SINGLE, name, &MObject::name, &MObject::setName);
 }
 
 void PropertiesView::MView::onNamespaceChanged(const QString &nameSpace)
 {
-    assignModelElement<MClass, QString>(m_modelElements, SELECTION_MULTI, nameSpace, &MClass::getNamespace, &MClass::setNamespace);
+    assignModelElement<MClass, QString>(m_modelElements, SELECTION_MULTI, nameSpace, &MClass::nameSpace, &MClass::setNameSpace);
 }
 
 void PropertiesView::MView::onTemplateParametersChanged(const QString &templateParameters)
 {
     QList<QString> templateParametersList = splitTemplateParameters(templateParameters);
-    assignModelElement<MClass, QList<QString> >(m_modelElements, SELECTION_SINGLE, templateParametersList, &MClass::getTemplateParameters, &MClass::setTemplateParameters);
+    assignModelElement<MClass, QList<QString> >(m_modelElements, SELECTION_SINGLE, templateParametersList, &MClass::templateParameters, &MClass::setTemplateParameters);
 }
 
 void PropertiesView::MView::onClassMembersStatusChanged(bool valid)
@@ -1126,65 +1126,65 @@ void PropertiesView::MView::onParseClassMembers()
 
 void PropertiesView::MView::onClassMembersChanged(QList<MClassMember> &classMembers)
 {
-    assignModelElement<MClass, QList<MClassMember> >(m_modelElements, SELECTION_SINGLE, classMembers, &MClass::getMembers, &MClass::setMembers);
+    assignModelElement<MClass, QList<MClassMember> >(m_modelElements, SELECTION_SINGLE, classMembers, &MClass::members, &MClass::setMembers);
 }
 
 void PropertiesView::MView::onItemVarietyChanged(const QString &variety)
 {
-    assignModelElement<MItem, QString>(m_modelElements, SELECTION_SINGLE, variety, &MItem::getVariety, &MItem::setVariety);
+    assignModelElement<MItem, QString>(m_modelElements, SELECTION_SINGLE, variety, &MItem::variety, &MItem::setVariety);
 }
 
 void PropertiesView::MView::onRelationNameChanged(const QString &name)
 {
-    assignModelElement<MRelation, QString>(m_modelElements, SELECTION_SINGLE, name, &MRelation::getName, &MRelation::setName);
+    assignModelElement<MRelation, QString>(m_modelElements, SELECTION_SINGLE, name, &MRelation::name, &MRelation::setName);
 }
 
 void PropertiesView::MView::onDependencyDirectionChanged(int directionIndex)
 {
     MDependency::Direction direction = translateIndexToDirection(directionIndex);
-    assignModelElement<MDependency, MDependency::Direction>(m_modelElements, SELECTION_SINGLE, direction, &MDependency::getDirection, &MDependency::setDirection);
+    assignModelElement<MDependency, MDependency::Direction>(m_modelElements, SELECTION_SINGLE, direction, &MDependency::direction, &MDependency::setDirection);
 }
 
 void PropertiesView::MView::onAssociationEndANameChanged(const QString &name)
 {
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SELECTION_SINGLE, name, &MAssociation::getA, &MAssociation::setA, &MAssociationEnd::getName, &MAssociationEnd::setName);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SELECTION_SINGLE, name, &MAssociation::endA, &MAssociation::setEndA, &MAssociationEnd::name, &MAssociationEnd::setName);
 }
 
 void PropertiesView::MView::onAssociationEndACardinalityChanged(const QString &cardinality)
 {
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SELECTION_SINGLE, cardinality, &MAssociation::getA, &MAssociation::setA, &MAssociationEnd::getCardinality, &MAssociationEnd::setCardinality);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SELECTION_SINGLE, cardinality, &MAssociation::endA, &MAssociation::setEndA, &MAssociationEnd::cardinality, &MAssociationEnd::setCardinality);
 }
 
 void PropertiesView::MView::onAssociationEndANavigableChanged(bool navigable)
 {
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, bool>(m_modelElements, SELECTION_SINGLE, navigable, &MAssociation::getA, &MAssociation::setA, &MAssociationEnd::isNavigable, &MAssociationEnd::setNavigable);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, bool>(m_modelElements, SELECTION_SINGLE, navigable, &MAssociation::endA, &MAssociation::setEndA, &MAssociationEnd::isNavigable, &MAssociationEnd::setNavigable);
 }
 
 void PropertiesView::MView::onAssociationEndAKindChanged(int kindIndex)
 {
     MAssociationEnd::Kind kind = translateIndexToAssociationKind(kindIndex);
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, MAssociationEnd::Kind>(m_modelElements, SELECTION_SINGLE, kind, &MAssociation::getA, &MAssociation::setA, &MAssociationEnd::getKind, &MAssociationEnd::setKind);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, MAssociationEnd::Kind>(m_modelElements, SELECTION_SINGLE, kind, &MAssociation::endA, &MAssociation::setEndA, &MAssociationEnd::kind, &MAssociationEnd::setKind);
 }
 
 void PropertiesView::MView::onAssociationEndBNameChanged(const QString &name)
 {
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SELECTION_SINGLE, name, &MAssociation::getB, &MAssociation::setB, &MAssociationEnd::getName, &MAssociationEnd::setName);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SELECTION_SINGLE, name, &MAssociation::endB, &MAssociation::setEndB, &MAssociationEnd::name, &MAssociationEnd::setName);
 }
 
 void PropertiesView::MView::onAssociationEndBCardinalityChanged(const QString &cardinality)
 {
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SELECTION_SINGLE, cardinality, &MAssociation::getB, &MAssociation::setB, &MAssociationEnd::getCardinality, &MAssociationEnd::setCardinality);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, QString>(m_modelElements, SELECTION_SINGLE, cardinality, &MAssociation::endB, &MAssociation::setEndB, &MAssociationEnd::cardinality, &MAssociationEnd::setCardinality);
 }
 
 void PropertiesView::MView::onAssociationEndBNavigableChanged(bool navigable)
 {
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, bool>(m_modelElements, SELECTION_SINGLE, navigable, &MAssociation::getB, &MAssociation::setB, &MAssociationEnd::isNavigable, &MAssociationEnd::setNavigable);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, bool>(m_modelElements, SELECTION_SINGLE, navigable, &MAssociation::endB, &MAssociation::setEndB, &MAssociationEnd::isNavigable, &MAssociationEnd::setNavigable);
 }
 
 void PropertiesView::MView::onAssociationEndBKindChanged(int kindIndex)
 {
     MAssociationEnd::Kind kind = translateIndexToAssociationKind(kindIndex);
-    assignEmbeddedModelElement<MAssociation, MAssociationEnd, MAssociationEnd::Kind>(m_modelElements, SELECTION_SINGLE, kind, &MAssociation::getB, &MAssociation::setB, &MAssociationEnd::getKind, &MAssociationEnd::setKind);
+    assignEmbeddedModelElement<MAssociation, MAssociationEnd, MAssociationEnd::Kind>(m_modelElements, SELECTION_SINGLE, kind, &MAssociation::endB, &MAssociation::setEndB, &MAssociationEnd::kind, &MAssociationEnd::setKind);
 }
 
 void PropertiesView::MView::onAutoSizedChanged(bool autoSized)
@@ -1195,13 +1195,13 @@ void PropertiesView::MView::onAutoSizedChanged(bool autoSized)
 void PropertiesView::MView::onVisualPrimaryRoleChanged(int visualRoleIndex)
 {
     DObject::VisualPrimaryRole visualRole = translateIndexToVisualPrimaryRole(visualRoleIndex);
-    assignModelElement<DObject, DObject::VisualPrimaryRole>(m_diagramElements, SELECTION_MULTI, visualRole, &DObject::getVisualPrimaryRole, &DObject::setVisualPrimaryRole);
+    assignModelElement<DObject, DObject::VisualPrimaryRole>(m_diagramElements, SELECTION_MULTI, visualRole, &DObject::visualPrimaryRole, &DObject::setVisualPrimaryRole);
 }
 
 void PropertiesView::MView::onVisualSecondaryRoleChanged(int visualRoleIndex)
 {
     DObject::VisualSecondaryRole visualRole = translateIndexToVisualSecondaryRole(visualRoleIndex);
-    assignModelElement<DObject, DObject::VisualSecondaryRole>(m_diagramElements, SELECTION_MULTI, visualRole, &DObject::getVisualSecondaryRole, &DObject::setVisualSecondaryRole);
+    assignModelElement<DObject, DObject::VisualSecondaryRole>(m_diagramElements, SELECTION_MULTI, visualRole, &DObject::visualSecondaryRole, &DObject::setVisualSecondaryRole);
 }
 
 void PropertiesView::MView::onVisualEmphasizedChanged(bool visualEmphasized)
@@ -1212,28 +1212,28 @@ void PropertiesView::MView::onVisualEmphasizedChanged(bool visualEmphasized)
 void PropertiesView::MView::onStereotypeDisplayChanged(int stereotypeDisplayIndex)
 {
     DObject::StereotypeDisplay stereotypeDisplay = translateIndexToStereotypeDisplay(stereotypeDisplayIndex);
-    assignModelElement<DObject, DObject::StereotypeDisplay>(m_diagramElements, SELECTION_MULTI, stereotypeDisplay, &DObject::getStereotypeDisplay, &DObject::setStereotypeDisplay);
+    assignModelElement<DObject, DObject::StereotypeDisplay>(m_diagramElements, SELECTION_MULTI, stereotypeDisplay, &DObject::stereotypeDisplay, &DObject::setStereotypeDisplay);
 }
 
 void PropertiesView::MView::onTemplateDisplayChanged(int templateDisplayIndex)
 {
     DClass::TemplateDisplay templateDisplay = translateIndexToTemplateDisplay(templateDisplayIndex);
-    assignModelElement<DClass, DClass::TemplateDisplay>(m_diagramElements, SELECTION_MULTI, templateDisplay, &DClass::getTemplateDisplay, &DClass::setTemplateDisplay);
+    assignModelElement<DClass, DClass::TemplateDisplay>(m_diagramElements, SELECTION_MULTI, templateDisplay, &DClass::templateDisplay, &DClass::setTemplateDisplay);
 }
 
 void PropertiesView::MView::onShowAllMembersChanged(bool showAllMembers)
 {
-    assignModelElement<DClass, bool>(m_diagramElements, SELECTION_MULTI, showAllMembers, &DClass::getShowAllMembers, &DClass::setShowAllMembers);
+    assignModelElement<DClass, bool>(m_diagramElements, SELECTION_MULTI, showAllMembers, &DClass::showAllMembers, &DClass::setShowAllMembers);
 }
 
 void PropertiesView::MView::onPlainShapeChanged(bool plainShape)
 {
-    assignModelElement<DComponent, bool>(m_diagramElements, SELECTION_MULTI, plainShape, &DComponent::getPlainShape, &DComponent::setPlainShape);
+    assignModelElement<DComponent, bool>(m_diagramElements, SELECTION_MULTI, plainShape, &DComponent::plainShape, &DComponent::setPlainShape);
 }
 
 void PropertiesView::MView::onItemShapeChanged(const QString &shape)
 {
-    assignModelElement<DItem, QString>(m_diagramElements, SELECTION_SINGLE, shape, &DItem::getShape, &DItem::setShape);
+    assignModelElement<DItem, QString>(m_diagramElements, SELECTION_SINGLE, shape, &DItem::shape, &DItem::setShape);
 }
 
 void PropertiesView::MView::onAutoWidthChanged(bool autoWidthed)
@@ -1244,7 +1244,7 @@ void PropertiesView::MView::onAutoWidthChanged(bool autoWidthed)
 void PropertiesView::MView::onAnnotationVisualRoleChanged(int visualRoleIndex)
 {
     DAnnotation::VisualRole visualRole = translateIndexToAnnotationVisualRole((visualRoleIndex));
-    assignModelElement<DAnnotation, DAnnotation::VisualRole>(m_diagramElements, SELECTION_MULTI, visualRole, &DAnnotation::getVisualRole, &DAnnotation::setVisualRole);
+    assignModelElement<DAnnotation, DAnnotation::VisualRole>(m_diagramElements, SELECTION_MULTI, visualRole, &DAnnotation::visualRole, &DAnnotation::setVisualRole);
 }
 
 void PropertiesView::MView::prepare()
@@ -1288,10 +1288,10 @@ void PropertiesView::MView::setTitle(const MItem *item, const QList<V *> &elemen
         if (filtered.size() == elements.size()) {
             if (elements.size() == 1) {
                 if (item && !item->isVarietyEditable()) {
-                    QString stereotypeIconId = m_propertiesView->getStereotypeController()->findStereotypeIconId(StereotypeIcon::ELEMENT_ITEM, QStringList() << item->getVariety());
+                    QString stereotypeIconId = m_propertiesView->stereotypeController()->findStereotypeIconId(StereotypeIcon::ELEMENT_ITEM, QStringList() << item->variety());
                     if (!stereotypeIconId.isEmpty()) {
-                        StereotypeIcon stereotypeIcon = m_propertiesView->getStereotypeController()->findStereotypeIcon(stereotypeIconId);
-                        m_propertiesTitle = stereotypeIcon.getTitle();
+                        StereotypeIcon stereotypeIcon = m_propertiesView->stereotypeController()->findStereotypeIcon(stereotypeIconId);
+                        m_propertiesTitle = stereotypeIcon.title();
                     }
                 }
                 if (m_propertiesTitle.isEmpty()) {
@@ -1323,9 +1323,9 @@ void PropertiesView::MView::setStyleElementType(StyleEngine::ElementType element
 void PropertiesView::MView::setPrimaryRolePalette(StyleEngine::ElementType elementType, DObject::VisualPrimaryRole visualPrimaryRole, const QColor &baseColor)
 {
     int index = translateVisualPrimaryRoleToIndex(visualPrimaryRole);
-    const Style *style = m_propertiesView->getStyleController()->adaptObjectStyle(elementType, ObjectVisuals(visualPrimaryRole, DObject::SECONDARY_ROLE_NONE, false, baseColor, 0));
-    m_visualPrimaryRoleSelector->setBrush(index, style->getFillBrush());
-    m_visualPrimaryRoleSelector->setLinePen(index, style->getLinePen());
+    const Style *style = m_propertiesView->styleController()->adaptObjectStyle(elementType, ObjectVisuals(visualPrimaryRole, DObject::SECONDARY_ROLE_NONE, false, baseColor, 0));
+    m_visualPrimaryRoleSelector->setBrush(index, style->fillBrush());
+    m_visualPrimaryRoleSelector->setLinePen(index, style->linePen());
 }
 
 void PropertiesView::MView::setEndAName(const QString &endAName)

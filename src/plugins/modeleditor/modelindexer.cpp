@@ -119,7 +119,7 @@ public:
     void reset(const QDateTime &lastModified)
     {
         m_lastModified = lastModified;
-        m_modelUid = qmt::Uid::getInvalidUid();
+        m_modelUid = qmt::Uid::invalidUid();
         m_diagrams.clear();
     }
 
@@ -156,8 +156,8 @@ public:
     void reset(const QDateTime &lastModified)
     {
         m_lastModified = lastModified;
-        m_modelUid = qmt::Uid::getInvalidUid();
-        m_diagramUid = qmt::Uid::getInvalidUid();
+        m_modelUid = qmt::Uid::invalidUid();
+        m_diagramUid = qmt::Uid::invalidUid();
     }
 
     QString file() const { return m_file; }
@@ -219,17 +219,17 @@ ModelIndexer::DiagramsCollectorVisitor::DiagramsCollectorVisitor(IndexedModel *i
 
 void ModelIndexer::DiagramsCollectorVisitor::visitMObject(const qmt::MObject *object)
 {
-    foreach (const qmt::Handle<qmt::MObject> &child, object->getChildren()) {
+    foreach (const qmt::Handle<qmt::MObject> &child, object->children()) {
         if (child.hasTarget())
-            child.getTarget()->accept(this);
+            child.target()->accept(this);
     }
     visitMElement(object);
 }
 
 void ModelIndexer::DiagramsCollectorVisitor::visitMDiagram(const qmt::MDiagram *diagram)
 {
-    qCDebug(logger) << "add diagram " << diagram->getName() << " to index";
-    m_indexedModel->addDiagram(diagram->getUid());
+    qCDebug(logger) << "add diagram " << diagram->name() << " to index";
+    m_indexedModel->addDiagram(diagram->uid());
     visitMObject(diagram);
 }
 
@@ -299,21 +299,21 @@ void ModelIndexer::IndexerThread::onFilesQueued()
             qmt::Project project;
             projectSerializer.load(queuedFile.file(), &project);
             locker.relock();
-            indexedModel->setModelUid(project.getUid());
+            indexedModel->setModelUid(project.uid());
             // add indexedModel to set of indexedModelsByUid
-            QSet<IndexedModel *> indexedModels = m_indexer->d->indexedModelsByUid.value(project.getUid());
+            QSet<IndexedModel *> indexedModels = m_indexer->d->indexedModelsByUid.value(project.uid());
             indexedModels.insert(indexedModel);
-            m_indexer->d->indexedModelsByUid.insert(project.getUid(), indexedModels);
+            m_indexer->d->indexedModelsByUid.insert(project.uid(), indexedModels);
             // collect all diagrams of model
             DiagramsCollectorVisitor visitor(indexedModel);
-            project.getRootPackage()->accept(&visitor);
+            project.rootPackage()->accept(&visitor);
             if (m_indexer->d->defaultModelFiles.contains(queuedFile)) {
                 m_indexer->d->defaultModelFiles.remove(queuedFile);
                 // check if model has a diagram which could be opened
                 qmt::FindRootDiagramVisitor diagramVisitor;
-                project.getRootPackage()->accept(&diagramVisitor);
-                if (diagramVisitor.getDiagram())
-                    emit m_indexer->openDefaultModel(project.getUid());
+                project.rootPackage()->accept(&diagramVisitor);
+                if (diagramVisitor.diagram())
+                    emit m_indexer->openDefaultModel(project.uid());
             }
         }
     }

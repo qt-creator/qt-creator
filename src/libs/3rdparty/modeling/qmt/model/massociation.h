@@ -66,15 +66,15 @@ public:
 
 public:
 
-    QString getName() const { return m_name; }
+    QString name() const { return m_name; }
 
     void setName(const QString &name);
 
-    QString getCardinality() const { return m_cardinality; }
+    QString cardinality() const { return m_cardinality; }
 
     void setCardinality(const QString &cardinality);
 
-    Kind getKind() const { return m_kind; }
+    Kind kind() const { return m_kind; }
 
     void setKind(Kind kind);
 
@@ -109,15 +109,15 @@ public:
 
 public:
 
-    MAssociationEnd getA() const { return m_a; }
+    MAssociationEnd endA() const { return m_endA; }
 
-    void setA(const MAssociationEnd &end);
+    void setEndA(const MAssociationEnd &end);
 
-    MAssociationEnd getB() const { return m_b; }
+    MAssociationEnd endB() const { return m_endB; }
 
-    void setB(const MAssociationEnd &end);
+    void setEndB(const MAssociationEnd &end);
 
-    Uid getAssoicationClassUid() const { return m_associationClassUid; }
+    Uid assoicationClassUid() const { return m_associationClassUid; }
 
     void setAssociationClassUid(const Uid &uid);
 
@@ -129,9 +129,9 @@ public:
 
 private:
 
-    MAssociationEnd m_a;
+    MAssociationEnd m_endA;
 
-    MAssociationEnd m_b;
+    MAssociationEnd m_endB;
 
     Uid m_associationClassUid;
 };

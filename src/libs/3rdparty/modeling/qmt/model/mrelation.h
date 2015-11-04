@@ -57,17 +57,17 @@ public:
 
 public:
 
-    QString getName() const { return m_name; }
+    QString name() const { return m_name; }
 
     void setName(const QString &name);
 
-    Uid getEndA() const { return m_endAUid; }
+    Uid endAUid() const { return m_endAUid; }
 
-    void setEndA(const Uid &uid);
+    void setEndAUid(const Uid &uid);
 
-    Uid getEndB() const { return m_endBUid; }
+    Uid endBUid() const { return m_endBUid; }
 
-    void setEndB(const Uid &uid);
+    void setEndBUid(const Uid &uid);
 
 public:
 

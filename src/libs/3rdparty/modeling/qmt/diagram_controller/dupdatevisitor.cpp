@@ -79,32 +79,32 @@ void DUpdateVisitor::visitMObject(const MObject *object)
 {
     DObject *dobject = dynamic_cast<DObject *>(m_target);
     QMT_CHECK(dobject);
-    if (isUpdating(object->getStereotypes() != dobject->getStereotypes())) {
-        dobject->setStereotypes(object->getStereotypes());
+    if (isUpdating(object->stereotypes() != dobject->stereotypes())) {
+        dobject->setStereotypes(object->stereotypes());
     }
-    const MObject *objectOwner = object->getOwner();
-    const MObject *diagramOwner = m_diagram->getOwner();
-    if (objectOwner && diagramOwner && objectOwner->getUid() != diagramOwner->getUid()) {
-        if (isUpdating(objectOwner->getName() != dobject->getContext())) {
-            dobject->setContext(objectOwner->getName());
+    const MObject *objectOwner = object->owner();
+    const MObject *diagramOwner = m_diagram->owner();
+    if (objectOwner && diagramOwner && objectOwner->uid() != diagramOwner->uid()) {
+        if (isUpdating(objectOwner->name() != dobject->context())) {
+            dobject->setContext(objectOwner->name());
         }
     } else {
-        if (isUpdating(!dobject->getContext().isEmpty())) {
+        if (isUpdating(!dobject->context().isEmpty())) {
             dobject->setContext(QString());
         }
     }
-    if (isUpdating(object->getName() != dobject->getName())) {
-        dobject->setName(object->getName());
+    if (isUpdating(object->name() != dobject->name())) {
+        dobject->setName(object->name());
     }
     // TODO unlikely that this is called for all objects if hierarchy is modified
     // PERFORM remove loop
     int depth = 1;
-    const MObject *owner = object->getOwner();
+    const MObject *owner = object->owner();
     while (owner) {
-        owner = owner->getOwner();
+        owner = owner->owner();
         depth += 1;
     }
-    if (isUpdating(depth != dobject->getDepth())) {
+    if (isUpdating(depth != dobject->depth())) {
         dobject->setDepth(depth);
     }
     visitMElement(object);
@@ -119,14 +119,14 @@ void DUpdateVisitor::visitMClass(const MClass *klass)
 {
     DClass *dclass = dynamic_cast<DClass *>(m_target);
     QMT_CHECK(dclass);
-    if (isUpdating(klass->getNamespace() != dclass->getNamespace())) {
-        dclass->setNamespace(klass->getNamespace());
+    if (isUpdating(klass->nameSpace() != dclass->nameSpace())) {
+        dclass->setNameSpace(klass->nameSpace());
     }
-    if (isUpdating(klass->getTemplateParameters() != dclass->getTemplateParameters())) {
-        dclass->setTemplateParameters(klass->getTemplateParameters());
+    if (isUpdating(klass->templateParameters() != dclass->templateParameters())) {
+        dclass->setTemplateParameters(klass->templateParameters());
     }
-    if (isUpdating(klass->getMembers() != dclass->getMembers())) {
-        dclass->setMembers(klass->getMembers());
+    if (isUpdating(klass->members() != dclass->members())) {
+        dclass->setMembers(klass->members());
     }
     visitMObject(klass);
 }
@@ -153,8 +153,8 @@ void DUpdateVisitor::visitMItem(const MItem *item)
     if (isUpdating(item->isShapeEditable() != ditem->isShapeEditable())) {
         ditem->setShapeEditable(item->isShapeEditable());
     }
-    if (isUpdating(item->getVariety() != ditem->getVariety())) {
-        ditem->setVariety(item->getVariety());
+    if (isUpdating(item->variety() != ditem->variety())) {
+        ditem->setVariety(item->variety());
     }
     visitMObject(item);
 }
@@ -163,11 +163,11 @@ void DUpdateVisitor::visitMRelation(const MRelation *relation)
 {
     DRelation *drelation = dynamic_cast<DRelation *>(m_target);
     QMT_CHECK(drelation);
-    if (isUpdating(relation->getStereotypes() != drelation->getStereotypes())) {
-        drelation->setStereotypes(relation->getStereotypes());
+    if (isUpdating(relation->stereotypes() != drelation->stereotypes())) {
+        drelation->setStereotypes(relation->stereotypes());
     }
-    if (isUpdating(relation->getName() != drelation->getName())) {
-        drelation->setName(relation->getName());
+    if (isUpdating(relation->name() != drelation->name())) {
+        drelation->setName(relation->name());
     }
     visitMElement(relation);
 }
@@ -176,8 +176,8 @@ void DUpdateVisitor::visitMDependency(const MDependency *dependency)
 {
     DDependency *ddependency = dynamic_cast<DDependency *>(m_target);
     QMT_CHECK(ddependency);
-    if (isUpdating(dependency->getDirection() != ddependency->getDirection())) {
-        ddependency->setDirection(dependency->getDirection());
+    if (isUpdating(dependency->direction() != ddependency->direction())) {
+        ddependency->setDirection(dependency->direction());
     }
     visitMRelation(dependency);
 }
@@ -192,20 +192,20 @@ void DUpdateVisitor::visitMAssociation(const MAssociation *association)
     DAssociation *dassociation = dynamic_cast<DAssociation *>(m_target);
     QMT_CHECK(dassociation);
     DAssociationEnd endA;
-    endA.setName(association->getA().getName());
-    endA.setCardinatlity(association->getA().getCardinality());
-    endA.setNavigable(association->getA().isNavigable());
-    endA.setKind(association->getA().getKind());
-    if (isUpdating(endA != dassociation->getA())) {
-        dassociation->setA(endA);
+    endA.setName(association->endA().name());
+    endA.setCardinatlity(association->endA().cardinality());
+    endA.setNavigable(association->endA().isNavigable());
+    endA.setKind(association->endA().kind());
+    if (isUpdating(endA != dassociation->endA())) {
+        dassociation->setEndA(endA);
     }
     DAssociationEnd endB;
-    endB.setName(association->getB().getName());
-    endB.setCardinatlity(association->getB().getCardinality());
-    endB.setNavigable(association->getB().isNavigable());
-    endB.setKind(association->getB().getKind());
-    if (isUpdating(endB != dassociation->getB())) {
-        dassociation->setB(endB);
+    endB.setName(association->endB().name());
+    endB.setCardinatlity(association->endB().cardinality());
+    endB.setNavigable(association->endB().isNavigable());
+    endB.setKind(association->endB().kind());
+    if (isUpdating(endB != dassociation->endB())) {
+        dassociation->setEndB(endB);
     }
     visitMRelation(association);
 }

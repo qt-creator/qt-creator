@@ -83,59 +83,59 @@ public:
 
 public:
 
-    QString getId() const { return m_id; }
+    QString id() const { return m_id; }
 
     void setId(const QString &id);
 
-    QString getTitle() const;
+    QString title() const;
 
     void setTitle(const QString &title);
 
-    QSet<Element> getElements() const { return m_elements; }
+    QSet<Element> elements() const { return m_elements; }
 
     void setElements(const QSet<Element> &elements);
 
-    QSet<QString> getStereotypes() const { return m_stereotypes; }
+    QSet<QString> stereotypes() const { return m_stereotypes; }
 
     void setStereotypes(const QSet<QString> &stereotypes);
 
-    qreal getWidth() const { return m_width; }
+    qreal width() const { return m_width; }
 
     void setWidth(qreal width);
 
-    qreal getHeight() const { return m_height; }
+    qreal height() const { return m_height; }
 
     void setHeight(qreal height);
 
     bool hasMinWidth() const { return m_minWidth > 0; }
 
-    qreal getMinWidth() const { return m_minWidth; }
+    qreal minWidth() const { return m_minWidth; }
 
     void setMinWidth(qreal minWidth);
 
     bool hasMinHeight() const { return m_minHeight > 0; }
 
-    qreal getMinHeight() const { return m_minHeight; }
+    qreal minHeight() const { return m_minHeight; }
 
     void setMinHeight(qreal minHeight);
 
-    SizeLock getSizeLock() const { return m_sizeLock; }
+    SizeLock sizeLock() const { return m_sizeLock; }
 
     void setSizeLock(SizeLock sizeLock);
 
-    Display getDisplay() const { return m_display; }
+    Display display() const { return m_display; }
 
     void setDisplay(Display display);
 
-    TextAlignment getTextAlignment() const { return m_textAlignment; }
+    TextAlignment textAlignment() const { return m_textAlignment; }
 
     void setTextAlignment(TextAlignment textAlignment);
 
-    QColor getBaseColor() const { return m_baseColor; }
+    QColor baseColor() const { return m_baseColor; }
 
     void setBaseColor(const QColor &baseColor);
 
-    IconShape getIconShape() const { return m_iconShape; }
+    IconShape iconShape() const { return m_iconShape; }
 
     void setIconShape(const IconShape &iconShape);
 

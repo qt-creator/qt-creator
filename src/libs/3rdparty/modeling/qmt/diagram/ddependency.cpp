@@ -45,24 +45,24 @@ DDependency::~DDependency()
 {
 }
 
-Uid DDependency::getSource() const
+Uid DDependency::source() const
 {
-    return m_direction == MDependency::B_TO_A ? getEndB() : getEndA();
+    return m_direction == MDependency::B_TO_A ? endBUid() : endAUid();
 }
 
 void DDependency::setSource(const Uid &source)
 {
-    m_direction == MDependency::B_TO_A ? setEndB(source) : setEndA(source);
+    m_direction == MDependency::B_TO_A ? setEndBUid(source) : setEndAUid(source);
 }
 
-Uid DDependency::getTarget() const
+Uid DDependency::target() const
 {
-    return m_direction == MDependency::B_TO_A ? getEndA() : getEndB();
+    return m_direction == MDependency::B_TO_A ? endAUid() : endBUid();
 }
 
 void DDependency::setTarget(const Uid &target)
 {
-    return m_direction == MDependency::B_TO_A ? setEndA(target) : setEndB(target);
+    return m_direction == MDependency::B_TO_A ? setEndAUid(target) : setEndBUid(target);
 }
 
 void DDependency::setDirection(MDependency::Direction direction)

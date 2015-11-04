@@ -54,7 +54,7 @@ public:
 
 public:
 
-    TreeModel *getTreeModel() const { return m_treeModel; }
+    TreeModel *treeModel() const { return m_treeModel; }
 
     void setTreeModel(TreeModel *treeModel);
 

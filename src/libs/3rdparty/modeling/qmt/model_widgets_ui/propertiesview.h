@@ -72,37 +72,37 @@ signals:
 
 public:
 
-    ModelController *getModelController() const { return m_modelController; }
+    ModelController *modelController() const { return m_modelController; }
 
     void setModelController(ModelController *modelController);
 
-    DiagramController *getDiagramController() const { return m_diagramController; }
+    DiagramController *diagramController() const { return m_diagramController; }
 
     void setDiagramController(DiagramController *diagramController);
 
-    StereotypeController *getStereotypeController() const { return m_stereotypeController; }
+    StereotypeController *stereotypeController() const { return m_stereotypeController; }
 
     void setStereotypeController(StereotypeController *stereotypeController);
 
-    StyleController *getStyleController() const { return m_styleController; }
+    StyleController *styleController() const { return m_styleController; }
 
     void setStyleController(StyleController *styleController);
 
 public:
 
-    QList<MElement *> getSelectedModelElements() const { return m_selectedModelElements; }
+    QList<MElement *> selectedModelElements() const { return m_selectedModelElements; }
 
     void setSelectedModelElements(const QList<MElement *> &modelElements);
 
-    QList<DElement *> getSelectedDiagramElements() const { return m_selectedDiagramElements; }
+    QList<DElement *> selectedDiagramElements() const { return m_selectedDiagramElements; }
 
-    MDiagram *getSelectedDiagram() const { return m_selectedDiagram; }
+    MDiagram *selectedDiagram() const { return m_selectedDiagram; }
 
     void setSelectedDiagramElements(const QList<DElement *> &diagramElements, MDiagram *diagram);
 
     void clearSelection();
 
-    QWidget *getWidget() const;
+    QWidget *widget() const;
 
 public slots:
 

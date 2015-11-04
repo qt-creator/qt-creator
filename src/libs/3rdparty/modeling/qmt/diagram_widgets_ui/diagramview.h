@@ -53,7 +53,7 @@ public:
 
 public:
 
-    DiagramSceneModel *getDiagramSceneModel() const;
+    DiagramSceneModel *diagramSceneModel() const;
 
     void setDiagramSceneModel(DiagramSceneModel *diagramSceneModel);
 

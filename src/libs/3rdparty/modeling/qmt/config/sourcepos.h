@@ -47,13 +47,13 @@ public:
 
     bool isValid() const { return m_sourceId >= 0 && m_lineNumber >= 0; }
 
-    int getSourceId() const { return m_sourceId; }
+    int sourceId() const { return m_sourceId; }
 
-    int getLineNumber() const { return m_lineNumber; }
+    int lineNumber() const { return m_lineNumber; }
 
     bool hasColumnNumber() const { return m_columnNumber >= 0; }
 
-    int getColumnNumber() const { return m_columnNumber; }
+    int columnNumber() const { return m_columnNumber; }
 
 private:
     int m_sourceId;

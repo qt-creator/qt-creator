@@ -56,7 +56,7 @@ public:
 
 public:
 
-    const QList<DElement *> &getDiagramElements() const { return m_elements; }
+    const QList<DElement *> &diagramElements() const { return m_elements; }
 
     DElement *findDiagramElement(const Uid &key) const;
 
@@ -70,7 +70,7 @@ public:
 
     void removeDiagramElement(DElement *element);
 
-    QDateTime getLastModified() const { return m_lastModified; }
+    QDateTime lastModified() const { return m_lastModified; }
 
     void setLastModified(const QDateTime &lastModified);
 

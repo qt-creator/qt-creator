@@ -65,20 +65,20 @@ void TreeModelManager::setModelTreeView(ModelTreeViewInterface *modelTreeView)
 
 bool TreeModelManager::isRootPackageSelected() const
 {
-    foreach (const QModelIndex &index, m_modelTreeView->getSelectedSourceModelIndexes()) {
-        MObject *object = dynamic_cast<MObject *>(m_treeModel->getElement(index));
-        if (object && !object->getOwner()) {
+    foreach (const QModelIndex &index, m_modelTreeView->selectedSourceModelIndexes()) {
+        MObject *object = dynamic_cast<MObject *>(m_treeModel->element(index));
+        if (object && !object->owner()) {
             return true;
         }
     }
     return false;
 }
 
-MObject *TreeModelManager::getSelectedObject() const
+MObject *TreeModelManager::selectedObject() const
 {
     MObject *object = 0;
-    if (m_modelTreeView->getCurrentSourceModelIndex().isValid()) {
-        MElement *element = m_treeModel->getElement(m_modelTreeView->getCurrentSourceModelIndex());
+    if (m_modelTreeView->currentSourceModelIndex().isValid()) {
+        MElement *element = m_treeModel->element(m_modelTreeView->currentSourceModelIndex());
         if (element) {
             object = dynamic_cast<MObject *>(element);
         }
@@ -86,33 +86,33 @@ MObject *TreeModelManager::getSelectedObject() const
     return object;
 }
 
-MPackage *TreeModelManager::getSelectedPackage() const
+MPackage *TreeModelManager::selectedPackage() const
 {
-    if (m_modelTreeView->getCurrentSourceModelIndex().isValid())
+    if (m_modelTreeView->currentSourceModelIndex().isValid())
     {
-        MElement *element = m_treeModel->getElement(m_modelTreeView->getCurrentSourceModelIndex());
+        MElement *element = m_treeModel->element(m_modelTreeView->currentSourceModelIndex());
         QMT_CHECK(element);
         if (MPackage *package = dynamic_cast<MPackage *>(element)) {
             return package;
         } else if (MObject *object = dynamic_cast<MObject *>(element)) {
-            package = dynamic_cast<MPackage *>(object->getOwner());
+            package = dynamic_cast<MPackage *>(object->owner());
             if (package) {
                 return package;
             }
         }
     }
-    return m_treeModel->getModelController()->getRootPackage();
+    return m_treeModel->modelController()->rootPackage();
 }
 
-MSelection TreeModelManager::getSelectedObjects() const
+MSelection TreeModelManager::selectedObjects() const
 {
     MSelection modelSelection;
-    foreach (const QModelIndex &index, m_modelTreeView->getSelectedSourceModelIndexes()) {
-        MElement *element = m_treeModel->getElement(index);
+    foreach (const QModelIndex &index, m_modelTreeView->selectedSourceModelIndexes()) {
+        MElement *element = m_treeModel->element(index);
         if (MObject *object = dynamic_cast<MObject *>(element)) {
-            modelSelection.append(object->getUid(), m_treeModel->getModelController()->getOwnerKey(object));
+            modelSelection.append(object->uid(), m_treeModel->modelController()->ownerKey(object));
         } else if (MRelation *relation = dynamic_cast<MRelation *>(element)) {
-            modelSelection.append(relation->getUid(), m_treeModel->getModelController()->getOwnerKey(relation));
+            modelSelection.append(relation->uid(), m_treeModel->modelController()->ownerKey(relation));
         }
     }
     return modelSelection;

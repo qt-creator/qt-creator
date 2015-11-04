@@ -47,15 +47,15 @@ public:
 
 public:
 
-    QString getName() const { return m_name; }
+    QString name() const { return m_name; }
 
     void setName(const QString &name);
 
-    QString getCardinality() const { return m_cardinality; }
+    QString cardinality() const { return m_cardinality; }
 
     void setCardinatlity(const QString &cardinality);
 
-    MAssociationEnd::Kind getKind() const { return m_kind; }
+    MAssociationEnd::Kind kind() const { return m_kind; }
 
     void setKind(MAssociationEnd::Kind kind);
 
@@ -90,15 +90,15 @@ public:
 
 public:
 
-    DAssociationEnd getA() const { return m_endA; }
+    DAssociationEnd endA() const { return m_endA; }
 
-    void setA(const DAssociationEnd &endA);
+    void setEndA(const DAssociationEnd &endA);
 
-    DAssociationEnd getB() const { return m_endB; }
+    DAssociationEnd endB() const { return m_endB; }
 
-    void setB(const DAssociationEnd &endB);
+    void setEndB(const DAssociationEnd &endB);
 
-    Uid getAssoicationClassUid() const { return m_associationClassUid; }
+    Uid assoicationClassUid() const { return m_associationClassUid; }
 
     void setAssociationClassUid(const Uid &uid);
 

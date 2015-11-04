@@ -75,12 +75,12 @@ struct IconShape::IconShapePrivate {
         return *this;
     }
 
-    PathShape *getActivePath();
+    PathShape *activePath();
 
     QList<IShape *> m_shapes;
 };
 
-PathShape *IconShape::IconShapePrivate::getActivePath()
+PathShape *IconShape::IconShapePrivate::activePath()
 {
     PathShape *pathShape = 0;
     if (m_shapes.count() > 0) {
@@ -149,27 +149,27 @@ void IconShape::addArc(const ShapePointF &center, const ShapeSizeF &radius, qrea
 
 void IconShape::moveTo(const ShapePointF &pos)
 {
-    d->getActivePath()->moveTo(pos);
+    d->activePath()->moveTo(pos);
 }
 
 void IconShape::lineTo(const ShapePointF &pos)
 {
-    d->getActivePath()->lineTo(pos);
+    d->activePath()->lineTo(pos);
 }
 
 void IconShape::arcMoveTo(const ShapePointF &center, const ShapeSizeF &radius, qreal angle)
 {
-    d->getActivePath()->arcMoveTo(center, radius, angle);
+    d->activePath()->arcMoveTo(center, radius, angle);
 }
 
 void IconShape::arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal sweepLength)
 {
-    d->getActivePath()->arcTo(center, radius, startAngle, sweepLength);
+    d->activePath()->arcTo(center, radius, startAngle, sweepLength);
 }
 
 void IconShape::closePath()
 {
-    d->getActivePath()->close();
+    d->activePath()->close();
 }
 
 void IconShape::visitShapes(ShapeConstVisitor *visitor) const

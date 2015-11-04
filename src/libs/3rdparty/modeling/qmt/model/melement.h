@@ -84,25 +84,25 @@ public:
 
 public:
 
-    Uid getUid() const { return m_uid; }
+    Uid uid() const { return m_uid; }
 
     void setUid(const Uid &uid);
 
     void renewUid();
 
-    MObject *getOwner() const { return m_owner; }
+    MObject *owner() const { return m_owner; }
 
     void setOwner(MObject *owner);
 
-    MExpansion *getExpansion() const { return m_expansion; }
+    MExpansion *expansion() const { return m_expansion; }
 
     void setExpansion(MExpansion *expansion);
 
-    QList<QString> getStereotypes() const { return m_stereotypes; }
+    QList<QString> stereotypes() const { return m_stereotypes; }
 
     void setStereotypes(const QList<QString> &stereotypes);
 
-    Flags getFlags() const { return m_flags; }
+    Flags flags() const { return m_flags; }
 
     void setFlags(const Flags &flags);
 

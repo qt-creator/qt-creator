@@ -97,7 +97,7 @@ public:
 
     DiagramSceneModel *bindDiagramSceneModel(MDiagram *diagram);
 
-    DiagramSceneModel *getDiagramSceneModel(const MDiagram *diagram) const;
+    DiagramSceneModel *diagramSceneModel(const MDiagram *diagram) const;
 
     void unbindDiagramSceneModel(const MDiagram *diagram);
 

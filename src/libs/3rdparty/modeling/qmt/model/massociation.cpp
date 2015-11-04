@@ -87,16 +87,16 @@ void MAssociationEnd::setNavigable(bool navigable)
 
 bool operator==(const MAssociationEnd &lhs, const MAssociationEnd &rhs)
 {
-    return lhs.getName() == rhs.getName()
-            && lhs.getCardinality() == rhs.getCardinality()
-            && lhs.getKind() == rhs.getKind()
+    return lhs.name() == rhs.name()
+            && lhs.cardinality() == rhs.cardinality()
+            && lhs.kind() == rhs.kind()
             && lhs.isNavigable() == rhs.isNavigable();
 }
 
 
 MAssociation::MAssociation()
     : MRelation(),
-      m_associationClassUid(Uid::getInvalidUid())
+      m_associationClassUid(Uid::invalidUid())
 {
 }
 
@@ -104,14 +104,14 @@ MAssociation::~MAssociation()
 {
 }
 
-void MAssociation::setA(const MAssociationEnd &end)
+void MAssociation::setEndA(const MAssociationEnd &end)
 {
-    m_a = end;
+    m_endA = end;
 }
 
-void MAssociation::setB(const MAssociationEnd &end)
+void MAssociation::setEndB(const MAssociationEnd &end)
 {
-    m_b = end;
+    m_endB = end;
 }
 
 void MAssociation::setAssociationClassUid(const Uid &uid)

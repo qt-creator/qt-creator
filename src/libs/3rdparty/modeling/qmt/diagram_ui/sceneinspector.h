@@ -53,13 +53,13 @@ public:
 
 public:
 
-    QSizeF getRasterSize() const;
+    QSizeF rasterSize() const;
 
-    QSizeF getMinimalSize(const DElement *element, const MDiagram *diagram) const;
+    QSizeF minimalSize(const DElement *element, const MDiagram *diagram) const;
 
-    IMoveable *getMoveable(const DElement *element, const MDiagram *diagram) const;
+    IMoveable *moveable(const DElement *element, const MDiagram *diagram) const;
 
-    IResizable *getResizable(const DElement *element, const MDiagram *diagram) const;
+    IResizable *resizable(const DElement *element, const MDiagram *diagram) const;
 
 private:
 

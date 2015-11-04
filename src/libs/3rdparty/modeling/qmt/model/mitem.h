@@ -47,7 +47,7 @@ public:
 
 public:
 
-    QString getVariety() const { return m_variety; }
+    QString variety() const { return m_variety; }
 
     void setVariety(const QString &variety);
 

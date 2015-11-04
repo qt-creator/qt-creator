@@ -85,23 +85,23 @@ public:
 
 public:
 
-    ModelController *getModelController() const { return m_modelController; }
+    ModelController *modelController() const { return m_modelController; }
 
     void setModelController(ModelController *modelController);
 
-    StereotypeController *getStereotypeController() const { return m_stereotypeController; }
+    StereotypeController *stereotypeController() const { return m_stereotypeController; }
 
     void setStereotypeController(StereotypeController *stereotypeController);
 
-    StyleController *getStyleController() const { return m_styleController; }
+    StyleController *styleController() const { return m_styleController; }
 
     void setStyleController(StyleController *styleController);
 
-    MElement *getElement(const QModelIndex &index) const;
+    MElement *element(const QModelIndex &index) const;
 
-    QModelIndex getIndex(const MElement *element) const;
+    QModelIndex index(const MElement *element) const;
 
-    QIcon getIcon(const QModelIndex &index) const;
+    QIcon icon(const QModelIndex &index) const;
 
 public:
 

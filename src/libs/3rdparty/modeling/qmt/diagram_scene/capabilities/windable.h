@@ -45,7 +45,7 @@ public:
 
     virtual ~IWindable() { }
 
-    virtual QPointF getHandlePos(int index) = 0;
+    virtual QPointF handlePos(int index) = 0;
 
     virtual void insertHandle(int beforeIndex, const QPointF &pos) = 0;
 

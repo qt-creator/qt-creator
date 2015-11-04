@@ -49,9 +49,9 @@ class FileIOException :
 public:
     explicit FileIOException(const QString &errorMsg, const QString &fileName = QString::null, int lineNumber = -1);
 
-    QString getFileName() const { return m_fileName; }
+    QString fileName() const { return m_fileName; }
 
-    int getLineNumber() const { return m_lineNumber; }
+    int lineNumber() const { return m_lineNumber; }
 
 private:
     QString m_fileName;

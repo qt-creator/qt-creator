@@ -65,7 +65,7 @@ MClass &MClass::operator=(const MClass &rhs)
     return *this;
 }
 
-void MClass::setNamespace(const QString &nameSpace)
+void MClass::setNameSpace(const QString &nameSpace)
 {
     m_namespace = nameSpace;
 }
@@ -94,7 +94,7 @@ void MClass::removeMember(const Uid &uid)
 {
     QMT_CHECK(uid.isValid());
     for (int i = 0; i < m_members.count(); ++i) {
-        if (m_members.at(i).getUid() == uid) {
+        if (m_members.at(i).uid() == uid) {
             m_members.removeAt(i);
             return;
         }
@@ -104,7 +104,7 @@ void MClass::removeMember(const Uid &uid)
 
 void MClass::removeMember(const MClassMember &member)
 {
-    removeMember(member.getUid());
+    removeMember(member.uid());
 }
 
 void MClass::accept(MVisitor *visitor)

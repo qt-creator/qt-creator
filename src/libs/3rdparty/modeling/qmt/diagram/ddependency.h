@@ -51,15 +51,15 @@ public:
 
 public:
 
-    Uid getSource() const;
+    Uid source() const;
 
     void setSource(const Uid &source);
 
-    Uid getTarget() const;
+    Uid target() const;
 
     void setTarget(const Uid &target);
 
-    MDependency::Direction getDirection() const { return m_direction; }
+    MDependency::Direction direction() const { return m_direction; }
 
     void setDirection(MDependency::Direction direction);
 

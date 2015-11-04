@@ -88,7 +88,7 @@ public:
 
 public:
 
-    QRectF getBoundingRect() const { return m_boundingRect; }
+    QRectF boundingRect() const { return m_boundingRect; }
 
 public:
 

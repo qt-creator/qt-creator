@@ -85,9 +85,9 @@ public:
 
     virtual ~ILatchable() { }
 
-    virtual QList<Latch> getHorizontalLatches(Action action, bool grabbedItem) const = 0;
+    virtual QList<Latch> horizontalLatches(Action action, bool grabbedItem) const = 0;
 
-    virtual QList<Latch> getVerticalLatches(Action action, bool grabbedItem) const = 0;
+    virtual QList<Latch> verticalLatches(Action action, bool grabbedItem) const = 0;
 
 };
 

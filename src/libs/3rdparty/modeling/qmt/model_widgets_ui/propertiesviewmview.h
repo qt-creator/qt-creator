@@ -78,7 +78,7 @@ public:
 
 public:
 
-    QWidget *getTopLevelWidget() const { return m_topWidget; }
+    QWidget *topLevelWidget() const { return m_topWidget; }
 
 public:
 

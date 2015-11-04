@@ -99,7 +99,7 @@ public:
     bool contains(const Uid &uid) const
     {
         foreach (const Handle<T> &handle, m_handleList) {
-            if (handle.getUid() == uid) {
+            if (handle.uid() == uid) {
                 return true;
             }
         }
@@ -109,14 +109,14 @@ public:
     bool contains(const T *t) const
     {
         QMT_CHECK(t);
-        return contains(t->getUid());
+        return contains(t->uid());
     }
 
     T *find(const Uid &uid) const
     {
         foreach (const Handle<T> &handle, m_handleList) {
-            if (handle.getUid() == uid) {
-                return handle.getTarget();
+            if (handle.uid() == uid) {
+                return handle.target();
             }
         }
         return 0;
@@ -125,7 +125,7 @@ public:
     T *at(int index) const
     {
         QMT_CHECK(index >= 0 && index < m_handleList.size());
-        return m_handleList.at(index).getTarget();
+        return m_handleList.at(index).target();
     }
 
     T *at(int index)
@@ -138,7 +138,7 @@ public:
     {
         int index = 0;
         foreach (const Handle<T> &handle, m_handleList) {
-            if (handle.getUid() == uid) {
+            if (handle.uid() == uid) {
                 return index;
             }
             ++index;
@@ -149,7 +149,7 @@ public:
     int indexOf(const T *t) const
     {
         QMT_CHECK(t);
-        return indexOf(t->getUid());
+        return indexOf(t->uid());
     }
 
 public:
@@ -172,7 +172,7 @@ public:
     {
         if (m_takeOwnership) {
             foreach (const Handle<T> &handle, m_handleList) {
-                delete handle.getTarget();
+                delete handle.target();
             }
         }
         m_handleList.clear();
@@ -219,7 +219,7 @@ public:
     {
         QMT_CHECK(index >= 0 && index < size());
         if (m_takeOwnership) {
-            T *t = m_handleList.at(index).getTarget();
+            T *t = m_handleList.at(index).target();
             m_handleList.removeAt(index);
             delete t;
         } else {
@@ -241,7 +241,7 @@ public:
     T * take(int index)
     {
         QMT_CHECK(index >= 0 && index < size());
-        T *t = m_handleList.at(index).getTarget();
+        T *t = m_handleList.at(index).target();
         m_handleList.removeAt(index);
         return t;
     }

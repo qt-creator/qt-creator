@@ -58,7 +58,7 @@ DiagramView::~DiagramView()
 {
 }
 
-DiagramSceneModel *DiagramView::getDiagramSceneModel() const
+DiagramSceneModel *DiagramView::diagramSceneModel() const
 {
     return m_diagramSceneModel;
 }
@@ -68,7 +68,7 @@ void DiagramView::setDiagramSceneModel(DiagramSceneModel *diagramSceneModel)
     setScene(0);
     m_diagramSceneModel = diagramSceneModel;
     if (diagramSceneModel)
-        setScene(m_diagramSceneModel->getGraphicsScene());
+        setScene(m_diagramSceneModel->graphicsScene());
 }
 
 void DiagramView::dragEnterEvent(QDragEnterEvent *event)
@@ -80,7 +80,7 @@ void DiagramView::dragEnterEvent(QDragEnterEvent *event)
             QString key;
             dataStream >> key;
             if (!key.isEmpty()) {
-                if (m_diagramSceneModel->getDiagramSceneController()->isAddingAllowed(Uid(key), m_diagramSceneModel->getDiagram())) {
+                if (m_diagramSceneModel->diagramSceneController()->isAddingAllowed(Uid(key), m_diagramSceneModel->diagram())) {
                     accept = true;
                 }
             }
@@ -122,8 +122,8 @@ void DiagramView::dropEvent(QDropEvent *event)
             QString key;
             dataStream >> key;
             if (!key.isEmpty()) {
-                if (m_diagramSceneModel->getDiagramSceneController()->isAddingAllowed(Uid(key), m_diagramSceneModel->getDiagram())) {
-                    m_diagramSceneModel->getDiagramSceneController()->addExistingModelElement(Uid(key), mapToScene(event->pos()), m_diagramSceneModel->getDiagram());
+                if (m_diagramSceneModel->diagramSceneController()->isAddingAllowed(Uid(key), m_diagramSceneModel->diagram())) {
+                    m_diagramSceneModel->diagramSceneController()->addExistingModelElement(Uid(key), mapToScene(event->pos()), m_diagramSceneModel->diagram());
                 }
             }
         }
@@ -137,7 +137,7 @@ void DiagramView::dropEvent(QDropEvent *event)
             dataStream >> newElementId >> name >> stereotype;
             if (!newElementId.isEmpty()) {
                 QPointF pos = mapToScene(event->pos());
-                m_diagramSceneModel->getDiagramSceneController()->dropNewElement(newElementId, name, stereotype, m_diagramSceneModel->findTopmostElement(pos), pos, m_diagramSceneModel->getDiagram());
+                m_diagramSceneModel->diagramSceneController()->dropNewElement(newElementId, name, stereotype, m_diagramSceneModel->findTopmostElement(pos), pos, m_diagramSceneModel->diagram());
             }
         }
         event->accept();

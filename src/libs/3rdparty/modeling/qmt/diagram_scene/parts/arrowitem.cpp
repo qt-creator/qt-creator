@@ -214,11 +214,11 @@ public:
             }
 
             if (m_head == ArrowItem::HEAD_OPEN || m_head == ArrowItem::HEAD_TRIANGLE) {
-                m_arrowItem->setPen(style->getLinePen());
+                m_arrowItem->setPen(style->linePen());
                 m_arrowItem->setBrush(QBrush());
             } else {
-                m_arrowItem->setPen(style->getLinePen());
-                m_arrowItem->setBrush(style->getFillBrush());
+                m_arrowItem->setPen(style->linePen());
+                m_arrowItem->setBrush(style->fillBrush());
             }
 
             QPainterPath path;
@@ -245,11 +245,11 @@ public:
             }
 
             if (m_head == ArrowItem::HEAD_DIAMOND || m_head == ArrowItem::HEAD_DIAMOND_FILLED_TRIANGLE) {
-                m_diamondItem->setPen(style->getLinePen());
+                m_diamondItem->setPen(style->linePen());
                 m_diamondItem->setBrush(QBrush());
             } else {
-                m_diamondItem->setPen(style->getLinePen());
-                m_diamondItem->setBrush(style->getFillBrush());
+                m_diamondItem->setPen(style->linePen());
+                m_diamondItem->setBrush(style->fillBrush());
             }
 
             QPainterPath path;
@@ -417,19 +417,19 @@ QPointF ArrowItem::calcPointAtPercent(double percentage) const
     return m_shaftItem->path().pointAtPercent(percentage);
 }
 
-QLineF ArrowItem::getFirstLineSegment() const
+QLineF ArrowItem::firstLineSegment() const
 {
     QMT_CHECK(m_points.size() >= 2);
     return QLineF(m_points[0], m_points[1]);
 }
 
-QLineF ArrowItem::getLastLineSegment() const
+QLineF ArrowItem::lastLineSegment() const
 {
     QMT_CHECK(m_points.size() >= 2);
     return QLineF(m_points[m_points.size() - 1], m_points[m_points.size() - 2]);
 }
 
-double ArrowItem::getStartHeadLength() const
+double ArrowItem::startHeadLength() const
 {
     if (m_startHeadItem) {
         return m_startHeadItem->calcHeadLength();
@@ -437,7 +437,7 @@ double ArrowItem::getStartHeadLength() const
     return 0.0;
 }
 
-double ArrowItem::getEndHeadLength() const
+double ArrowItem::endHeadLength() const
 {
     if (m_endHeadItem) {
         return m_endHeadItem->calcHeadLength();
@@ -457,7 +457,7 @@ void ArrowItem::updateShaft(const Style *style)
 {
     QMT_CHECK(m_shaftItem);
 
-    QPen pen(style->getLinePen());
+    QPen pen(style->linePen());
     if (m_shaft == SHAFT_DASHED) {
         pen.setDashPattern(QVector<qreal>() << (4.0 / pen.widthF()) << (4.0 / pen.widthF()));
     }

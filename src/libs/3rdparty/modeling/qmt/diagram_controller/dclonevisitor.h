@@ -45,7 +45,7 @@ public:
     DCloneVisitor();
 
 public:
-    DElement *getCloned() const { return m_cloned; }
+    DElement *cloned() const { return m_cloned; }
 
     void visitDElement(const DElement *element);
 
@@ -86,7 +86,7 @@ public:
     DCloneDeepVisitor();
 
 public:
-    DElement *getCloned() const { return m_cloned; }
+    DElement *cloned() const { return m_cloned; }
 
     void visitDElement(const DElement *element);
 

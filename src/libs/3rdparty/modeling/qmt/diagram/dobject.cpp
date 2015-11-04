@@ -37,7 +37,7 @@ namespace qmt {
 
 DObject::DObject()
     : DElement(),
-      m_modelUid(Uid::getInvalidUid()),
+      m_modelUid(Uid::invalidUid()),
       m_depth(0),
       m_visualPrimaryRole(PRIMARY_ROLE_NORMAL),
       m_visualSecondaryRole(SECONDARY_ROLE_NONE),

@@ -98,21 +98,21 @@ public:
 
 public:
 
-    QRectF getRect() const { return m_rect; }
+    QRectF rect() const { return m_rect; }
 
     void setRect(const QRectF &rectangle);
 
     void setRect(qreal x, qreal y, qreal width, qreal height);
 
-    QSizeF getPointSize() const { return m_pointSize; }
+    QSizeF pointSize() const { return m_pointSize; }
 
     void setPointSize(const QSizeF &size);
 
-    bool getShowBorder() const { return m_showBorder; }
+    bool showBorder() const { return m_showBorder; }
 
     void setShowBorder(bool showBorder);
 
-    Freedom getFreedom() const { return m_freedom; }
+    Freedom freedom() const { return m_freedom; }
 
     void setFreedom(Freedom freedom);
 

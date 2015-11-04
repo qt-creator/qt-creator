@@ -48,7 +48,7 @@ public:
 
 public:
 
-    DElement *getProduct() const { return m_product; }
+    DElement *product() const { return m_product; }
 
 public:
 

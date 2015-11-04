@@ -57,7 +57,7 @@ private:
         public:
             RefNode(V &v) : m_v(v) { }
             bool accept(Parser &visitor, int *index) { return visitor.visit(this, index); }
-            V &getRef() const { return m_v; }
+            V &ref() const { return m_v; }
         private:
             V &m_v;
         };
@@ -69,8 +69,8 @@ private:
         public:
             SetterNode(U &u, void (U::*setter)(V)) : m_object(u), m_setter(setter) { }
             bool accept(Parser &visitor, int *index) { return visitor.visit(this, index); }
-            U &getObject() const { return m_object; }
-            void (U::*getSetter() const)(V) { return m_setter; }
+            U &object() const { return m_object; }
+            void (U::*setter() const)(V) { return m_setter; }
         private:
             U &m_object;
             void (U::*m_setter)(V);
@@ -111,7 +111,7 @@ private:
             if (!scan(&v, index)) {
                 return false;
             }
-            node->getRef() = v;
+            node->ref() = v;
             return true;
         }
 
@@ -122,7 +122,7 @@ private:
             if (!scan(&v, index)) {
                 return false;
             }
-            (node->getObject().*(node->getSetter()))(v);
+            (node->object().*(node->setter()))(v);
             return true;
         }
 
@@ -133,7 +133,7 @@ private:
             if (!scan(&v, index)) {
                 return false;
             }
-            (node->getObject().*(node->getSetter()))(v);
+            (node->object().*(node->setter()))(v);
             return true;
         }
 

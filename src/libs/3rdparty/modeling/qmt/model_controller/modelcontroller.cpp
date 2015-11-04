@@ -76,7 +76,7 @@ public:
     {
         MCloneVisitor visitor;
         object->accept(&visitor);
-        m_object = dynamic_cast<MObject *>(visitor.getCloned());
+        m_object = dynamic_cast<MObject *>(visitor.cloned());
         QMT_CHECK(m_object);
     }
 
@@ -91,7 +91,7 @@ public:
         if (!updateCommand) {
             return false;
         }
-        if (m_object->getUid() != updateCommand->m_object->getUid()) {
+        if (m_object->uid() != updateCommand->m_object->uid()) {
             return false;
         }
         // the last update is a complete update of all changes...
@@ -115,19 +115,19 @@ public:
 private:
     void assign()
     {
-        MObject *object = m_modelController->findObject<MObject>(m_object->getUid());
+        MObject *object = m_modelController->findObject<MObject>(m_object->uid());
         QMT_CHECK(object);
         int row = 0;
-        MObject *parent = object->getOwner();
+        MObject *parent = object->owner();
         if (!parent) {
             QMT_CHECK(object == m_modelController->m_rootPackage);
         } else {
-            row = object->getOwner()->getChildren().indexOf(object);
+            row = object->owner()->children().indexOf(object);
         }
         emit m_modelController->beginUpdateObject(row, parent);
         MCloneVisitor cloneVisitor;
         object->accept(&cloneVisitor);
-        MObject *newObject = dynamic_cast<MObject *>(cloneVisitor.getCloned());
+        MObject *newObject = dynamic_cast<MObject *>(cloneVisitor.cloned());
         QMT_CHECK(newObject);
         MFlatAssignmentVisitor assignVisitor(object);
         m_object->accept(&assignVisitor);
@@ -157,7 +157,7 @@ public:
     {
         MCloneVisitor visitor;
         relation->accept(&visitor);
-        m_relation = dynamic_cast<MRelation *>(visitor.getCloned());
+        m_relation = dynamic_cast<MRelation *>(visitor.cloned());
         QMT_CHECK(m_relation);
     }
 
@@ -172,7 +172,7 @@ public:
         if (!updateCommand) {
             return false;
         }
-        if (m_relation->getUid() != updateCommand->m_relation->getUid()) {
+        if (m_relation->uid() != updateCommand->m_relation->uid()) {
             return false;
         }
         // the last update is a complete update of all changes...
@@ -196,15 +196,15 @@ public:
 private:
     void assign()
     {
-        MRelation *relation = m_modelController->findRelation<MRelation>(m_relation->getUid());
+        MRelation *relation = m_modelController->findRelation<MRelation>(m_relation->uid());
         QMT_CHECK(relation);
-        MObject *owner = relation->getOwner();
+        MObject *owner = relation->owner();
         QMT_CHECK(owner);
-        int row = owner->getRelations().indexOf(relation);
+        int row = owner->relations().indexOf(relation);
         emit m_modelController->beginUpdateRelation(row, owner);
         MCloneVisitor cloneVisitor;
         relation->accept(&cloneVisitor);
-        MRelation *newRelation = dynamic_cast<MRelation *>(cloneVisitor.getCloned());
+        MRelation *newRelation = dynamic_cast<MRelation *>(cloneVisitor.cloned());
         QMT_CHECK(newRelation);
         MFlatAssignmentVisitor assignVisitor(relation);
         m_relation->accept(&assignVisitor);
@@ -257,7 +257,7 @@ public:
             for (int i = m_clonedElements.count() - 1; i >= 0; --i) {
                 Clone &clone = m_clonedElements[i];
                 QMT_CHECK(clone.m_clonedElement);
-                QMT_CHECK(clone.m_clonedElement->getUid() == clone.m_elementKey);
+                QMT_CHECK(clone.m_clonedElement->uid() == clone.m_elementKey);
                 MObject *owner = m_modelController->findObject<MObject>(clone.m_ownerKey);
                 QMT_CHECK(owner);
                 QMT_CHECK(clone.m_indexOfElement >= 0);
@@ -312,12 +312,12 @@ public:
             {
                 MObject *object = m_modelController->findObject<MObject>(clone.m_elementKey);
                 QMT_CHECK(object);
-                clone.m_indexOfElement = owner->getChildren().indexOf(object);
+                clone.m_indexOfElement = owner->children().indexOf(object);
                 QMT_CHECK(clone.m_indexOfElement >= 0);
                 emit m_modelController->beginRemoveObject(clone.m_indexOfElement, owner);
                 MCloneDeepVisitor visitor;
                 object->accept(&visitor);
-                clone.m_clonedElement = visitor.getCloned();
+                clone.m_clonedElement = visitor.cloned();
                 m_modelController->unmapObject(object);
                 owner->removeChild(object);
                 emit m_modelController->endRemoveObject(clone.m_indexOfElement, owner);
@@ -328,12 +328,12 @@ public:
             {
                 MRelation *relation = m_modelController->findRelation<MRelation>(clone.m_elementKey);
                 QMT_CHECK(relation);
-                clone.m_indexOfElement = owner->getRelations().indexOf(relation);
+                clone.m_indexOfElement = owner->relations().indexOf(relation);
                 QMT_CHECK(clone.m_indexOfElement >= 0);
                 emit m_modelController->beginRemoveRelation(clone.m_indexOfElement, owner);
                 MCloneDeepVisitor visitor;
                 relation->accept(&visitor);
-                clone.m_clonedElement = visitor.getCloned();
+                clone.m_clonedElement = visitor.cloned();
                 m_modelController->unmapRelation(relation);
                 owner->removeRelation(relation);
                 emit m_modelController->endRemoveRelation(clone.m_indexOfElement, owner);
@@ -381,22 +381,22 @@ public:
     {
         struct Clone clone;
 
-        clone.m_elementKey = element->getUid();
-        clone.m_ownerKey = owner->getUid();
+        clone.m_elementKey = element->uid();
+        clone.m_ownerKey = owner->uid();
         if (MObject *object = dynamic_cast<MObject *>(element)) {
             clone.m_elementType = TYPE_OBJECT;
-            clone.m_indexOfElement = owner->getChildren().indexOf(object);
+            clone.m_indexOfElement = owner->children().indexOf(object);
             QMT_CHECK(clone.m_indexOfElement >= 0);
         } else if (MRelation *relation = dynamic_cast<MRelation *>(element)) {
             clone.m_elementType = TYPE_RELATION;
-            clone.m_indexOfElement = owner->getRelations().indexOf(relation);
+            clone.m_indexOfElement = owner->relations().indexOf(relation);
             QMT_CHECK(clone.m_indexOfElement >= 0);
         } else {
             QMT_CHECK(false);
         }
         MCloneDeepVisitor visitor;
         element->accept(&visitor);
-        clone.m_clonedElement = visitor.getCloned();
+        clone.m_clonedElement = visitor.cloned();
         QMT_CHECK(clone.m_clonedElement);
         m_clonedElements.append(clone);
     }
@@ -415,12 +415,12 @@ public:
                 {
                     MObject *object = m_modelController->findObject<MObject>(clone.m_elementKey);
                     QMT_CHECK(object);
-                    clone.m_indexOfElement = owner->getChildren().indexOf(object);
+                    clone.m_indexOfElement = owner->children().indexOf(object);
                     QMT_CHECK(clone.m_indexOfElement >= 0);
                     emit m_modelController->beginRemoveObject(clone.m_indexOfElement, owner);
                     MCloneDeepVisitor visitor;
                     object->accept(&visitor);
-                    clone.m_clonedElement = visitor.getCloned();
+                    clone.m_clonedElement = visitor.cloned();
                     m_modelController->unmapObject(object);
                     owner->removeChild(object);
                     emit m_modelController->endRemoveObject(clone.m_indexOfElement, owner);
@@ -431,12 +431,12 @@ public:
                 {
                     MRelation *relation = m_modelController->findRelation<MRelation>(clone.m_elementKey);
                     QMT_CHECK(relation);
-                    clone.m_indexOfElement = owner->getRelations().indexOf(relation);
+                    clone.m_indexOfElement = owner->relations().indexOf(relation);
                     QMT_CHECK(clone.m_indexOfElement >= 0);
                     emit m_modelController->beginRemoveRelation(clone.m_indexOfElement, owner);
                     MCloneDeepVisitor visitor;
                     relation->accept(&visitor);
-                    clone.m_clonedElement = visitor.getCloned();
+                    clone.m_clonedElement = visitor.cloned();
                     m_modelController->unmapRelation(relation);
                     owner->removeRelation(relation);
                     emit m_modelController->endRemoveRelation(clone.m_indexOfElement, owner);
@@ -517,9 +517,9 @@ public:
     MoveObjectCommand(ModelController *modelController, MObject *object)
         : UndoCommand(tr("Move Object")),
           m_modelController(modelController),
-          m_objectKey(object->getUid()),
-          m_ownerKey(object->getOwner()->getUid()),
-          m_indexOfElement(object->getOwner()->getChildren().indexOf(object))
+          m_objectKey(object->uid()),
+          m_ownerKey(object->owner()->uid()),
+          m_indexOfElement(object->owner()->children().indexOf(object))
     {
     }
 
@@ -547,14 +547,14 @@ private:
     {
         MObject *object = m_modelController->findObject(m_objectKey);
         QMT_CHECK(object);
-        MObject *formerOwner = object->getOwner();
-        int formerRow = formerOwner->getChildren().indexOf(object);
+        MObject *formerOwner = object->owner();
+        int formerRow = formerOwner->children().indexOf(object);
         emit m_modelController->beginMoveObject(formerRow, formerOwner);
         formerOwner->decontrolChild(object);
         MObject *newOwner = m_modelController->findObject(m_ownerKey);
         newOwner->insertChild(m_indexOfElement, object);
         int newRow = m_indexOfElement;
-        m_ownerKey = formerOwner->getUid();
+        m_ownerKey = formerOwner->uid();
         m_indexOfElement = formerRow;
         emit m_modelController->endMoveObject(newRow, newOwner);
         emit m_modelController->modified();
@@ -581,9 +581,9 @@ public:
     MoveRelationCommand(ModelController *modelController, MRelation *relation)
         : UndoCommand(tr("Move Relation")),
           m_modelController(modelController),
-          m_relationKey(relation->getUid()),
-          m_ownerKey(relation->getOwner()->getUid()),
-          m_indexOfElement(relation->getOwner()->getRelations().indexOf(relation))
+          m_relationKey(relation->uid()),
+          m_ownerKey(relation->owner()->uid()),
+          m_indexOfElement(relation->owner()->relations().indexOf(relation))
     {
     }
 
@@ -611,14 +611,14 @@ private:
     {
         MRelation *relation = m_modelController->findRelation(m_relationKey);
         QMT_CHECK(relation);
-        MObject *formerOwner = relation->getOwner();
-        int formerRow = formerOwner->getRelations().indexOf(relation);
+        MObject *formerOwner = relation->owner();
+        int formerRow = formerOwner->relations().indexOf(relation);
         emit m_modelController->beginMoveRelation(formerRow, formerOwner);
         formerOwner->decontrolRelation(relation);
         MObject *newOwner = m_modelController->findObject(m_ownerKey);
         newOwner->insertRelation(m_indexOfElement, relation);
         int newRow = m_indexOfElement;
-        m_ownerKey = formerOwner->getUid();
+        m_ownerKey = formerOwner->uid();
         m_indexOfElement = formerRow;
         emit m_modelController->endMoveRelation(newRow, newOwner);
         emit m_modelController->modified();
@@ -665,14 +665,14 @@ void ModelController::setUndoController(UndoController *undoController)
     m_undoController = undoController;
 }
 
-Uid ModelController::getOwnerKey(const MElement *element) const
+Uid ModelController::ownerKey(const MElement *element) const
 {
     QMT_CHECK(element);
-    MObject *owner = element->getOwner();
+    MObject *owner = element->owner();
     if (!owner) {
         return Uid();
     }
-    return owner->getUid();
+    return owner->uid();
 }
 
 MElement *ModelController::findElement(const Uid &key)
@@ -704,14 +704,14 @@ void ModelController::finishResetModel(bool modified)
     m_resettingModel = false;
 }
 
-MObject *ModelController::getObject(int row, const MObject *owner) const
+MObject *ModelController::object(int row, const MObject *owner) const
 {
     if (!owner) {
         QMT_CHECK(row == 0);
         return m_rootPackage;
     }
-    QMT_CHECK(row >= 0 && row < owner->getChildren().size());
-    return owner->getChildren().at(row);
+    QMT_CHECK(row >= 0 && row < owner->children().size());
+    return owner->children().at(row);
 }
 
 MObject *ModelController::findObject(const Uid &key) const
@@ -723,7 +723,7 @@ void ModelController::addObject(MPackage *parentPackage, MObject *object)
 {
     QMT_CHECK(parentPackage);
     QMT_CHECK(object);
-    int row = parentPackage->getChildren().size();
+    int row = parentPackage->children().size();
     if (!m_resettingModel) {
         emit beginInsertObject(row, parentPackage);
     }
@@ -731,7 +731,7 @@ void ModelController::addObject(MPackage *parentPackage, MObject *object)
     if (m_undoController) {
         AddElementsCommand *undoCommand = new AddElementsCommand(this, tr("Add Object"));
         m_undoController->push(undoCommand);
-        undoCommand->add(TYPE_OBJECT, object->getUid(), parentPackage->getUid());
+        undoCommand->add(TYPE_OBJECT, object->uid(), parentPackage->uid());
     }
     parentPackage->addChild(object);
     if (!m_resettingModel) {
@@ -749,16 +749,16 @@ void ModelController::removeObject(MObject *object)
     }
     removeRelatedRelations(object);
     // remove object
-    QMT_CHECK(object->getOwner());
-    int row = object->getOwner()->getChildren().indexOf(object);
-    MObject *owner = object->getOwner();
+    QMT_CHECK(object->owner());
+    int row = object->owner()->children().indexOf(object);
+    MObject *owner = object->owner();
     if (!m_resettingModel) {
         emit beginRemoveObject(row, owner);
     }
     if (m_undoController) {
         RemoveElementsCommand *undoCommand = new RemoveElementsCommand(this, tr("Delete Object"));
         m_undoController->push(undoCommand);
-        undoCommand->add(object, object->getOwner());
+        undoCommand->add(object, object->owner());
     }
     unmapObject(object);
     owner->removeChild(object);
@@ -776,14 +776,14 @@ void ModelController::startUpdateObject(MObject *object)
 {
     QMT_CHECK(object);
     int row = 0;
-    MObject *parent = object->getOwner();
+    MObject *parent = object->owner();
     if (!parent) {
         QMT_CHECK(object == m_rootPackage);
     } else {
-        row = parent->getChildren().indexOf(object);
+        row = parent->children().indexOf(object);
     }
     if (MPackage *package = dynamic_cast<MPackage *>(object)) {
-        m_oldPackageName = package->getName();
+        m_oldPackageName = package->name();
     }
     if (!m_resettingModel) {
         emit beginUpdateObject(row, parent);
@@ -798,11 +798,11 @@ void ModelController::finishUpdateObject(MObject *object, bool cancelled)
     QMT_CHECK(object);
 
     int row = 0;
-    MObject *parent = object->getOwner();
+    MObject *parent = object->owner();
     if (!parent) {
         QMT_CHECK(object == m_rootPackage);
     } else {
-        row = parent->getChildren().indexOf(object);
+        row = parent->children().indexOf(object);
     }
     if (!m_resettingModel) {
         emit endUpdateObject(row, parent);
@@ -812,7 +812,7 @@ void ModelController::finishUpdateObject(MObject *object, bool cancelled)
                 emit relationEndChanged(relation, object);
             }
             if (MPackage *package = dynamic_cast<MPackage *>(object)) {
-                if (m_oldPackageName != package->getName()) {
+                if (m_oldPackageName != package->name()) {
                     emit packageNameChanged(package, m_oldPackageName);
                 }
             }
@@ -828,11 +828,11 @@ void ModelController::moveObject(MPackage *newOwner, MObject *object)
     QMT_CHECK(object);
     QMT_CHECK(object != m_rootPackage);
 
-    if (newOwner != object->getOwner()) {
+    if (newOwner != object->owner()) {
         int formerRow = 0;
-        MObject *formerOwner = object->getOwner();
+        MObject *formerOwner = object->owner();
         QMT_CHECK(formerOwner);
-        formerRow = formerOwner->getChildren().indexOf(object);
+        formerRow = formerOwner->children().indexOf(object);
         if (!m_resettingModel) {
             emit beginMoveObject(formerRow, formerOwner);
         }
@@ -842,7 +842,7 @@ void ModelController::moveObject(MPackage *newOwner, MObject *object)
         }
         formerOwner->decontrolChild(object);
         newOwner->addChild(object);
-        int row = newOwner->getChildren().indexOf(object);
+        int row = newOwner->children().indexOf(object);
         if (!m_resettingModel) {
             emit endMoveObject(row, newOwner);
             emit modified();
@@ -860,10 +860,10 @@ void ModelController::addRelation(MObject *owner, MRelation *relation)
 {
     QMT_CHECK(owner);
     QMT_CHECK(relation);
-    QMT_CHECK(findObject(relation->getEndA()));
-    QMT_CHECK(findObject(relation->getEndB()));
+    QMT_CHECK(findObject(relation->endAUid()));
+    QMT_CHECK(findObject(relation->endBUid()));
 
-    int row = owner->getRelations().size();
+    int row = owner->relations().size();
     if (!m_resettingModel) {
         emit beginInsertRelation(row, owner);
     }
@@ -871,7 +871,7 @@ void ModelController::addRelation(MObject *owner, MRelation *relation)
     if (m_undoController) {
         AddElementsCommand *undoCommand = new AddElementsCommand(this, tr("Add Relation"));
         m_undoController->push(undoCommand);
-        undoCommand->add(TYPE_RELATION, relation->getUid(), owner->getUid());
+        undoCommand->add(TYPE_RELATION, relation->uid(), owner->uid());
     }
     owner->addRelation(relation);
     if (!m_resettingModel) {
@@ -884,9 +884,9 @@ void ModelController::addRelation(MObject *owner, MRelation *relation)
 void ModelController::removeRelation(MRelation *relation)
 {
     QMT_CHECK(relation);
-    MObject *owner = relation->getOwner();
+    MObject *owner = relation->owner();
     QMT_CHECK(owner);
-    int row = owner->getRelations().indexOf(relation);
+    int row = owner->relations().indexOf(relation);
     if (!m_resettingModel) {
         emit beginRemoveRelation(row, owner);
     }
@@ -907,10 +907,10 @@ void ModelController::removeRelation(MRelation *relation)
 void ModelController::startUpdateRelation(MRelation *relation)
 {
     QMT_CHECK(relation);
-    MObject *owner = relation->getOwner();
+    MObject *owner = relation->owner();
     QMT_CHECK(owner);
     if (!m_resettingModel) {
-        emit beginUpdateRelation(owner->getRelations().indexOf(relation), owner);
+        emit beginUpdateRelation(owner->relations().indexOf(relation), owner);
     }
     if (m_undoController) {
         m_undoController->push(new UpdateRelationCommand(this, relation));
@@ -920,12 +920,12 @@ void ModelController::startUpdateRelation(MRelation *relation)
 void ModelController::finishUpdateRelation(MRelation *relation, bool cancelled)
 {
     QMT_CHECK(relation);
-    QMT_CHECK(findObject(relation->getEndA()));
-    QMT_CHECK(findObject(relation->getEndB()));
-    MObject *owner = relation->getOwner();
+    QMT_CHECK(findObject(relation->endAUid()));
+    QMT_CHECK(findObject(relation->endBUid()));
+    MObject *owner = relation->owner();
     QMT_CHECK(owner);
     if (!m_resettingModel) {
-        emit endUpdateRelation(owner->getRelations().indexOf(relation), owner);
+        emit endUpdateRelation(owner->relations().indexOf(relation), owner);
         if (!cancelled) {
             emit modified();
         }
@@ -938,11 +938,11 @@ void ModelController::moveRelation(MObject *newOwner, MRelation *relation)
     QMT_CHECK(newOwner);
     QMT_CHECK(relation);
 
-    if (newOwner != relation->getOwner()) {
+    if (newOwner != relation->owner()) {
         int formerRow = 0;
-        MObject *formerOwner = relation->getOwner();
+        MObject *formerOwner = relation->owner();
         QMT_CHECK(formerOwner);
-        formerRow = formerOwner->getRelations().indexOf(relation);
+        formerRow = formerOwner->relations().indexOf(relation);
         if (!m_resettingModel) {
             emit beginMoveRelation(formerRow, formerOwner);
         }
@@ -952,7 +952,7 @@ void ModelController::moveRelation(MObject *newOwner, MRelation *relation)
         }
         formerOwner->decontrolRelation(relation);
         newOwner->addRelation(relation);
-        int row = newOwner->getRelations().indexOf(relation);
+        int row = newOwner->relations().indexOf(relation);
         if (!m_resettingModel) {
             emit endMoveRelation(row, newOwner);
             emit modified();
@@ -964,7 +964,7 @@ void ModelController::moveRelation(MObject *newOwner, MRelation *relation)
 QList<MRelation *> ModelController::findRelationsOfObject(const MObject *object) const
 {
     QMT_CHECK(object);
-    return m_objectRelationsMap.values(object->getUid());
+    return m_objectRelationsMap.values(object->uid());
 }
 
 MContainer ModelController::cutElements(const MSelection &modelSelection)
@@ -979,10 +979,10 @@ MContainer ModelController::copyElements(const MSelection &modelSelection)
 {
     MReferences simplifiedSelection = simplify(modelSelection);
     MContainer copiedElements;
-    foreach (MElement *element, simplifiedSelection.getElements()) {
+    foreach (MElement *element, simplifiedSelection.elements()) {
         MCloneDeepVisitor visitor;
         element->accept(&visitor);
-        MElement *clonedElement = visitor.getCloned();
+        MElement *clonedElement = visitor.cloned();
         copiedElements.submit(clonedElement);
     }
     return copiedElements;
@@ -993,10 +993,10 @@ void ModelController::pasteElements(MObject *owner, const MContainer &modelConta
     // clone all elements and renew their keys
     QHash<Uid, Uid> renewedKeys;
     QList<MElement *> clonedElements;
-    foreach (MElement *element, modelContainer.getElements()) {
+    foreach (MElement *element, modelContainer.elements()) {
         MCloneDeepVisitor visitor;
         element->accept(&visitor);
-        MElement *clonedElement = visitor.getCloned();
+        MElement *clonedElement = visitor.cloned();
         renewElementKey(clonedElement, &renewedKeys);
         clonedElements.append(clonedElement);
     }
@@ -1013,28 +1013,28 @@ void ModelController::pasteElements(MObject *owner, const MContainer &modelConta
         if (MObject *object = dynamic_cast<MObject *>(clonedElement)) {
             MObject *objectOwner = owner;
             if (!dynamic_cast<MPackage*>(owner)) {
-                objectOwner = owner->getOwner();
+                objectOwner = owner->owner();
             }
             QMT_CHECK(dynamic_cast<MPackage*>(objectOwner));
-            int row = objectOwner->getChildren().size();
+            int row = objectOwner->children().size();
             emit beginInsertObject(row, objectOwner);
             mapObject(object);
             if (m_undoController) {
                 AddElementsCommand *undoCommand = new AddElementsCommand(this, tr("Paste"));
                 m_undoController->push(undoCommand);
-                undoCommand->add(TYPE_OBJECT, object->getUid(), objectOwner->getUid());
+                undoCommand->add(TYPE_OBJECT, object->uid(), objectOwner->uid());
             }
             objectOwner->insertChild(row, object);
             emit endInsertObject(row, objectOwner);
             added = true;
         } else if (MRelation *relation = dynamic_cast<MRelation *>(clonedElement)) {
-            int row = owner->getRelations().size();
+            int row = owner->relations().size();
             emit beginInsertRelation(row, owner);
             mapRelation(relation);
             if (m_undoController) {
                 AddElementsCommand *undoCommand = new AddElementsCommand(this, tr("Paste"));
                 m_undoController->push(undoCommand);
-                undoCommand->add(TYPE_RELATION, relation->getUid(), owner->getUid());
+                undoCommand->add(TYPE_RELATION, relation->uid(), owner->uid());
             }
             owner->addRelation(relation);
             emit endInsertRelation(row, owner);
@@ -1058,20 +1058,20 @@ void ModelController::deleteElements(const MSelection &modelSelection)
 void ModelController::deleteElements(const MSelection &modelSelection, const QString &commandLabel)
 {
     MReferences simplifiedSelection = simplify(modelSelection);
-    if (simplifiedSelection.getElements().isEmpty()) {
+    if (simplifiedSelection.elements().isEmpty()) {
         return;
     }
     if (m_undoController) {
         m_undoController->beginMergeSequence(commandLabel);
     }
     bool removed = false;
-    foreach (MElement *element, simplifiedSelection.getElements()) {
+    foreach (MElement *element, simplifiedSelection.elements()) {
         // element may have been deleted indirectly by predecessor element in loop
-        if ((element = findElement(element->getUid()))) {
+        if ((element = findElement(element->uid()))) {
             if (MObject *object = dynamic_cast<MObject *>(element)) {
                 removeRelatedRelations(object);
-                MObject *owner = object->getOwner();
-                int row = owner->getChildren().indexOf(object);
+                MObject *owner = object->owner();
+                int row = owner->children().indexOf(object);
                 emit beginRemoveObject(row, owner);
                 if (m_undoController) {
                     RemoveElementsCommand *cutCommand = new RemoveElementsCommand(this, commandLabel);
@@ -1083,8 +1083,8 @@ void ModelController::deleteElements(const MSelection &modelSelection, const QSt
                 emit endRemoveObject(row, owner);
                 removed = true;
             } else if (MRelation *relation = dynamic_cast<MRelation *>(element)) {
-                MObject *owner = relation->getOwner();
-                int row = owner->getRelations().indexOf(relation);
+                MObject *owner = relation->owner();
+                int row = owner->relations().indexOf(relation);
                 emit beginRemoveRelation(row, owner);
                 if (m_undoController) {
                     RemoveElementsCommand *cutCommand = new RemoveElementsCommand(this, commandLabel);
@@ -1111,32 +1111,32 @@ void ModelController::deleteElements(const MSelection &modelSelection, const QSt
 
 void ModelController::removeRelatedRelations(MObject *object)
 {
-    foreach (MRelation *relation, m_objectRelationsMap.values(object->getUid())) {
+    foreach (MRelation *relation, m_objectRelationsMap.values(object->uid())) {
         removeRelation(relation);
     }
-    QMT_CHECK(m_objectRelationsMap.values(object->getUid()).isEmpty());
+    QMT_CHECK(m_objectRelationsMap.values(object->uid()).isEmpty());
 }
 
 void ModelController::renewElementKey(MElement *element, QHash<Uid, Uid> *renewedKeys)
 {
     if (element) {
-        MElement *otherElement = findObject(element->getUid());
+        MElement *otherElement = findObject(element->uid());
         if (otherElement) {
             QMT_CHECK(otherElement != element);
         }
-        if (m_objectsMap.contains(element->getUid()) || m_relationsMap.contains(element->getUid())) {
-            Uid oldKey = element->getUid();
+        if (m_objectsMap.contains(element->uid()) || m_relationsMap.contains(element->uid())) {
+            Uid oldKey = element->uid();
             element->renewUid();
-            Uid newKey = element->getUid();
+            Uid newKey = element->uid();
             renewedKeys->insert(oldKey, newKey);
         }
         MObject *object = dynamic_cast<MObject *>(element);
         if (object) {
-            foreach (const Handle<MObject> &child, object->getChildren()) {
-                renewElementKey(child.getTarget(), renewedKeys);
+            foreach (const Handle<MObject> &child, object->children()) {
+                renewElementKey(child.target(), renewedKeys);
             }
-            foreach (const Handle<MRelation> &relation, object->getRelations()) {
-                renewElementKey(relation.getTarget(), renewedKeys);
+            foreach (const Handle<MRelation> &relation, object->relations()) {
+                renewElementKey(relation.target(), renewedKeys);
             }
         }
     }
@@ -1145,11 +1145,11 @@ void ModelController::renewElementKey(MElement *element, QHash<Uid, Uid> *renewe
 void ModelController::updateRelationKeys(MElement *element, const QHash<Uid, Uid> &renewedKeys)
 {
     if (MObject *object = dynamic_cast<MObject *>(element)) {
-        foreach (const Handle<MRelation> &handle, object->getRelations()) {
-            updateRelationEndKeys(handle.getTarget(), renewedKeys);
+        foreach (const Handle<MRelation> &handle, object->relations()) {
+            updateRelationEndKeys(handle.target(), renewedKeys);
         }
-        foreach (const Handle<MObject> &child, object->getChildren()) {
-            updateRelationKeys(child.getTarget(), renewedKeys);
+        foreach (const Handle<MObject> &child, object->children()) {
+            updateRelationKeys(child.target(), renewedKeys);
         }
     } else if (MRelation *relation = dynamic_cast<MRelation *>(element)) {
         updateRelationEndKeys(relation, renewedKeys);
@@ -1159,13 +1159,13 @@ void ModelController::updateRelationKeys(MElement *element, const QHash<Uid, Uid
 void ModelController::updateRelationEndKeys(MRelation *relation, const QHash<Uid, Uid> &renewedKeys)
 {
     if (relation) {
-        Uid newEndAKey = renewedKeys.value(relation->getEndA(), Uid::getInvalidUid());
+        Uid newEndAKey = renewedKeys.value(relation->endAUid(), Uid::invalidUid());
         if (newEndAKey.isValid()) {
-            relation->setEndA(newEndAKey);
+            relation->setEndAUid(newEndAKey);
         }
-        Uid newEndBKey = renewedKeys.value(relation->getEndB(), Uid::getInvalidUid());
+        Uid newEndBKey = renewedKeys.value(relation->endBUid(), Uid::invalidUid());
         if (newEndBKey.isValid()) {
-            relation->setEndB(newEndBKey);
+            relation->setEndBUid(newEndBKey);
         }
     }
 }
@@ -1173,13 +1173,13 @@ void ModelController::updateRelationEndKeys(MRelation *relation, const QHash<Uid
 void ModelController::mapObject(MObject *object)
 {
     if (object) {
-        QMT_CHECK(!m_objectsMap.contains(object->getUid()));
-        m_objectsMap.insert(object->getUid(), object);
-        foreach (const Handle<MObject> &child, object->getChildren()) {
-            mapObject(child.getTarget());
+        QMT_CHECK(!m_objectsMap.contains(object->uid()));
+        m_objectsMap.insert(object->uid(), object);
+        foreach (const Handle<MObject> &child, object->children()) {
+            mapObject(child.target());
         }
-        foreach (const Handle<MRelation> &relation, object->getRelations()) {
-            mapRelation(relation.getTarget());
+        foreach (const Handle<MRelation> &relation, object->relations()) {
+            mapRelation(relation.target());
         }
     }
 }
@@ -1187,27 +1187,27 @@ void ModelController::mapObject(MObject *object)
 void ModelController::unmapObject(MObject *object)
 {
     if (object) {
-        QMT_CHECK(m_objectsMap.contains(object->getUid()));
-        foreach (const Handle<MRelation> &relation, object->getRelations()) {
-            unmapRelation(relation.getTarget());
+        QMT_CHECK(m_objectsMap.contains(object->uid()));
+        foreach (const Handle<MRelation> &relation, object->relations()) {
+            unmapRelation(relation.target());
         }
-        foreach (const Handle<MObject> &child, object->getChildren()) {
-            unmapObject(child.getTarget());
+        foreach (const Handle<MObject> &child, object->children()) {
+            unmapObject(child.target());
         }
-        m_objectsMap.remove(object->getUid());
+        m_objectsMap.remove(object->uid());
     }
 }
 
 void ModelController::mapRelation(MRelation *relation)
 {
     if (relation) {
-        QMT_CHECK(!m_relationsMap.contains(relation->getUid()));
-        m_relationsMap.insert(relation->getUid(), relation);
-        QMT_CHECK(!m_objectRelationsMap.contains(relation->getEndA(), relation));
-        m_objectRelationsMap.insert(relation->getEndA(), relation);
-        if (relation->getEndA() != relation->getEndB()) {
-            QMT_CHECK(!m_objectRelationsMap.contains(relation->getEndB(), relation));
-            m_objectRelationsMap.insert(relation->getEndB(), relation);
+        QMT_CHECK(!m_relationsMap.contains(relation->uid()));
+        m_relationsMap.insert(relation->uid(), relation);
+        QMT_CHECK(!m_objectRelationsMap.contains(relation->endAUid(), relation));
+        m_objectRelationsMap.insert(relation->endAUid(), relation);
+        if (relation->endAUid() != relation->endBUid()) {
+            QMT_CHECK(!m_objectRelationsMap.contains(relation->endBUid(), relation));
+            m_objectRelationsMap.insert(relation->endBUid(), relation);
         }
     }
 }
@@ -1215,13 +1215,13 @@ void ModelController::mapRelation(MRelation *relation)
 void ModelController::unmapRelation(MRelation *relation)
 {
     if (relation) {
-        QMT_CHECK(m_relationsMap.contains(relation->getUid()));
-        m_relationsMap.remove(relation->getUid());
-        QMT_CHECK(m_objectRelationsMap.contains(relation->getEndA(), relation));
-        m_objectRelationsMap.remove(relation->getEndA(), relation);
-        if (relation->getEndA() != relation->getEndB()) {
-            QMT_CHECK(m_objectRelationsMap.contains(relation->getEndB(), relation));
-            m_objectRelationsMap.remove(relation->getEndB(), relation);
+        QMT_CHECK(m_relationsMap.contains(relation->uid()));
+        m_relationsMap.remove(relation->uid());
+        QMT_CHECK(m_objectRelationsMap.contains(relation->endAUid(), relation));
+        m_objectRelationsMap.remove(relation->endAUid(), relation);
+        if (relation->endAUid() != relation->endBUid()) {
+            QMT_CHECK(m_objectRelationsMap.contains(relation->endBUid(), relation));
+            m_objectRelationsMap.remove(relation->endBUid(), relation);
         }
     }
 }
@@ -1230,16 +1230,16 @@ MReferences ModelController::simplify(const MSelection &modelSelection)
 {
     // PERFORM improve performance by using a set of Uid build from modelSelection
     MReferences references;
-    foreach (const MSelection::Index &index, modelSelection.getIndices()) {
-        MElement *element = findElement(index.getElementKey());
+    foreach (const MSelection::Index &index, modelSelection.indices()) {
+        MElement *element = findElement(index.elementKey());
         QMT_CHECK(element);
         // if any (grand-)parent of element is in modelSelection then ignore element
         bool ignore = false;
-        MObject *owner = element->getOwner();
+        MObject *owner = element->owner();
         while (owner) {
-            Uid ownerKey = owner->getUid();
-            foreach (const MSelection::Index &index, modelSelection.getIndices()) {
-                if (index.getElementKey() == ownerKey) {
+            Uid ownerKey = owner->uid();
+            foreach (const MSelection::Index &index, modelSelection.indices()) {
+                if (index.elementKey() == ownerKey) {
                     ignore = true;
                     break;
                 }
@@ -1247,7 +1247,7 @@ MReferences ModelController::simplify(const MSelection &modelSelection)
             if (ignore) {
                 break;
             }
-            owner = owner->getOwner();
+            owner = owner->owner();
         }
         if (!ignore) {
             references.append(element);
@@ -1270,14 +1270,14 @@ void ModelController::verifyModelIntegrity() const
     QMT_CHECK(objectsMap.size() == m_objectsMap.size());
     foreach (const MObject *object, m_objectsMap) {
         QMT_CHECK(object);
-        QMT_CHECK(m_objectsMap.contains(object->getUid()));
-        QMT_CHECK(objectsMap.contains(object->getUid()));
+        QMT_CHECK(m_objectsMap.contains(object->uid()));
+        QMT_CHECK(objectsMap.contains(object->uid()));
     }
     QMT_CHECK(relationsMap.size() == m_relationsMap.size());
     foreach (const MRelation *relation, m_relationsMap) {
         QMT_CHECK(relation);
-        QMT_CHECK(m_relationsMap.contains(relation->getUid()));
-        QMT_CHECK(relationsMap.contains(relation->getUid()));
+        QMT_CHECK(m_relationsMap.contains(relation->uid()));
+        QMT_CHECK(relationsMap.contains(relation->uid()));
     }
     QMT_CHECK(objectRelationsMap.size() == m_objectRelationsMap.size());
     for (QMultiHash<Uid, MRelation *>::const_iterator it = m_objectRelationsMap.cbegin(); it != m_objectRelationsMap.cend(); ++it) {
@@ -1293,23 +1293,23 @@ void ModelController::verifyModelIntegrity(const MObject *object, QHash<Uid, con
 {
 #ifndef QT_NO_DEBUG
     QMT_CHECK(object);
-    QMT_CHECK(!objectsMap->contains(object->getUid()));
-    objectsMap->insert(object->getUid(), object);
-    foreach (const Handle<MRelation> &handle, object->getRelations()) {
-        MRelation *relation = handle.getTarget();
+    QMT_CHECK(!objectsMap->contains(object->uid()));
+    objectsMap->insert(object->uid(), object);
+    foreach (const Handle<MRelation> &handle, object->relations()) {
+        MRelation *relation = handle.target();
         if (relation) {
-            QMT_CHECK(!relationsMap->contains(relation->getUid()));
-            relationsMap->insert(relation->getUid(), relation);
-            QMT_CHECK(findObject(relation->getEndA()));
-            QMT_CHECK(findObject(relation->getEndB()));
-            QMT_CHECK(!objectRelationsMap->contains(relation->getEndA(), relation));
-            objectRelationsMap->insert(relation->getEndA(), relation);
-            QMT_CHECK(!objectRelationsMap->contains(relation->getEndB(), relation));
-            objectRelationsMap->insert(relation->getEndB(), relation);
+            QMT_CHECK(!relationsMap->contains(relation->uid()));
+            relationsMap->insert(relation->uid(), relation);
+            QMT_CHECK(findObject(relation->endAUid()));
+            QMT_CHECK(findObject(relation->endBUid()));
+            QMT_CHECK(!objectRelationsMap->contains(relation->endAUid(), relation));
+            objectRelationsMap->insert(relation->endAUid(), relation);
+            QMT_CHECK(!objectRelationsMap->contains(relation->endBUid(), relation));
+            objectRelationsMap->insert(relation->endBUid(), relation);
         }
     }
-    foreach (const Handle<MObject> &handle, object->getChildren()) {
-        MObject *childObject = handle.getTarget();
+    foreach (const Handle<MObject> &handle, object->children()) {
+        MObject *childObject = handle.target();
         if (childObject) {
             verifyModelIntegrity(childObject, objectsMap, relationsMap, objectRelationsMap);
         }

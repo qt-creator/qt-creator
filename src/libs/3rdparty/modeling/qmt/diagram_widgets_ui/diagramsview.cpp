@@ -64,14 +64,14 @@ void DiagramsView::setDiagramsManager(DiagramsManager *diagramsManager)
 void DiagramsView::openDiagram(MDiagram *diagram)
 {
     QMT_CHECK(diagram);
-    DiagramView *diagramView = m_diagramViews.value(diagram->getUid());
+    DiagramView *diagramView = m_diagramViews.value(diagram->uid());
     if (!diagramView) {
         DiagramSceneModel *diagramSceneModel = m_diagramsManager->bindDiagramSceneModel(diagram);
         DiagramView *diagramView = new DiagramView(this);
         diagramView->setDiagramSceneModel(diagramSceneModel);
-        int tabIndex = addTab(diagramView, diagram->getName());
+        int tabIndex = addTab(diagramView, diagram->name());
         setCurrentIndex(tabIndex);
-        m_diagramViews.insert(diagram->getUid(), diagramView);
+        m_diagramViews.insert(diagram->uid(), diagramView);
     } else {
         setCurrentWidget(diagramView);
     }
@@ -84,11 +84,11 @@ void DiagramsView::closeDiagram(const MDiagram *diagram)
         return;
     }
 
-    DiagramView *diagramView = m_diagramViews.value(diagram->getUid());
+    DiagramView *diagramView = m_diagramViews.value(diagram->uid());
     if (diagramView) {
         removeTab(indexOf(diagramView));
         delete diagramView;
-        m_diagramViews.remove(diagram->getUid());
+        m_diagramViews.remove(diagram->uid());
     }
     emit someDiagramOpened(!m_diagramViews.isEmpty());
 }
@@ -108,12 +108,12 @@ void DiagramsView::closeAllDiagrams()
 
 void DiagramsView::onCurrentChanged(int tabIndex)
 {
-    emit currentDiagramChanged(getDiagram(tabIndex));
+    emit currentDiagramChanged(diagram(tabIndex));
 }
 
 void DiagramsView::onTabCloseRequested(int tabIndex)
 {
-    emit diagramCloseRequested(getDiagram(tabIndex));
+    emit diagramCloseRequested(diagram(tabIndex));
 }
 
 void DiagramsView::onDiagramRenamed(const MDiagram *diagram)
@@ -121,24 +121,24 @@ void DiagramsView::onDiagramRenamed(const MDiagram *diagram)
     if (!diagram) {
         return;
     }
-    DiagramView *diagramView = m_diagramViews.value(diagram->getUid());
+    DiagramView *diagramView = m_diagramViews.value(diagram->uid());
     if (diagramView) {
-        setTabText(indexOf(diagramView), diagram->getName());
+        setTabText(indexOf(diagramView), diagram->name());
     }
 }
 
-MDiagram *DiagramsView::getDiagram(int tabIndex) const
+MDiagram *DiagramsView::diagram(int tabIndex) const
 {
     DiagramView *diagramView = dynamic_cast<DiagramView *>(widget(tabIndex));
-    return getDiagram(diagramView);
+    return diagram(diagramView);
 }
 
-MDiagram *DiagramsView::getDiagram(DiagramView *diagramView) const
+MDiagram *DiagramsView::diagram(DiagramView *diagramView) const
 {
-    if (!diagramView || diagramView->getDiagramSceneModel()) {
+    if (!diagramView || diagramView->diagramSceneModel()) {
         return 0;
     }
-    return diagramView->getDiagramSceneModel()->getDiagram();
+    return diagramView->diagramSceneModel()->diagram();
 }
 
 }

@@ -72,11 +72,11 @@ public:
 
 public:
 
-    QSizeF getMinimumSize() const;
+    QSizeF minimumSize() const;
 
 public:
 
-    QPointF getRelationStartPos() const;
+    QPointF relationStartPos() const;
 
     void relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints);
 

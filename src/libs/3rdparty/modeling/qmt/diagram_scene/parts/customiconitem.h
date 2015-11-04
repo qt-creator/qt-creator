@@ -67,11 +67,11 @@ public:
 
     void setPen(const QPen &pen);
 
-    StereotypeIcon getStereotypeIcon() const { return m_stereotypeIcon; }
+    StereotypeIcon stereotypeIcon() const { return m_stereotypeIcon; }
 
-    double getShapeWidth() const;
+    double shapeWidth() const;
 
-    double getShapeHeight() const;
+    double shapeHeight() const;
 
 public:
 

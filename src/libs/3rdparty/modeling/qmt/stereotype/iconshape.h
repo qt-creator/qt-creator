@@ -60,7 +60,7 @@ public:
 
 public:
 
-    QSizeF getSize() const;
+    QSizeF size() const;
 
     void setSize(const QSizeF &size);
 

@@ -90,9 +90,9 @@ public:
 
 public:
 
-    DObject *getObject() const { return m_object; }
+    DObject *object() const { return m_object; }
 
-    DiagramSceneModel *getDiagramSceneModel() const { return m_diagramSceneModel; }
+    DiagramSceneModel *diagramSceneModel() const { return m_diagramSceneModel; }
 
 public:
 
@@ -110,11 +110,11 @@ public:
 
 public:
 
-    QPointF getPos() const;
+    QPointF pos() const;
 
-    QRectF getRect() const;
+    QRectF rect() const;
 
-    QSizeF getMinimumSize() const = 0;
+    QSizeF minimumSize() const = 0;
 
     void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta);
 
@@ -138,9 +138,9 @@ public:
 
 public:
 
-    QList<Latch> getHorizontalLatches(Action action, bool grabbedItem) const;
+    QList<Latch> horizontalLatches(Action action, bool grabbedItem) const;
 
-    QList<Latch> getVerticalLatches(Action action, bool grabbedItem) const;
+    QList<Latch> verticalLatches(Action action, bool grabbedItem) const;
 
 public:
 
@@ -150,19 +150,19 @@ protected:
 
     void updateStereotypeIconDisplay();
 
-    QString getStereotypeIconId() const { return m_stereotypeIconId; }
+    QString stereotypeIconId() const { return m_stereotypeIconId; }
 
-    QString getShapeIconId() const { return m_shapeIconId; }
+    QString shapeIconId() const { return m_shapeIconId; }
 
-    StereotypeIcon::Display getStereotypeIconDisplay() const { return m_stereotypeIconDisplay; }
+    StereotypeIcon::Display stereotypeIconDisplay() const { return m_stereotypeIconDisplay; }
 
     void updateStereotypes(const QString &stereotypeIconId, StereotypeIcon::Display stereotypeDisplay, const Style *style);
 
-    StereotypesItem *getStereotypesItem() const { return m_stereotypes; }
+    StereotypesItem *stereotypesItem() const { return m_stereotypes; }
 
-    CustomIconItem *getStereotypeIconItem() const { return m_stereotypeIcon; }
+    CustomIconItem *stereotypeIconItem() const { return m_stereotypeIcon; }
 
-    QSizeF getStereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon, qreal minimumWidth, qreal minimumHeight) const;
+    QSizeF stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon, qreal minimumWidth, qreal minimumHeight) const;
 
     void updateDepth();
 
@@ -178,7 +178,7 @@ protected:
 
     IAlignable::AlignType translateLatchTypeToAlignType(ILatchable::LatchType latchType);
 
-    const Style *getAdaptedStyle(const QString &stereotypeIconId);
+    const Style *adaptedStyle(const QString &stereotypeIconId);
 
     bool showContext() const;
 
@@ -200,7 +200,7 @@ protected:
 
 private:
 
-    QSizeF getMinimumSize(const QSet<QGraphicsItem *> &items) const;
+    QSizeF minimumSize(const QSet<QGraphicsItem *> &items) const;
 
 private:
 

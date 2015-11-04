@@ -73,7 +73,7 @@ void DFactory::visitMObject(const MObject *object)
 {
     DObject *diagramObject = dynamic_cast<DObject *>(m_product);
     QMT_CHECK(diagramObject);
-    diagramObject->setModelUid(object->getUid());
+    diagramObject->setModelUid(object->uid());
     visitMElement(object);
 }
 
@@ -127,7 +127,7 @@ void DFactory::visitMRelation(const MRelation *relation)
 {
     DRelation *diagramRelation = dynamic_cast<DRelation *>(m_product);
     QMT_CHECK(diagramRelation);
-    diagramRelation->setModelUid(relation->getUid());
+    diagramRelation->setModelUid(relation->uid());
     visitMElement(relation);
 }
 

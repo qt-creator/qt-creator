@@ -77,13 +77,13 @@ private:
     public:
         virtual ~Node() { qDeleteAll(m_children); }
 
-        const childrenType &getChildren() const { return m_children; }
+        const childrenType &children() const { return m_children; }
 
-        virtual QString getQualifiedName() const = 0;
+        virtual QString qualifiedName() const = 0;
 
         virtual void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        void append(Node *node) { m_children.push_back(node); }
+        void append(Node *node) { m_children.append(node); }
 
     private:
         childrenType m_children;
@@ -95,9 +95,9 @@ private:
     public:
         explicit TagNode(const Tag &tag) : m_tag(tag) { }
 
-        const Tag &getTag() const { return m_tag; }
+        const Tag &tag() const { return m_tag; }
 
-        QString getQualifiedName() const { return m_tag.getQualifiedName(); }
+        QString qualifiedName() const { return m_tag.qualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
@@ -112,9 +112,9 @@ private:
     public:
         explicit ObjectNode(const Object<T> &object) : m_object(object) { }
 
-        QString getQualifiedName() const { return m_object.getQualifiedName(); }
+        QString qualifiedName() const { return m_object.qualifiedName(); }
 
-        Object<T> &getObject() { return m_object; }
+        Object<T> &object() { return m_object; }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
@@ -129,9 +129,9 @@ private:
     public:
         explicit BaseNode(const Base<T, U> &base) : m_base(base) { }
 
-        QString getQualifiedName() const { return m_base.getQualifiedName(); }
+        QString qualifiedName() const { return m_base.qualifiedName(); }
 
-        Base<T, U> &getBase() { return m_base; }
+        Base<T, U> &base() { return m_base; }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
@@ -146,11 +146,11 @@ private:
     public:
         explicit AttrNode(const Attr<T> &attr) : m_attr(attr) { }
 
-        QString getQualifiedName() const { return m_attr.getQualifiedName(); }
+        QString qualifiedName() const { return m_attr.qualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        Attr<T> &getAttribute() { return m_attr; }
+        Attr<T> &attribute() { return m_attr; }
 
     private:
         Attr<T> m_attr;
@@ -163,11 +163,11 @@ private:
     public:
         explicit SetterAttrNode(const SetterAttr<U, T> &attr) : m_attr(attr) { }
 
-        QString getQualifiedName() const { return m_attr.getQualifiedName(); }
+        QString qualifiedName() const { return m_attr.qualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        SetterAttr<U, T> &getAttribute() { return m_attr; }
+        SetterAttr<U, T> &attribute() { return m_attr; }
 
     private:
         SetterAttr<U, T> m_attr;
@@ -180,11 +180,11 @@ private:
     public:
         explicit GetterSetterAttrNode(const GetterSetterAttr<U, T, V> &attr) : m_attr(attr) { }
 
-        QString getQualifiedName() const { return m_attr.getQualifiedName(); }
+        QString qualifiedName() const { return m_attr.qualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        GetterSetterAttr<U, T, V> &getAttribute() { return m_attr; }
+        GetterSetterAttr<U, T, V> &attribute() { return m_attr; }
 
     private:
         GetterSetterAttr<U, T, V> m_attr;
@@ -197,11 +197,11 @@ private:
     public:
         explicit SetFuncAttrNode(const SetFuncAttr<U, T> &attr) : m_attr(attr) { }
 
-        QString getQualifiedName() const { return m_attr.getQualifiedName(); }
+        QString qualifiedName() const { return m_attr.qualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        SetFuncAttr<U, T> &getAttribute() { return m_attr; }
+        SetFuncAttr<U, T> &attribute() { return m_attr; }
 
     private:
         SetFuncAttr<U, T> m_attr;
@@ -214,11 +214,11 @@ private:
     public:
         explicit GetSetFuncAttrNode(const GetSetFuncAttr<U, T, V> &attr) : m_attr(attr) { }
 
-        QString getQualifiedName() const { return m_attr.getQualifiedName(); }
+        QString qualifiedName() const { return m_attr.qualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        GetSetFuncAttr<U, T, V> &getAttribute() { return m_attr; }
+        GetSetFuncAttr<U, T, V> &attribute() { return m_attr; }
 
     private:
         GetSetFuncAttr<U, T, V> m_attr;
@@ -231,11 +231,11 @@ private:
     public:
         explicit RefNode(const Ref<T> &ref) : m_ref(ref) { }
 
-        QString getQualifiedName() const { return m_ref.getQualifiedName(); }
+        QString qualifiedName() const { return m_ref.qualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        Ref<T> &getReference() { return m_ref; }
+        Ref<T> &reference() { return m_ref; }
 
     private:
         Ref<T> m_ref;
@@ -248,11 +248,11 @@ private:
     public:
         explicit SetterRefNode(const SetterRef<U, T> &ref) : m_ref(ref) { }
 
-        QString getQualifiedName() const { return m_ref.getQualifiedName(); }
+        QString qualifiedName() const { return m_ref.qualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        SetterRef<U, T> &getReference() { return m_ref; }
+        SetterRef<U, T> &reference() { return m_ref; }
 
     private:
         SetterRef<U, T> m_ref;
@@ -265,11 +265,11 @@ private:
     public:
         explicit GetterSetterRefNode(const GetterSetterRef<U, T, V> &ref) : m_ref(ref) { }
 
-        QString getQualifiedName() const { return m_ref.getQualifiedName(); }
+        QString qualifiedName() const { return m_ref.qualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        GetterSetterRef<U, T, V> &getReference() { return m_ref; }
+        GetterSetterRef<U, T, V> &reference() { return m_ref; }
 
     private:
         GetterSetterRef<U, T, V> m_ref;
@@ -282,11 +282,11 @@ private:
     public:
         explicit SetFuncRefNode(const SetFuncRef<U, T> &ref) : m_ref(ref) { }
 
-        QString getQualifiedName() const { return m_ref.getQualifiedName(); }
+        QString qualifiedName() const { return m_ref.qualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        SetFuncRef<U, T> &getReference() { return m_ref; }
+        SetFuncRef<U, T> &reference() { return m_ref; }
 
     private:
         SetFuncRef<U, T> m_ref;
@@ -299,11 +299,11 @@ private:
     public:
         explicit GetSetFuncRefNode(const GetSetFuncRef<U, T, V> &ref) : m_ref(ref) { }
 
-        QString getQualifiedName() const { return m_ref.getQualifiedName(); }
+        QString qualifiedName() const { return m_ref.qualifiedName(); }
 
         void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
 
-        GetSetFuncRef<U, T, V> &getReference() { return m_ref; }
+        GetSetFuncRef<U, T, V> &reference() { return m_ref; }
 
     private:
         GetSetFuncRef<U, T, V> m_ref;
@@ -386,7 +386,7 @@ public:
         Node *node = m_nodeStack.pop();
         if (m_nodeStack.empty()) {
             XmlTag xmlTag = readTag();
-            if (xmlTag.m_tagName != node->getQualifiedName() || xmlTag.m_endTag) {
+            if (xmlTag.m_tagName != node->qualifiedName() || xmlTag.m_endTag) {
                 throw FileFormatException();
             }
             node->accept(*this, xmlTag);
@@ -560,7 +560,7 @@ public:
         read(&i);
         id.set(i);
         if (m_loadingRefMap.hasObject(id)) {
-            p = m_loadingRefMap.getObject<T *>(id);
+            p = m_loadingRefMap.object<T *>(id);
         } else {
             throw UnexpectedForwardReference();
         }
@@ -580,14 +580,14 @@ private:
         for (;;) {
             XmlTag xmlTag = readTag();
             if (xmlTag.m_endTag) {
-                if (xmlTag.m_tagName != node->getQualifiedName()) {
+                if (xmlTag.m_tagName != node->qualifiedName()) {
                     throw FileFormatException();
                 }
                 return;
             } else {
                 bool foundTag = false;
-                for (Node::childrenType::const_iterator it = node->getChildren().begin(); it != node->getChildren().end(); ++it) {
-                    if ((*it)->getQualifiedName() == xmlTag.m_tagName) {
+                for (Node::childrenType::const_iterator it = node->children().begin(); it != node->children().end(); ++it) {
+                    if ((*it)->qualifiedName() == xmlTag.m_tagName) {
                         foundTag = true;
                         (*it)->accept(*this, xmlTag);
                     }
@@ -612,8 +612,8 @@ private:
     template<class T>
     void visit(ObjectNode<T> *node, const XmlTag &tag)
     {
-        if (tag.m_id.isValid() && node->getObject().getObject() != 0) {
-            m_loadingRefMap.addObject(tag.m_id, node->getObject().getObject());
+        if (tag.m_id.isValid() && node->object().object() != 0) {
+            m_loadingRefMap.addObject(tag.m_id, node->object().object());
         }
         readChildren(node);
     }
@@ -621,9 +621,9 @@ private:
     template<class T, class U>
     void visit(BaseNode<T, U> *node, const XmlTag &)
     {
-        load(*this, node->getBase().getBase(), node->getBase().getParameters());
+        load(*this, node->base().base(), node->base().parameters());
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getBase().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->base().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -631,9 +631,9 @@ private:
     template<class T>
     void visit(AttrNode<T> *node, const XmlTag &)
     {
-        load(*this, *node->getAttribute().getValue(), node->getAttribute().getParameters());
+        load(*this, *node->attribute().value(), node->attribute().parameters());
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getAttribute().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -642,10 +642,10 @@ private:
     void visit(SetterAttrNode<U, T> *node, const XmlTag &)
     {
         T value;
-        load(*this, value, node->getAttribute().getParameters());
-        (node->getAttribute().getObject().*(node->getAttribute().getSetter()))(value);
+        load(*this, value, node->attribute().parameters());
+        (node->attribute().object().*(node->attribute().setter()))(value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getAttribute().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -654,10 +654,10 @@ private:
     void visit(SetterAttrNode<U, const T &> *node, const XmlTag &)
     {
         T value;
-        load(*this, value, node->getAttribute().getParameters());
-        (node->getAttribute().getObject().*(node->getAttribute().getSetter()))(value);
+        load(*this, value, node->attribute().parameters());
+        (node->attribute().object().*(node->attribute().setter()))(value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getAttribute().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -666,10 +666,10 @@ private:
     void visit(GetterSetterAttrNode<U, T, V> *node, const XmlTag &)
     {
         V value;
-        load(*this, value, node->getAttribute().getParameters());
-        (node->getAttribute().getObject().*(node->getAttribute().getSetter()))(value);
+        load(*this, value, node->attribute().parameters());
+        (node->attribute().object().*(node->attribute().setter()))(value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getAttribute().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -678,10 +678,10 @@ private:
     void visit(GetterSetterAttrNode<U, T, const V &> *node, const XmlTag &)
     {
         V value;
-        load(*this, value, node->getAttribute().getParameters());
-        (node->getAttribute().getObject().*(node->getAttribute().getSetter()))(value);
+        load(*this, value, node->attribute().parameters());
+        (node->attribute().object().*(node->attribute().setter()))(value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getAttribute().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -690,10 +690,10 @@ private:
     void visit(SetFuncAttrNode<U, T> *node, const XmlTag &)
     {
         T value;
-        load(*this, value, node->getAttribute().getParameters());
-        (node->getAttribute().getSetFunc())(node->getAttribute().getObject(), value);
+        load(*this, value, node->attribute().parameters());
+        (node->attribute().setterFunc())(node->attribute().object(), value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getAttribute().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -702,10 +702,10 @@ private:
     void visit(SetFuncAttrNode<U, const T &> *node, const XmlTag &)
     {
         T value;
-        load(*this, value, node->getAttribute().getParameters());
-        (node->getAttribute().getSetFunc())(node->getAttribute().getObject(), value);
+        load(*this, value, node->attribute().parameters());
+        (node->attribute().setterFunc())(node->attribute().object(), value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getAttribute().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -714,10 +714,10 @@ private:
     void visit(GetSetFuncAttrNode<U, T, V> *node, const XmlTag &)
     {
         V value;
-        load(*this, value, node->getAttribute().getParameters());
-        (node->getAttribute().getSetFunc())(node->getAttribute().getObject(), value);
+        load(*this, value, node->attribute().parameters());
+        (node->attribute().setterFunc())(node->attribute().object(), value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getAttribute().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -726,10 +726,10 @@ private:
     void visit(GetSetFuncAttrNode<U, T, const V &> *node, const XmlTag &)
     {
         V value;
-        load(*this, value, node->getAttribute().getParameters());
-        (node->getAttribute().getSetFunc())(node->getAttribute().getObject(), value);
+        load(*this, value, node->attribute().parameters());
+        (node->attribute().setterFunc())(node->attribute().object(), value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getAttribute().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -739,13 +739,13 @@ private:
     {
         m_currentRefNode = node;
         T value = T();
-        load(*this, value, node->getReference().getParameters());
+        load(*this, value, node->reference().parameters());
         if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
-            *node->getReference().getValue() = value;
+            *node->reference().value() = value;
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getReference().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -755,13 +755,13 @@ private:
     {
         m_currentRefNode = node;
         T value;
-        load(*this, value, node->getReference().getParameters());
+        load(*this, value, node->reference().parameters());
         if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
-            (node->getReference().getObject().*(node->getReference().getSetter()))(value);
+            (node->reference().object().*(node->reference().setter()))(value);
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getReference().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -771,13 +771,13 @@ private:
     {
         m_currentRefNode = node;
         T value;
-        load(*this, value, node->getReference().getParameters());
+        load(*this, value, node->reference().parameters());
         if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
-            (node->getReference().getObject().*(node->getReference().getSetter()))(value);
+            (node->reference().object().*(node->reference().setter()))(value);
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getReference().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -787,13 +787,13 @@ private:
     {
         m_currentRefNode = node;
         V value;
-        load(*this, value, node->getReference().getParameters());
+        load(*this, value, node->reference().parameters());
         if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
-            (node->getReference().getObject().*(node->getReference().getSetter()))(value);
+            (node->reference().object().*(node->reference().setter()))(value);
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getReference().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -803,13 +803,13 @@ private:
     {
         m_currentRefNode = node;
         V value;
-        load(*this, value, node->getReference().getParameters());
+        load(*this, value, node->reference().parameters());
         if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
-            (node->getReference().getObject().*(node->getReference().getSetter()))(value);
+            (node->reference().object().*(node->reference().setter()))(value);
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getReference().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -819,13 +819,13 @@ private:
     {
         m_currentRefNode = node;
         T value;
-        load(*this, value, node->getReference().getParameters());
+        load(*this, value, node->reference().parameters());
         if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
-            (node->getReference().getSetFunc())(node->getReference().getObject(), value);
+            (node->reference().setterFunc())(node->reference().object(), value);
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getReference().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -835,13 +835,13 @@ private:
     {
         m_currentRefNode = node;
         T value;
-        load(*this, value, node->getReference().getParameters());
+        load(*this, value, node->reference().parameters());
         if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
-            (node->getReference().getSetFunc())(node->getReference().getObject(), value);
+            (node->reference().setterFunc())(node->reference().object(), value);
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getReference().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -851,13 +851,13 @@ private:
     {
         m_currentRefNode = node;
         V value;
-        load(*this, value, node->getReference().getParameters());
+        load(*this, value, node->reference().parameters());
         if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
-            (node->getReference().getSetFunc())(node->getReference().getObject(), value);
+            (node->reference().setterFunc())(node->reference().object(), value);
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getReference().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -867,13 +867,13 @@ private:
     {
         m_currentRefNode = node;
         V value;
-        load(*this, value, node->getReference().getParameters());
+        load(*this, value, node->reference().parameters());
         if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
-            (node->getReference().getSetFunc())(node->getReference().getObject(), value);
+            (node->reference().setterFunc())(node->reference().object(), value);
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->getReference().getQualifiedName()) {
+        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }

@@ -48,7 +48,7 @@ public:
 
 public:
 
-    QString getId() const { return m_id; }
+    QString id() const { return m_id; }
 
 private:
 

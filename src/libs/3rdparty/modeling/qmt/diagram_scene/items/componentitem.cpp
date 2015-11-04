@@ -88,17 +88,17 @@ void ComponentItem::update()
 
     updateStereotypeIconDisplay();
 
-    const Style *style = getAdaptedStyle(getStereotypeIconId());
+    const Style *style = adaptedStyle(stereotypeIconId());
 
     // custom icon
-    if (getStereotypeIconDisplay() == StereotypeIcon::DISPLAY_ICON) {
+    if (stereotypeIconDisplay() == StereotypeIcon::DISPLAY_ICON) {
         if (!m_customIcon) {
-            m_customIcon = new CustomIconItem(getDiagramSceneModel(), this);
+            m_customIcon = new CustomIconItem(diagramSceneModel(), this);
         }
-        m_customIcon->setStereotypeIconId(getStereotypeIconId());
-        m_customIcon->setBaseSize(getStereotypeIconMinimumSize(m_customIcon->getStereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT));
-        m_customIcon->setBrush(style->getFillBrush());
-        m_customIcon->setPen(style->getOuterLinePen());
+        m_customIcon->setStereotypeIconId(stereotypeIconId());
+        m_customIcon->setBaseSize(stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT));
+        m_customIcon->setBrush(style->fillBrush());
+        m_customIcon->setPen(style->outerLinePen());
         m_customIcon->setZValue(SHAPE_ZVALUE);
     } else if (m_customIcon) {
         m_customIcon->scene()->removeItem(m_customIcon);
@@ -112,21 +112,21 @@ void ComponentItem::update()
         if (!m_shape) {
             m_shape = new QGraphicsRectItem(this);
         }
-        m_shape->setBrush(style->getFillBrush());
-        m_shape->setPen(style->getOuterLinePen());
+        m_shape->setBrush(style->fillBrush());
+        m_shape->setPen(style->outerLinePen());
         m_shape->setZValue(SHAPE_ZVALUE);
         if (!hasPlainShape()) {
             if (!m_upperRect) {
                 m_upperRect = new QGraphicsRectItem(this);
             }
-            m_upperRect->setBrush(style->getFillBrush());
-            m_upperRect->setPen(style->getOuterLinePen());
+            m_upperRect->setBrush(style->fillBrush());
+            m_upperRect->setPen(style->outerLinePen());
             m_upperRect->setZValue(SHAPE_DETAILS_ZVALUE);
             if (!m_lowerRect) {
                 m_lowerRect = new QGraphicsRectItem(this);
             }
-            m_lowerRect->setBrush(style->getFillBrush());
-            m_lowerRect->setPen(style->getOuterLinePen());
+            m_lowerRect->setBrush(style->fillBrush());
+            m_lowerRect->setPen(style->outerLinePen());
             m_lowerRect->setZValue(SHAPE_DETAILS_ZVALUE);
         } else {
             deleteRects = true;
@@ -153,24 +153,24 @@ void ComponentItem::update()
     }
 
     // stereotypes
-    updateStereotypes(getStereotypeIconId(), getStereotypeIconDisplay(), style);
+    updateStereotypes(stereotypeIconId(), stereotypeIconDisplay(), style);
 
     // component name
     if (!m_componentName) {
         m_componentName = new QGraphicsSimpleTextItem(this);
     }
-    m_componentName->setFont(style->getHeaderFont());
-    m_componentName->setBrush(style->getTextBrush());
-    m_componentName->setText(getObject()->getName());
+    m_componentName->setFont(style->headerFont());
+    m_componentName->setBrush(style->textBrush());
+    m_componentName->setText(object()->name());
 
     // context
     if (showContext()) {
         if (!m_contextLabel) {
             m_contextLabel = new ContextLabelItem(this);
         }
-        m_contextLabel->setFont(style->getSmallFont());
-        m_contextLabel->setBrush(style->getTextBrush());
-        m_contextLabel->setContext(getObject()->getContext());
+        m_contextLabel->setFont(style->smallFont());
+        m_contextLabel->setBrush(style->textBrush());
+        m_contextLabel->setContext(object()->context());
     } else if (m_contextLabel) {
         m_contextLabel->scene()->removeItem(m_contextLabel);
         delete m_contextLabel;
@@ -182,7 +182,7 @@ void ComponentItem::update()
     // relation starters
     if (isFocusSelected()) {
         if (!m_relationStarter && scene()) {
-            m_relationStarter = new RelationStarter(this, getDiagramSceneModel(), 0);
+            m_relationStarter = new RelationStarter(this, diagramSceneModel(), 0);
             scene()->addItem(m_relationStarter);
             m_relationStarter->setZValue(RELATION_STARTER_ZVALUE);
             m_relationStarter->addArrow(QStringLiteral("dependency"), ArrowItem::SHAFT_DASHED, ArrowItem::HEAD_OPEN);
@@ -205,16 +205,16 @@ bool ComponentItem::intersectShapeWithLine(const QLineF &line, QPointF *intersec
     QPolygonF polygon;
     if (m_customIcon) {
         // TODO use customIcon path as shape
-        QRectF rect = getObject()->getRect();
-        rect.translate(getObject()->getPos());
+        QRectF rect = object()->rect();
+        rect.translate(object()->pos());
         polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
     } else if (hasPlainShape()){
-        QRectF rect = getObject()->getRect();
-        rect.translate(getObject()->getPos());
+        QRectF rect = object()->rect();
+        rect.translate(object()->pos());
         polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
     } else {
-        QRectF rect = getObject()->getRect();
-        rect.translate(getObject()->getPos());
+        QRectF rect = object()->rect();
+        rect.translate(object()->pos());
         polygon << rect.topLeft()
                 << rect.topRight()
                 << rect.bottomRight()
@@ -228,50 +228,50 @@ bool ComponentItem::intersectShapeWithLine(const QLineF &line, QPointF *intersec
     return GeometryUtilities::intersect(polygon, line, intersectionPoint, intersectionLine);
 }
 
-QSizeF ComponentItem::getMinimumSize() const
+QSizeF ComponentItem::minimumSize() const
 {
     return calcMinimumGeometry();
 }
 
-QList<ILatchable::Latch> ComponentItem::getHorizontalLatches(ILatchable::Action action, bool grabbedItem) const
+QList<ILatchable::Latch> ComponentItem::horizontalLatches(ILatchable::Action action, bool grabbedItem) const
 {
-    return ObjectItem::getHorizontalLatches(action, grabbedItem);
+    return ObjectItem::horizontalLatches(action, grabbedItem);
 }
 
-QList<ILatchable::Latch> ComponentItem::getVerticalLatches(ILatchable::Action action, bool grabbedItem) const
+QList<ILatchable::Latch> ComponentItem::verticalLatches(ILatchable::Action action, bool grabbedItem) const
 {
-    return ObjectItem::getVerticalLatches(action, grabbedItem);
+    return ObjectItem::verticalLatches(action, grabbedItem);
 }
 
 #if 0
-QList<qreal> ComponentItem::getHorizontalLatches() const
+QList<qreal> ComponentItem::horizontalLatches() const
 {
-    QRectF rect = getObject()->getRect();
-    rect.translate(getObject()->getPos());
+    QRectF rect = object()->rect();
+    rect.translate(object()->pos());
     return QList<qreal>() << (rect.left() - RECT_WIDTH * 0.5) << rect.left() << rect.right();
 }
 
-QList<qreal> ComponentItem::getVerticalLatches() const
+QList<qreal> ComponentItem::verticalLatches() const
 {
-    QRectF rect = getObject()->getRect();
-    rect.translate(getObject()->getPos());
+    QRectF rect = object()->rect();
+    rect.translate(object()->pos());
     return QList<qreal>() << rect.top() << rect.bottom();
 }
 #endif
 
-QPointF ComponentItem::getRelationStartPos() const
+QPointF ComponentItem::relationStartPos() const
 {
     return pos();
 }
 
 void ComponentItem::relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints)
 {
-    DElement *targetElement = getDiagramSceneModel()->findTopmostElement(toScenePos);
+    DElement *targetElement = diagramSceneModel()->findTopmostElement(toScenePos);
     if (targetElement) {
        if (id == QStringLiteral("dependency")) {
             DObject *dependantObject = dynamic_cast<DObject *>(targetElement);
             if (dependantObject) {
-                getDiagramSceneModel()->getDiagramSceneController()->createDependency(getObject(), dependantObject, intermediatePoints, getDiagramSceneModel()->getDiagram());
+                diagramSceneModel()->diagramSceneController()->createDependency(object(), dependantObject, intermediatePoints, diagramSceneModel()->diagram());
             }
         }
     }
@@ -279,9 +279,9 @@ void ComponentItem::relationDrawn(const QString &id, const QPointF &toScenePos, 
 
 bool ComponentItem::hasPlainShape() const
 {
-    DComponent *diagramComponent = dynamic_cast<DComponent *>(getObject());
+    DComponent *diagramComponent = dynamic_cast<DComponent *>(object());
     QMT_CHECK(diagramComponent);
-    return diagramComponent->getPlainShape();
+    return diagramComponent->plainShape();
 }
 
 QSizeF ComponentItem::calcMinimumGeometry() const
@@ -290,15 +290,15 @@ QSizeF ComponentItem::calcMinimumGeometry() const
     double height = 0.0;
 
     if (m_customIcon) {
-        return getStereotypeIconMinimumSize(m_customIcon->getStereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
+        return stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
     }
 
     height += BODY_VERT_BORDER;
-    if (CustomIconItem *stereotypeIconItem = getStereotypeIconItem()) {
+    if (CustomIconItem *stereotypeIconItem = ObjectItem::stereotypeIconItem()) {
         width = std::max(width, stereotypeIconItem->boundingRect().width());
         height += stereotypeIconItem->boundingRect().height();
     }
-    if (StereotypesItem *stereotypesItem = getStereotypesItem()) {
+    if (StereotypesItem *stereotypesItem = ObjectItem::stereotypesItem()) {
         width = std::max(width, stereotypesItem->boundingRect().width());
         height += stereotypesItem->boundingRect().height();
     }
@@ -307,7 +307,7 @@ QSizeF ComponentItem::calcMinimumGeometry() const
         height += m_componentName->boundingRect().height();
     }
     if (m_contextLabel) {
-        height += m_contextLabel->getHeight();
+        height += m_contextLabel->height();
     }
     height += BODY_VERT_BORDER;
 
@@ -336,10 +336,10 @@ void ComponentItem::updateGeometry()
     width = geometry.width();
     height = geometry.height();
 
-    if (getObject()->hasAutoSize()) {
+    if (object()->hasAutoSize()) {
         // nothing
     } else {
-        QRectF rect = getObject()->getRect();
+        QRectF rect = object()->rect();
         if (rect.width() > width) {
             width = rect.width();
         }
@@ -355,14 +355,14 @@ void ComponentItem::updateGeometry()
     //double bottom = height / 2.0;
     double y = top;
 
-    setPos(getObject()->getPos());
+    setPos(object()->pos());
 
     QRectF rect(left, top, width, height);
 
     // the object is updated without calling DiagramController intentionally.
     // attribute rect is not a real attribute stored on DObject but
     // a backup for the graphics item used for manual resized and persistency.
-    getObject()->setRect(rect);
+    object()->setRect(rect);
 
     if (m_customIcon) {
         m_customIcon->setPos(left, top);
@@ -387,11 +387,11 @@ void ComponentItem::updateGeometry()
     }
 
     y += BODY_VERT_BORDER;
-    if (CustomIconItem *stereotypeIconItem = getStereotypeIconItem()) {
+    if (CustomIconItem *stereotypeIconItem = ObjectItem::stereotypeIconItem()) {
         stereotypeIconItem->setPos(right - stereotypeIconItem->boundingRect().width() - BODY_HORIZ_BORDER, y);
         y += stereotypeIconItem->boundingRect().height();
     }
-    if (StereotypesItem *stereotypesItem = getStereotypesItem()) {
+    if (StereotypesItem *stereotypesItem = ObjectItem::stereotypesItem()) {
         stereotypesItem->setPos(-stereotypesItem->boundingRect().width() / 2.0, y);
         y += stereotypesItem->boundingRect().height();
     }

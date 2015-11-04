@@ -42,7 +42,7 @@ DClass::DClass()
 {
 }
 
-void DClass::setNamespace(const QString &nameSpace)
+void DClass::setNameSpace(const QString &nameSpace)
 {
     m_namespace = nameSpace;
 }

@@ -64,15 +64,15 @@ public:
 
 public:
 
-    Direction getDirection() const { return m_direction; }
+    Direction direction() const { return m_direction; }
 
     void setDirection(Direction direction);
 
-    Uid getSource() const;
+    Uid source() const;
 
     void setSource(const Uid &source);
 
-    Uid getTarget() const;
+    Uid target() const;
 
     void setTarget(const Uid &target);
 

@@ -60,7 +60,7 @@ signals:
 
 public:
 
-    QList<MClassMember> getMembers() const;
+    QList<MClassMember> members() const;
 
     void setMembers(const QList<MClassMember> &members);
 

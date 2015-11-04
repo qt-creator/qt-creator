@@ -118,7 +118,7 @@ void BoundaryItem::update()
 
     prepareGeometryChange();
 
-    const Style *style = getAdaptedStyle();
+    const Style *style = adaptedStyle();
 
     // text
     if (!m_textItem) {
@@ -128,11 +128,11 @@ void BoundaryItem::update()
         QObject::connect(m_textItem->document(), &QTextDocument::contentsChanged, m_textItem,
                          [=]() { this->onContentsChanged(); } );
     }
-    m_textItem->setFont(style->getNormalFont());
-    m_textItem->setDefaultTextColor(style->getTextBrush().color());
+    m_textItem->setFont(style->normalFont());
+    m_textItem->setDefaultTextColor(style->textBrush().color());
     if (!m_onChanged) {
         m_textItem->setTextWidth(-1);
-        m_textItem->setPlainText(m_boundary->getText());
+        m_textItem->setPlainText(m_boundary->text());
     }
 
     // item shown if annotation has no text and is not selected
@@ -162,17 +162,17 @@ void BoundaryItem::update()
     m_onUpdate = false;
 }
 
-QPointF BoundaryItem::getPos() const
+QPointF BoundaryItem::pos() const
 {
-    return m_boundary->getPos();
+    return m_boundary->pos();
 }
 
-QRectF BoundaryItem::getRect() const
+QRectF BoundaryItem::rect() const
 {
-    return m_boundary->getRect();
+    return m_boundary->rect();
 }
 
-QSizeF BoundaryItem::getMinimumSize() const
+QSizeF BoundaryItem::minimumSize() const
 {
     return calcMinimumGeometry();
 }
@@ -182,24 +182,24 @@ void BoundaryItem::setPosAndRect(const QPointF &originalPos, const QRectF &origi
     QPointF newPos = originalPos;
     QRectF newRect = originalRect;
     GeometryUtilities::adjustPosAndRect(&newPos, &newRect, topLeftDelta, bottomRightDelta, QPointF(0.5, 0.5));
-    if (newPos != m_boundary->getPos() || newRect != m_boundary->getRect()) {
-        m_diagramSceneModel->getDiagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
+    if (newPos != m_boundary->pos() || newRect != m_boundary->rect()) {
+        m_diagramSceneModel->diagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->diagram(), DiagramController::UPDATE_GEOMETRY);
         m_boundary->setPos(newPos);
         m_boundary->setRect(newRect);
-        m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), false);
+        m_diagramSceneModel->diagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->diagram(), false);
     }
 }
 
 void BoundaryItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, IResizable::Side adjustVerticalSide, double rasterWidth, double rasterHeight)
 {
-    QPointF pos = m_boundary->getPos();
-    QRectF rect = m_boundary->getRect();
+    QPointF pos = m_boundary->pos();
+    QRectF rect = m_boundary->rect();
 
     double horizDelta = rect.width() - qRound(rect.width() / rasterWidth) * rasterWidth;
     double vertDelta = rect.height() - qRound(rect.height() / rasterHeight) * rasterHeight;
 
     // make sure the new size is at least the minimum size
-    QSizeF minimumSize = getMinimumSize();
+    QSizeF minimumSize = BoundaryItem::minimumSize();
     while (rect.width() + horizDelta < minimumSize.width()) {
         horizDelta += rasterWidth;
     }
@@ -241,15 +241,15 @@ void BoundaryItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, 
 
 void BoundaryItem::moveDelta(const QPointF &delta)
 {
-    m_diagramSceneModel->getDiagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
-    m_boundary->setPos(m_boundary->getPos() + delta);
-    m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), false);
+    m_diagramSceneModel->diagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->diagram(), DiagramController::UPDATE_GEOMETRY);
+    m_boundary->setPos(m_boundary->pos() + delta);
+    m_diagramSceneModel->diagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->diagram(), false);
 }
 
 void BoundaryItem::alignItemPositionToRaster(double rasterWidth, double rasterHeight)
 {
-    QPointF pos = m_boundary->getPos();
-    QRectF rect = m_boundary->getRect();
+    QPointF pos = m_boundary->pos();
+    QRectF rect = m_boundary->rect();
     QPointF topLeft = pos + rect.topLeft();
 
     double leftDelta = qRound(topLeft.x() / rasterWidth) * rasterWidth - topLeft.x();
@@ -347,9 +347,9 @@ void BoundaryItem::updateSelectionMarkerGeometry(const QRectF &boundaryRect)
     }
 }
 
-const Style *BoundaryItem::getAdaptedStyle()
+const Style *BoundaryItem::adaptedStyle()
 {
-    return m_diagramSceneModel->getStyleController()->adaptBoundaryStyle(m_boundary);
+    return m_diagramSceneModel->styleController()->adaptBoundaryStyle(m_boundary);
 }
 
 bool BoundaryItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
@@ -370,10 +370,10 @@ void BoundaryItem::onContentsChanged()
 
     if (!m_onUpdate) {
         QString plainText = m_textItem->toPlainText();
-        if (m_boundary->getText() != plainText) {
-            m_diagramSceneModel->getDiagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_MINOR);
+        if (m_boundary->text() != plainText) {
+            m_diagramSceneModel->diagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->diagram(), DiagramController::UPDATE_MINOR);
             m_boundary->setText(plainText);
-            m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), false);
+            m_diagramSceneModel->diagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->diagram(), false);
         }
     }
 
@@ -417,7 +417,7 @@ void BoundaryItem::updateGeometry()
         textHeight = textSize.height();
     }
 
-    QRectF boundaryRect = m_boundary->getRect();
+    QRectF boundaryRect = m_boundary->rect();
     if (boundaryRect.width() > width) {
         width = boundaryRect.width();
     }
@@ -429,7 +429,7 @@ void BoundaryItem::updateGeometry()
     double left = -width / 2.0;
     double top = -height / 2.0;
 
-    setPos(m_boundary->getPos());
+    setPos(m_boundary->pos());
 
     QRectF rect(left, top, width, height);
 

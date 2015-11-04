@@ -209,7 +209,7 @@ void PathSelectionItem::setPointSize(const QSizeF &size)
     }
 }
 
-QList<QPointF> PathSelectionItem::getPoints() const
+QList<QPointF> PathSelectionItem::points() const
 {
     QList<QPointF> points;
     foreach (GraphicsHandleItem *handle, m_handles) {
@@ -288,7 +288,7 @@ void PathSelectionItem::moveHandle(int pointIndex, const QPointF &deltaMove, Han
     case NONE:
     {
         if (handleStatus == PRESS) {
-            m_originalHandlePos = m_windable->getHandlePos(pointIndex);
+            m_originalHandlePos = m_windable->handlePos(pointIndex);
         }
         QPointF newPos = m_originalHandlePos + deltaMove;
         m_windable->setHandlePos(pointIndex, newPos);

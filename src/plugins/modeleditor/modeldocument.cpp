@@ -88,16 +88,16 @@ bool ModelDocument::save(QString *errorString, const QString &name, bool autoSav
     QString actualName = filePath().toString();
     if (!name.isEmpty())
         actualName = name;
-    d->documentController->getProjectController()->setFileName(actualName);
+    d->documentController->projectController()->setFileName(actualName);
     try {
-        d->documentController->getProjectController()->save();
+        d->documentController->projectController()->save();
     } catch (const qmt::Exception &ex) {
-        *errorString = ex.getErrorMsg();
+        *errorString = ex.errorMessage();
         return false;
     }
 
     if (!autoSave) {
-        setFilePath(Utils::FileName::fromString(d->documentController->getProjectController()->getProject()->getFileName()));
+        setFilePath(Utils::FileName::fromString(d->documentController->projectController()->project()->fileName()));
         emit changed();
     }
 
@@ -116,7 +116,7 @@ QString ModelDocument::suggestedFileName() const
 
 bool ModelDocument::isModified() const
 {
-    return d->documentController ? d->documentController->getProjectController()->isModified() : false;
+    return d->documentController ? d->documentController->projectController()->isModified() : false;
 }
 
 bool ModelDocument::isSaveAsAllowed() const
@@ -149,12 +149,12 @@ Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const QStr
 
     try {
         d->documentController->loadProject(fileName);
-        setFilePath(Utils::FileName::fromString(d->documentController->getProjectController()->getProject()->getFileName()));
+        setFilePath(Utils::FileName::fromString(d->documentController->projectController()->project()->fileName()));
     } catch (const qmt::FileNotFoundException &ex) {
-        *errorString = ex.getErrorMsg();
+        *errorString = ex.errorMessage();
         return OpenResult::ReadError;
     } catch (const qmt::Exception &ex) {
-        *errorString = tr("Could not open \"%1\" for reading: %2.").arg(fileName).arg(ex.getErrorMsg());
+        *errorString = tr("Could not open \"%1\" for reading: %2.").arg(fileName).arg(ex.errorMessage());
         return OpenResult::CannotHandle;
     }
 

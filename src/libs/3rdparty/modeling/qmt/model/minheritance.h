@@ -57,11 +57,11 @@ public:
 
 public:
 
-    Uid getDerived() const;
+    Uid derived() const;
 
     void setDerived(const Uid &derived);
 
-    Uid getBase() const;
+    Uid base() const;
 
     void setBase(const Uid &base);
 

@@ -54,7 +54,7 @@ class ModelIndexer :
     class DiagramsCollectorVisitor;
     class ModelIndexerPrivate;
 
-    friend uint qHash(const ModelIndexer::QueuedFile &queued_file);
+    friend uint qHash(const ModelIndexer::QueuedFile &queuedFile);
     friend bool operator==(const ModelIndexer::QueuedFile &lhs,
                            const ModelIndexer::QueuedFile &rhs);
 
@@ -65,7 +65,7 @@ public:
 signals:
     void quitIndexerThread();
     void filesQueued();
-    void openDefaultModel(const qmt::Uid &model_uid);
+    void openDefaultModel(const qmt::Uid &modelUid);
 
 public:
     QString findModel(const qmt::Uid &modelUid);

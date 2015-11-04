@@ -67,7 +67,7 @@ public:
 
 public:
 
-    DRelation *getRelation() const { return m_relation; }
+    DRelation *relation() const { return m_relation; }
 
 public:
 
@@ -95,7 +95,7 @@ public:
 
 public:
 
-    QPointF getHandlePos(int index);
+    QPointF handlePos(int index);
 
     void insertHandle(int beforeIndex, const QPointF &pos);
 
@@ -123,7 +123,7 @@ protected:
 
 private:
 
-    const Style *getAdaptedStyle();
+    const Style *adaptedStyle();
 
     QPointF calcEndPoint(const Uid &end, const Uid &otherEnd, int nearestIntermediatePointIndex);
 

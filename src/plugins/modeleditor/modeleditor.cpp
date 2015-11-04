@@ -166,7 +166,7 @@ bool ModelEditor::restoreState(const QByteArray &state)
         qmt::Uid uid;
         stream >> uid;
         if (uid.isValid()) {
-            qmt::MDiagram *diagram = d->document->documentController()->getModelController()->findObject<qmt::MDiagram>(uid);
+            qmt::MDiagram *diagram = d->document->documentController()->modelController()->findObject<qmt::MDiagram>(uid);
             if (diagram) {
                 openDiagram(diagram, false);
                 return true;
@@ -325,40 +325,40 @@ void ModelEditor::initDocument()
     QTC_CHECK(!d->diagramsViewManager);
     d->diagramsViewManager = new DiagramsViewManager(this);
     //connect(diagramsViewManager, &DiagramsViewManager::someDiagramOpened,
-    //        documentController->getDiagramsManager(), &qmt::DiagramsManager::someDiagramOpened);
+    //        documentController->diagramsManager(), &qmt::DiagramsManager::someDiagramOpened);
     connect(d->diagramsViewManager, &DiagramsViewManager::openNewDiagram,
             this, &ModelEditor::showDiagram);
     connect(d->diagramsViewManager, &DiagramsViewManager::closeOpenDiagram,
             this, &ModelEditor::closeDiagram);
     connect(d->diagramsViewManager, &DiagramsViewManager::closeAllOpenDiagrams,
             this, &ModelEditor::closeAllDiagrams);
-    documentController->getDiagramsManager()->setDiagramsView(d->diagramsViewManager);
+    documentController->diagramsManager()->setDiagramsView(d->diagramsViewManager);
 
-    d->propertiesView->setDiagramController(documentController->getDiagramController());
-    d->propertiesView->setModelController(documentController->getModelController());
-    d->propertiesView->setStereotypeController(documentController->getStereotypeController());
-    d->propertiesView->setStyleController(documentController->getStyleController());
+    d->propertiesView->setDiagramController(documentController->diagramController());
+    d->propertiesView->setModelController(documentController->modelController());
+    d->propertiesView->setStereotypeController(documentController->stereotypeController());
+    d->propertiesView->setStyleController(documentController->styleController());
 
-    d->modelTreeView->setTreeModel(documentController->getSortedTreeModel());
+    d->modelTreeView->setTreeModel(documentController->sortedTreeModel());
     d->modelTreeView->setElementTasks(documentController->elementTasks());
 
-    d->modelTreeViewServant->setTreeModel(documentController->getTreeModel());
+    d->modelTreeViewServant->setTreeModel(documentController->treeModel());
 
     connect(documentController, &qmt::DocumentController::diagramClipboardChanged,
             this, &ModelEditor::onDiagramClipboardChanged, Qt::QueuedConnection);
-    connect(documentController->getUndoController()->getUndoStack(), &QUndoStack::canUndoChanged,
+    connect(documentController->undoController()->undoStack(), &QUndoStack::canUndoChanged,
             this, &ModelEditor::onCanUndoChanged, Qt::QueuedConnection);
-    connect(documentController->getUndoController()->getUndoStack(), &QUndoStack::canRedoChanged,
+    connect(documentController->undoController()->undoStack(), &QUndoStack::canRedoChanged,
             this, &ModelEditor::onCanRedoChanged, Qt::QueuedConnection);
-    connect(documentController->getTreeModel(), &qmt::TreeModel::modelReset,
+    connect(documentController->treeModel(), &qmt::TreeModel::modelReset,
             this, &ModelEditor::onTreeModelReset, Qt::QueuedConnection);
-    connect(documentController->getDiagramController(), &qmt::DiagramController::modified,
+    connect(documentController->diagramController(), &qmt::DiagramController::modified,
             this, &ModelEditor::onDiagramModified, Qt::QueuedConnection);
-    connect(documentController->getDiagramsManager(), &qmt::DiagramsManager::diagramSelectionChanged,
+    connect(documentController->diagramsManager(), &qmt::DiagramsManager::diagramSelectionChanged,
             this, &ModelEditor::onDiagramSelectionChanged, Qt::QueuedConnection);
-    connect(documentController->getDiagramsManager(), &qmt::DiagramsManager::diagramActivated,
+    connect(documentController->diagramsManager(), &qmt::DiagramsManager::diagramActivated,
             this, &ModelEditor::onDiagramActivated, Qt::QueuedConnection);
-    connect(documentController->getDiagramSceneController(), &qmt::DiagramSceneController::newElementCreated,
+    connect(documentController->diagramSceneController(), &qmt::DiagramSceneController::newElementCreated,
             this, &ModelEditor::onNewElementCreated, Qt::QueuedConnection);
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
@@ -371,13 +371,13 @@ void ModelEditor::initDocument()
     connect(d->modelTreeView, &QAbstractItemView::doubleClicked,
             this, &ModelEditor::onTreeViewDoubleClicked, Qt::QueuedConnection);
 
-    connect(documentController->getModelController(), &qmt::ModelController::endMoveObject,
+    connect(documentController->modelController(), &qmt::ModelController::endMoveObject,
             this, &ModelEditor::updateDiagramSelector);
-    connect(documentController->getModelController(), &qmt::ModelController::endRemoveObject,
+    connect(documentController->modelController(), &qmt::ModelController::endRemoveObject,
             this, &ModelEditor::updateDiagramSelector);
-    connect(documentController->getModelController(), &qmt::ModelController::endResetModel,
+    connect(documentController->modelController(), &qmt::ModelController::endResetModel,
             this, &ModelEditor::updateDiagramSelector);
-    connect(documentController->getModelController(), &qmt::ModelController::endUpdateObject,
+    connect(documentController->modelController(), &qmt::ModelController::endUpdateObject,
             this, &ModelEditor::updateDiagramSelector);
 
     updateSelectedArea(SelectedArea::Nothing);
@@ -385,9 +385,9 @@ void ModelEditor::initDocument()
 
 qmt::MDiagram *ModelEditor::currentDiagram() const
 {
-    if (!d->diagramView->getDiagramSceneModel())
+    if (!d->diagramView->diagramSceneModel())
         return 0;
-    return d->diagramView->getDiagramSceneModel()->getDiagram();
+    return d->diagramView->diagramSceneModel()->diagram();
 }
 
 void ModelEditor::showDiagram(qmt::MDiagram *diagram)
@@ -397,12 +397,12 @@ void ModelEditor::showDiagram(qmt::MDiagram *diagram)
 
 void ModelEditor::undo()
 {
-    d->document->documentController()->getUndoController()->getUndoStack()->undo();
+    d->document->documentController()->undoController()->undoStack()->undo();
 }
 
 void ModelEditor::redo()
 {
-    d->document->documentController()->getUndoController()->getUndoStack()->redo();
+    d->document->documentController()->undoController()->undoStack()->redo();
 }
 
 void ModelEditor::cut()
@@ -416,7 +416,7 @@ void ModelEditor::cut()
         documentController->cutFromDiagram(currentDiagram());
         break;
     case SelectedArea::TreeView:
-        documentController->cutFromModel(d->modelTreeViewServant->getSelectedObjects());
+        documentController->cutFromModel(d->modelTreeViewServant->selectedObjects());
         break;
     }
 }
@@ -435,7 +435,7 @@ void ModelEditor::copy()
             documentController->copyDiagram(currentDiagram());
         break;
     case SelectedArea::TreeView:
-        documentController->copyFromModel(d->modelTreeViewServant->getSelectedObjects());
+        documentController->copyFromModel(d->modelTreeViewServant->selectedObjects());
         break;
     }
 }
@@ -451,7 +451,7 @@ void ModelEditor::paste()
         documentController->pasteIntoDiagram(currentDiagram());
         break;
     case SelectedArea::TreeView:
-        documentController->pasteIntoModel(d->modelTreeViewServant->getSelectedObject());
+        documentController->pasteIntoModel(d->modelTreeViewServant->selectedObject());
         break;
     }
 }
@@ -480,7 +480,7 @@ void ModelEditor::deleteSelectedElements()
         documentController->deleteFromDiagram(currentDiagram());
         break;
     case SelectedArea::TreeView:
-        documentController->deleteFromModel(d->modelTreeViewServant->getSelectedObjects());
+        documentController->deleteFromModel(d->modelTreeViewServant->selectedObjects());
         break;
     }
 }
@@ -507,23 +507,23 @@ qmt::MPackage *ModelEditor::guessSelectedPackage() const
     qmt::MPackage *package = 0;
     switch (d->selectedArea) {
     case SelectedArea::Nothing:
-        package = d->modelTreeViewServant->getSelectedPackage();
+        package = d->modelTreeViewServant->selectedPackage();
         break;
     case SelectedArea::Diagram:
     {
         qmt::DocumentController *documentController = d->document->documentController();
-        qmt::DiagramsManager *diagramsManager = documentController->getDiagramsManager();
+        qmt::DiagramsManager *diagramsManager = documentController->diagramsManager();
         qmt::MDiagram *diagram = currentDiagram();
-        qmt::DSelection selection = diagramsManager->getDiagramSceneModel(diagram)->getSelectedElements();
-        if (selection.getIndices().size() == 1) {
-            qmt::DPackage *diagramElement = documentController->getDiagramController()->findElement<qmt::DPackage>(selection.getIndices().at(0).getElementKey(), diagram);
+        qmt::DSelection selection = diagramsManager->diagramSceneModel(diagram)->selectedElements();
+        if (selection.indices().size() == 1) {
+            qmt::DPackage *diagramElement = documentController->diagramController()->findElement<qmt::DPackage>(selection.indices().at(0).elementKey(), diagram);
             if (diagramElement)
-                package = documentController->getModelController()->findObject<qmt::MPackage>(diagramElement->getModelUid());
+                package = documentController->modelController()->findObject<qmt::MPackage>(diagramElement->modelUid());
         }
         break;
     }
     case SelectedArea::TreeView:
-        package = d->modelTreeViewServant->getSelectedPackage();
+        package = d->modelTreeViewServant->selectedPackage();
         break;
     }
     return package;
@@ -547,22 +547,22 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     qmt::MDiagram *activeDiagram = currentDiagram();
     switch (d->selectedArea) {
     case SelectedArea::Nothing:
-        canSelectAll = activeDiagram && !activeDiagram->getDiagramElements().isEmpty();
+        canSelectAll = activeDiagram && !activeDiagram->diagramElements().isEmpty();
         break;
     case SelectedArea::Diagram:
     {
         if (activeDiagram) {
-            bool hasSelection = documentController->getDiagramsManager()->getDiagramSceneModel(activeDiagram)->hasSelection();
+            bool hasSelection = documentController->diagramsManager()->diagramSceneModel(activeDiagram)->hasSelection();
             canCutCopyDelete = hasSelection;
             canRemove = hasSelection;
             canPaste = !documentController->isDiagramClipboardEmpty();
-            canSelectAll = !activeDiagram->getDiagramElements().isEmpty();
+            canSelectAll = !activeDiagram->diagramElements().isEmpty();
             canCopyDiagram = !hasSelection;
             if (hasSelection) {
-                qmt::DSelection selection = documentController->getDiagramsManager()->getDiagramSceneModel(activeDiagram)->getSelectedElements();
+                qmt::DSelection selection = documentController->diagramsManager()->diagramSceneModel(activeDiagram)->selectedElements();
                 if (!selection.isEmpty()) {
-                    foreach (qmt::DSelection::Index index, selection.getIndices()) {
-                        qmt::DElement *diagramElement = documentController->getDiagramController()->findElement(index.getElementKey(), activeDiagram);
+                    foreach (qmt::DSelection::Index index, selection.indices()) {
+                        qmt::DElement *diagramElement = documentController->diagramController()->findElement(index.elementKey(), activeDiagram);
                         if (diagramElement)
                             propertiesDiagramElements.append(diagramElement);
                     }
@@ -575,16 +575,16 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     }
     case SelectedArea::TreeView:
     {
-        bool hasSelection = !d->modelTreeViewServant->getSelectedObjects().isEmpty();
-        bool hasSingleSelection = d->modelTreeViewServant->getSelectedObjects().getIndices().size() == 1;
+        bool hasSelection = !d->modelTreeViewServant->selectedObjects().isEmpty();
+        bool hasSingleSelection = d->modelTreeViewServant->selectedObjects().indices().size() == 1;
         canCutCopyDelete = hasSelection && !d->modelTreeViewServant->isRootPackageSelected();
         canPaste =  hasSingleSelection && !documentController->isModelClipboardEmpty();
-        canSelectAll = activeDiagram && !activeDiagram->getDiagramElements().isEmpty();
-        QModelIndexList indexes = d->modelTreeView->getSelectedSourceModelIndexes();
+        canSelectAll = activeDiagram && !activeDiagram->diagramElements().isEmpty();
+        QModelIndexList indexes = d->modelTreeView->selectedSourceModelIndexes();
         if (!indexes.isEmpty()) {
             foreach (const QModelIndex &propertiesIndex, indexes) {
                 if (propertiesIndex.isValid()) {
-                    qmt::MElement *modelElement = documentController->getTreeModel()->getElement(propertiesIndex);
+                    qmt::MElement *modelElement = documentController->treeModel()->element(propertiesIndex);
                     if (modelElement)
                         propertiesModelElements.append(modelElement);
                 }
@@ -613,11 +613,11 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
 
 void ModelEditor::showProperties(const QList<qmt::MElement *> &modelElements)
 {
-    if (modelElements != d->propertiesView->getSelectedModelElements()) {
+    if (modelElements != d->propertiesView->selectedModelElements()) {
         clearProperties();
         if (modelElements.size() > 0) {
             d->propertiesView->setSelectedModelElements(modelElements);
-            d->propertiesGroupWidget = d->propertiesView->getWidget();
+            d->propertiesGroupWidget = d->propertiesView->widget();
             d->propertiesScrollArea->setWidget(d->propertiesGroupWidget);
         }
     }
@@ -626,13 +626,13 @@ void ModelEditor::showProperties(const QList<qmt::MElement *> &modelElements)
 void ModelEditor::showProperties(qmt::MDiagram *diagram,
                                  const QList<qmt::DElement *> &diagramElements)
 {
-    if (diagram != d->propertiesView->getSelectedDiagram()
-            || diagramElements != d->propertiesView->getSelectedDiagramElements())
+    if (diagram != d->propertiesView->selectedDiagram()
+            || diagramElements != d->propertiesView->selectedDiagramElements())
     {
         clearProperties();
         if (diagram && diagramElements.size() > 0) {
             d->propertiesView->setSelectedDiagramElements(diagramElements, diagram);
-            d->propertiesGroupWidget = d->propertiesView->getWidget();
+            d->propertiesGroupWidget = d->propertiesView->widget();
             d->propertiesScrollArea->setWidget(d->propertiesGroupWidget);
         }
     }
@@ -689,8 +689,8 @@ void ModelEditor::onAddPackage()
 {
     ExtDocumentController *documentController = d->document->documentController();
 
-    qmt::MPackage *package = documentController->createNewPackage(d->modelTreeViewServant->getSelectedPackage());
-    d->modelTreeView->selectFromSourceModelIndex(documentController->getTreeModel()->getIndex(package));
+    qmt::MPackage *package = documentController->createNewPackage(d->modelTreeViewServant->selectedPackage());
+    d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->index(package));
     QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
 }
 
@@ -698,8 +698,8 @@ void ModelEditor::onAddComponent()
 {
     ExtDocumentController *documentController = d->document->documentController();
 
-    qmt::MComponent *component = documentController->createNewComponent(d->modelTreeViewServant->getSelectedPackage());
-    d->modelTreeView->selectFromSourceModelIndex(documentController->getTreeModel()->getIndex(component));
+    qmt::MComponent *component = documentController->createNewComponent(d->modelTreeViewServant->selectedPackage());
+    d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->index(component));
     QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
 }
 
@@ -707,8 +707,8 @@ void ModelEditor::onAddClass()
 {
     ExtDocumentController *documentController = d->document->documentController();
 
-    qmt::MClass *klass = documentController->createNewClass(d->modelTreeViewServant->getSelectedPackage());
-    d->modelTreeView->selectFromSourceModelIndex(documentController->getTreeModel()->getIndex(klass));
+    qmt::MClass *klass = documentController->createNewClass(d->modelTreeViewServant->selectedPackage());
+    d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->index(klass));
     QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
 }
 
@@ -716,17 +716,17 @@ void ModelEditor::onAddCanvasDiagram()
 {
     ExtDocumentController *documentController = d->document->documentController();
 
-    qmt::MDiagram *diagram = documentController->createNewCanvasDiagram(d->modelTreeViewServant->getSelectedPackage());
-    d->modelTreeView->selectFromSourceModelIndex(documentController->getTreeModel()->getIndex(diagram));
+    qmt::MDiagram *diagram = documentController->createNewCanvasDiagram(d->modelTreeViewServant->selectedPackage());
+    d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->index(diagram));
     QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
 }
 
 void ModelEditor::onCurrentEditorChanged(Core::IEditor *editor)
 {
     if (this == editor) {
-        QUndoStack *undo_stack = d->document->documentController()->getUndoController()->getUndoStack();
-        d->actionHandler->undoAction()->setDisabled(!undo_stack->canUndo());
-        d->actionHandler->redoAction()->setDisabled(!undo_stack->canRedo());
+        QUndoStack *undoStack = d->document->documentController()->undoController()->undoStack();
+        d->actionHandler->undoAction()->setDisabled(!undoStack->canUndo());
+        d->actionHandler->redoAction()->setDisabled(!undoStack->canRedo());
 
         updateSelectedArea(SelectedArea::Nothing);
     }
@@ -768,7 +768,7 @@ void ModelEditor::onTreeViewDoubleClicked(const QModelIndex &index)
     ExtDocumentController *documentController = d->document->documentController();
 
     QModelIndex treeModelIndex = d->modelTreeView->mapToSourceModelIndex(index);
-    qmt::MElement *melement = documentController->getTreeModel()->getElement(treeModelIndex);
+    qmt::MElement *melement = documentController->treeModel()->element(treeModelIndex);
     // double click on package is already used for toggeling tree
     if (melement && !dynamic_cast<qmt::MPackage *>(melement))
         documentController->elementTasks()->openElement(melement);
@@ -803,9 +803,9 @@ void ModelEditor::onNewElementCreated(qmt::DElement *element, qmt::MDiagram *dia
     if (diagram == currentDiagram()) {
         ExtDocumentController *documentController = d->document->documentController();
 
-        documentController->getDiagramsManager()->getDiagramSceneModel(diagram)->selectElement(element);
-        qmt::MElement *melement = documentController->getModelController()->findElement(element->getModelUid());
-        if (!(melement && melement->getFlags().testFlag(qmt::MElement::REVERSE_ENGINEERED)))
+        documentController->diagramsManager()->diagramSceneModel(diagram)->selectElement(element);
+        qmt::MElement *melement = documentController->modelController()->findElement(element->modelUid());
+        if (!(melement && melement->flags().testFlag(qmt::MElement::REVERSE_ENGINEERED)))
             QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
     }
 }
@@ -854,22 +854,22 @@ void ModelEditor::initToolbars()
     QHash<QString, QWidget *> toolBars;
     // TODO add toolbars sorted by prio
     qmt::DocumentController *documentController = d->document->documentController();
-    qmt::StereotypeController *stereotypeController = documentController->getStereotypeController();
-    foreach (const qmt::Toolbar &toolbar, stereotypeController->getToolbars()) {
-        QWidget *toolBar = toolBars.value(toolbar.getId());
+    qmt::StereotypeController *stereotypeController = documentController->stereotypeController();
+    foreach (const qmt::Toolbar &toolbar, stereotypeController->toolbars()) {
+        QWidget *toolBar = toolBars.value(toolbar.id());
         QLayout *toolBarLayout = 0;
         if (!toolBar) {
             toolBar = new QWidget(d->leftToolBox);
             toolBarLayout = new QVBoxLayout(toolBar);
             toolBarLayout->setContentsMargins(2, 2, 2, 2);
             toolBarLayout->setSpacing(6);
-            d->leftToolBox->addItem(toolBar, toolbar.getId());
-            toolBars.insert(toolbar.getId(), toolBar);
+            d->leftToolBox->addItem(toolBar, toolbar.id());
+            toolBars.insert(toolbar.id(), toolBar);
         } else {
             toolBarLayout = toolBar->layout();
             QTC_ASSERT(toolBarLayout, continue);
         }
-        foreach (const qmt::Toolbar::Tool &tool, toolbar.getTools()) {
+        foreach (const qmt::Toolbar::Tool &tool, toolbar.tools()) {
             switch (tool.m_toolType) {
             case qmt::Toolbar::TOOLTYPE_TOOL:
             {
@@ -901,7 +901,7 @@ void ModelEditor::initToolbars()
                 }
                 QIcon icon;
                 if (!tool.m_stereotype.isEmpty() && stereotypeIconElement != qmt::StereotypeIcon::ELEMENT_ANY) {
-                    const qmt::Style *style = documentController->getStyleController()->adaptStyle(styleEngineElementType);
+                    const qmt::Style *style = documentController->styleController()->adaptStyle(styleEngineElementType);
                     icon = stereotypeController->createIcon(
                                 stereotypeIconElement, QStringList() << tool.m_stereotype,
                                 QString(), style, QSize(48, 48), QMarginsF(3.0, 2.0, 3.0, 4.0));
@@ -983,7 +983,7 @@ void ModelEditor::openDiagram(qmt::MDiagram *diagram, bool addToHistory)
 {
     closeCurrentDiagram(addToHistory);
     if (diagram) {
-        qmt::DiagramSceneModel *diagramSceneModel = d->document->documentController()->getDiagramsManager()->bindDiagramSceneModel(diagram);
+        qmt::DiagramSceneModel *diagramSceneModel = d->document->documentController()->diagramsManager()->bindDiagramSceneModel(diagram);
         d->diagramView->setDiagramSceneModel(diagramSceneModel);
         d->diagramStack->setCurrentWidget(d->diagramView);
         updateSelectedArea(SelectedArea::Nothing);
@@ -994,10 +994,10 @@ void ModelEditor::openDiagram(qmt::MDiagram *diagram, bool addToHistory)
 void ModelEditor::closeCurrentDiagram(bool addToHistory)
 {
     ExtDocumentController *documentController = d->document->documentController();
-    qmt::DiagramsManager *diagramsManager = documentController->getDiagramsManager();
-    qmt::DiagramSceneModel *sceneModel = d->diagramView->getDiagramSceneModel();
+    qmt::DiagramsManager *diagramsManager = documentController->diagramsManager();
+    qmt::DiagramSceneModel *sceneModel = d->diagramView->diagramSceneModel();
     if (sceneModel) {
-        qmt::MDiagram *diagram = sceneModel->getDiagram();
+        qmt::MDiagram *diagram = sceneModel->diagram();
         if (diagram) {
             if (addToHistory)
                 addToNavigationHistory(diagram);
@@ -1011,9 +1011,9 @@ void ModelEditor::closeCurrentDiagram(bool addToHistory)
 void ModelEditor::closeDiagram(const qmt::MDiagram *diagram)
 {
     ExtDocumentController *documentController = d->document->documentController();
-    qmt::DiagramsManager *diagramsManager = documentController->getDiagramsManager();
-    qmt::DiagramSceneModel *sceneModel = d->diagramView->getDiagramSceneModel();
-    if (sceneModel && diagram == sceneModel->getDiagram()) {
+    qmt::DiagramsManager *diagramsManager = documentController->diagramsManager();
+    qmt::DiagramSceneModel *sceneModel = d->diagramView->diagramSceneModel();
+    if (sceneModel && diagram == sceneModel->diagram()) {
         addToNavigationHistory(diagram);
         d->diagramStack->setCurrentWidget(d->noDiagramLabel);
         d->diagramView->setDiagramSceneModel(0);
@@ -1035,7 +1035,7 @@ void ModelEditor::onContentSet()
     qmt::MDiagram *rootDiagram = documentController->findOrCreateRootDiagram();
     showDiagram(rootDiagram);
     // select diagram in model tree view
-    QModelIndex modelIndex = documentController->getTreeModel()->getIndex(rootDiagram);
+    QModelIndex modelIndex = documentController->treeModel()->index(rootDiagram);
     if (modelIndex.isValid())
         d->modelTreeView->selectFromSourceModelIndex(modelIndex);
 
@@ -1045,7 +1045,7 @@ void ModelEditor::onContentSet()
 void ModelEditor::addDiagramToSelector(const qmt::MDiagram *diagram)
 {
     QString diagramLabel = buildDiagramLabel(diagram);
-    QVariant diagramUid = QVariant::fromValue(diagram->getUid());
+    QVariant diagramUid = QVariant::fromValue(diagram->uid());
     int i = d->diagramSelector->findData(diagramUid);
     if (i >= 0)
         d->diagramSelector->removeItem(i);
@@ -1061,7 +1061,7 @@ void ModelEditor::updateDiagramSelector()
     while (i < d->diagramSelector->count()) {
         qmt::Uid diagramUid = d->diagramSelector->itemData(i).value<qmt::Uid>();
         if (diagramUid.isValid()) {
-            qmt::MDiagram *diagram = d->document->documentController()->getModelController()->findObject<qmt::MDiagram>(diagramUid);
+            qmt::MDiagram *diagram = d->document->documentController()->modelController()->findObject<qmt::MDiagram>(diagramUid);
             if (diagram) {
                 QString diagramLabel = buildDiagramLabel(diagram);
                 if (diagramLabel != d->diagramSelector->itemText(i))
@@ -1078,7 +1078,7 @@ void ModelEditor::onDiagramSelectorSelected(int index)
 {
     qmt::Uid diagramUid = d->diagramSelector->itemData(index).value<qmt::Uid>();
     if (diagramUid.isValid()) {
-        qmt::MDiagram *diagram = d->document->documentController()->getModelController()->findObject<qmt::MDiagram>(diagramUid);
+        qmt::MDiagram *diagram = d->document->documentController()->modelController()->findObject<qmt::MDiagram>(diagramUid);
         if (diagram) {
             showDiagram(diagram);
             return;
@@ -1089,12 +1089,12 @@ void ModelEditor::onDiagramSelectorSelected(int index)
 
 QString ModelEditor::buildDiagramLabel(const qmt::MDiagram *diagram)
 {
-    QString label = diagram->getName();
-    qmt::MObject *owner = diagram->getOwner();
+    QString label = diagram->name();
+    qmt::MObject *owner = diagram->owner();
     QStringList path;
     while (owner) {
-        path.append(owner->getName());
-        owner = owner->getOwner();
+        path.append(owner->name());
+        owner = owner->owner();
     }
     if (!path.isEmpty()) {
         label += QStringLiteral(" [");
@@ -1121,9 +1121,9 @@ QByteArray ModelEditor::saveState(const qmt::MDiagram *diagram) const
     QDataStream stream(&state, QIODevice::WriteOnly);
     stream << 1; // version number
     if (diagram)
-        stream << diagram->getUid();
+        stream << diagram->uid();
     else
-        stream << qmt::Uid::getInvalidUid();
+        stream << qmt::Uid::invalidUid();
     return state;
 }
 
@@ -1132,12 +1132,12 @@ void ModelEditor::onEditSelectedElement()
     // TODO introduce similar method for selected elements in model tree
     // currently this method is called on adding new elements in model tree
     // but the method is a no-op in that case.
-    qmt::MDiagram *diagram = d->propertiesView->getSelectedDiagram();
-    QList<qmt::DElement *> elements = d->propertiesView->getSelectedDiagramElements();
+    qmt::MDiagram *diagram = d->propertiesView->selectedDiagram();
+    QList<qmt::DElement *> elements = d->propertiesView->selectedDiagramElements();
     if (diagram && !elements.isEmpty()) {
         qmt::DElement *element = elements.at(0);
         if (element) {
-            qmt::DiagramSceneModel *diagramSceneModel = d->document->documentController()->getDiagramsManager()->getDiagramSceneModel(diagram);
+            qmt::DiagramSceneModel *diagramSceneModel = d->document->documentController()->diagramsManager()->diagramSceneModel(diagram);
             if (diagramSceneModel->isElementEditable(element)) {
                 diagramSceneModel->editElement(element);
                 return;

@@ -49,7 +49,7 @@ public:
     }
 
     bool suppressGradients() const {
-        return m_styleController->getSuppressGradients();
+        return m_styleController->suppressGradients();
     }
 
 private:
@@ -113,7 +113,7 @@ const Style *StyleController::adaptBoundaryStyle(const DBoundary *boundary)
     return m_defaultStyleEngine->applyBoundaryStyle(m_defaultStyle.data(), boundary, &parameters);
 }
 
-const Style *StyleController::getRelationStarterStyle()
+const Style *StyleController::relationStarterStyle()
 {
     return m_relationStarterStyle.data();
 }

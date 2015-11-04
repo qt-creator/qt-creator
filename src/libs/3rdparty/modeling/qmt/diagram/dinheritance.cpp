@@ -42,24 +42,24 @@ DInheritance::DInheritance()
 {
 }
 
-Uid DInheritance::getDerived() const
+Uid DInheritance::derived() const
 {
-    return getEndA();
+    return endAUid();
 }
 
 void DInheritance::setDerived(const Uid &derived)
 {
-    setEndA(derived);
+    setEndAUid(derived);
 }
 
-Uid DInheritance::getBase() const
+Uid DInheritance::base() const
 {
-    return getEndB();
+    return endBUid();
 }
 
 void DInheritance::setBase(const Uid &base)
 {
-    setEndB(base);
+    setEndBUid(base);
 }
 
 void DInheritance::accept(DVisitor *visitor)

@@ -82,19 +82,19 @@ private:
 
     const Style *applyBoundaryStyle(const Style *baseStyle, const Parameters *parameters);
 
-    ElementType getObjectType(const DObject *object);
+    ElementType objectType(const DObject *object);
 
     bool areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryRole, DObject::VisualSecondaryRole rhsSecondaryRole, DObject::VisualPrimaryRole lhsPrimaryRole, DObject::VisualSecondaryRole lhsSecondaryRols);
 
-    QColor getBaseColor(ElementType elementType, ObjectVisuals objectVisuals);
+    QColor baseColor(ElementType elementType, ObjectVisuals objectVisuals);
 
-    QColor getLineColor(ElementType elementType, const ObjectVisuals &objectVisuals);
+    QColor lineColor(ElementType elementType, const ObjectVisuals &objectVisuals);
 
-    QColor getFillColor(ElementType elementType, const ObjectVisuals &objectVisuals);
+    QColor fillColor(ElementType elementType, const ObjectVisuals &objectVisuals);
 
-    QColor getTextColor(const DObject *object, int depth);
+    QColor textColor(const DObject *object, int depth);
 
-    QColor getTextColor(ElementType elementType, const ObjectVisuals &objectVisuals);
+    QColor textColor(ElementType elementType, const ObjectVisuals &objectVisuals);
 
 private:
 

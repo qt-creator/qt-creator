@@ -65,7 +65,7 @@ public:
 
 public:
 
-    bool getSuppressGradients() const { return m_suppressGradients; }
+    bool suppressGradients() const { return m_suppressGradients; }
 
     void setSuppressGradients(bool suppressGradients);
 
@@ -83,7 +83,7 @@ public:
 
     const Style *adaptBoundaryStyle(const DBoundary *boundary);
 
-    const Style *getRelationStarterStyle();
+    const Style *relationStarterStyle();
 
 private:
 

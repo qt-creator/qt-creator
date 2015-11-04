@@ -67,7 +67,7 @@ public:
     {
     }
 
-    QList<QString> getStereotypes() const { return m_stereotypes; }
+    QList<QString> stereotypes() const { return m_stereotypes; }
 
     void setStereotypes(const QList<QString> &stereotypes) { m_stereotypes = stereotypes; }
 
@@ -90,7 +90,7 @@ public:
 
 public:
 
-    ModelItem *getProduct() const { return m_item; }
+    ModelItem *product() const { return m_item; }
 
 public:
 
@@ -121,10 +121,10 @@ public:
     {
         QMT_CHECK(!m_item);
 
-        QIcon icon = m_treeModel->createIcon(StereotypeIcon::ELEMENT_CLASS, StyleEngine::TYPE_CLASS, klass->getStereotypes(), QStringLiteral(":/modelinglib/48x48/class.png"));
+        QIcon icon = m_treeModel->createIcon(StereotypeIcon::ELEMENT_CLASS, StyleEngine::TYPE_CLASS, klass->stereotypes(), QStringLiteral(":/modelinglib/48x48/class.png"));
         m_item = new ModelItem(icon, m_treeModel->createObjectLabel(klass));
         m_item->setData(TreeModel::ELEMENT, TreeModel::ROLE_ITEM_TYPE);
-        m_item->setStereotypes(klass->getStereotypes());
+        m_item->setStereotypes(klass->stereotypes());
         visitMObject(klass);
     }
 
@@ -132,10 +132,10 @@ public:
     {
         QMT_CHECK(!m_item);
 
-        QIcon icon = m_treeModel->createIcon(StereotypeIcon::ELEMENT_COMPONENT, StyleEngine::TYPE_COMPONENT, component->getStereotypes(), QStringLiteral(":/modelinglib/48x48/component.png"));
+        QIcon icon = m_treeModel->createIcon(StereotypeIcon::ELEMENT_COMPONENT, StyleEngine::TYPE_COMPONENT, component->stereotypes(), QStringLiteral(":/modelinglib/48x48/component.png"));
         m_item = new ModelItem(icon, m_treeModel->createObjectLabel(component));
         m_item->setData(TreeModel::ELEMENT, TreeModel::ROLE_ITEM_TYPE);
-        m_item->setStereotypes(component->getStereotypes());
+        m_item->setStereotypes(component->stereotypes());
         visitMObject(component);
     }
 
@@ -158,7 +158,7 @@ public:
     {
         QMT_CHECK(!m_item);
 
-        QList<QString> stereotypes = item->getStereotypes() << item->getVariety();
+        QList<QString> stereotypes = item->stereotypes() << item->variety();
         QIcon icon = m_treeModel->createIcon(StereotypeIcon::ELEMENT_ITEM, StyleEngine::TYPE_ITEM, stereotypes, QStringLiteral(":/modelinglib/48x48/item.png"));
         m_item = new ModelItem(icon, m_treeModel->createObjectLabel(item));
         m_item->setData(TreeModel::ELEMENT, TreeModel::ROLE_ITEM_TYPE);
@@ -242,20 +242,20 @@ public:
 
     void visitMClass(const MClass *klass)
     {
-        if (klass->getStereotypes() != m_item->getStereotypes()) {
-            QIcon icon = m_treeModel->createIcon(StereotypeIcon::ELEMENT_CLASS, StyleEngine::TYPE_CLASS, klass->getStereotypes(), QStringLiteral(":/modelinglib/48x48/class.png"));
+        if (klass->stereotypes() != m_item->stereotypes()) {
+            QIcon icon = m_treeModel->createIcon(StereotypeIcon::ELEMENT_CLASS, StyleEngine::TYPE_CLASS, klass->stereotypes(), QStringLiteral(":/modelinglib/48x48/class.png"));
             m_item->setIcon(icon);
-            m_item->setStereotypes(klass->getStereotypes());
+            m_item->setStereotypes(klass->stereotypes());
         }
         visitMObject(klass);
     }
 
     void visitMComponent(const MComponent *component)
     {
-        if (component->getStereotypes() != m_item->getStereotypes()) {
-            QIcon icon = m_treeModel->createIcon(StereotypeIcon::ELEMENT_COMPONENT, StyleEngine::TYPE_COMPONENT, component->getStereotypes(), QStringLiteral(":/modelinglib/48x48/component.png"));
+        if (component->stereotypes() != m_item->stereotypes()) {
+            QIcon icon = m_treeModel->createIcon(StereotypeIcon::ELEMENT_COMPONENT, StyleEngine::TYPE_COMPONENT, component->stereotypes(), QStringLiteral(":/modelinglib/48x48/component.png"));
             m_item->setIcon(icon);
-            m_item->setStereotypes(component->getStereotypes());
+            m_item->setStereotypes(component->stereotypes());
         }
         visitMObject(component);
     }
@@ -272,8 +272,8 @@ public:
 
     void visitMItem(const MItem *item)
     {
-        QList<QString> stereotypes = item->getStereotypes() << item->getVariety();
-        if (stereotypes != m_item->getStereotypes()) {
+        QList<QString> stereotypes = item->stereotypes() << item->variety();
+        if (stereotypes != m_item->stereotypes()) {
             QIcon icon = m_treeModel->createIcon(StereotypeIcon::ELEMENT_ITEM, StyleEngine::TYPE_ITEM, stereotypes, QStringLiteral(":/modelinglib/48x48/item.png"));
             m_item->setIcon(icon);
             m_item->setStereotypes(stereotypes);
@@ -393,7 +393,7 @@ void TreeModel::setStyleController(StyleController *styleController)
     m_styleController = styleController;
 }
 
-MElement *TreeModel::getElement(const QModelIndex &index) const
+MElement *TreeModel::element(const QModelIndex &index) const
 {
     QMT_CHECK(index.isValid());
 
@@ -406,19 +406,19 @@ MElement *TreeModel::getElement(const QModelIndex &index) const
             const MObject *parentObject = m_itemToObjectMap.value(parentModelItem);
             QMT_CHECK(parentObject);
             if (parentObject) {
-                if (index.row() >= 0 && index.row() < parentObject->getChildren().size()) {
-                    element = parentObject->getChildren().at(index.row());
+                if (index.row() >= 0 && index.row() < parentObject->children().size()) {
+                    element = parentObject->children().at(index.row());
                     QMT_CHECK(element);
-                } else if (index.row() >= parentObject->getChildren().size()
-                           && index.row() < parentObject->getChildren().size() + parentObject->getRelations().size()) {
-                    element = parentObject->getRelations().at(index.row() - parentObject->getChildren().size());
+                } else if (index.row() >= parentObject->children().size()
+                           && index.row() < parentObject->children().size() + parentObject->relations().size()) {
+                    element = parentObject->relations().at(index.row() - parentObject->children().size());
                     QMT_CHECK(element);
                 } else {
                     QMT_CHECK(false);
                 }
             }
         } else if (index.row() == 0) {
-            element = m_modelController->getRootPackage();
+            element = m_modelController->rootPackage();
         } else {
             QMT_CHECK(false);
         }
@@ -426,38 +426,38 @@ MElement *TreeModel::getElement(const QModelIndex &index) const
     return element;
 }
 
-QModelIndex TreeModel::getIndex(const MElement *element) const
+QModelIndex TreeModel::index(const MElement *element) const
 {
     if (const MObject *object = dynamic_cast<const MObject *>(element)) {
-        if (!object->getOwner()) {
-            QMT_CHECK(element == m_modelController->getRootPackage());
-            return index(0, 0);
+        if (!object->owner()) {
+            QMT_CHECK(element == m_modelController->rootPackage());
+            return QStandardItemModel::index(0, 0);
         }
-        MObject *parentObject = object->getOwner();
+        MObject *parentObject = object->owner();
         ModelItem *item = m_objectToItemMap.value(parentObject);
         if (!item) {
             QMT_CHECK(false);
             return QModelIndex();
         }
         QModelIndex parentIndex = indexFromItem(item);
-        int row = parentObject->getChildren().indexOf(object);
-        return index(row, 0, parentIndex);
+        int row = parentObject->children().indexOf(object);
+        return QStandardItemModel::index(row, 0, parentIndex);
     } else if (const MRelation *relation = dynamic_cast<const MRelation *>(element)) {
-        QMT_CHECK(relation->getOwner());
-        MObject *owner = relation->getOwner();
+        QMT_CHECK(relation->owner());
+        MObject *owner = relation->owner();
         ModelItem *item = m_objectToItemMap.value(owner);
         if (!item) {
             QMT_CHECK(false);
             return QModelIndex();
         }
         QModelIndex parentIndex = indexFromItem(item);
-        int row = owner->getChildren().size() + owner->getRelations().indexOf(relation);
-        return index(row, 0, parentIndex);
+        int row = owner->children().size() + owner->relations().indexOf(relation);
+        return QStandardItemModel::index(row, 0, parentIndex);
     }
     return QModelIndex();
 }
 
-QIcon TreeModel::getIcon(const QModelIndex &index) const
+QIcon TreeModel::icon(const QModelIndex &index) const
 {
     QStandardItem *item = itemFromIndex(index);
     if (item) {
@@ -487,7 +487,7 @@ void TreeModel::onEndResetModel()
 {
     QMT_CHECK(m_busy == RESET_MODEL);
     clear();
-    MPackage *rootPackage = m_modelController->getRootPackage();
+    MPackage *rootPackage = m_modelController->rootPackage();
     if (m_modelController && rootPackage) {
         m_rootItem = createItem(rootPackage);
         appendRow(m_rootItem);
@@ -516,8 +516,8 @@ void TreeModel::onEndUpdateObject(int row, const MObject *parent)
         parentIndex = indexFromItem(parentItem);
     }
     // reflect updated element in standard item
-    QModelIndex elementIndex = this->index(row, 0, parentIndex);
-    MElement *element = getElement(elementIndex);
+    QModelIndex elementIndex = this->QStandardItemModel::index(row, 0, parentIndex);
+    MElement *element = TreeModel::element(elementIndex);
     if (element) {
         MObject *object = dynamic_cast<MObject *>(element);
         if (object) {
@@ -528,7 +528,7 @@ void TreeModel::onEndUpdateObject(int row, const MObject *parent)
         }
     }
     m_busy = NOT_BUSY;
-    emit dataChanged(this->index(row, 0, parentIndex), this->index(row, 0, parentIndex));
+    emit dataChanged(QStandardItemModel::index(row, 0, parentIndex), QStandardItemModel::index(row, 0, parentIndex));
 }
 
 void TreeModel::onBeginInsertObject(int row, const MObject *parent)
@@ -544,7 +544,7 @@ void TreeModel::onEndInsertObject(int row, const MObject *parent)
     QMT_CHECK(m_busy == INSERT_ELEMENT);
     ModelItem *parentItem =m_objectToItemMap.value(parent);
     QMT_CHECK(parentItem);
-    MObject *object = parent->getChildren().at(row);
+    MObject *object = parent->children().at(row);
     ModelItem *item = createItem(object);
     parentItem->insertRow(row, item);
     createChildren(object, item);
@@ -556,7 +556,7 @@ void TreeModel::onBeginRemoveObject(int row, const MObject *parent)
     QMT_CHECK(m_busy == NOT_BUSY);
     m_busy = REMOVE_ELEMENT;
     QMT_CHECK(parent);
-    MObject *object = parent->getChildren().at(row);
+    MObject *object = parent->children().at(row);
     if (object) {
         removeObjectFromItemMap(object);
     }
@@ -578,7 +578,7 @@ void TreeModel::onBeginMoveObject(int formerRow, const MObject *formerOwner)
     QMT_CHECK(m_busy == NOT_BUSY);
     m_busy = MOVE_ELEMENT;
     QMT_CHECK(formerOwner);
-    MObject *object = formerOwner->getChildren().at(formerRow);
+    MObject *object = formerOwner->children().at(formerRow);
     if (object) {
         removeObjectFromItemMap(object);
     }
@@ -592,7 +592,7 @@ void TreeModel::onEndMoveObject(int row, const MObject *owner)
     QMT_CHECK(m_busy == MOVE_ELEMENT);
     ModelItem *parentItem =m_objectToItemMap.value(owner);
     QMT_CHECK(parentItem);
-    MObject *object = owner->getChildren().at(row);
+    MObject *object = owner->children().at(row);
     ModelItem *item = createItem(object);
     parentItem->insertRow(row, item);
     createChildren(object, item);
@@ -618,9 +618,9 @@ void TreeModel::onEndUpdateRelation(int row, const MObject *parent)
     QModelIndex parentIndex = indexFromItem(parentItem);
 
     // reflect updated relation in standard item
-    row += parent->getChildren().size();
-    QModelIndex elementIndex = this->index(row, 0, parentIndex);
-    MElement *element = getElement(elementIndex);
+    row += parent->children().size();
+    QModelIndex elementIndex = QStandardItemModel::index(row, 0, parentIndex);
+    MElement *element = TreeModel::element(elementIndex);
     if (element) {
         MRelation *relation = dynamic_cast<MRelation *>(element);
         if (relation) {
@@ -631,7 +631,7 @@ void TreeModel::onEndUpdateRelation(int row, const MObject *parent)
         }
     }
     m_busy = NOT_BUSY;
-    emit dataChanged(this->index(row, 0, parentIndex), this->index(row, 0, parentIndex));
+    emit dataChanged(QStandardItemModel::index(row, 0, parentIndex), QStandardItemModel::index(row, 0, parentIndex));
 }
 
 void TreeModel::onBeginInsertRelation(int row, const MObject *parent)
@@ -648,9 +648,9 @@ void TreeModel::onEndInsertRelation(int row, const MObject *parent)
     QMT_CHECK(m_busy == INSERT_RELATION);
     ModelItem *parentItem =m_objectToItemMap.value(parent);
     QMT_CHECK(parentItem);
-    MRelation *relation = parent->getRelations().at(row);
+    MRelation *relation = parent->relations().at(row);
     ModelItem *item = createItem(relation);
-    parentItem->insertRow(parent->getChildren().size() + row, item);
+    parentItem->insertRow(parent->children().size() + row, item);
     m_busy = NOT_BUSY;
 }
 
@@ -659,10 +659,10 @@ void TreeModel::onBeginRemoveRelation(int row, const MObject *parent)
     QMT_CHECK(parent);
     QMT_CHECK(m_busy == NOT_BUSY);
     m_busy = REMOVE_RELATION;
-    QMT_CHECK(parent->getRelations().at(row));
+    QMT_CHECK(parent->relations().at(row));
     ModelItem *parentItem = m_objectToItemMap.value(parent);
     QMT_CHECK(parentItem);
-    parentItem->removeRow(parent->getChildren().size() + row);
+    parentItem->removeRow(parent->children().size() + row);
 }
 
 void TreeModel::onEndRemoveRelation(int row, const MObject *parent)
@@ -678,10 +678,10 @@ void TreeModel::onBeginMoveRelation(int formerRow, const MObject *formerOwner)
     QMT_CHECK(m_busy == NOT_BUSY);
     m_busy = MOVE_ELEMENT;
     QMT_CHECK(formerOwner);
-    QMT_CHECK(formerOwner->getRelations().at(formerRow));
+    QMT_CHECK(formerOwner->relations().at(formerRow));
     ModelItem *parentItem = m_objectToItemMap.value(formerOwner);
     QMT_CHECK(parentItem);
-    parentItem->removeRow(formerOwner->getChildren().size() + formerRow);
+    parentItem->removeRow(formerOwner->children().size() + formerRow);
 }
 
 void TreeModel::onEndMoveRelation(int row, const MObject *owner)
@@ -690,9 +690,9 @@ void TreeModel::onEndMoveRelation(int row, const MObject *owner)
     QMT_CHECK(m_busy == MOVE_ELEMENT);
     ModelItem *parentItem =m_objectToItemMap.value(owner);
     QMT_CHECK(parentItem);
-    MRelation *relation = owner->getRelations().at(row);
+    MRelation *relation = owner->relations().at(row);
     ModelItem *item = createItem(relation);
-    parentItem->insertRow(owner->getChildren().size() + row, item);
+    parentItem->insertRow(owner->children().size() + row, item);
     m_busy = NOT_BUSY;
 }
 
@@ -701,15 +701,15 @@ void TreeModel::onRelationEndChanged(MRelation *relation, MObject *endObject)
     Q_UNUSED(endObject);
     QMT_CHECK(m_busy == NOT_BUSY);
 
-    MObject *parent = relation->getOwner();
+    MObject *parent = relation->owner();
     QMT_CHECK(parent);
     QMT_CHECK(m_objectToItemMap.contains(parent));
     ModelItem *parentItem = m_objectToItemMap.value(parent);
     QMT_CHECK(parentItem);
     QModelIndex parentIndex = indexFromItem(parentItem);
 
-    int row = parent->getChildren().size() + relation->getOwner()->getRelations().indexOf(relation);
-    QModelIndex elementIndex = this->index(row, 0, parentIndex);
+    int row = parent->children().size() + relation->owner()->relations().indexOf(relation);
+    QModelIndex elementIndex = QStandardItemModel::index(row, 0, parentIndex);
     QMT_CHECK(elementIndex.isValid());
 
     ModelItem *item = dynamic_cast<ModelItem *>(itemFromIndex(elementIndex));
@@ -720,7 +720,7 @@ void TreeModel::onRelationEndChanged(MRelation *relation, MObject *endObject)
         item->setText(label);
     }
 
-    emit dataChanged(this->index(row, 0, parentIndex), this->index(row, 0, parentIndex));
+    emit dataChanged(QStandardItemModel::index(row, 0, parentIndex), QStandardItemModel::index(row, 0, parentIndex));
 }
 
 void TreeModel::onModelDataChanged(const QModelIndex &topleft, const QModelIndex &bottomright)
@@ -745,8 +745,8 @@ TreeModel::ModelItem *TreeModel::createItem(const MElement *element)
 {
     ItemFactory visitor(this);
     element->accept(&visitor);
-    QMT_CHECK(visitor.getProduct());
-    return visitor.getProduct();
+    QMT_CHECK(visitor.product());
+    return visitor.product();
 }
 
 void TreeModel::createChildren(const MObject *parentObject, ModelItem *parentItem)
@@ -755,16 +755,16 @@ void TreeModel::createChildren(const MObject *parentObject, ModelItem *parentIte
     m_objectToItemMap.insert(parentObject, parentItem);
     QMT_CHECK(!m_itemToObjectMap.contains(parentItem));
     m_itemToObjectMap.insert(parentItem, parentObject);
-    foreach (const Handle<MObject> &object, parentObject->getChildren()) {
+    foreach (const Handle<MObject> &object, parentObject->children()) {
         if (object.hasTarget()) {
-            ModelItem *item = createItem(object.getTarget());
+            ModelItem *item = createItem(object.target());
             parentItem->appendRow(item);
-            createChildren(object.getTarget(), item);
+            createChildren(object.target(), item);
         }
     }
-    foreach (const Handle<MRelation> &handle, parentObject->getRelations()) {
+    foreach (const Handle<MRelation> &handle, parentObject->relations()) {
         if (handle.hasTarget()) {
-            MRelation *relation = handle.getTarget();
+            MRelation *relation = handle.target();
             ModelItem *item = createItem(relation);
             parentItem->appendRow(item);
         }
@@ -780,9 +780,9 @@ void TreeModel::removeObjectFromItemMap(const MObject *object)
     QMT_CHECK(m_itemToObjectMap.contains(item));
     m_itemToObjectMap.remove(item);
     m_objectToItemMap.remove(object);
-    foreach (const Handle<MObject> &child, object->getChildren()) {
+    foreach (const Handle<MObject> &child, object->children()) {
         if (child.hasTarget()) {
-            removeObjectFromItemMap(child.getTarget());
+            removeObjectFromItemMap(child.target());
         }
     }
 }
@@ -791,35 +791,35 @@ QString TreeModel::createObjectLabel(const MObject *object)
 {
     QMT_CHECK(object);
 
-    if (object->getName().isEmpty()) {
+    if (object->name().isEmpty()) {
         if (const MItem *item = dynamic_cast<const MItem *>(object)) {
-            if (!item->getVariety().isEmpty()) {
-                return QString(QStringLiteral("[%1]")).arg(item->getVariety());
+            if (!item->variety().isEmpty()) {
+                return QString(QStringLiteral("[%1]")).arg(item->variety());
             }
         }
         return tr("[unnamed]");
     }
 
     if (const MClass *klass = dynamic_cast<const MClass *>(object)) {
-        if (!klass->getNamespace().isEmpty()) {
-            return QString(QStringLiteral("%1 [%2]")).arg(klass->getName()).arg(klass->getNamespace());
+        if (!klass->nameSpace().isEmpty()) {
+            return QString(QStringLiteral("%1 [%2]")).arg(klass->name()).arg(klass->nameSpace());
         }
     }
-    return object->getName();
+    return object->name();
 }
 
 QString TreeModel::createRelationLabel(const MRelation *relation)
 {
     QString name;
-    if (!relation->getName().isEmpty()) {
-        name += relation->getName();
+    if (!relation->name().isEmpty()) {
+        name += relation->name();
         name += QStringLiteral(": ");
     }
-    if (MObject *endA = m_modelController->findObject(relation->getEndA())) {
+    if (MObject *endA = m_modelController->findObject(relation->endAUid())) {
         name += createObjectLabel(endA);
     }
     name += QStringLiteral(" - ");
-    if (MObject *endB = m_modelController->findObject(relation->getEndB())) {
+    if (MObject *endB = m_modelController->findObject(relation->endBUid())) {
         name += createObjectLabel(endB);
     }
     return name;

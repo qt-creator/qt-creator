@@ -68,22 +68,22 @@ StereotypeController::~StereotypeController()
     delete d;
 }
 
-QList<StereotypeIcon> StereotypeController::getStereotypeIcons() const
+QList<StereotypeIcon> StereotypeController::stereotypeIcons() const
 {
     return d->m_iconIdToStereotypeIconsMap.values();
 }
 
-QList<Toolbar> StereotypeController::getToolbars() const
+QList<Toolbar> StereotypeController::toolbars() const
 {
     return d->m_toolbars;
 }
 
-QList<QString> StereotypeController::getKnownStereotypes(StereotypeIcon::Element stereotypeElement) const
+QList<QString> StereotypeController::knownStereotypes(StereotypeIcon::Element stereotypeElement) const
 {
     QSet<QString> stereotypes;
     foreach (const StereotypeIcon &icon, d->m_iconIdToStereotypeIconsMap.values()) {
-        if (icon.getElements().isEmpty() || icon.getElements().contains(stereotypeElement)) {
-            stereotypes += icon.getStereotypes();
+        if (icon.elements().isEmpty() || icon.elements().contains(stereotypeElement)) {
+            stereotypes += icon.stereotypes();
         }
     }
     QList<QString> list = stereotypes.toList();
@@ -109,7 +109,7 @@ QList<QString> StereotypeController::filterStereotypesByIconId(const QString &st
         return stereotypes;
     }
     QList<QString> filteredStereotypes = stereotypes;
-    foreach (const QString &stereotype, d->m_iconIdToStereotypeIconsMap.value(stereotypeIconId).getStereotypes()) {
+    foreach (const QString &stereotype, d->m_iconIdToStereotypeIconsMap.value(stereotypeIconId).stereotypes()) {
         filteredStereotypes.removeAll(stereotype);
     }
     return filteredStereotypes;
@@ -134,8 +134,8 @@ QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QL
 
         qreal width = size.width() - margins.left() - margins.right();
         qreal height = size.height() - margins.top() - margins.bottom();
-        qreal ratioWidth = height * stereotypeIcon.getWidth() / stereotypeIcon.getHeight();
-        qreal ratioHeight = width * stereotypeIcon.getHeight() / stereotypeIcon.getWidth();
+        qreal ratioWidth = height * stereotypeIcon.width() / stereotypeIcon.height();
+        qreal ratioHeight = width * stereotypeIcon.height() / stereotypeIcon.width();
         if (ratioWidth > width) {
             height = ratioHeight;
         } else if (ratioHeight > height) {
@@ -144,23 +144,23 @@ QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QL
         QSizeF shapeSize(width, height);
 
         ShapeSizeVisitor sizeVisitor(QPointF(0.0, 0.0),
-                                           QSizeF(stereotypeIcon.getWidth(), stereotypeIcon.getHeight()),
+                                           QSizeF(stereotypeIcon.width(), stereotypeIcon.height()),
                                            shapeSize, shapeSize);
-        stereotypeIcon.getIconShape().visitShapes(&sizeVisitor);
-        QRectF iconBoundingRect = sizeVisitor.getBoundingRect();
+        stereotypeIcon.iconShape().visitShapes(&sizeVisitor);
+        QRectF iconBoundingRect = sizeVisitor.boundingRect();
         QPixmap pixmap(iconBoundingRect.width() + margins.left() + margins.right(), iconBoundingRect.height() + margins.top() + margins.bottom());
         pixmap.fill(Qt::transparent);
         QPainter painter(&pixmap);
         painter.setBrush(Qt::NoBrush);
         painter.translate(-iconBoundingRect.topLeft() + QPointF(margins.left(), margins.top()));
-        QPen linePen = style->getLinePen();
+        QPen linePen = style->linePen();
         linePen.setWidthF(2.0);
         painter.setPen(linePen);
-        painter.setBrush(style->getFillBrush());
+        painter.setBrush(style->fillBrush());
         ShapePaintVisitor visitor(&painter, QPointF(0.0, 0.0),
-                                       QSizeF(stereotypeIcon.getWidth(), stereotypeIcon.getHeight()),
+                                       QSizeF(stereotypeIcon.width(), stereotypeIcon.height()),
                                        shapeSize, shapeSize);
-        stereotypeIcon.getIconShape().visitShapes(&visitor);
+        stereotypeIcon.iconShape().visitShapes(&visitor);
 
         QPixmap iconPixmap(size);
         iconPixmap.fill(Qt::transparent);
@@ -177,18 +177,18 @@ QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QL
 
 void StereotypeController::addStereotypeIcon(const StereotypeIcon &stereotypeIcon)
 {
-    if (stereotypeIcon.getElements().isEmpty()) {
-        foreach (const QString &stereotype, stereotypeIcon.getStereotypes()) {
-            d->m_stereotypeToIconIdMap.insert(qMakePair(StereotypeIcon::ELEMENT_ANY, stereotype), stereotypeIcon.getId());
+    if (stereotypeIcon.elements().isEmpty()) {
+        foreach (const QString &stereotype, stereotypeIcon.stereotypes()) {
+            d->m_stereotypeToIconIdMap.insert(qMakePair(StereotypeIcon::ELEMENT_ANY, stereotype), stereotypeIcon.id());
         }
     } else {
-        foreach (StereotypeIcon::Element element, stereotypeIcon.getElements()) {
-            foreach (const QString &stereotype, stereotypeIcon.getStereotypes()) {
-                d->m_stereotypeToIconIdMap.insert(qMakePair(element, stereotype), stereotypeIcon.getId());
+        foreach (StereotypeIcon::Element element, stereotypeIcon.elements()) {
+            foreach (const QString &stereotype, stereotypeIcon.stereotypes()) {
+                d->m_stereotypeToIconIdMap.insert(qMakePair(element, stereotype), stereotypeIcon.id());
             }
         }
     }
-    d->m_iconIdToStereotypeIconsMap.insert(stereotypeIcon.getId(), stereotypeIcon);
+    d->m_iconIdToStereotypeIconsMap.insert(stereotypeIcon.id(), stereotypeIcon);
 }
 
 void StereotypeController::addToolbar(const Toolbar &toolbar)

@@ -51,9 +51,9 @@ public:
     ~ManagedDiagram();
 
 public:
-    DiagramSceneModel *getDiagramSceneModel() const { return m_diagramSceneModel.data(); }
+    DiagramSceneModel *diagramSceneModel() const { return m_diagramSceneModel.data(); }
 
-    QString getDiagramName() const { return m_diagramName; }
+    QString diagramName() const { return m_diagramName; }
 
     void setDiagramName(const QString &name) { m_diagramName = name; }
 
@@ -133,7 +133,7 @@ void DiagramsManager::setStereotypeController(StereotypeController *stereotypeCo
 
 DiagramSceneModel *DiagramsManager::bindDiagramSceneModel(MDiagram *diagram)
 {
-    if (!m_diagramUidToManagedDiagramMap.contains(diagram->getUid())) {
+    if (!m_diagramUidToManagedDiagramMap.contains(diagram->uid())) {
         DiagramSceneModel *diagramSceneModel = new DiagramSceneModel();
         diagramSceneModel->setDiagramController(m_diagramController);
         diagramSceneModel->setDiagramSceneController(m_diagramSceneController);
@@ -141,24 +141,24 @@ DiagramSceneModel *DiagramsManager::bindDiagramSceneModel(MDiagram *diagram)
         diagramSceneModel->setStereotypeController(m_stereotypeController);
         diagramSceneModel->setDiagram(diagram);
         connect(diagramSceneModel, SIGNAL(diagramSceneActivated(const MDiagram*)), this, SIGNAL(diagramActivated(const MDiagram*)));
-        connect(diagramSceneModel, SIGNAL(selectionChanged(const MDiagram*)), this, SIGNAL(diagramSelectionChanged(const MDiagram*)));
-        ManagedDiagram *managedDiagram = new ManagedDiagram(diagramSceneModel, diagram->getName());
-        m_diagramUidToManagedDiagramMap.insert(diagram->getUid(), managedDiagram);
+        connect(diagramSceneModel, SIGNAL(selectionHasChanged(const MDiagram*)), this, SIGNAL(diagramSelectionChanged(const MDiagram*)));
+        ManagedDiagram *managedDiagram = new ManagedDiagram(diagramSceneModel, diagram->name());
+        m_diagramUidToManagedDiagramMap.insert(diagram->uid(), managedDiagram);
     }
-    return getDiagramSceneModel(diagram);
+    return diagramSceneModel(diagram);
 }
 
-DiagramSceneModel *DiagramsManager::getDiagramSceneModel(const MDiagram *diagram) const
+DiagramSceneModel *DiagramsManager::diagramSceneModel(const MDiagram *diagram) const
 {
-    const ManagedDiagram *managedDiagram = m_diagramUidToManagedDiagramMap.value(diagram->getUid());
+    const ManagedDiagram *managedDiagram = m_diagramUidToManagedDiagramMap.value(diagram->uid());
     QMT_CHECK(managedDiagram);
-    return managedDiagram->getDiagramSceneModel();
+    return managedDiagram->diagramSceneModel();
 }
 
 void DiagramsManager::unbindDiagramSceneModel(const MDiagram *diagram)
 {
     QMT_CHECK(diagram);
-    ManagedDiagram *managedDiagram = m_diagramUidToManagedDiagramMap.take(diagram->getUid());
+    ManagedDiagram *managedDiagram = m_diagramUidToManagedDiagramMap.take(diagram->uid());
     QMT_CHECK(managedDiagram);
     delete managedDiagram;
 }
@@ -173,7 +173,7 @@ void DiagramsManager::openDiagram(MDiagram *diagram)
 void DiagramsManager::removeDiagram(const MDiagram *diagram)
 {
     if (diagram) {
-        ManagedDiagram *managedDiagram = m_diagramUidToManagedDiagramMap.value(diagram->getUid());
+        ManagedDiagram *managedDiagram = m_diagramUidToManagedDiagramMap.value(diagram->uid());
         if (managedDiagram) {
             if (m_diagramsView) {
                 // closeDiagram() must call unbindDiagramSceneModel()
@@ -196,12 +196,12 @@ void DiagramsManager::removeAllDiagrams()
 void DiagramsManager::onDataChanged(const QModelIndex &topleft, const QModelIndex &bottomright)
 {
     for (int row = topleft.row(); row <= bottomright.row(); ++row) {
-        QModelIndex index = m_model->index(row, 0, topleft.parent());
-        MDiagram *diagram = dynamic_cast<MDiagram *>(m_model->getElement(index));
+        QModelIndex index = m_model->QStandardItemModel::index(row, 0, topleft.parent());
+        MDiagram *diagram = dynamic_cast<MDiagram *>(m_model->element(index));
         if (diagram) {
-            ManagedDiagram *managedDiagram = m_diagramUidToManagedDiagramMap.value(diagram->getUid());
-            if (managedDiagram && managedDiagram->getDiagramName() != diagram->getName()) {
-                managedDiagram->setDiagramName(diagram->getName());
+            ManagedDiagram *managedDiagram = m_diagramUidToManagedDiagramMap.value(diagram->uid());
+            if (managedDiagram && managedDiagram->diagramName() != diagram->name()) {
+                managedDiagram->setDiagramName(diagram->name());
                 if (m_diagramsView) {
                     m_diagramsView->onDiagramRenamed(diagram);
                 }

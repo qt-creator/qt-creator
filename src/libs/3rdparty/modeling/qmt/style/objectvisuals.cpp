@@ -84,20 +84,20 @@ void ObjectVisuals::setDepth(int depth)
 
 bool operator==(const ObjectVisuals &lhs, const ObjectVisuals &rhs)
 {
-    return lhs.getVisualPrimaryRole() == rhs.getVisualPrimaryRole()
-            && lhs.getVisualSecondaryRole() == rhs.getVisualSecondaryRole()
+    return lhs.visualPrimaryRole() == rhs.visualPrimaryRole()
+            && lhs.visualSecondaryRole() == rhs.visualSecondaryRole()
             && lhs.isEmphasized() == rhs.isEmphasized()
-            && lhs.getBaseColor() == rhs.getBaseColor()
-            && lhs.getDepth() == rhs.getDepth();
+            && lhs.baseColor() == rhs.baseColor()
+            && lhs.depth() == rhs.depth();
 }
 
 uint qHash(const ObjectVisuals &objectVisuals)
 {
-    return ::qHash((int) objectVisuals.getVisualPrimaryRole())
-            ^ ::qHash((int) objectVisuals.getVisualSecondaryRole())
+    return ::qHash((int) objectVisuals.visualPrimaryRole())
+            ^ ::qHash((int) objectVisuals.visualSecondaryRole())
             ^ ::qHash(objectVisuals.isEmphasized())
-            ^ ::qHash(objectVisuals.getBaseColor().rgb())
-            ^ ::qHash(objectVisuals.getDepth());
+            ^ ::qHash(objectVisuals.baseColor().rgb())
+            ^ ::qHash(objectVisuals.depth());
 }
 
 } // namespace qmt

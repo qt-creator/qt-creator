@@ -96,27 +96,27 @@ signals:
 
 public:
 
-    DiagramController *getDiagramController() const { return m_diagramController; }
+    DiagramController *diagramController() const { return m_diagramController; }
 
     void setDiagramController(DiagramController *diagramController);
 
-    DiagramSceneController *getDiagramSceneController() const { return m_diagramSceneController; }
+    DiagramSceneController *diagramSceneController() const { return m_diagramSceneController; }
 
     void setDiagramSceneController(DiagramSceneController *diagramSceneController);
 
-    StyleController *getStyleController() const { return m_styleController; }
+    StyleController *styleController() const { return m_styleController; }
 
     void setStyleController(StyleController *styleController);
 
-    StereotypeController *getStereotypeController() const { return m_stereotypeController; }
+    StereotypeController *stereotypeController() const { return m_stereotypeController; }
 
     void setStereotypeController(StereotypeController *stereotypeController);
 
-    MDiagram *getDiagram() const { return m_diagram; }
+    MDiagram *diagram() const { return m_diagram; }
 
     void setDiagram(MDiagram *diagram);
 
-    QGraphicsScene *getGraphicsScene() const;
+    QGraphicsScene *graphicsScene() const;
 
 public:
 
@@ -124,25 +124,25 @@ public:
 
     bool hasMultiObjectsSelection() const;
 
-    DSelection getSelectedElements() const;
+    DSelection selectedElements() const;
 
     DElement *findTopmostElement(const QPointF &scenePos) const;
 
 public:
 
-    QList<QGraphicsItem *> getGraphicsItems() const { return m_graphicsItems; }
+    QList<QGraphicsItem *> graphicsItems() const { return m_graphicsItems; }
 
-    QGraphicsItem *getGraphicsItem(DElement *element) const;
+    QGraphicsItem *graphicsItem(DElement *element) const;
 
-    QGraphicsItem *getGraphicsItem(const Uid &uid) const;
+    QGraphicsItem *graphicsItem(const Uid &uid) const;
 
-    QGraphicsItem *getFocusItem() const { return m_focusItem; }
+    QGraphicsItem *focusItem() const { return m_focusItem; }
 
     bool isSelectedItem(QGraphicsItem *item) const;
 
-    QSet<QGraphicsItem *> getSelectedItems() const { return m_selectedItems; }
+    QSet<QGraphicsItem *> selectedItems() const { return m_selectedItems; }
 
-    DElement *getElement(QGraphicsItem *item) const;
+    DElement *element(QGraphicsItem *item) const;
 
     bool isElementEditable(const DElement *element) const;
 

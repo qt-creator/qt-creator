@@ -33,8 +33,8 @@
 
 namespace qmt {
 
-Exception::Exception(const QString &errMsg)
-    : m_errorMessage(errMsg)
+Exception::Exception(const QString &errorMessage)
+    : m_errorMessage(errorMessage)
 {
 }
 

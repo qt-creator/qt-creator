@@ -55,11 +55,11 @@ signals:
 
 public:
 
-    QBrush getBrush(int index) const;
+    QBrush brush(int index) const;
 
     void setBrush(int index, const QBrush &brush);
 
-    QPen getLinePen(int index) const;
+    QPen linePen(int index) const;
 
     void setLinePen(int index, const QPen &pen);
 

@@ -78,17 +78,17 @@ void DiagramItem::update()
 
     updateStereotypeIconDisplay();
 
-    const Style *style = getAdaptedStyle(getStereotypeIconId());
+    const Style *style = adaptedStyle(stereotypeIconId());
 
     // custom icon
-    if (getStereotypeIconDisplay() == StereotypeIcon::DISPLAY_ICON) {
+    if (stereotypeIconDisplay() == StereotypeIcon::DISPLAY_ICON) {
         if (!m_customIcon) {
-            m_customIcon = new CustomIconItem(getDiagramSceneModel(), this);
+            m_customIcon = new CustomIconItem(diagramSceneModel(), this);
         }
-        m_customIcon->setStereotypeIconId(getStereotypeIconId());
-        m_customIcon->setBaseSize(getStereotypeIconMinimumSize(m_customIcon->getStereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT));
-        m_customIcon->setBrush(style->getFillBrush());
-        m_customIcon->setPen(style->getOuterLinePen());
+        m_customIcon->setStereotypeIconId(stereotypeIconId());
+        m_customIcon->setBaseSize(stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT));
+        m_customIcon->setBrush(style->fillBrush());
+        m_customIcon->setPen(style->outerLinePen());
         m_customIcon->setZValue(SHAPE_ZVALUE);
     } else if (m_customIcon) {
         m_customIcon->scene()->removeItem(m_customIcon);
@@ -101,14 +101,14 @@ void DiagramItem::update()
         if (!m_body) {
             m_body = new QGraphicsPolygonItem(this);
         }
-        m_body->setBrush(style->getFillBrush());
-        m_body->setPen(style->getOuterLinePen());
+        m_body->setBrush(style->fillBrush());
+        m_body->setPen(style->outerLinePen());
         m_body->setZValue(SHAPE_ZVALUE);
         if (!m_fold) {
             m_fold = new QGraphicsPolygonItem(this);
         }
-        m_fold->setBrush(style->getExtraFillBrush());
-        m_fold->setPen(style->getOuterLinePen());
+        m_fold->setBrush(style->extraFillBrush());
+        m_fold->setPen(style->outerLinePen());
         m_fold->setZValue(SHAPE_DETAILS_ZVALUE);
     } else {
         if (m_fold) {
@@ -124,15 +124,15 @@ void DiagramItem::update()
     }
 
     // stereotypes
-    updateStereotypes(getStereotypeIconId(), getStereotypeIconDisplay(), style);
+    updateStereotypes(stereotypeIconId(), stereotypeIconDisplay(), style);
 
     // diagram name
     if (!m_diagramName) {
         m_diagramName = new QGraphicsSimpleTextItem(this);
     }
-    m_diagramName->setFont(style->getHeaderFont());
-    m_diagramName->setBrush(style->getTextBrush());
-    m_diagramName->setText(getObject()->getName());
+    m_diagramName->setFont(style->headerFont());
+    m_diagramName->setBrush(style->textBrush());
+    m_diagramName->setText(object()->name());
 
     updateSelectionMarker(m_customIcon);
 
@@ -146,18 +146,18 @@ bool DiagramItem::intersectShapeWithLine(const QLineF &line, QPointF *intersecti
     QPolygonF polygon;
     if (m_customIcon) {
         // TODO use customIcon path as shape
-        QRectF rect = getObject()->getRect();
-        rect.translate(getObject()->getPos());
+        QRectF rect = object()->rect();
+        rect.translate(object()->pos());
         polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
     } else {
-        QRectF rect = getObject()->getRect();
-        rect.translate(getObject()->getPos());
+        QRectF rect = object()->rect();
+        rect.translate(object()->pos());
         polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
     }
     return GeometryUtilities::intersect(polygon, line, intersectionPoint, intersectionLine);
 }
 
-QSizeF DiagramItem::getMinimumSize() const
+QSizeF DiagramItem::minimumSize() const
 {
     return calcMinimumGeometry();
 }
@@ -168,17 +168,17 @@ QSizeF DiagramItem::calcMinimumGeometry() const
     double height = 0.0;
 
     if (m_customIcon) {
-        return getStereotypeIconMinimumSize(m_customIcon->getStereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
+        return stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
     }
 
     height += BODY_VERT_BORDER;
-    if (CustomIconItem *stereotypeIconItem = getStereotypeIconItem()) {
+    if (CustomIconItem *stereotypeIconItem = ObjectItem::stereotypeIconItem()) {
         width = std::max(width, stereotypeIconItem->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
         height += std::max(FOLD_HEIGHT, stereotypeIconItem->boundingRect().height());
     } else {
         height += FOLD_HEIGHT;
     }
-    if (StereotypesItem *stereotypesItem = getStereotypesItem()) {
+    if (StereotypesItem *stereotypesItem = ObjectItem::stereotypesItem()) {
         width = std::max(width, stereotypesItem->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
         height += stereotypesItem->boundingRect().height();
     }
@@ -203,7 +203,7 @@ void DiagramItem::updateGeometry()
     width = geometry.width();
     height = geometry.height();
 
-    if (getObject()->hasAutoSize()) {
+    if (object()->hasAutoSize()) {
         if (!m_customIcon) {
             if (width < MINIMUM_AUTO_WIDTH) {
                 width = MINIMUM_AUTO_WIDTH;
@@ -213,7 +213,7 @@ void DiagramItem::updateGeometry()
             }
         }
     } else {
-        QRectF rect = getObject()->getRect();
+        QRectF rect = object()->rect();
         if (rect.width() > width) {
             width = rect.width();
         }
@@ -229,14 +229,14 @@ void DiagramItem::updateGeometry()
     //double bottom = height / 2.0;
     double y = top;
 
-    setPos(getObject()->getPos());
+    setPos(object()->pos());
 
     QRectF rect(left, top, width, height);
 
     // the object is updated without calling DiagramController intentionally.
     // attribute rect is not a real attribute stored on DObject but
     // a backup for the graphics item used for manual resized and persistency.
-    getObject()->setRect(rect);
+    object()->setRect(rect);
 
     if (m_customIcon) {
         m_customIcon->setPos(left, top);
@@ -265,14 +265,14 @@ void DiagramItem::updateGeometry()
 
     y += BODY_VERT_BORDER;
     if (!m_customIcon) {
-        if (CustomIconItem *stereotypeIconItem = getStereotypeIconItem()) {
+        if (CustomIconItem *stereotypeIconItem = ObjectItem::stereotypeIconItem()) {
             stereotypeIconItem->setPos(left + BODY_HORIZ_BORDER, y);
             y += std::max(FOLD_HEIGHT, stereotypeIconItem->boundingRect().height());
         } else {
             y += FOLD_HEIGHT;
         }
     }
-    if (StereotypesItem *stereotypesItem = getStereotypesItem()) {
+    if (StereotypesItem *stereotypesItem = ObjectItem::stereotypesItem()) {
         stereotypesItem->setPos(-stereotypesItem->boundingRect().width() / 2.0, y);
         y += stereotypesItem->boundingRect().height();
     }

@@ -50,7 +50,7 @@ PaletteBox::~PaletteBox()
 {
 }
 
-QBrush PaletteBox::getBrush(int index) const
+QBrush PaletteBox::brush(int index) const
 {
     QMT_CHECK(index >= 0 && index <= m_brushes.size());
     return m_brushes.at(index);
@@ -65,7 +65,7 @@ void PaletteBox::setBrush(int index, const QBrush &brush)
     }
 }
 
-QPen PaletteBox::getLinePen(int index) const
+QPen PaletteBox::linePen(int index) const
 {
     QMT_CHECK(index >= 0 && index <= m_pens.size());
     return m_pens.at(index);

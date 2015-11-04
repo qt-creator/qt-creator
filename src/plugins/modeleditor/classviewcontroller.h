@@ -50,7 +50,7 @@ public:
     QSet<QString> findClassDeclarations(const QString &fileName);
     void appendClassDeclarationsFromDocument(CPlusPlus::Document::Ptr document,
                                            QSet<QString> *classNames);
-    void appendClassDeclarationsFromSymbol(CPlusPlus::Symbol *symbol, QSet<QString> *class_names);
+    void appendClassDeclarationsFromSymbol(CPlusPlus::Symbol *symbol, QSet<QString> *classNames);
 };
 
 } // namespace Internal

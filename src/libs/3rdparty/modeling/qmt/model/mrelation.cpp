@@ -38,8 +38,8 @@ namespace qmt {
 
 MRelation::MRelation()
     : MElement(),
-      m_endAUid(Uid::getInvalidUid()),
-      m_endBUid(Uid::getInvalidUid())
+      m_endAUid(Uid::invalidUid()),
+      m_endBUid(Uid::invalidUid())
 {
 }
 
@@ -71,12 +71,12 @@ void MRelation::setName(const QString &name)
     m_name = name;
 }
 
-void MRelation::setEndA(const Uid &uid)
+void MRelation::setEndAUid(const Uid &uid)
 {
     m_endAUid = uid;
 }
 
-void MRelation::setEndB(const Uid &uid)
+void MRelation::setEndBUid(const Uid &uid)
 {
     m_endBUid = uid;
 }

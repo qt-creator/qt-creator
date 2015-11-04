@@ -81,14 +81,14 @@ public:
 
 protected:
 
-    DiagramController *getDiagramController() const
+    DiagramController *diagramController() const
     {
         return m_diagramController;
     }
 
-    Uid getDiagramKey() const { return m_diagramKey; }
+    Uid diagramKey() const { return m_diagramKey; }
 
-    MDiagram *getDiagram() const
+    MDiagram *diagram() const
     {
         MDiagram *diagram = m_diagramController->findDiagram(m_diagramKey);
         QMT_CHECK(diagram);
@@ -114,7 +114,7 @@ public:
     {
         DCloneVisitor visitor;
         element->accept(&visitor);
-        m_clonedElements.insert(visitor.getCloned()->getUid(), visitor.getCloned());
+        m_clonedElements.insert(visitor.cloned()->uid(), visitor.cloned());
     }
 
     ~UpdateElementCommand()
@@ -128,7 +128,7 @@ public:
         if (!otherUpdateCommand) {
             return false;
         }
-        if (getDiagramKey() != otherUpdateCommand->getDiagramKey()) {
+        if (diagramKey() != otherUpdateCommand->diagramKey()) {
             return false;
         }
         if (m_updateAction == DiagramController::UPDATE_MAJOR || otherUpdateCommand->m_updateAction == DiagramController::UPDATE_MAJOR
@@ -137,10 +137,10 @@ public:
         }
         // join other elements into this command
         foreach (const DElement *otherElement, otherUpdateCommand->m_clonedElements.values()) {
-            if (!m_clonedElements.contains(otherElement->getUid())) {
+            if (!m_clonedElements.contains(otherElement->uid())) {
                 DCloneVisitor visitor;
                 otherElement->accept(&visitor);
-                m_clonedElements.insert(visitor.getCloned()->getUid(), visitor.getCloned());
+                m_clonedElements.insert(visitor.cloned()->uid(), visitor.cloned());
             }
         }
         // the last update is a complete update of all changes...
@@ -164,23 +164,23 @@ public:
 private:
     void swap()
     {
-        DiagramController *diagramController = getDiagramController();
-        MDiagram *diagram = getDiagram();
+        DiagramController *diagramController = DiagramUndoCommand::diagramController();
+        MDiagram *diagram = DiagramUndoCommand::diagram();
         foreach (DElement *clonedElement, m_clonedElements) {
-            DElement *activeElement = diagramController->findElement(clonedElement->getUid(), diagram);
+            DElement *activeElement = diagramController->findElement(clonedElement->uid(), diagram);
             QMT_CHECK(activeElement);
-            int row = diagram->getDiagramElements().indexOf(activeElement);
+            int row = diagram->diagramElements().indexOf(activeElement);
             emit diagramController->beginUpdateElement(row, diagram);
             // clone active element
             DCloneVisitor cloneVisitor;
             activeElement->accept(&cloneVisitor);
-            DElement *newElement = cloneVisitor.getCloned();
+            DElement *newElement = cloneVisitor.cloned();
             // reset active element to cloned element
             DFlatAssignmentVisitor visitor(activeElement);
             clonedElement->accept(&visitor);
             // replace stored element with new cloned active element
-            QMT_CHECK(clonedElement->getUid() == newElement->getUid());
-            m_clonedElements.insert(newElement->getUid(), newElement);
+            QMT_CHECK(clonedElement->uid() == newElement->uid());
+            m_clonedElements.insert(newElement->uid(), newElement);
             delete clonedElement;
             emit diagramController->endUpdateElement(row, diagram);
         }
@@ -213,20 +213,20 @@ protected:
 
     void remove()
     {
-        DiagramController *diagramController = getDiagramController();
-        MDiagram *diagram = getDiagram();
+        DiagramController *diagramController = DiagramUndoCommand::diagramController();
+        MDiagram *diagram = DiagramUndoCommand::diagram();
         bool removed = false;
         for (int i = 0; i < m_clonedElements.count(); ++i) {
             Clone &clone = m_clonedElements[i];
             QMT_CHECK(!clone.m_clonedElement);
             DElement *activeElement = diagramController->findElement(clone.m_elementKey, diagram);
             QMT_CHECK(activeElement);
-            clone.m_indexOfElement = diagram->getDiagramElements().indexOf(activeElement);
+            clone.m_indexOfElement = diagram->diagramElements().indexOf(activeElement);
             QMT_CHECK(clone.m_indexOfElement >= 0);
             emit diagramController->beginRemoveElement(clone.m_indexOfElement, diagram);
             DCloneDeepVisitor cloneVisitor;
             activeElement->accept(&cloneVisitor);
-            clone.m_clonedElement = cloneVisitor.getCloned();
+            clone.m_clonedElement = cloneVisitor.cloned();
             diagram->removeDiagramElement(activeElement);
             emit diagramController->endRemoveElement(clone.m_indexOfElement, diagram);
             removed = true;
@@ -238,13 +238,13 @@ protected:
 
     void insert()
     {
-        DiagramController *diagramController = getDiagramController();
-        MDiagram *diagram = getDiagram();
+        DiagramController *diagramController = DiagramUndoCommand::diagramController();
+        MDiagram *diagram = DiagramUndoCommand::diagram();
         bool inserted = false;
         for (int i = m_clonedElements.count() - 1; i >= 0; --i) {
             Clone &clone = m_clonedElements[i];
             QMT_CHECK(clone.m_clonedElement);
-            QMT_CHECK(clone.m_clonedElement->getUid() == clone.m_elementKey);
+            QMT_CHECK(clone.m_clonedElement->uid() == clone.m_elementKey);
             emit diagramController->beginInsertElement(clone.m_indexOfElement, diagram);
             diagram->insertDiagramElement(clone.m_indexOfElement, clone.m_clonedElement);
             clone.m_clonedElement = 0;
@@ -308,13 +308,13 @@ public:
     {
         Clone clone;
 
-        MDiagram *diagram = getDiagram();
-        clone.m_elementKey = element->getUid();
-        clone.m_indexOfElement = diagram->getDiagramElements().indexOf(element);
+        MDiagram *diagram = DiagramUndoCommand::diagram();
+        clone.m_elementKey = element->uid();
+        clone.m_indexOfElement = diagram->diagramElements().indexOf(element);
         QMT_CHECK(clone.m_indexOfElement >= 0);
         DCloneDeepVisitor visitor;
         element->accept(&visitor);
-        clone.m_clonedElement = visitor.getCloned();
+        clone.m_clonedElement = visitor.cloned();
         QMT_CHECK(clone.m_clonedElement);
         m_clonedElements.append(clone);
     }
@@ -409,13 +409,13 @@ MDiagram *DiagramController::findDiagram(const Uid &diagramKey) const
 
 void DiagramController::addElement(DElement *element, MDiagram *diagram)
 {
-    int row = diagram->getDiagramElements().count();
+    int row = diagram->diagramElements().count();
     emit beginInsertElement(row, diagram);
     updateElementFromModel(element, diagram, false);
     if (m_undoController) {
-        AddElementsCommand *undoCommand = new AddElementsCommand(this, diagram->getUid(), tr("Add Object"));
+        AddElementsCommand *undoCommand = new AddElementsCommand(this, diagram->uid(), tr("Add Object"));
         m_undoController->push(undoCommand);
-        undoCommand->add(element->getUid());
+        undoCommand->add(element->uid());
     }
     diagram->addDiagramElement(element);
     emit endInsertElement(row, diagram);
@@ -425,10 +425,10 @@ void DiagramController::addElement(DElement *element, MDiagram *diagram)
 void DiagramController::removeElement(DElement *element, MDiagram *diagram)
 {
     removeRelations(element, diagram);
-    int row = diagram->getDiagramElements().indexOf(element);
+    int row = diagram->diagramElements().indexOf(element);
     emit beginRemoveElement(row, diagram);
     if (m_undoController) {
-        RemoveElementsCommand *undoCommand = new RemoveElementsCommand(this, diagram->getUid(), tr("Remove Object"));
+        RemoveElementsCommand *undoCommand = new RemoveElementsCommand(this, diagram->uid(), tr("Remove Object"));
         m_undoController->push(undoCommand);
         undoCommand->add(element);
     }
@@ -454,8 +454,8 @@ DElement *DiagramController::findDelegate(const MElement *modelElement, const MD
 {
     Q_UNUSED(diagram);
     // PERFORM use map to increase performance
-    foreach (DElement *diagramElement, diagram->getDiagramElements()) {
-        if (diagramElement->getModelUid().isValid() && diagramElement->getModelUid() == modelElement->getUid()) {
+    foreach (DElement *diagramElement, diagram->diagramElements()) {
+        if (diagramElement->modelUid().isValid() && diagramElement->modelUid() == modelElement->uid()) {
             return diagramElement;
         }
     }
@@ -464,9 +464,9 @@ DElement *DiagramController::findDelegate(const MElement *modelElement, const MD
 
 void DiagramController::startUpdateElement(DElement *element, MDiagram *diagram, UpdateAction updateAction)
 {
-    emit beginUpdateElement(diagram->getDiagramElements().indexOf(element), diagram);
+    emit beginUpdateElement(diagram->diagramElements().indexOf(element), diagram);
     if (m_undoController) {
-        m_undoController->push(new UpdateElementCommand(this, diagram->getUid(), element, updateAction));
+        m_undoController->push(new UpdateElementCommand(this, diagram->uid(), element, updateAction));
     }
 }
 
@@ -475,7 +475,7 @@ void DiagramController::finishUpdateElement(DElement *element, MDiagram *diagram
     if (!cancelled) {
         updateElementFromModel(element, diagram, false);
     }
-    emit endUpdateElement(diagram->getDiagramElements().indexOf(element), diagram);
+    emit endUpdateElement(diagram->diagramElements().indexOf(element), diagram);
     if (!cancelled) {
         diagramModified(diagram);
     }
@@ -499,10 +499,10 @@ DContainer DiagramController::copyElements(const DSelection &diagramSelection, c
 
     DReferences simplifiedSelection = simplify(diagramSelection, diagram);
     DContainer copiedElements;
-    foreach (const DElement *element, simplifiedSelection.getElements()) {
+    foreach (const DElement *element, simplifiedSelection.elements()) {
         DCloneDeepVisitor visitor;
         element->accept(&visitor);
-        DElement *clonedElement = visitor.getCloned();
+        DElement *clonedElement = visitor.cloned();
         copiedElements.submit(clonedElement);
     }
     return copiedElements;
@@ -515,11 +515,11 @@ void DiagramController::pasteElements(const DContainer &diagramContainer, MDiagr
     // clone all elements and renew their keys
     QHash<Uid, Uid> renewedKeys;
     QList<DElement *> clonedElements;
-    foreach (const DElement *element, diagramContainer.getElements()) {
+    foreach (const DElement *element, diagramContainer.elements()) {
         if (!isDelegatedElementOnDiagram(element, diagram)) {
             DCloneDeepVisitor visitor;
             element->accept(&visitor);
-            DElement *clonedElement = visitor.getCloned();
+            DElement *clonedElement = visitor.cloned();
             renewElementKey(clonedElement, &renewedKeys);
             clonedElements.append(clonedElement);
         }
@@ -538,12 +538,12 @@ void DiagramController::pasteElements(const DContainer &diagramContainer, MDiagr
     bool added = false;
     foreach (DElement *clonedElement, clonedElements) {
         if (!dynamic_cast<DRelation *>(clonedElement)) {
-            int row = diagram->getDiagramElements().size();
+            int row = diagram->diagramElements().size();
             emit beginInsertElement(row, diagram);
             if (m_undoController) {
-                AddElementsCommand *undoCommand = new AddElementsCommand(this, diagram->getUid(), tr("Paste"));
+                AddElementsCommand *undoCommand = new AddElementsCommand(this, diagram->uid(), tr("Paste"));
                 m_undoController->push(undoCommand);
-                undoCommand->add(clonedElement->getUid());
+                undoCommand->add(clonedElement->uid());
             }
             diagram->addDiagramElement(clonedElement);
             emit endInsertElement(row, diagram);
@@ -553,12 +553,12 @@ void DiagramController::pasteElements(const DContainer &diagramContainer, MDiagr
     foreach (DElement *clonedElement, clonedElements) {
         DRelation *clonedRelation = dynamic_cast<DRelation *>(clonedElement);
         if (clonedRelation && areRelationEndsOnDiagram(clonedRelation, diagram)) {
-            int row = diagram->getDiagramElements().size();
+            int row = diagram->diagramElements().size();
             emit beginInsertElement(row, diagram);
             if (m_undoController) {
-                AddElementsCommand *undoCommand = new AddElementsCommand(this, diagram->getUid(), tr("Paste"));
+                AddElementsCommand *undoCommand = new AddElementsCommand(this, diagram->uid(), tr("Paste"));
                 m_undoController->push(undoCommand);
-                undoCommand->add(clonedElement->getUid());
+                undoCommand->add(clonedElement->uid());
             }
             diagram->addDiagramElement(clonedElement);
             emit endInsertElement(row, diagram);
@@ -589,16 +589,16 @@ void DiagramController::onEndResetModel()
     updateAllDiagramsList();
     foreach (MDiagram *diagram, m_allDiagrams) {
         // remove all elements which are not longer part of the model
-        foreach (DElement *element, diagram->getDiagramElements()) {
-            if (element->getModelUid().isValid()) {
-                MElement *modelElement = m_modelController->findElement(element->getModelUid());
+        foreach (DElement *element, diagram->diagramElements()) {
+            if (element->modelUid().isValid()) {
+                MElement *modelElement = m_modelController->findElement(element->modelUid());
                 if (!modelElement) {
                     removeElement(element, diagram);
                 }
             }
         }
         // update all remaining elements from model
-        foreach (DElement *element, diagram->getDiagramElements()) {
+        foreach (DElement *element, diagram->diagramElements()) {
             updateElementFromModel(element, diagram, false);
         }
     }
@@ -615,7 +615,7 @@ void DiagramController::onBeginUpdateObject(int row, const MObject *parent)
 
 void DiagramController::onEndUpdateObject(int row, const MObject *parent)
 {
-    MObject *modelObject = m_modelController->getObject(row, parent);
+    MObject *modelObject = m_modelController->object(row, parent);
     QMT_CHECK(modelObject);
     MPackage *modelPackage = dynamic_cast<MPackage *>(modelObject);
     foreach (MDiagram *diagram, m_allDiagrams) {
@@ -625,10 +625,10 @@ void DiagramController::onEndUpdateObject(int row, const MObject *parent)
         }
         if (modelPackage) {
             // update each element that has the updated object as its owner (for context changes)
-            foreach (DElement *diagramElement, diagram->getDiagramElements()) {
-                if (diagramElement->getModelUid().isValid()) {
-                    MObject *mobject = m_modelController->findObject(diagramElement->getModelUid());
-                    if (mobject && mobject->getOwner() == modelPackage) {
+            foreach (DElement *diagramElement, diagram->diagramElements()) {
+                if (diagramElement->modelUid().isValid()) {
+                    MObject *mobject = m_modelController->findObject(diagramElement->modelUid());
+                    if (mobject && mobject->owner() == modelPackage) {
                         updateElementFromModel(diagramElement, diagram, true);
                     }
                 }
@@ -647,7 +647,7 @@ void DiagramController::onEndInsertObject(int row, const MObject *owner)
 {
     QMT_CHECK(owner);
 
-    MObject *modelObject = m_modelController->getObject(row, owner);
+    MObject *modelObject = m_modelController->object(row, owner);
     if (MDiagram *modelDiagram = dynamic_cast<MDiagram *>(modelObject)) {
         QMT_CHECK(!m_allDiagrams.contains(modelDiagram));
         m_allDiagrams.append(modelDiagram);
@@ -658,7 +658,7 @@ void DiagramController::onBeginRemoveObject(int row, const MObject *parent)
 {
     QMT_CHECK(parent);
 
-    MObject *modelObject = m_modelController->getObject(row, parent);
+    MObject *modelObject = m_modelController->object(row, parent);
     removeObjects(modelObject);
 }
 
@@ -680,12 +680,12 @@ void DiagramController::onEndMoveObject(int row, const MObject *owner)
     onEndUpdateObject(row, owner);
 
     // if diagram was moved update all elements because of changed context
-    MObject *modelObject = m_modelController->getObject(row, owner);
+    MObject *modelObject = m_modelController->object(row, owner);
     QMT_CHECK(modelObject);
     MDiagram *modelDiagram = dynamic_cast<MDiagram *>(modelObject);
     if (modelDiagram) {
         emit beginResetDiagram(modelDiagram);
-        foreach (DElement *diagramElement, modelDiagram->getDiagramElements()) {
+        foreach (DElement *diagramElement, modelDiagram->diagramElements()) {
             updateElementFromModel(diagramElement, modelDiagram, false);
         }
         emit endResetDiagram(modelDiagram);
@@ -702,7 +702,7 @@ void DiagramController::onBeginUpdateRelation(int row, const MObject *owner)
 
 void DiagramController::onEndUpdateRelation(int row, const MObject *owner)
 {
-    MRelation *modelRelation = owner->getRelations().at(row);
+    MRelation *modelRelation = owner->relations().at(row);
     foreach (MDiagram *diagram, m_allDiagrams) {
         DRelation *relation = findDelegate<DRelation>(modelRelation, diagram);
         if (relation) {
@@ -715,7 +715,7 @@ void DiagramController::onBeginRemoveRelation(int row, const MObject *owner)
 {
     QMT_CHECK(owner);
 
-    MRelation *modelRelation = owner->getRelations().at(row);
+    MRelation *modelRelation = owner->relations().at(row);
     removeRelations(modelRelation);
 }
 
@@ -743,21 +743,21 @@ void DiagramController::deleteElements(const DSelection &diagramSelection, MDiag
     QMT_CHECK(diagram);
 
     DReferences simplifiedSelection = simplify(diagramSelection, diagram);
-    if (simplifiedSelection.getElements().isEmpty()) {
+    if (simplifiedSelection.elements().isEmpty()) {
         return;
     }
     if (m_undoController) {
         m_undoController->beginMergeSequence(commandLabel);
     }
     bool removed = false;
-    foreach (DElement *element, simplifiedSelection.getElements()) {
+    foreach (DElement *element, simplifiedSelection.elements()) {
         // element may have been deleted indirectly by predecessor element in loop
-        if ((element = findElement(element->getUid(), diagram))) {
+        if ((element = findElement(element->uid(), diagram))) {
             removeRelations(element, diagram);
-            int row = diagram->getDiagramElements().indexOf(element);
-            emit beginRemoveElement(diagram->getDiagramElements().indexOf(element), diagram);
+            int row = diagram->diagramElements().indexOf(element);
+            emit beginRemoveElement(diagram->diagramElements().indexOf(element), diagram);
             if (m_undoController) {
-                RemoveElementsCommand *cutCommand = new RemoveElementsCommand(this, diagram->getUid(), commandLabel);
+                RemoveElementsCommand *cutCommand = new RemoveElementsCommand(this, diagram->uid(), commandLabel);
                 m_undoController->push(cutCommand);
                 cutCommand->add(element);
             }
@@ -792,16 +792,16 @@ void DiagramController::removeObjects(MObject *modelObject)
         if (diagramElement) {
             removeElement(diagramElement, diagram);
         }
-        foreach (const Handle<MRelation> &relation, modelObject->getRelations()) {
-            DElement *diagramElement = findDelegate(relation.getTarget(), diagram);
+        foreach (const Handle<MRelation> &relation, modelObject->relations()) {
+            DElement *diagramElement = findDelegate(relation.target(), diagram);
             if (diagramElement) {
                 removeElement(diagramElement, diagram);
             }
         }
     }
-    foreach (const Handle<MObject> &object, modelObject->getChildren()) {
+    foreach (const Handle<MObject> &object, modelObject->children()) {
         if (object.hasTarget()) {
-            removeObjects(object.getTarget());
+            removeObjects(object.target());
         }
     }
     if (MDiagram *diagram = dynamic_cast<MDiagram *>(modelObject)) {
@@ -810,8 +810,8 @@ void DiagramController::removeObjects(MObject *modelObject)
         m_allDiagrams.removeOne(diagram);
         QMT_CHECK(!m_allDiagrams.contains(diagram));
         // PERFORM increase performace
-        while (!diagram->getDiagramElements().isEmpty()) {
-            DElement *element = diagram->getDiagramElements().first();
+        while (!diagram->diagramElements().isEmpty()) {
+            DElement *element = diagram->diagramElements().first();
             removeElement(element, diagram);
         }
     }
@@ -831,9 +831,9 @@ void DiagramController::removeRelations(DElement *element, MDiagram *diagram)
 {
     DObject *diagramObject = dynamic_cast<DObject *>(element);
     if (diagramObject) {
-        foreach (DElement *diagramElement, diagram->getDiagramElements()) {
+        foreach (DElement *diagramElement, diagram->diagramElements()) {
             if (DRelation *diagramRelation = dynamic_cast<DRelation *>(diagramElement)) {
-                if (diagramRelation->getEndA() == diagramObject->getUid() || diagramRelation->getEndB() == diagramObject->getUid()) {
+                if (diagramRelation->endAUid() == diagramObject->uid() || diagramRelation->endBUid() == diagramObject->uid()) {
                     removeElement(diagramRelation, diagram);
                 }
             }
@@ -846,12 +846,12 @@ void DiagramController::renewElementKey(DElement *element, QHash<Uid, Uid> *rene
     QMT_CHECK(renewedKeys);
 
     if (element) {
-        DElement *existingElementOnDiagram = findElementOnAnyDiagram(element->getUid());
+        DElement *existingElementOnDiagram = findElementOnAnyDiagram(element->uid());
         if (existingElementOnDiagram) {
             QMT_CHECK(existingElementOnDiagram != element);
-            Uid oldKey = element->getUid();
+            Uid oldKey = element->uid();
             element->renewUid();
-            Uid newKey = element->getUid();
+            Uid newKey = element->uid();
             renewedKeys->insert(oldKey, newKey);
         }
     }
@@ -859,32 +859,32 @@ void DiagramController::renewElementKey(DElement *element, QHash<Uid, Uid> *rene
 
 void DiagramController::updateRelationKeys(DRelation *relation, const QHash<Uid, Uid> &renewedKeys)
 {
-    Uid newEndAKey = renewedKeys.value(relation->getEndA(), Uid::getInvalidUid());
+    Uid newEndAKey = renewedKeys.value(relation->endAUid(), Uid::invalidUid());
     if (newEndAKey.isValid()) {
-        relation->setEndA(newEndAKey);
+        relation->setEndAUid(newEndAKey);
     }
-    Uid newEndBKey = renewedKeys.value(relation->getEndB(), Uid::getInvalidUid());
+    Uid newEndBKey = renewedKeys.value(relation->endBUid(), Uid::invalidUid());
     if (newEndBKey.isValid()) {
-        relation->setEndB(newEndBKey);
+        relation->setEndBUid(newEndBKey);
     }
 }
 
 void DiagramController::updateElementFromModel(DElement *element, const MDiagram *diagram, bool emitUpdateSignal)
 {
-    if (!element->getModelUid().isValid()) {
+    if (!element->modelUid().isValid()) {
         return;
     }
 
     DUpdateVisitor visitor(element, diagram);
 
-    MElement *melement = m_modelController->findElement(element->getModelUid());
+    MElement *melement = m_modelController->findElement(element->modelUid());
     QMT_CHECK(melement);
 
     if (emitUpdateSignal) {
         visitor.setCheckNeedsUpdate(true);
         melement->accept(&visitor);
         if (visitor.updateNeeded()) {
-            int row = diagram->getDiagramElements().indexOf(element);
+            int row = diagram->diagramElements().indexOf(element);
             emit beginUpdateElement(row, diagram);
             visitor.setCheckNeedsUpdate(false);
             melement->accept(&visitor);
@@ -905,8 +905,8 @@ void DiagramController::diagramModified(MDiagram *diagram)
 DReferences DiagramController::simplify(const DSelection &diagramSelection, const MDiagram *diagram)
 {
     DReferences references;
-    foreach (const DSelection::Index &index, diagramSelection.getIndices()) {
-        DElement *element = findElement(index.getElementKey(), diagram);
+    foreach (const DSelection::Index &index, diagramSelection.indices()) {
+        DElement *element = findElement(index.elementKey(), diagram);
         if (element) {
             references.append(element);
         }
@@ -914,17 +914,17 @@ DReferences DiagramController::simplify(const DSelection &diagramSelection, cons
     return references;
 }
 
-MElement *DiagramController::getDelegatedElement(const DElement *element) const
+MElement *DiagramController::delegatedElement(const DElement *element) const
 {
-    if (!element->getModelUid().isValid()) {
+    if (!element->modelUid().isValid()) {
         return 0;
     }
-    return m_modelController->findElement(element->getModelUid());
+    return m_modelController->findElement(element->modelUid());
 }
 
 bool DiagramController::isDelegatedElementOnDiagram(const DElement *element, const MDiagram *diagram) const
 {
-    MElement *modelElement = getDelegatedElement(element);
+    MElement *modelElement = delegatedElement(element);
     if (!modelElement) {
         return false;
     }
@@ -933,15 +933,15 @@ bool DiagramController::isDelegatedElementOnDiagram(const DElement *element, con
 
 bool DiagramController::areRelationEndsOnDiagram(const DRelation *relation, const MDiagram *diagram) const
 {
-    return findElement(relation->getEndA(), diagram) && findElement(relation->getEndB(), diagram);
+    return findElement(relation->endAUid(), diagram) && findElement(relation->endBUid(), diagram);
 }
 
 void DiagramController::updateAllDiagramsList()
 {
     m_allDiagrams.clear();
-    if (m_modelController && m_modelController->getRootPackage()) {
+    if (m_modelController && m_modelController->rootPackage()) {
         FindDiagramsVisitor visitor(&m_allDiagrams);
-        m_modelController->getRootPackage()->accept(&visitor);
+        m_modelController->rootPackage()->accept(&visitor);
     }
 }
 

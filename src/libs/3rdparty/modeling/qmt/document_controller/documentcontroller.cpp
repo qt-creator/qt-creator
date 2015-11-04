@@ -149,7 +149,7 @@ bool DocumentController::isDiagramClipboardEmpty() const
 
 bool DocumentController::hasDiagramSelection(const MDiagram *diagram) const
 {
-    return m_diagramsManager->getDiagramSceneModel(diagram)->hasSelection();
+    return m_diagramsManager->diagramSceneModel(diagram)->hasSelection();
 }
 
 void DocumentController::cutFromModel(const MSelection &selection)
@@ -160,7 +160,7 @@ void DocumentController::cutFromModel(const MSelection &selection)
 
 void DocumentController::cutFromDiagram(MDiagram *diagram)
 {
-    *m_diagramClipboard = m_diagramController->cutElements(m_diagramsManager->getDiagramSceneModel(diagram)->getSelectedElements(), diagram);
+    *m_diagramClipboard = m_diagramController->cutElements(m_diagramsManager->diagramSceneModel(diagram)->selectedElements(), diagram);
     emit diagramClipboardChanged(isDiagramClipboardEmpty());
 }
 
@@ -172,13 +172,13 @@ void DocumentController::copyFromModel(const MSelection &selection)
 
 void DocumentController::copyFromDiagram(const qmt::MDiagram *diagram)
 {
-    *m_diagramClipboard = m_diagramController->copyElements(m_diagramsManager->getDiagramSceneModel(diagram)->getSelectedElements(), diagram);
+    *m_diagramClipboard = m_diagramController->copyElements(m_diagramsManager->diagramSceneModel(diagram)->selectedElements(), diagram);
     emit diagramClipboardChanged(isDiagramClipboardEmpty());
 }
 
 void DocumentController::copyDiagram(const MDiagram *diagram)
 {
-    m_diagramsManager->getDiagramSceneModel(diagram)->copyToClipboard();
+    m_diagramsManager->diagramSceneModel(diagram)->copyToClipboard();
 }
 
 void DocumentController::pasteIntoModel(MObject *modelObject)
@@ -200,20 +200,20 @@ void DocumentController::deleteFromModel(const MSelection &selection)
 
 void DocumentController::deleteFromDiagram(MDiagram *diagram)
 {
-    if (m_diagramsManager->getDiagramSceneModel(diagram)->hasSelection()) {
-        DSelection dselection = m_diagramsManager->getDiagramSceneModel(diagram)->getSelectedElements();
+    if (m_diagramsManager->diagramSceneModel(diagram)->hasSelection()) {
+        DSelection dselection = m_diagramsManager->diagramSceneModel(diagram)->selectedElements();
         m_diagramSceneController->deleteFromDiagram(dselection, diagram);
     }
 }
 
 void DocumentController::removeFromDiagram(MDiagram *diagram)
 {
-    m_diagramController->deleteElements(m_diagramsManager->getDiagramSceneModel(diagram)->getSelectedElements(), diagram);
+    m_diagramController->deleteElements(m_diagramsManager->diagramSceneModel(diagram)->selectedElements(), diagram);
 }
 
 void DocumentController::selectAllOnDiagram(MDiagram *diagram)
 {
-    m_diagramsManager->getDiagramSceneModel(diagram)->selectAllElements();
+    m_diagramsManager->diagramSceneModel(diagram)->selectAllElements();
 }
 
 MPackage *DocumentController::createNewPackage(MPackage *parent)
@@ -243,8 +243,8 @@ MComponent *DocumentController::createNewComponent(MPackage *parent)
 MCanvasDiagram *DocumentController::createNewCanvasDiagram(MPackage *parent)
 {
     MCanvasDiagram *newDiagram = new MCanvasDiagram();
-    if (!m_diagramSceneController->findDiagramBySearchId(parent, parent->getName())) {
-        newDiagram->setName(parent->getName());
+    if (!m_diagramSceneController->findDiagramBySearchId(parent, parent->name())) {
+        newDiagram->setName(parent->name());
     } else {
         newDiagram->setName(tr("New Diagram"));
     }
@@ -255,8 +255,8 @@ MCanvasDiagram *DocumentController::createNewCanvasDiagram(MPackage *parent)
 MDiagram *DocumentController::findRootDiagram()
 {
     FindRootDiagramVisitor visitor;
-    m_modelController->getRootPackage()->accept(&visitor);
-    MDiagram *rootDiagram = visitor.getDiagram();
+    m_modelController->rootPackage()->accept(&visitor);
+    MDiagram *rootDiagram = visitor.diagram();
     return rootDiagram;
 }
 
@@ -264,10 +264,10 @@ MDiagram *DocumentController::findOrCreateRootDiagram()
 {
     MDiagram *rootDiagram = findRootDiagram();
     if (!rootDiagram) {
-        rootDiagram = createNewCanvasDiagram(m_modelController->getRootPackage());
+        rootDiagram = createNewCanvasDiagram(m_modelController->rootPackage());
         m_modelController->startUpdateObject(rootDiagram);
-        if (m_projectController->getProject()->hasFileName()) {
-           rootDiagram->setName(NameController::convertFileNameToElementName(m_projectController->getProject()->getFileName()));
+        if (m_projectController->project()->hasFileName()) {
+           rootDiagram->setName(NameController::convertFileNameToElementName(m_projectController->project()->fileName()));
         }
         m_modelController->finishUpdateObject(rootDiagram, false);
     }
@@ -284,7 +284,7 @@ void DocumentController::createNewProject(const QString &fileName)
     m_projectController->newProject(fileName);
 
     m_treeModel->setModelController(m_modelController);
-    m_modelController->setRootPackage(m_projectController->getProject()->getRootPackage());
+    m_modelController->setRootPackage(m_projectController->project()->rootPackage());
 }
 
 void DocumentController::loadProject(const QString &fileName)
@@ -298,7 +298,7 @@ void DocumentController::loadProject(const QString &fileName)
     m_projectController->load();
 
     m_treeModel->setModelController(m_modelController);
-    m_modelController->setRootPackage(m_projectController->getProject()->getRootPackage());
+    m_modelController->setRootPackage(m_projectController->project()->rootPackage());
 }
 
 }

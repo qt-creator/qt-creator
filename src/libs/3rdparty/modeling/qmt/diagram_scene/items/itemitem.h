@@ -70,17 +70,17 @@ public:
 
 public:
 
-    QSizeF getMinimumSize() const;
+    QSizeF minimumSize() const;
 
 public:
 
-    QList<Latch> getHorizontalLatches(Action action, bool grabbedItem) const;
+    QList<Latch> horizontalLatches(Action action, bool grabbedItem) const;
 
-    QList<Latch> getVerticalLatches(Action action, bool grabbedItem) const;
+    QList<Latch> verticalLatches(Action action, bool grabbedItem) const;
 
 public:
 
-    QPointF getRelationStartPos() const;
+    QPointF relationStartPos() const;
 
     void relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints);
 
