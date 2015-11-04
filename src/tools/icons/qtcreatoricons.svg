@@ -1229,6 +1229,35 @@
          y="0"
          x="0" />
     </g>
+    <g
+       id="src/plugins/coreplugin/find/images/wrapindicator">
+      <rect
+         ry="11"
+         y="450"
+         x="279"
+         height="50"
+         width="50"
+         id="rect4682"
+         style="opacity:1;fill:#a5a7a7;fill-opacity:0.8;stroke:none;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         sodipodi:open="true"
+         d="m 319.99025,475.55839 a 16,16 0 0 1 -11.78175,14.87821 16,16 0 0 1 -17.70276,-6.83981 16,16 0 0 1 1.28254,-18.93477 16,16 0 0 1 18.46342,-4.3901"
+         sodipodi:end="5.1138147"
+         sodipodi:start="0.034906585"
+         sodipodi:ry="16"
+         sodipodi:rx="16"
+         sodipodi:cy="475"
+         sodipodi:cx="304"
+         sodipodi:type="arc"
+         id="path4692"
+         style="opacity:1;fill:none;fill-opacity:0.8;stroke:#ffffff;stroke-width:8;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         sodipodi:nodetypes="ccc"
+         inkscape:connector-curvature="0"
+         id="path4694"
+         d="m 322.76517,465.96966 -17.45581,2.61872 5.9902,-17.11022"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
