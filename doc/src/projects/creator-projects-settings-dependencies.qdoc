@@ -51,6 +51,11 @@
         \li Select projects that must be built before the current project is
             built.
 
+        \li Select the \uicontrol {Synchronize active kit, build, and deploy
+            configuration between projects} check box to use the same kit as
+            well as the same build and deploy configuration to build and deploy
+            all dependent projects loaded in a session.
+
     \endlist
 
     \QC calculates the build order based on the dependencies that you
