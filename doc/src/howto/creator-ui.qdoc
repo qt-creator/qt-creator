@@ -354,7 +354,8 @@
     To search within the \uicontrol{Application Output} and \uicontrol{Compile Output}
     panes, press \key {Ctrl+F} when the pane is active. Enter search criteria in
     the \uicontrol Find field and click the left and right arrows to search down and
-    up in the pane.
+    up in the pane. In these panes, you can also use the zoom buttons to increase and
+    decrease the text size of the output.
 
     To open the \uicontrol{General Messages} and \l{Using Version Control Systems}
     {Version Control} panes, select
