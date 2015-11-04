@@ -554,13 +554,6 @@ DebuggerSettings::DebuggerSettings()
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(UseAddressInStackView, item);
-    item = new SavedAction(this);
-
-    item->setSettingsKey(debugModeGroup, QLatin1String("ListSourceFiles"));
-    item->setText(tr("List Source Files"));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(ListSourceFiles, item);
 
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("SkipKnownFrames"));
