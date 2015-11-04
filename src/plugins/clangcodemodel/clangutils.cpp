@@ -104,16 +104,6 @@ static QString getResourceDir()
     return dir.canonicalPath();
 }
 
-static bool maybeIncludeBorlandExtensions()
-{
-    return
-#if defined(CINDEX_VERSION) // clang 3.2 or higher
-        true;
-#else
-        false;
-#endif
-}
-
 class LibClangOptionsBuilder : public CompilerOptionsBuilder
 {
 public:
@@ -128,7 +118,7 @@ public:
             optionsBuilder.add(QLatin1String("-v"));
 
         optionsBuilder.addLanguageOption(fileKind);
-        optionsBuilder.addOptionsForLanguage(maybeIncludeBorlandExtensions());
+        optionsBuilder.addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
 
         optionsBuilder.addToolchainAndProjectDefines();
 
