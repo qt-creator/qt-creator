@@ -58,7 +58,7 @@ class ClassItem :
         public IRelationable
 {
 public:
-    ClassItem(DClass *klass, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent = 0);
+    ClassItem(DClass *klass, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
 
     ~ClassItem();
 
@@ -68,7 +68,7 @@ public:
 
 public:
 
-    bool intersectShapeWithLine(const QLineF &line, QPointF *intersection_point, QLineF *intersection_line) const;
+    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const;
 
 public:
 
@@ -78,7 +78,7 @@ public:
 
     QPointF getRelationStartPos() const;
 
-    void relationDrawn(const QString &id, const QPointF &to_scene_pos, const QList<QPointF> &intermediate_points);
+    void relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints);
 
 protected:
 

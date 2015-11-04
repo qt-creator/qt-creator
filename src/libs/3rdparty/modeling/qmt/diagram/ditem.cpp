@@ -56,9 +56,9 @@ void DItem::setShape(const QString &shape)
     m_shape = shape;
 }
 
-void DItem::setShapeEditable(bool shape_editable)
+void DItem::setShapeEditable(bool shapeEditable)
 {
-    m_shapeEditable = shape_editable;
+    m_shapeEditable = shapeEditable;
 }
 
 void DItem::accept(DVisitor *visitor)

@@ -57,7 +57,7 @@ public:
 
     bool isShapeEditable() const { return m_shapeEditable; }
 
-    void setShapeEditable(bool shape_editable);
+    void setShapeEditable(bool shapeEditable);
 
 public:
 

@@ -42,9 +42,9 @@ DComponent::DComponent()
 {
 }
 
-void DComponent::setPlainShape(bool plane_shape)
+void DComponent::setPlainShape(bool planeShape)
 {
-    m_plainShape = plane_shape;
+    m_plainShape = planeShape;
 }
 
 void DComponent::accept(DVisitor *visitor)

@@ -93,14 +93,14 @@ DAssociation::~DAssociation()
 {
 }
 
-void DAssociation::setA(const DAssociationEnd &end_a)
+void DAssociation::setA(const DAssociationEnd &endA)
 {
-    m_endA = end_a;
+    m_endA = endA;
 }
 
-void DAssociation::setB(const DAssociationEnd &end_b)
+void DAssociation::setB(const DAssociationEnd &endB)
 {
-    m_endB = end_b;
+    m_endB = endB;
 }
 
 void DAssociation::setAssociationClassUid(const Uid &uid)

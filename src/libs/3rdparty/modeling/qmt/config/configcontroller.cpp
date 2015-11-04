@@ -66,9 +66,9 @@ ConfigController::~ConfigController()
     delete d;
 }
 
-void ConfigController::setStereotypeController(StereotypeController *stereotype_controller)
+void ConfigController::setStereotypeController(StereotypeController *stereotypeController)
 {
-    d->m_stereotypeController = stereotype_controller;
+    d->m_stereotypeController = stereotypeController;
 }
 
 void ConfigController::readStereotypeDefinitions(const QString &path)
@@ -79,8 +79,8 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
 
     QDir dir(path);
     dir.setNameFilters(QStringList() << QStringLiteral("*.def"));
-    foreach (const QString &file_name, dir.entryList(QDir::Files)) {
-        QFile file(QFileInfo(dir, file_name).absoluteFilePath());
+    foreach (const QString &fileName, dir.entryList(QDir::Files)) {
+        QFile file(QFileInfo(dir, fileName).absoluteFilePath());
         if (file.open(QIODevice::ReadOnly)) {
             QString text = QString::fromUtf8(file.readAll());
             file.close();
@@ -99,9 +99,9 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
     }
 }
 
-void ConfigController::onStereotypeIconParsed(const StereotypeIcon &stereotype_icon)
+void ConfigController::onStereotypeIconParsed(const StereotypeIcon &stereotypeIcon)
 {
-    d->m_stereotypeController->addStereotypeIcon(stereotype_icon);
+    d->m_stereotypeController->addStereotypeIcon(stereotypeIcon);
 }
 
 void ConfigController::onToolbarParsed(const Toolbar &toolbar)

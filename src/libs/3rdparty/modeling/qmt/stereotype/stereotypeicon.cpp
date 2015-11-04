@@ -85,19 +85,19 @@ void StereotypeIcon::setHeight(qreal height)
     m_height = height;
 }
 
-void StereotypeIcon::setMinWidth(qreal min_width)
+void StereotypeIcon::setMinWidth(qreal minWidth)
 {
-    m_minWidth = min_width;
+    m_minWidth = minWidth;
 }
 
-void StereotypeIcon::setMinHeight(qreal min_height)
+void StereotypeIcon::setMinHeight(qreal minHeight)
 {
-    m_minHeight = min_height;
+    m_minHeight = minHeight;
 }
 
-void StereotypeIcon::setSizeLock(StereotypeIcon::SizeLock size_lock)
+void StereotypeIcon::setSizeLock(StereotypeIcon::SizeLock sizeLock)
 {
-    m_sizeLock = size_lock;
+    m_sizeLock = sizeLock;
 }
 
 void StereotypeIcon::setDisplay(StereotypeIcon::Display display)
@@ -105,19 +105,19 @@ void StereotypeIcon::setDisplay(StereotypeIcon::Display display)
     m_display = display;
 }
 
-void StereotypeIcon::setTextAlignment(StereotypeIcon::TextAlignment text_alignment)
+void StereotypeIcon::setTextAlignment(StereotypeIcon::TextAlignment textAlignment)
 {
-    m_textAlignment = text_alignment;
+    m_textAlignment = textAlignment;
 }
 
-void StereotypeIcon::setBaseColor(const QColor &base_color)
+void StereotypeIcon::setBaseColor(const QColor &baseColor)
 {
-    m_baseColor = base_color;
+    m_baseColor = baseColor;
 }
 
-void StereotypeIcon::setIconShape(const IconShape &icon_shape)
+void StereotypeIcon::setIconShape(const IconShape &iconShape)
 {
-    m_iconShape = icon_shape;
+    m_iconShape = iconShape;
 }
 
 } // namespace qmt

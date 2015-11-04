@@ -39,11 +39,11 @@ public:
 
     virtual bool isSecondarySelected() const = 0;
 
-    virtual void setSecondarySelected(bool secondary_selected) = 0;
+    virtual void setSecondarySelected(bool secondarySelected) = 0;
 
     virtual bool isFocusSelected() const = 0;
 
-    virtual void setFocusSelected(bool focus_selected) = 0;
+    virtual void setFocusSelected(bool focusSelected) = 0;
 };
 
 }

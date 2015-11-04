@@ -50,21 +50,21 @@ int UndoCommand::id() const
     return 1;
 }
 
-void UndoCommand::setDoNotMerge(bool do_not_merge)
+void UndoCommand::setDoNotMerge(bool doNotMerge)
 {
-    m_doNotMerge = do_not_merge;
+    m_doNotMerge = doNotMerge;
 }
 
 bool UndoCommand::mergeWith(const QUndoCommand *other)
 {
-    const UndoCommand *other_command = dynamic_cast<const UndoCommand *>(other);
-    if (!other_command) {
+    const UndoCommand *otherCommand = dynamic_cast<const UndoCommand *>(other);
+    if (!otherCommand) {
         return false;
     }
-    if (other_command->m_doNotMerge) {
+    if (otherCommand->m_doNotMerge) {
         return false;
     }
-    return mergeWith(other_command);
+    return mergeWith(otherCommand);
 }
 
 bool UndoCommand::mergeWith(const UndoCommand *other)

@@ -72,7 +72,7 @@ class QMT_EXPORT PropertiesView::MView :
 
 public:
 
-    MView(PropertiesView *properties_view);
+    MView(PropertiesView *propertiesView);
 
     ~MView();
 
@@ -136,9 +136,9 @@ public:
 
 public:
 
-    void update(QList<MElement *> &model_elements);
+    void update(QList<MElement *> &modelElements);
 
-    void update(QList<DElement *> &diagram_elements, MDiagram *diagram);
+    void update(QList<DElement *> &diagramElements, MDiagram *diagram);
 
     void edit();
 
@@ -148,21 +148,21 @@ private slots:
 
     void onObjectNameChanged(const QString &name);
 
-    void onNamespaceChanged(const QString &name_space);
+    void onNamespaceChanged(const QString &nameSpace);
 
-    void onTemplateParametersChanged(const QString &template_parameters);
+    void onTemplateParametersChanged(const QString &templateParameters);
 
     void onClassMembersStatusChanged(bool valid);
 
     void onParseClassMembers();
 
-    void onClassMembersChanged(QList<MClassMember> &class_members);
+    void onClassMembersChanged(QList<MClassMember> &classMembers);
 
     void onItemVarietyChanged(const QString &variety);
 
     void onRelationNameChanged(const QString &name);
 
-    void onDependencyDirectionChanged(int direction_index);
+    void onDependencyDirectionChanged(int directionIndex);
 
     void onAssociationEndANameChanged(const QString &name);
 
@@ -170,7 +170,7 @@ private slots:
 
     void onAssociationEndANavigableChanged(bool navigable);
 
-    void onAssociationEndAKindChanged(int kind_index);
+    void onAssociationEndAKindChanged(int kindIndex);
 
     void onAssociationEndBNameChanged(const QString &name);
 
@@ -178,53 +178,53 @@ private slots:
 
     void onAssociationEndBNavigableChanged(bool navigable);
 
-    void onAssociationEndBKindChanged(int kind_index);
+    void onAssociationEndBKindChanged(int kindIndex);
 
-    void onAutoSizedChanged(bool auto_sized);
+    void onAutoSizedChanged(bool autoSized);
 
-    void onVisualPrimaryRoleChanged(int visual_role_index);
+    void onVisualPrimaryRoleChanged(int visualRoleIndex);
 
-    void onVisualSecondaryRoleChanged(int visual_role_index);
+    void onVisualSecondaryRoleChanged(int visualRoleIndex);
 
-    void onVisualEmphasizedChanged(bool visual_emphasized);
+    void onVisualEmphasizedChanged(bool visualEmphasized);
 
-    void onStereotypeDisplayChanged(int stereotype_display_index);
+    void onStereotypeDisplayChanged(int stereotypeDisplayIndex);
 
-    void onTemplateDisplayChanged(int template_display_index);
+    void onTemplateDisplayChanged(int templateDisplayIndex);
 
-    void onShowAllMembersChanged(bool show_all_members);
+    void onShowAllMembersChanged(bool showAllMembers);
 
-    void onPlainShapeChanged(bool plain_shape);
+    void onPlainShapeChanged(bool plainShape);
 
     void onItemShapeChanged(const QString &shape);
 
-    void onAutoWidthChanged(bool auto_widthed);
+    void onAutoWidthChanged(bool autoWidthed);
 
-    void onAnnotationVisualRoleChanged(int visual_role_index);
+    void onAnnotationVisualRoleChanged(int visualRoleIndex);
 
 private:
 
     void prepare();
 
     template<class T, class V>
-    void setTitle(const QList<V *> &elements, const QString &singular_title, const QString &plural_title);
+    void setTitle(const QList<V *> &elements, const QString &singularTitle, const QString &pluralTitle);
 
     template<class T, class V>
-    void setTitle(const MItem *item, const QList<V *> &elements, const QString &singular_title, const QString &plural_title);
+    void setTitle(const MItem *item, const QList<V *> &elements, const QString &singularTitle, const QString &pluralTitle);
 
-    void setStereotypeIconElement(StereotypeIcon::Element stereotype_element);
+    void setStereotypeIconElement(StereotypeIcon::Element stereotypeElement);
 
-    void setStyleElementType(StyleEngine::ElementType element_type);
+    void setStyleElementType(StyleEngine::ElementType elementType);
 
-    void setPrimaryRolePalette(StyleEngine::ElementType element_type, DObject::VisualPrimaryRole visual_primary_role, const QColor &base_color);
+    void setPrimaryRolePalette(StyleEngine::ElementType elementType, DObject::VisualPrimaryRole visualPrimaryRole, const QColor &baseColor);
 
-    void setEndAName(const QString &end_a_name);
+    void setEndAName(const QString &endAName);
 
-    void setEndBName(const QString &end_b_name);
+    void setEndBName(const QString &endBName);
 
-    QList<QString> splitTemplateParameters(const QString &template_parameters);
+    QList<QString> splitTemplateParameters(const QString &templateParameters);
 
-    QString formatTemplateParameters(const QList<QString> &template_parameters_list);
+    QString formatTemplateParameters(const QList<QString> &templateParametersList);
 
     enum SelectionType {
         SELECTION_SINGLE,
@@ -235,19 +235,19 @@ private:
     QList<T *> filter(const QList<V *> &elements);
 
     template<class T, class V, class BASE>
-    bool haveSameValue(const QList<BASE *> &base_elements, V (T::*getter)() const, V *value);
+    bool haveSameValue(const QList<BASE *> &baseElements, V (T::*getter)() const, V *value);
 
     template<class T, class V, class BASE>
-    void assignModelElement(const QList<BASE *> &base_elements, SelectionType selection_type, const V &value, V (T::*getter)() const, void (T::*setter)(const V &));
+    void assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, V (T::*getter)() const, void (T::*setter)(const V &));
 
     template<class T, class V, class BASE>
-    void assignModelElement(const QList<BASE *> &base_elements, SelectionType selection_type, const V &value, V (T::*getter)() const, void (T::*setter)(V));
+    void assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, V (T::*getter)() const, void (T::*setter)(V));
 
     template<class T, class E, class V, class BASE>
-    void assignEmbeddedModelElement(const QList<BASE *> &base_elements, SelectionType selection_type, const V &value, E (T::*getter)() const, void (T::*setter)(const E &), V (E::*v_getter)() const, void (E::*v_setter)(const V &));
+    void assignEmbeddedModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, E (T::*getter)() const, void (T::*setter)(const E &), V (E::*vGetter)() const, void (E::*vSetter)(const V &));
 
     template<class T, class E, class V, class BASE>
-    void assignEmbeddedModelElement(const QList<BASE *> &base_elements, SelectionType selection_type, const V &value, E (T::*getter)() const, void (T::*setter)(const E &), V (E::*v_getter)() const, void (E::*v_setter)(V));
+    void assignEmbeddedModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, E (T::*getter)() const, void (T::*setter)(const E &), V (E::*vGetter)() const, void (E::*vSetter)(V));
 
 private:
     PropertiesView *m_propertiesView;

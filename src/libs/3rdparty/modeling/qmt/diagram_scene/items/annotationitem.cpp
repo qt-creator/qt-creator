@@ -77,10 +77,10 @@ public:
 };
 
 
-AnnotationItem::AnnotationItem(DAnnotation *annotation, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent)
+AnnotationItem::AnnotationItem(DAnnotation *annotation, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : QGraphicsItem(parent),
       m_annotation(annotation),
-      m_diagramSceneModel(diagram_scene_model),
+      m_diagramSceneModel(diagramSceneModel),
       m_secondarySelected(false),
       m_focusSelected(false),
       m_selectionMarker(0),
@@ -162,28 +162,28 @@ QSizeF AnnotationItem::getMinimumSize() const
     return calcMinimumGeometry();
 }
 
-void AnnotationItem::setPosAndRect(const QPointF &original_pos, const QRectF &original_rect, const QPointF &top_left_delta, const QPointF &bottom_right_delta)
+void AnnotationItem::setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta)
 {
-    QPointF new_pos = original_pos;
-    QRectF new_rect = original_rect;
-    GeometryUtilities::adjustPosAndRect(&new_pos, &new_rect, top_left_delta, bottom_right_delta, QPointF(0.0, 0.0));
-    if (new_pos != m_annotation->getPos() || new_rect != m_annotation->getRect()) {
+    QPointF newPos = originalPos;
+    QRectF newRect = originalRect;
+    GeometryUtilities::adjustPosAndRect(&newPos, &newRect, topLeftDelta, bottomRightDelta, QPointF(0.0, 0.0));
+    if (newPos != m_annotation->getPos() || newRect != m_annotation->getRect()) {
         m_diagramSceneModel->getDiagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
-        m_annotation->setPos(new_pos);
-        if (new_rect.size() != m_annotation->getRect().size()) {
+        m_annotation->setPos(newPos);
+        if (newRect.size() != m_annotation->getRect().size()) {
             m_annotation->setAutoSize(false);
         }
-        m_annotation->setRect(new_rect);
+        m_annotation->setRect(newRect);
         m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_annotation, m_diagramSceneModel->getDiagram(), false);
     }
 }
 
-void AnnotationItem::alignItemSizeToRaster(Side adjust_horizontal_side, Side adjust_vertical_side, double raster_width, double raster_height)
+void AnnotationItem::alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide, double rasterWidth, double rasterHeight)
 {
-    Q_UNUSED(adjust_horizontal_side);
-    Q_UNUSED(adjust_vertical_side);
-    Q_UNUSED(raster_width);
-    Q_UNUSED(raster_height);
+    Q_UNUSED(adjustHorizontalSide);
+    Q_UNUSED(adjustVerticalSide);
+    Q_UNUSED(rasterWidth);
+    Q_UNUSED(rasterHeight);
 }
 
 void AnnotationItem::moveDelta(const QPointF &delta)
@@ -193,17 +193,17 @@ void AnnotationItem::moveDelta(const QPointF &delta)
     m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_annotation, m_diagramSceneModel->getDiagram(), false);
 }
 
-void AnnotationItem::alignItemPositionToRaster(double raster_width, double raster_height)
+void AnnotationItem::alignItemPositionToRaster(double rasterWidth, double rasterHeight)
 {
     QPointF pos = m_annotation->getPos();
     QRectF rect = m_annotation->getRect();
-    QPointF top_left = pos + rect.topLeft();
+    QPointF topLeft = pos + rect.topLeft();
 
-    double left_delta = qRound(top_left.x() / raster_width) * raster_width - top_left.x();
-    double top_delta = qRound(top_left.y() / raster_height) * raster_height - top_left.y();
-    QPointF top_left_delta(left_delta, top_delta);
+    double leftDelta = qRound(topLeft.x() / rasterWidth) * rasterWidth - topLeft.x();
+    double topDelta = qRound(topLeft.y() / rasterHeight) * rasterHeight - topLeft.y();
+    QPointF topLeftDelta(leftDelta, topDelta);
 
-    setPosAndRect(pos, rect, top_left_delta, top_left_delta);
+    setPosAndRect(pos, rect, topLeftDelta, topLeftDelta);
 }
 
 bool AnnotationItem::isSecondarySelected() const
@@ -211,10 +211,10 @@ bool AnnotationItem::isSecondarySelected() const
     return m_secondarySelected;
 }
 
-void AnnotationItem::setSecondarySelected(bool secondary_selected)
+void AnnotationItem::setSecondarySelected(bool secondarySelected)
 {
-    if (m_secondarySelected != secondary_selected) {
-        m_secondarySelected = secondary_selected;
+    if (m_secondarySelected != secondarySelected) {
+        m_secondarySelected = secondarySelected;
         update();
     }
 }
@@ -224,10 +224,10 @@ bool AnnotationItem::isFocusSelected() const
     return m_focusSelected;
 }
 
-void AnnotationItem::setFocusSelected(bool focus_selected)
+void AnnotationItem::setFocusSelected(bool focusSelected)
 {
-    if (m_focusSelected != focus_selected) {
-        m_focusSelected = focus_selected;
+    if (m_focusSelected != focusSelected) {
+        m_focusSelected = focusSelected;
         update();
     }
 }
@@ -289,10 +289,10 @@ void AnnotationItem::updateSelectionMarker()
     }
 }
 
-void AnnotationItem::updateSelectionMarkerGeometry(const QRectF &annotation_rect)
+void AnnotationItem::updateSelectionMarkerGeometry(const QRectF &annotationRect)
 {
     if (m_selectionMarker) {
-        m_selectionMarker->setRect(annotation_rect);
+        m_selectionMarker->setRect(annotationRect);
     }
 }
 
@@ -318,10 +318,10 @@ void AnnotationItem::onContentsChanged()
     m_onChanged = true;
 
     if (!m_onUpdate) {
-        QString plain_text = m_textItem->toPlainText();
-        if (m_annotation->getText() != plain_text) {
+        QString plainText = m_textItem->toPlainText();
+        if (m_annotation->getText() != plainText) {
             m_diagramSceneModel->getDiagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_MINOR);
-            m_annotation->setText(plain_text);
+            m_annotation->setText(plainText);
             m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_annotation, m_diagramSceneModel->getDiagram(), false);
         }
     }
@@ -337,8 +337,8 @@ QSizeF AnnotationItem::calcMinimumGeometry() const
     if (getAnnotation()->hasAutoSize()) {
         if (m_textItem) {
             m_textItem->setTextWidth(-1);
-            QSizeF text_size = m_textItem->document()->size();
-            width = text_size.width() + 2 * CONTENTS_BORDER_HORIZONTAL;
+            QSizeF textSize = m_textItem->document()->size();
+            width = textSize.width() + 2 * CONTENTS_BORDER_HORIZONTAL;
         }
     }
     return QSizeF(width, height);
@@ -355,9 +355,9 @@ void AnnotationItem::updateGeometry()
     if (getAnnotation()->hasAutoSize()) {
         if (m_textItem) {
             m_textItem->setTextWidth(-1);
-            QSizeF text_size = m_textItem->document()->size();
-            width = text_size.width() + 2 * CONTENTS_BORDER_HORIZONTAL;
-            height = text_size.height() + 2 * CONTENTS_BORDER_VERTICAL;
+            QSizeF textSize = m_textItem->document()->size();
+            width = textSize.width() + 2 * CONTENTS_BORDER_HORIZONTAL;
+            height = textSize.height() + 2 * CONTENTS_BORDER_VERTICAL;
         }
     } else {
         QRectF rect = getAnnotation()->getRect();

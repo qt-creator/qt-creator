@@ -83,12 +83,12 @@ QARK_REGISTER_DERIVED_CLASS(QXmlInArchive, QXmlOutArchive, MSourceExpansion, MEx
 QARK_ACCESS_SERIALIZE(MSourceExpansion)
 
 template<class Archive>
-inline void Access<Archive, MSourceExpansion>::serialize(Archive &archive, MSourceExpansion &source_expansion)
+inline void Access<Archive, MSourceExpansion>::serialize(Archive &archive, MSourceExpansion &sourceExpansion)
 {
-    archive || tag(source_expansion)
-            || base<MExpansion>(source_expansion)
-            || attr(QStringLiteral("source"), source_expansion, &MSourceExpansion::getSourceId, &MSourceExpansion::setSourceId)
-            || attr(QStringLiteral("transient"), source_expansion, &MSourceExpansion::isTransient, &MSourceExpansion::setTransient)
+    archive || tag(sourceExpansion)
+            || base<MExpansion>(sourceExpansion)
+            || attr(QStringLiteral("source"), sourceExpansion, &MSourceExpansion::getSourceId, &MSourceExpansion::setSourceId)
+            || attr(QStringLiteral("transient"), sourceExpansion, &MSourceExpansion::isTransient, &MSourceExpansion::setTransient)
             || end;
 }
 
@@ -336,13 +336,13 @@ QARK_REGISTER_TYPE_NAME(MAssociationEnd, "MAssociationEnd")
 QARK_ACCESS_SERIALIZE(MAssociationEnd)
 
 template<class Archive>
-inline void Access<Archive, MAssociationEnd>::serialize(Archive &archive, MAssociationEnd &association_end)
+inline void Access<Archive, MAssociationEnd>::serialize(Archive &archive, MAssociationEnd &associationEnd)
 {
-    archive || tag(association_end)
-            || attr(QStringLiteral("name"), association_end, &MAssociationEnd::getName, &MAssociationEnd::setName)
-            || attr(QStringLiteral("cardinality"), association_end, &MAssociationEnd::getCardinality, &MAssociationEnd::setCardinality)
-            || attr(QStringLiteral("navigable"), association_end, &MAssociationEnd::isNavigable, &MAssociationEnd::setNavigable)
-            || attr(QStringLiteral("kind"), association_end, &MAssociationEnd::getKind, &MAssociationEnd::setKind)
+    archive || tag(associationEnd)
+            || attr(QStringLiteral("name"), associationEnd, &MAssociationEnd::getName, &MAssociationEnd::setName)
+            || attr(QStringLiteral("cardinality"), associationEnd, &MAssociationEnd::getCardinality, &MAssociationEnd::setCardinality)
+            || attr(QStringLiteral("navigable"), associationEnd, &MAssociationEnd::isNavigable, &MAssociationEnd::setNavigable)
+            || attr(QStringLiteral("kind"), associationEnd, &MAssociationEnd::getKind, &MAssociationEnd::setKind)
             || end;
 }
 

@@ -98,8 +98,8 @@ void MCloneVisitor::visitMDiagram(const MDiagram *diagram)
     foreach (const DElement *element, diagram->getDiagramElements()) {
         DCloneDeepVisitor visitor;
         element->accept(&visitor);
-        DElement *cloned_element = visitor.getCloned();
-        cloned->addDiagramElement(cloned_element);
+        DElement *clonedElement = visitor.getCloned();
+        cloned->addDiagramElement(clonedElement);
     }
     visitMObject(diagram);
 }
@@ -172,9 +172,9 @@ void MCloneDeepVisitor::visitMObject(const MObject *object)
         if (handle.hasTarget()) {
             MCloneDeepVisitor visitor;
             handle.getTarget()->accept(&visitor);
-            MObject *cloned_child = dynamic_cast<MObject *>(visitor.getCloned());
-            QMT_CHECK(cloned_child);
-            cloned->addChild(cloned_child);
+            MObject *clonedChild = dynamic_cast<MObject *>(visitor.getCloned());
+            QMT_CHECK(clonedChild);
+            cloned->addChild(clonedChild);
         } else {
             cloned->addChild(handle.getUid());
         }
@@ -183,9 +183,9 @@ void MCloneDeepVisitor::visitMObject(const MObject *object)
         if (handle.hasTarget()) {
             MCloneDeepVisitor visitor;
             handle.getTarget()->accept(&visitor);
-            MRelation *cloned_relation = dynamic_cast<MRelation *>(visitor.getCloned());
-            QMT_CHECK(cloned_relation);
-            cloned->addRelation(cloned_relation);
+            MRelation *clonedRelation = dynamic_cast<MRelation *>(visitor.getCloned());
+            QMT_CHECK(clonedRelation);
+            cloned->addRelation(clonedRelation);
         } else {
             cloned->addRelation(handle.getUid());
         }
@@ -224,8 +224,8 @@ void MCloneDeepVisitor::visitMDiagram(const MDiagram *diagram)
     foreach (const DElement *element, diagram->getDiagramElements()) {
         DCloneDeepVisitor visitor;
         element->accept(&visitor);
-        DElement *cloned_element = visitor.getCloned();
-        cloned->addDiagramElement(cloned_element);
+        DElement *clonedElement = visitor.getCloned();
+        cloned->addDiagramElement(clonedElement);
     }
     visitMObject(diagram);
 }

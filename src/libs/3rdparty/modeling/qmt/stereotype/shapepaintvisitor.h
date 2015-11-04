@@ -45,24 +45,24 @@ class QMT_EXPORT ShapePaintVisitor
         : public ShapeConstVisitor {
 public:
 
-    ShapePaintVisitor(QPainter *painter, const QPointF &scaled_origin, const QSizeF &original_size,
-                      const QSizeF &base_size, const QSizeF &size);
+    ShapePaintVisitor(QPainter *painter, const QPointF &scaledOrigin, const QSizeF &originalSize,
+                      const QSizeF &baseSize, const QSizeF &size);
 
 public:
 
-    void visitLine(const LineShape *shape_line);
+    void visitLine(const LineShape *shapeLine);
 
-    void visitRect(const RectShape *shape_rect);
+    void visitRect(const RectShape *shapeRect);
 
-    void visitRoundedRect(const RoundedRectShape *shape_rounded_rect);
+    void visitRoundedRect(const RoundedRectShape *shapeRoundedRect);
 
-    void visitCircle(const CircleShape *shape_circle);
+    void visitCircle(const CircleShape *shapeCircle);
 
-    void visitEllipse(const EllipseShape *shape_ellipse);
+    void visitEllipse(const EllipseShape *shapeEllipse);
 
-    void visitArc(const ArcShape *shape_arc);
+    void visitArc(const ArcShape *shapeArc);
 
-    void visitPath(const PathShape *shape_path);
+    void visitPath(const PathShape *shapePath);
 
 private:
 
@@ -83,8 +83,8 @@ class QMT_EXPORT ShapeSizeVisitor
         : public ShapeConstVisitor {
 public:
 
-    ShapeSizeVisitor(const QPointF &scaled_origin, const QSizeF &original_size,
-                     const QSizeF &base_size, const QSizeF &size);
+    ShapeSizeVisitor(const QPointF &scaledOrigin, const QSizeF &originalSize,
+                     const QSizeF &baseSize, const QSizeF &size);
 
 public:
 
@@ -92,19 +92,19 @@ public:
 
 public:
 
-    void visitLine(const LineShape *shape_line);
+    void visitLine(const LineShape *shapeLine);
 
-    void visitRect(const RectShape *shape_rect);
+    void visitRect(const RectShape *shapeRect);
 
-    void visitRoundedRect(const RoundedRectShape *shape_rounded_rect);
+    void visitRoundedRect(const RoundedRectShape *shapeRoundedRect);
 
-    void visitCircle(const CircleShape *shape_circle);
+    void visitCircle(const CircleShape *shapeCircle);
 
-    void visitEllipse(const EllipseShape *shape_ellipse);
+    void visitEllipse(const EllipseShape *shapeEllipse);
 
-    void visitArc(const ArcShape *shape_arc);
+    void visitArc(const ArcShape *shapeArc);
 
-    void visitPath(const PathShape *shape_path);
+    void visitPath(const PathShape *shapePath);
 
 private:
 

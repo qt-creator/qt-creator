@@ -116,15 +116,15 @@ public:
 
     ModelController *getModelController() const { return m_modelController; }
 
-    void setModelController(ModelController *model_controller);
+    void setModelController(ModelController *modelController);
 
     UndoController *getUndoController() const { return m_undoController; }
 
-    void setUndoController(UndoController *undo_controller);
+    void setUndoController(UndoController *undoController);
 
 private:
 
-    MDiagram *findDiagram(const Uid &diagram_key) const;
+    MDiagram *findDiagram(const Uid &diagramKey) const;
 
 public:
 
@@ -137,17 +137,17 @@ public:
     template<class T>
     T *findElement(const Uid &key, const MDiagram *diagram) const { return dynamic_cast<T *>(findElement(key, diagram)); }
 
-    bool hasDelegate(const MElement *model_element, const MDiagram *diagram) const;
+    bool hasDelegate(const MElement *modelElement, const MDiagram *diagram) const;
 
-    DElement *findDelegate(const MElement *model_element, const MDiagram *diagram) const;
+    DElement *findDelegate(const MElement *modelElement, const MDiagram *diagram) const;
 
     template<class T>
-    T *findDelegate(const MElement *model_element, const MDiagram *diagram) const
+    T *findDelegate(const MElement *modelElement, const MDiagram *diagram) const
     {
-        return dynamic_cast<T *>(findDelegate(model_element, diagram));
+        return dynamic_cast<T *>(findDelegate(modelElement, diagram));
     }
 
-    void startUpdateElement(DElement *element, MDiagram *diagram, UpdateAction update_action);
+    void startUpdateElement(DElement *element, MDiagram *diagram, UpdateAction updateAction);
 
     void finishUpdateElement(DElement *element, MDiagram *diagram, bool cancelled);
 
@@ -155,13 +155,13 @@ public:
 
 public:
 
-    DContainer cutElements(const DSelection &diagram_selection, MDiagram *diagram);
+    DContainer cutElements(const DSelection &diagramSelection, MDiagram *diagram);
 
-    DContainer copyElements(const DSelection &diagram_selection, const MDiagram *diagram);
+    DContainer copyElements(const DSelection &diagramSelection, const MDiagram *diagram);
 
-    void pasteElements(const DContainer &diagram_container, MDiagram *diagram);
+    void pasteElements(const DContainer &diagramContainer, MDiagram *diagram);
 
-    void deleteElements(const DSelection &diagram_selection, MDiagram *diagram);
+    void deleteElements(const DSelection &diagramSelection, MDiagram *diagram);
 
 private slots:
 
@@ -181,7 +181,7 @@ private slots:
 
     void onEndRemoveObject(int row, const MObject *parent);
 
-    void onBeginMoveObject(int former_row, const MObject *former_owner);
+    void onBeginMoveObject(int formerRow, const MObject *formerOwner);
 
     void onEndMoveObject(int row, const MObject *owner);
 
@@ -193,31 +193,31 @@ private slots:
 
     void onEndRemoveRelation(int row, const MObject *owner);
 
-    void onBeginMoveRelation(int former_row, const MObject *former_owner);
+    void onBeginMoveRelation(int formerRow, const MObject *formerOwner);
 
     void onEndMoveRelation(int row, const MObject *owner);
 
 private:
 
-    void deleteElements(const DSelection &diagram_selection, MDiagram *diagram, const QString &command_label);
+    void deleteElements(const DSelection &diagramSelection, MDiagram *diagram, const QString &commandLabel);
 
     DElement *findElementOnAnyDiagram(const Uid &uid);
 
-    void removeObjects(MObject *model_object);
+    void removeObjects(MObject *modelObject);
 
-    void removeRelations(MRelation *model_relation);
+    void removeRelations(MRelation *modelRelation);
 
     void removeRelations(DElement *element, MDiagram *diagram);
 
-    void renewElementKey(DElement *element, QHash<Uid, Uid> *renewed_keys);
+    void renewElementKey(DElement *element, QHash<Uid, Uid> *renewedKeys);
 
-    void updateRelationKeys(DRelation *relation, const QHash<Uid, Uid> &renewed_keys);
+    void updateRelationKeys(DRelation *relation, const QHash<Uid, Uid> &renewedKeys);
 
-    void updateElementFromModel(DElement *element, const MDiagram *diagram, bool emit_update_signal);
+    void updateElementFromModel(DElement *element, const MDiagram *diagram, bool emitUpdateSignal);
 
     void diagramModified(MDiagram *diagram);
 
-    DReferences simplify(const DSelection &diagram_selection, const MDiagram *diagram);
+    DReferences simplify(const DSelection &diagramSelection, const MDiagram *diagram);
 
     MElement *getDelegatedElement(const DElement *element) const;
 

@@ -56,22 +56,22 @@ GeometryUtilities::GeometryUtilities()
 {
 }
 
-QLineF GeometryUtilities::stretch(const QLineF &line, double p1_extension, double p2_extension)
+QLineF GeometryUtilities::stretch(const QLineF &line, double p1Extension, double p2Extension)
 {
     QLineF direction = line.unitVector();
-    QPointF stretched_p1 = line.p1() - (direction.p2() - direction.p1()) * p1_extension;
-    QPointF stretched_p2 = line.p2() + (direction.p2() - direction.p1()) * p2_extension;
-    return QLineF(stretched_p1, stretched_p2);
+    QPointF stretchedP1 = line.p1() - (direction.p2() - direction.p1()) * p1Extension;
+    QPointF stretchedP2 = line.p2() + (direction.p2() - direction.p1()) * p2Extension;
+    return QLineF(stretchedP1, stretchedP2);
 }
 
-bool GeometryUtilities::intersect(const QPolygonF &polygon, const QLineF &line, QPointF *intersection_point, QLineF *intersection_line)
+bool GeometryUtilities::intersect(const QPolygonF &polygon, const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine)
 {
     for (int i = 0; i <= polygon.size() - 2; ++i) {
-        QLineF polygon_line(polygon.at(i), polygon.at(i+1));
-        QLineF::IntersectType intersection_type = polygon_line.intersect(line, intersection_point);
-        if (intersection_type == QLineF::BoundedIntersection) {
-            if (intersection_line) {
-                *intersection_line = polygon_line;
+        QLineF polygonLine(polygon.at(i), polygon.at(i+1));
+        QLineF::IntersectType intersectionType = polygonLine.intersect(line, intersectionPoint);
+        if (intersectionType == QLineF::BoundedIntersection) {
+            if (intersectionLine) {
+                *intersectionLine = polygonLine;
             }
             return true;
         }
@@ -93,7 +93,7 @@ struct Candidate {
 
 }
 
-bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, double line_offset, double distance, const QLineF &intersection_line, QPointF *placement, Side *horizontal_aligned_side)
+bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, double lineOffset, double distance, const QLineF &intersectionLine, QPointF *placement, Side *horizontalAlignedSide)
 {
     QMT_CHECK(placement);
 
@@ -107,49 +107,49 @@ bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, 
                << Candidate(QVector2D(rect.bottomRight() - rect.topRight()), rect.topRight() - rect.topLeft(), SIDE_RIGHT)
                << Candidate(QVector2D(rect.topRight() - rect.bottomRight()), rect.bottomRight() - rect.topLeft(), SIDE_RIGHT);
 
-    QVector<QVector2D> rect_edge_vectors;
-    rect_edge_vectors << QVector2D(rect.topLeft() - rect.topLeft())
+    QVector<QVector2D> rectEdgeVectors;
+    rectEdgeVectors << QVector2D(rect.topLeft() - rect.topLeft())
                       << QVector2D(rect.topRight() - rect.topLeft())
                       << QVector2D(rect.bottomLeft() - rect.topLeft())
                       << QVector2D(rect.bottomRight() -rect.topLeft());
 
-    QVector2D direction_vector(line.p2() - line.p1());
-    direction_vector.normalize();
+    QVector2D directionVector(line.p2() - line.p1());
+    directionVector.normalize();
 
-    QVector2D side_vector(direction_vector.y(), -direction_vector.x());
+    QVector2D sideVector(directionVector.y(), -directionVector.x());
 
-    QVector2D intersection_vector(intersection_line.p2() - intersection_line.p1());
-    intersection_vector.normalize();
+    QVector2D intersectionVector(intersectionLine.p2() - intersectionLine.p1());
+    intersectionVector.normalize();
 
-    QVector2D outside_vector = QVector2D(intersection_vector.y(), -intersection_vector.x());
-    double p = QVector2D::dotProduct(direction_vector, outside_vector);
+    QVector2D outsideVector = QVector2D(intersectionVector.y(), -intersectionVector.x());
+    double p = QVector2D::dotProduct(directionVector, outsideVector);
     if (p < 0.0) {
-        outside_vector = outside_vector * -1.0;
+        outsideVector = outsideVector * -1.0;
     }
 
-    double smallest_a = -1.0;
-    QPointF rect_translation;
+    double smallestA = -1.0;
+    QPointF rectTranslation;
     Side side = SIDE_UNSPECIFIED;
-    int best_sign = 0;
+    int bestSign = 0;
 
     foreach (const Candidate &candidate, candidates) {
-        // solve equation a * direction_vector + candidate.first = b * intersection_vector to find smallest a
-        double r = direction_vector.x() * intersection_vector.y() - direction_vector.y() * intersection_vector.x();
+        // solve equation a * directionVector + candidate.first = b * intersectionVector to find smallest a
+        double r = directionVector.x() * intersectionVector.y() - directionVector.y() * intersectionVector.x();
         if (r <= -1e-5 || r >= 1e-5) {
-            double a = (candidate.first.y() * intersection_vector.x() - candidate.first.x() * intersection_vector.y()) / r;
-            if (a >= 0.0 && (smallest_a < 0.0 || a < smallest_a)) {
+            double a = (candidate.first.y() * intersectionVector.x() - candidate.first.x() * intersectionVector.y()) / r;
+            if (a >= 0.0 && (smallestA < 0.0 || a < smallestA)) {
                 // verify that all rectangle edges lay outside of shape (by checking for positiv projection to intersection)
                 bool ok = true;
                 int sign = 0;
-                QVector2D rect_origin_vector = direction_vector * a - QVector2D(candidate.second);
-                foreach (const QVector2D &rect_edge_vector, rect_edge_vectors) {
-                    QVector2D edge_vector = rect_origin_vector + rect_edge_vector;
-                    double aa = QVector2D::dotProduct(outside_vector, edge_vector);
+                QVector2D rectOriginVector = directionVector * a - QVector2D(candidate.second);
+                foreach (const QVector2D &rectEdgeVector, rectEdgeVectors) {
+                    QVector2D edgeVector = rectOriginVector + rectEdgeVector;
+                    double aa = QVector2D::dotProduct(outsideVector, edgeVector);
                     if (aa < 0.0) {
                         ok = false;
                         break;
                     }
-                    int s = sgn(QVector2D::dotProduct(side_vector, edge_vector));
+                    int s = sgn(QVector2D::dotProduct(sideVector, edgeVector));
                     if (s) {
                         if (sign) {
                             if (s != sign) {
@@ -162,41 +162,41 @@ bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, 
                     }
                 }
                 if (ok) {
-                    smallest_a = a;
-                    rect_translation = candidate.second;
+                    smallestA = a;
+                    rectTranslation = candidate.second;
                     side = candidate.third;
-                    best_sign = sign;
+                    bestSign = sign;
                 }
             }
         }
     }
-    if (horizontal_aligned_side) {
+    if (horizontalAlignedSide) {
         // convert side into a horizontal side depending on placement relative to direction vector
         switch (side) {
         case SIDE_TOP:
-            side = best_sign == -1 ? SIDE_RIGHT : SIDE_LEFT;
+            side = bestSign == -1 ? SIDE_RIGHT : SIDE_LEFT;
             break;
         case SIDE_BOTTOM:
-            side = best_sign == -1 ? SIDE_LEFT : SIDE_RIGHT;
+            side = bestSign == -1 ? SIDE_LEFT : SIDE_RIGHT;
             break;
         default:
             break;
         }
-        *horizontal_aligned_side = side;
+        *horizontalAlignedSide = side;
     }
-    if (smallest_a < 0.0) {
+    if (smallestA < 0.0) {
         return false;
     }
-    *placement = line.p1() + (direction_vector * (smallest_a + line_offset)).toPointF() + (side_vector * (best_sign * distance)).toPointF() - rect_translation;
+    *placement = line.p1() + (directionVector * (smallestA + lineOffset)).toPointF() + (sideVector * (bestSign * distance)).toPointF() - rectTranslation;
     return true;
 }
 
 double GeometryUtilities::calcAngle(const QLineF &line)
 {
-    QVector2D direction_vector(line.p2() - line.p1());
-    direction_vector.normalize();
-    double angle = qAcos(direction_vector.x()) * 180.0 / 3.1415926535;
-    if (direction_vector.y() > 0.0) {
+    QVector2D directionVector(line.p2() - line.p1());
+    directionVector.normalize();
+    double angle = qAcos(directionVector.x()) * 180.0 / 3.1415926535;
+    if (directionVector.y() > 0.0) {
         angle = -angle;
     }
     return angle;
@@ -215,12 +215,12 @@ double GeometryUtilities::calcDistancePointToLine(const QPointF &point, const QL
 {
     QVector2D p(point);
     QVector2D a(line.p1());
-    QVector2D direction_vector(line.p2() - line.p1());
-    qreal r = -((a - p) & direction_vector) / direction_vector.lengthSquared();
+    QVector2D directionVector(line.p2() - line.p1());
+    qreal r = -((a - p) & directionVector) / directionVector.lengthSquared();
     if (r < 0.0 || r > 1.0) {
         return std::numeric_limits<float>::quiet_NaN();
     }
-    qreal d = (a + r * direction_vector - p).length();
+    qreal d = (a + r * directionVector - p).length();
     return d;
 }
 
@@ -228,9 +228,9 @@ QPointF GeometryUtilities::calcProjection(const QLineF &line, const QPointF &poi
 {
     QVector2D p(point);
     QVector2D a(line.p1());
-    QVector2D direction_vector(line.p2() - line.p1());
-    qreal r = -((a - p) & direction_vector) / direction_vector.lengthSquared();
-    return (a + r * direction_vector).toPointF();
+    QVector2D directionVector(line.p2() - line.p1());
+    qreal r = -((a - p) & directionVector) / directionVector.lengthSquared();
+    return (a + r * directionVector).toPointF();
 }
 
 QPointF GeometryUtilities::calcPrimaryAxisDirection(const QLineF &line)
@@ -271,20 +271,20 @@ QPointF GeometryUtilities::calcSecondaryAxisDirection(const QLineF &line)
     }
 }
 
-void GeometryUtilities::adjustPosAndRect(QPointF *pos, QRectF *rect, const QPointF &top_left_delta, const QPointF &bottom_right_delta, const QPointF &relative_alignment)
+void GeometryUtilities::adjustPosAndRect(QPointF *pos, QRectF *rect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta, const QPointF &relativeAlignment)
 {
-    *pos += QPointF(top_left_delta.x() * (1.0 - relative_alignment.x()) + bottom_right_delta.x() * relative_alignment.x(),
-                    top_left_delta.y() * (1.0 - relative_alignment.y()) + bottom_right_delta.y() * relative_alignment.y());
-    rect->adjust(top_left_delta.x() * relative_alignment.x() - bottom_right_delta.x() * relative_alignment.x(),
-                 top_left_delta.y() * relative_alignment.y() - bottom_right_delta.y() * relative_alignment.y(),
-                 bottom_right_delta.x() * (1.0 - relative_alignment.x()) - top_left_delta.x() * (1.0 - relative_alignment.x()),
-                 bottom_right_delta.y() * (1.0 - relative_alignment.y()) - top_left_delta.y() * (1.0 - relative_alignment.y()));
+    *pos += QPointF(topLeftDelta.x() * (1.0 - relativeAlignment.x()) + bottomRightDelta.x() * relativeAlignment.x(),
+                    topLeftDelta.y() * (1.0 - relativeAlignment.y()) + bottomRightDelta.y() * relativeAlignment.y());
+    rect->adjust(topLeftDelta.x() * relativeAlignment.x() - bottomRightDelta.x() * relativeAlignment.x(),
+                 topLeftDelta.y() * relativeAlignment.y() - bottomRightDelta.y() * relativeAlignment.y(),
+                 bottomRightDelta.x() * (1.0 - relativeAlignment.x()) - topLeftDelta.x() * (1.0 - relativeAlignment.x()),
+                 bottomRightDelta.y() * (1.0 - relativeAlignment.y()) - topLeftDelta.y() * (1.0 - relativeAlignment.y()));
 }
 
-QSizeF GeometryUtilities::ensureMinimumRasterSize(const QSizeF &size, double raster_width, double raster_height)
+QSizeF GeometryUtilities::ensureMinimumRasterSize(const QSizeF &size, double rasterWidth, double rasterHeight)
 {
-    double width = int(size.width() / raster_width + 0.99999) * raster_width;
-    double height = int(size.height() / raster_height + 0.99999) * raster_height;
+    double width = int(size.width() / rasterWidth + 0.99999) * rasterWidth;
+    double height = int(size.height() / rasterHeight + 0.99999) * rasterHeight;
     return QSizeF(width, height);
 }
 

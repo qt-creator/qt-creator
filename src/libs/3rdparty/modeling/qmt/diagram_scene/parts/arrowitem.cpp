@@ -91,17 +91,17 @@ public:
         }
     }
 
-    void setArrowSize(double arrow_size)
+    void setArrowSize(double arrowSize)
     {
-        if (m_arrowSize != arrow_size) {
-            m_arrowSize = arrow_size;
+        if (m_arrowSize != arrowSize) {
+            m_arrowSize = arrowSize;
         }
     }
 
-    void setDiamondSize(double diamond_size)
+    void setDiamondSize(double diamondSize)
     {
-        if (m_diamondSize != diamond_size) {
-            m_diamondSize = diamond_size;
+        if (m_diamondSize != diamondSize) {
+            m_diamondSize = diamondSize;
         }
     }
 
@@ -187,28 +187,28 @@ public:
 
     void update(const Style *style)
     {
-        bool has_arrow = false;
-        bool has_diamond = false;
+        bool hasArrow = false;
+        bool hasDiamond = false;
         switch (m_head) {
         case ArrowItem::HEAD_NONE:
             break;
         case ArrowItem::HEAD_OPEN:
         case ArrowItem::HEAD_TRIANGLE:
         case ArrowItem::HEAD_FILLED_TRIANGLE:
-            has_arrow = true;
+            hasArrow = true;
             break;
         case ArrowItem::HEAD_DIAMOND:
         case ArrowItem::HEAD_FILLED_DIAMOND:
-            has_diamond = true;
+            hasDiamond = true;
             break;
         case ArrowItem::HEAD_DIAMOND_FILLED_TRIANGLE:
         case ArrowItem::HEAD_FILLED_DIAMOND_FILLED_TRIANGLE:
-            has_arrow = true;
-            has_diamond = true;
+            hasArrow = true;
+            hasDiamond = true;
             break;
         }
 
-        if (has_arrow) {
+        if (hasArrow) {
             if (!m_arrowItem) {
                 m_arrowItem = new ArrowItem::GraphicsPathItem(this);
             }
@@ -229,7 +229,7 @@ public:
             if (m_head != ArrowItem::HEAD_OPEN) {
                 path.closeSubpath();
             }
-            if (has_diamond) {
+            if (hasDiamond) {
                 path.translate(-calcDiamondLength(), 0.0);
             }
             m_arrowItem->setPath(path);
@@ -239,7 +239,7 @@ public:
             m_arrowItem = 0;
         }
 
-        if (has_diamond) {
+        if (hasDiamond) {
             if (!m_diamondItem) {
                 m_diamondItem = new ArrowItem::GraphicsPathItem(this);
             }
@@ -329,17 +329,17 @@ void ArrowItem::setShaft(ArrowItem::Shaft shaft)
     }
 }
 
-void ArrowItem::setArrowSize(double arrow_size)
+void ArrowItem::setArrowSize(double arrowSize)
 {
-    if (m_arrowSize != arrow_size) {
-        m_arrowSize = arrow_size;
+    if (m_arrowSize != arrowSize) {
+        m_arrowSize = arrowSize;
     }
 }
 
-void ArrowItem::setDiamondSize(double diamond_size)
+void ArrowItem::setDiamondSize(double diamondSize)
 {
-    if (m_diamondSize != diamond_size) {
-        m_diamondSize = diamond_size;
+    if (m_diamondSize != diamondSize) {
+        m_diamondSize = diamondSize;
     }
 }
 
@@ -464,42 +464,42 @@ void ArrowItem::updateShaft(const Style *style)
     m_shaftItem->setPen(pen);
 }
 
-void ArrowItem::updateHead(GraphicsHeadItem **head_item, Head head, const Style *style)
+void ArrowItem::updateHead(GraphicsHeadItem **headItem, Head head, const Style *style)
 {
     if (head == HEAD_NONE) {
-        if (*head_item) {
-            if ((*head_item)->scene()) {
-                (*head_item)->scene()->removeItem(*head_item);
+        if (*headItem) {
+            if ((*headItem)->scene()) {
+                (*headItem)->scene()->removeItem(*headItem);
             }
-            delete *head_item;
-            *head_item = 0;
+            delete *headItem;
+            *headItem = 0;
         }
         return;
     }
-    if (!*head_item) {
-        *head_item = new GraphicsHeadItem(this);
+    if (!*headItem) {
+        *headItem = new GraphicsHeadItem(this);
     }
-    (*head_item)->setArrowSize(m_arrowSize);
-    (*head_item)->setDiamondSize(m_diamondSize);
-    (*head_item)->setHead(head);
-    (*head_item)->update(style);
+    (*headItem)->setArrowSize(m_arrowSize);
+    (*headItem)->setDiamondSize(m_diamondSize);
+    (*headItem)->setHead(head);
+    (*headItem)->update(style);
 }
 
-void ArrowItem::updateHeadGeometry(GraphicsHeadItem **head_item, const QPointF &pos, const QPointF &other_pos)
+void ArrowItem::updateHeadGeometry(GraphicsHeadItem **headItem, const QPointF &pos, const QPointF &otherPos)
 {
-    if (!*head_item) {
+    if (!*headItem) {
         return;
     }
 
-    (*head_item)->setPos(pos);
+    (*headItem)->setPos(pos);
 
-    QVector2D direction_vector(pos - other_pos);
-    direction_vector.normalize();
-    double angle = qAcos(direction_vector.x()) * 180.0 / 3.1415926535;
-    if (direction_vector.y() > 0.0) {
+    QVector2D directionVector(pos - otherPos);
+    directionVector.normalize();
+    double angle = qAcos(directionVector.x()) * 180.0 / 3.1415926535;
+    if (directionVector.y() > 0.0) {
         angle = -angle;
     }
-    (*head_item)->setRotation(-angle);
+    (*headItem)->setRotation(-angle);
 }
 
 void ArrowItem::updateGeometry()
@@ -512,10 +512,10 @@ void ArrowItem::updateGeometry()
     QPainterPath path;
 
     if (m_startHeadItem) {
-        QVector2D start_direction_vector(m_points[1] - m_points[0]);
-        start_direction_vector.normalize();
-        start_direction_vector *= m_startHeadItem->calcHeadLength();
-        path.moveTo(m_points[0] + start_direction_vector.toPointF());
+        QVector2D startDirectionVector(m_points[1] - m_points[0]);
+        startDirectionVector.normalize();
+        startDirectionVector *= m_startHeadItem->calcHeadLength();
+        path.moveTo(m_points[0] + startDirectionVector.toPointF());
     } else {
         path.moveTo(m_points[0]);
     }
@@ -525,10 +525,10 @@ void ArrowItem::updateGeometry()
     }
 
     if (m_endHeadItem) {
-        QVector2D end_direction_vector(m_points[m_points.size() - 1] - m_points[m_points.size() - 2]);
-        end_direction_vector.normalize();
-        end_direction_vector *= m_endHeadItem->calcHeadLength();
-        path.lineTo(m_points[m_points.size() - 1] - end_direction_vector.toPointF());
+        QVector2D endDirectionVector(m_points[m_points.size() - 1] - m_points[m_points.size() - 2]);
+        endDirectionVector.normalize();
+        endDirectionVector *= m_endHeadItem->calcHeadLength();
+        path.lineTo(m_points[m_points.size() - 1] - endDirectionVector.toPointF());
     } else {
         path.lineTo(m_points[m_points.size() - 1]);
     }

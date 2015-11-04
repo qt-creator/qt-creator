@@ -62,15 +62,15 @@ MSourceExpansion &MSourceExpansion::operator=(const MSourceExpansion &rhs)
 
 MSourceExpansion *MSourceExpansion::clone(const MElement &rhs) const
 {
-    MSourceExpansion *right_expansion = dynamic_cast<MSourceExpansion *>(rhs.getExpansion());
-    QMT_CHECK(right_expansion);
-    MSourceExpansion *expansion = new MSourceExpansion(*right_expansion);
+    MSourceExpansion *rightExpansion = dynamic_cast<MSourceExpansion *>(rhs.getExpansion());
+    QMT_CHECK(rightExpansion);
+    MSourceExpansion *expansion = new MSourceExpansion(*rightExpansion);
     return expansion;
 }
 
-void MSourceExpansion::setSourceId(const QString &source_id)
+void MSourceExpansion::setSourceId(const QString &sourceId)
 {
-    m_sourceId = source_id;
+    m_sourceId = sourceId;
 }
 
 void MSourceExpansion::setTransient(bool transient)

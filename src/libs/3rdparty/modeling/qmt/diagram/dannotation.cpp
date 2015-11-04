@@ -84,14 +84,14 @@ void DAnnotation::setRect(const QRectF &rect)
     m_rect = rect;
 }
 
-void DAnnotation::setVisualRole(DAnnotation::VisualRole visual_role)
+void DAnnotation::setVisualRole(DAnnotation::VisualRole visualRole)
 {
-    m_visualRole = visual_role;
+    m_visualRole = visualRole;
 }
 
-void DAnnotation::setAutoSize(bool auto_sized)
+void DAnnotation::setAutoSize(bool autoSized)
 {
-    m_autoSized = auto_sized;
+    m_autoSized = autoSized;
 }
 
 void DAnnotation::accept(DVisitor *visitor)

@@ -52,9 +52,9 @@ SceneInspector::~SceneInspector()
 {
 }
 
-void SceneInspector::setDiagramsManager(DiagramsManager *diagrams_manager)
+void SceneInspector::setDiagramsManager(DiagramsManager *diagramsManager)
 {
-    m_diagramsManager = diagrams_manager;
+    m_diagramsManager = diagramsManager;
 }
 
 QSizeF SceneInspector::getRasterSize() const
@@ -64,10 +64,10 @@ QSizeF SceneInspector::getRasterSize() const
 
 QSizeF SceneInspector::getMinimalSize(const DElement *element, const MDiagram *diagram) const
 {
-    DiagramSceneModel *diagram_scene_model = m_diagramsManager->getDiagramSceneModel(diagram);
-    QMT_CHECK(diagram_scene_model);
-    if (diagram_scene_model) {
-        const QGraphicsItem *item = diagram_scene_model->getGraphicsItem(const_cast<DElement *>(element));
+    DiagramSceneModel *diagramSceneModel = m_diagramsManager->getDiagramSceneModel(diagram);
+    QMT_CHECK(diagramSceneModel);
+    if (diagramSceneModel) {
+        const QGraphicsItem *item = diagramSceneModel->getGraphicsItem(const_cast<DElement *>(element));
         QMT_CHECK(item);
         if (item) {
             if (const IResizable *resizable = dynamic_cast<const IResizable *>(item)) {
@@ -81,10 +81,10 @@ QSizeF SceneInspector::getMinimalSize(const DElement *element, const MDiagram *d
 
 IMoveable *SceneInspector::getMoveable(const DElement *element, const MDiagram *diagram) const
 {
-    DiagramSceneModel *diagram_scene_model = m_diagramsManager->getDiagramSceneModel(diagram);
-    QMT_CHECK(diagram_scene_model);
-    if (diagram_scene_model) {
-        QGraphicsItem *item = diagram_scene_model->getGraphicsItem(const_cast<DElement *>(element));
+    DiagramSceneModel *diagramSceneModel = m_diagramsManager->getDiagramSceneModel(diagram);
+    QMT_CHECK(diagramSceneModel);
+    if (diagramSceneModel) {
+        QGraphicsItem *item = diagramSceneModel->getGraphicsItem(const_cast<DElement *>(element));
         QMT_CHECK(item);
         if (item) {
             if (IMoveable *moveable = dynamic_cast<IMoveable *>(item)) {
@@ -98,10 +98,10 @@ IMoveable *SceneInspector::getMoveable(const DElement *element, const MDiagram *
 
 IResizable *SceneInspector::getResizable(const DElement *element, const MDiagram *diagram) const
 {
-    DiagramSceneModel *diagram_scene_model = m_diagramsManager->getDiagramSceneModel(diagram);
-    QMT_CHECK(diagram_scene_model);
-    if (diagram_scene_model) {
-        QGraphicsItem *item = diagram_scene_model->getGraphicsItem(const_cast<DElement *>(element));
+    DiagramSceneModel *diagramSceneModel = m_diagramsManager->getDiagramSceneModel(diagram);
+    QMT_CHECK(diagramSceneModel);
+    if (diagramSceneModel) {
+        QGraphicsItem *item = diagramSceneModel->getGraphicsItem(const_cast<DElement *>(element));
         QMT_CHECK(item);
         if (item) {
             if (IResizable *resizeable = dynamic_cast<IResizable *>(item)) {

@@ -58,11 +58,11 @@ public:
         setBrush(QBrush(Qt::black));
     }
 
-    void setSecondarySelected(bool secondary_selected)
+    void setSecondarySelected(bool secondarySelected)
     {
-        if (secondary_selected != m_secondarySelected) {
-            m_secondarySelected = secondary_selected;
-            if (secondary_selected) {
+        if (secondarySelected != m_secondarySelected) {
+            m_secondarySelected = secondarySelected;
+            if (secondarySelected) {
                 setPen(QPen(Qt::lightGray));
                 setBrush(Qt::NoBrush);
 
@@ -112,9 +112,9 @@ private:
 };
 
 
-RectangularSelectionItem::RectangularSelectionItem(IResizable *item_resizer, QGraphicsItem *parent)
+RectangularSelectionItem::RectangularSelectionItem(IResizable *itemResizer, QGraphicsItem *parent)
     : QGraphicsItem(parent),
-      m_itemResizer(item_resizer),
+      m_itemResizer(itemResizer),
       m_pointSize(QSizeF(9.0, 9.0)),
       m_points(8),
       m_showBorder(false),
@@ -161,9 +161,9 @@ void RectangularSelectionItem::setPointSize(const QSizeF &size)
     }
 }
 
-void RectangularSelectionItem::setShowBorder(bool show_border)
+void RectangularSelectionItem::setShowBorder(bool showBorder)
 {
-    m_showBorder = show_border;
+    m_showBorder = showBorder;
 }
 
 void RectangularSelectionItem::setFreedom(Freedom freedom)
@@ -171,10 +171,10 @@ void RectangularSelectionItem::setFreedom(Freedom freedom)
     m_freedom = freedom;
 }
 
-void RectangularSelectionItem::setSecondarySelected(bool secondary_selected)
+void RectangularSelectionItem::setSecondarySelected(bool secondarySelected)
 {
-    if (secondary_selected != m_secondarySelected) {
-        m_secondarySelected = secondary_selected;
+    if (secondarySelected != m_secondarySelected) {
+        m_secondarySelected = secondarySelected;
         update();
     }
 }
@@ -219,15 +219,15 @@ void RectangularSelectionItem::update()
         m_points[i]->setSecondarySelected(m_secondarySelected);
         m_points[i]->setVisible(visible);
     }
-    double horiz_center = (m_rect.left() + m_rect.right()) * 0.5;
-    double vert_center = (m_rect.top() + m_rect.bottom()) * 0.5;
+    double horizCenter = (m_rect.left() + m_rect.right()) * 0.5;
+    double vertCenter = (m_rect.top() + m_rect.bottom()) * 0.5;
     m_points[0]->setPos(pos() + m_rect.topLeft());
-    m_points[1]->setPos(pos() + QPointF(horiz_center, m_rect.top()));
+    m_points[1]->setPos(pos() + QPointF(horizCenter, m_rect.top()));
     m_points[2]->setPos(pos() + m_rect.topRight());
-    m_points[3]->setPos(pos() + QPointF(m_rect.left(), vert_center));
-    m_points[4]->setPos(pos() + QPointF(m_rect.right(), vert_center));
+    m_points[3]->setPos(pos() + QPointF(m_rect.left(), vertCenter));
+    m_points[4]->setPos(pos() + QPointF(m_rect.right(), vertCenter));
     m_points[5]->setPos(pos() + m_rect.bottomLeft());
-    m_points[6]->setPos(pos() + QPointF(horiz_center, m_rect.bottom()));
+    m_points[6]->setPos(pos() + QPointF(horizCenter, m_rect.bottom()));
     m_points[7]->setPos(pos() + m_rect.bottomRight());
 
     if (m_showBorder) {
@@ -249,11 +249,11 @@ void RectangularSelectionItem::update()
     }
 }
 
-void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &delta_move, HandleStatus handle_status, HandleQualifier handle_qualifier)
+void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMove, HandleStatus handleStatus, HandleQualifier handleQualifier)
 {
-    Q_UNUSED(handle_qualifier);
+    Q_UNUSED(handleQualifier);
 
-    if (handle_status == PRESS) {
+    if (handleStatus == PRESS) {
         m_originalResizePos = m_itemResizer->getPos();
         m_originalResizeRect = m_itemResizer->getRect();
     }
@@ -289,34 +289,34 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &delta_mo
         return;
     }
 
-    QSizeF minimum_size = m_itemResizer->getMinimumSize();
+    QSizeF minimumSize = m_itemResizer->getMinimumSize();
 
-    QPointF top_left_delta;
-    QPointF bottom_right_delta;
+    QPointF topLeftDelta;
+    QPointF bottomRightDelta;
 
     // calculate movements of corners
     if (m_freedom == FREEDOM_KEEP_RATIO) {
-        qreal minimum_length = qSqrt(minimum_size.width() * minimum_size.width() + minimum_size.height() * minimum_size.height());
-        QPointF v(minimum_size.width() / minimum_length, minimum_size.height() / minimum_length);
-        qreal delta_length = qSqrt(delta_move.x() * delta_move.x() + delta_move.y() * delta_move.y());
+        qreal minimumLength = qSqrt(minimumSize.width() * minimumSize.width() + minimumSize.height() * minimumSize.height());
+        QPointF v(minimumSize.width() / minimumLength, minimumSize.height() / minimumLength);
+        qreal deltaLength = qSqrt(deltaMove.x() * deltaMove.x() + deltaMove.y() * deltaMove.y());
         switch (handle) {
         case HANDLE_TOP_LEFT:
-            if (delta_move.x() > 0 && delta_move.y() > 0) {
-                top_left_delta = v * delta_length;
-            } else if (delta_move.x() < 0 && delta_move.y() < 0) {
-                top_left_delta = -(v * delta_length);
+            if (deltaMove.x() > 0 && deltaMove.y() > 0) {
+                topLeftDelta = v * deltaLength;
+            } else if (deltaMove.x() < 0 && deltaMove.y() < 0) {
+                topLeftDelta = -(v * deltaLength);
             }
             break;
         case HANDLE_TOP:
             QMT_CHECK(false);
             break;
         case HANDLE_TOP_RIGHT:
-            if (delta_move.x() > 0 && delta_move.y() < 0) {
-                top_left_delta = QPointF(0.0, -(v.x() * delta_length));
-                bottom_right_delta = QPointF(v.y() * delta_length, 0.0);
-            } else if (delta_move.x() < 0 && delta_move.y() > 0) {
-                top_left_delta = QPointF(0.0, v.x() * delta_length);
-                bottom_right_delta = QPointF(-(v.y() * delta_length), 0.0);
+            if (deltaMove.x() > 0 && deltaMove.y() < 0) {
+                topLeftDelta = QPointF(0.0, -(v.x() * deltaLength));
+                bottomRightDelta = QPointF(v.y() * deltaLength, 0.0);
+            } else if (deltaMove.x() < 0 && deltaMove.y() > 0) {
+                topLeftDelta = QPointF(0.0, v.x() * deltaLength);
+                bottomRightDelta = QPointF(-(v.y() * deltaLength), 0.0);
             }
             break;
         case HANDLE_LEFT:
@@ -326,66 +326,66 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &delta_mo
             QMT_CHECK(false);
             break;
         case HANDLE_BOTTOM_LEFT:
-            if (delta_move.x() < 0 && delta_move.y() > 0) {
-                top_left_delta = QPointF(-(v.x() * delta_length), 0.0);
-                bottom_right_delta = QPointF(0.0, v.y() * delta_length);
-            } else if (delta_move.x() > 0 && delta_move.y() < 0) {
-                top_left_delta = QPointF(v.x() * delta_length, 0.0);
-                bottom_right_delta = QPointF(0.0, -(v.y() * delta_length));
+            if (deltaMove.x() < 0 && deltaMove.y() > 0) {
+                topLeftDelta = QPointF(-(v.x() * deltaLength), 0.0);
+                bottomRightDelta = QPointF(0.0, v.y() * deltaLength);
+            } else if (deltaMove.x() > 0 && deltaMove.y() < 0) {
+                topLeftDelta = QPointF(v.x() * deltaLength, 0.0);
+                bottomRightDelta = QPointF(0.0, -(v.y() * deltaLength));
             }
             break;
         case HANDLE_BOTTOM:
             QMT_CHECK(false);
             break;
         case HANDLE_BOTTOM_RIGHT:
-            if (delta_move.x() > 0 && delta_move.y() > 0) {
-                bottom_right_delta = v * delta_length;
-            } else if (delta_move.x() < 0 && delta_move.y() < 0) {
-                bottom_right_delta = -(v * delta_length);
+            if (deltaMove.x() > 0 && deltaMove.y() > 0) {
+                bottomRightDelta = v * deltaLength;
+            } else if (deltaMove.x() < 0 && deltaMove.y() < 0) {
+                bottomRightDelta = -(v * deltaLength);
             }
             break;
         }
     } else {
         switch (handle) {
         case HANDLE_TOP_LEFT:
-            top_left_delta = delta_move;
+            topLeftDelta = deltaMove;
             break;
         case HANDLE_TOP:
-            top_left_delta = QPointF(0.0, delta_move.y());
+            topLeftDelta = QPointF(0.0, deltaMove.y());
             break;
         case HANDLE_TOP_RIGHT:
-            top_left_delta = QPointF(0, delta_move.y());
-            bottom_right_delta = QPointF(delta_move.x(), 0.0);
+            topLeftDelta = QPointF(0, deltaMove.y());
+            bottomRightDelta = QPointF(deltaMove.x(), 0.0);
             break;
         case HANDLE_LEFT:
-            top_left_delta = QPointF(delta_move.x(), 0.0);
+            topLeftDelta = QPointF(deltaMove.x(), 0.0);
             break;
         case HANDLE_RIGHT:
-            bottom_right_delta = QPointF(delta_move.x(), 0.0);
+            bottomRightDelta = QPointF(deltaMove.x(), 0.0);
             break;
         case HANDLE_BOTTOM_LEFT:
-            top_left_delta = QPointF(delta_move.x(), 0.0);
-            bottom_right_delta = QPointF(0.0, delta_move.y());
+            topLeftDelta = QPointF(deltaMove.x(), 0.0);
+            bottomRightDelta = QPointF(0.0, deltaMove.y());
             break;
         case HANDLE_BOTTOM:
-            bottom_right_delta = QPointF(0.0, delta_move.y());
+            bottomRightDelta = QPointF(0.0, deltaMove.y());
             break;
         case HANDLE_BOTTOM_RIGHT:
-            bottom_right_delta = delta_move;
+            bottomRightDelta = deltaMove;
             break;
         }
     }
 
-    QRectF new_rect = m_originalResizeRect.adjusted(top_left_delta.x(), top_left_delta.y(), bottom_right_delta.x(), bottom_right_delta.y());
-    QSizeF size_delta = minimum_size - new_rect.size();
+    QRectF newRect = m_originalResizeRect.adjusted(topLeftDelta.x(), topLeftDelta.y(), bottomRightDelta.x(), bottomRightDelta.y());
+    QSizeF sizeDelta = minimumSize - newRect.size();
 
     // correct horizontal resize against minimum width
     switch (handle) {
     case HANDLE_TOP_LEFT:
     case HANDLE_LEFT:
     case HANDLE_BOTTOM_LEFT:
-        if (size_delta.width() > 0.0) {
-            top_left_delta.setX(top_left_delta.x() - size_delta.width());
+        if (sizeDelta.width() > 0.0) {
+            topLeftDelta.setX(topLeftDelta.x() - sizeDelta.width());
         }
         break;
     case HANDLE_TOP:
@@ -394,8 +394,8 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &delta_mo
     case HANDLE_TOP_RIGHT:
     case HANDLE_RIGHT:
     case HANDLE_BOTTOM_RIGHT:
-        if (size_delta.width() > 0.0) {
-            bottom_right_delta.setX(bottom_right_delta.x() + size_delta.width());
+        if (sizeDelta.width() > 0.0) {
+            bottomRightDelta.setX(bottomRightDelta.x() + sizeDelta.width());
         }
         break;
     }
@@ -405,8 +405,8 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &delta_mo
     case HANDLE_TOP_LEFT:
     case HANDLE_TOP:
     case HANDLE_TOP_RIGHT:
-        if (size_delta.height() > 0.0) {
-            top_left_delta.setY(top_left_delta.y() - size_delta.height());
+        if (sizeDelta.height() > 0.0) {
+            topLeftDelta.setY(topLeftDelta.y() - sizeDelta.height());
         }
         break;
     case HANDLE_LEFT:
@@ -415,15 +415,15 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &delta_mo
     case HANDLE_BOTTOM_LEFT:
     case HANDLE_BOTTOM:
     case HANDLE_BOTTOM_RIGHT:
-        if (size_delta.height() > 0.0) {
-            bottom_right_delta.setY(bottom_right_delta.y() + size_delta.height());
+        if (sizeDelta.height() > 0.0) {
+            bottomRightDelta.setY(bottomRightDelta.y() + sizeDelta.height());
         }
         break;
     }
 
-    m_itemResizer->setPosAndRect(m_originalResizePos, m_originalResizeRect, top_left_delta, bottom_right_delta);
+    m_itemResizer->setPosAndRect(m_originalResizePos, m_originalResizeRect, topLeftDelta, bottomRightDelta);
 
-    if (handle_status == RELEASE) {
+    if (handleStatus == RELEASE) {
         IResizable::Side horiz = IResizable::SIDE_NONE;
         IResizable::Side vert = IResizable::SIDE_NONE;
         switch (handle) {

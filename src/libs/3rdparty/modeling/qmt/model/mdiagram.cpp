@@ -91,11 +91,11 @@ void MDiagram::addDiagramElement(DElement *element)
     m_elements.append(element);
 }
 
-void MDiagram::insertDiagramElement(int before_element, DElement *element)
+void MDiagram::insertDiagramElement(int beforeElement, DElement *element)
 {
-    QMT_CHECK(before_element >= 0 && before_element <= m_elements.size());
+    QMT_CHECK(beforeElement >= 0 && beforeElement <= m_elements.size());
 
-    m_elements.insert(before_element, element);
+    m_elements.insert(beforeElement, element);
 }
 
 void MDiagram::removeDiagramElement(int index)
@@ -113,9 +113,9 @@ void MDiagram::removeDiagramElement(DElement *element)
     removeDiagramElement(m_elements.indexOf(element));
 }
 
-void MDiagram::setLastModified(const QDateTime &last_modified)
+void MDiagram::setLastModified(const QDateTime &lastModified)
 {
-    m_lastModified = last_modified;
+    m_lastModified = lastModified;
 }
 
 void MDiagram::setLastModifiedToNow()

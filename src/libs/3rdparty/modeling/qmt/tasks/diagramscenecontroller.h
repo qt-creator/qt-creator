@@ -77,19 +77,19 @@ public:
 
     ModelController *getModelController() const { return m_modelController; }
 
-    void setModelController(ModelController *model_controller);
+    void setModelController(ModelController *modelController);
 
     DiagramController *getDiagramController() const { return m_diagramController; }
 
-    void setDiagramController(DiagramController *diagram_controller);
+    void setDiagramController(DiagramController *diagramController);
 
     IElementTasks *getElementTasks() const { return m_elementTasks; }
 
-    void setElementTasks(IElementTasks *element_tasks);
+    void setElementTasks(IElementTasks *elementTasks);
 
     ISceneInspector *getSceneInspector() const { return m_sceneInspector; }
 
-    void setSceneInspector(ISceneInspector *scene_inspector);
+    void setSceneInspector(ISceneInspector *sceneInspector);
 
 public:
 
@@ -97,25 +97,25 @@ public:
 
 public:
 
-    void createDependency(DObject *end_a_object, DObject *end_b_object, const QList<QPointF> &intermediate_points, MDiagram *diagram);
+    void createDependency(DObject *endAObject, DObject *endBObject, const QList<QPointF> &intermediatePoints, MDiagram *diagram);
 
-    void createInheritance(DClass *derived_class, DClass *base_class, const QList<QPointF> &intermediate_points, MDiagram *diagram);
+    void createInheritance(DClass *derivedClass, DClass *baseClass, const QList<QPointF> &intermediatePoints, MDiagram *diagram);
 
-    void createAssociation(DClass *end_a_class, DClass *end_b_class, const QList<QPointF> &intermediate_points, MDiagram *diagram);
+    void createAssociation(DClass *endAClass, DClass *endBClass, const QList<QPointF> &intermediatePoints, MDiagram *diagram);
 
-    bool isAddingAllowed(const Uid &model_element_key, MDiagram *diagram);
+    bool isAddingAllowed(const Uid &modelElementKey, MDiagram *diagram);
 
-    void addExistingModelElement(const Uid &model_element_key, const QPointF &pos, MDiagram *diagram);
+    void addExistingModelElement(const Uid &modelElementKey, const QPointF &pos, MDiagram *diagram);
 
-    void dropNewElement(const QString &new_element_id, const QString &name, const QString &stereotype, DElement *top_most_element_at_pos, const QPointF &pos, MDiagram *diagram);
+    void dropNewElement(const QString &newElementId, const QString &name, const QString &stereotype, DElement *topMostElementAtPos, const QPointF &pos, MDiagram *diagram);
 
-    void dropNewModelElement(MObject *model_object, MPackage *parent_package, const QPointF &pos, MDiagram *diagram);
+    void dropNewModelElement(MObject *modelObject, MPackage *parentPackage, const QPointF &pos, MDiagram *diagram);
 
 public:
 
-    MPackage *findSuitableParentPackage(DElement *topmost_diagram_element, MDiagram *diagram);
+    MPackage *findSuitableParentPackage(DElement *topmostDiagramElement, MDiagram *diagram);
 
-    MDiagram *findDiagramBySearchId(MPackage *package, const QString &diagram_name);
+    MDiagram *findDiagramBySearchId(MPackage *package, const QString &diagramName);
 
 public:
 
@@ -131,11 +131,11 @@ public:
 
     void alignVCenter(DObject *object, const DSelection &selection, MDiagram *diagram);
 
-    void alignWidth(DObject *object, const DSelection &selection, const QSizeF &minimum_size, MDiagram *diagram);
+    void alignWidth(DObject *object, const DSelection &selection, const QSizeF &minimumSize, MDiagram *diagram);
 
-    void alignHeight(DObject *object, const DSelection &selection, const QSizeF &minimum_size, MDiagram *diagram);
+    void alignHeight(DObject *object, const DSelection &selection, const QSizeF &minimumSize, MDiagram *diagram);
 
-    void alignSize(DObject *object, const DSelection &selection, const QSizeF &minimum_size, MDiagram *diagram);
+    void alignSize(DObject *object, const DSelection &selection, const QSizeF &minimumSize, MDiagram *diagram);
 
     void distributeHorizontal(DObject *object, const DSelection &selection, MDiagram *diagram);
 
@@ -145,17 +145,17 @@ public:
 
 private:
 
-    void alignPosition(DObject *object, const DSelection &selection, QPointF (*aligner)(DObject *object, DObject *other_object), MDiagram *diagram);
+    void alignPosition(DObject *object, const DSelection &selection, QPointF (*aligner)(DObject *object, DObject *otherObject), MDiagram *diagram);
 
-    void alignSize(DObject *object, const DSelection &selection, const QSizeF &minimum_size, QRectF (*aligner)(DObject *, const QSizeF &), MDiagram *diagram);
+    void alignSize(DObject *object, const DSelection &selection, const QSizeF &minimumSize, QRectF (*aligner)(DObject *, const QSizeF &), MDiagram *diagram);
 
     void alignOnRaster(DElement *element, MDiagram *diagram);
 
-    DElement *addModelElement(const Uid &model_element_key, const QPointF &pos, MDiagram *diagram);
+    DElement *addModelElement(const Uid &modelElementKey, const QPointF &pos, MDiagram *diagram);
 
-    DObject *addObject(MObject *model_object, const QPointF &pos, MDiagram *diagram);
+    DObject *addObject(MObject *modelObject, const QPointF &pos, MDiagram *diagram);
 
-    DRelation *addRelation(MRelation *model_relation, const QList<QPointF> &intermediate_points, MDiagram *diagram);
+    DRelation *addRelation(MRelation *modelRelation, const QList<QPointF> &intermediatePoints, MDiagram *diagram);
 
 private:
 

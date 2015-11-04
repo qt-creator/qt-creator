@@ -64,8 +64,8 @@ class RelationItem::ArrowConfigurator :
         public DConstVoidVisitor
 {
 public:
-    ArrowConfigurator(DiagramSceneModel *diagram_scene_model, ArrowItem *arrow, const QList<QPointF> &points)
-        : m_diagramSceneModel(diagram_scene_model),
+    ArrowConfigurator(DiagramSceneModel *diagramSceneModel, ArrowItem *arrow, const QList<QPointF> &points)
+        : m_diagramSceneModel(diagramSceneModel),
           m_arrow(arrow),
           m_points(points)
     {
@@ -75,21 +75,21 @@ public:
     {
         Q_UNUSED(inheritance);
 
-        DObject *base_object = m_diagramSceneModel->getDiagramController()->findElement<DObject>(inheritance->getBase(), m_diagramSceneModel->getDiagram());
-        QMT_CHECK(base_object);
-        bool base_is_interface = base_object->getStereotypes().contains(QStringLiteral("interface"));
-        bool lollipop_display = false;
-        if (base_is_interface) {
-            StereotypeDisplayVisitor stereotype_display_visitor;
-            stereotype_display_visitor.setModelController(m_diagramSceneModel->getDiagramSceneController()->getModelController());
-            stereotype_display_visitor.setStereotypeController(m_diagramSceneModel->getStereotypeController());
-            base_object->accept(&stereotype_display_visitor);
-            lollipop_display = stereotype_display_visitor.getStereotypeDisplay() == DObject::STEREOTYPE_ICON;
+        DObject *baseObject = m_diagramSceneModel->getDiagramController()->findElement<DObject>(inheritance->getBase(), m_diagramSceneModel->getDiagram());
+        QMT_CHECK(baseObject);
+        bool baseIsInterface = baseObject->getStereotypes().contains(QStringLiteral("interface"));
+        bool lollipopDisplay = false;
+        if (baseIsInterface) {
+            StereotypeDisplayVisitor stereotypeDisplayVisitor;
+            stereotypeDisplayVisitor.setModelController(m_diagramSceneModel->getDiagramSceneController()->getModelController());
+            stereotypeDisplayVisitor.setStereotypeController(m_diagramSceneModel->getStereotypeController());
+            baseObject->accept(&stereotypeDisplayVisitor);
+            lollipopDisplay = stereotypeDisplayVisitor.getStereotypeDisplay() == DObject::STEREOTYPE_ICON;
         }
-        if (lollipop_display) {
+        if (lollipopDisplay) {
             m_arrow->setShaft(ArrowItem::SHAFT_SOLID);
             m_arrow->setEndHead(ArrowItem::HEAD_NONE);
-        } else if (base_is_interface || inheritance->getStereotypes().contains(QStringLiteral("realize"))) {
+        } else if (baseIsInterface || inheritance->getStereotypes().contains(QStringLiteral("realize"))) {
             m_arrow->setShaft(ArrowItem::SHAFT_DASHED);
             m_arrow->setEndHead(ArrowItem::HEAD_TRIANGLE);
         } else {
@@ -105,19 +105,19 @@ public:
     {
         Q_UNUSED(dependency);
 
-        ArrowItem::Head end_a_head = ArrowItem::HEAD_NONE;
-        ArrowItem::Head end_b_head = ArrowItem::HEAD_NONE;
-        bool is_realization = dependency->getStereotypes().contains(QStringLiteral("realize"));
+        ArrowItem::Head endAHead = ArrowItem::HEAD_NONE;
+        ArrowItem::Head endBHead = ArrowItem::HEAD_NONE;
+        bool isRealization = dependency->getStereotypes().contains(QStringLiteral("realize"));
         switch (dependency->getDirection()) {
         case MDependency::A_TO_B:
-            end_b_head = is_realization ? ArrowItem::HEAD_TRIANGLE : ArrowItem::HEAD_OPEN;
+            endBHead = isRealization ? ArrowItem::HEAD_TRIANGLE : ArrowItem::HEAD_OPEN;
             break;
         case MDependency::B_TO_A:
-            end_a_head = is_realization ? ArrowItem::HEAD_TRIANGLE : ArrowItem::HEAD_OPEN;
+            endAHead = isRealization ? ArrowItem::HEAD_TRIANGLE : ArrowItem::HEAD_OPEN;
             break;
         case MDependency::BIDIRECTIONAL:
-            end_a_head = ArrowItem::HEAD_OPEN;
-            end_b_head = ArrowItem::HEAD_OPEN;
+            endAHead = ArrowItem::HEAD_OPEN;
+            endBHead = ArrowItem::HEAD_OPEN;
             break;
         default:
             break;
@@ -125,8 +125,8 @@ public:
 
         m_arrow->setShaft(ArrowItem::SHAFT_DASHED);
         m_arrow->setArrowSize(12.0);
-        m_arrow->setStartHead(end_a_head);
-        m_arrow->setEndHead(end_b_head);
+        m_arrow->setStartHead(endAHead);
+        m_arrow->setEndHead(endBHead);
         m_arrow->setPoints(m_points);
     }
 
@@ -138,41 +138,41 @@ public:
         m_arrow->setArrowSize(12.0);
         m_arrow->setDiamondSize(12.0);
 
-        ArrowItem::Head end_a_head = ArrowItem::HEAD_NONE;
-        ArrowItem::Head end_b_head = ArrowItem::HEAD_NONE;
+        ArrowItem::Head endAHead = ArrowItem::HEAD_NONE;
+        ArrowItem::Head endBHead = ArrowItem::HEAD_NONE;
 
-        bool a_nav = association->getA().isNavigable();
-        bool b_nav = association->getB().isNavigable();
+        bool aNav = association->getA().isNavigable();
+        bool bNav = association->getB().isNavigable();
 
-        bool a_flat = association->getA().getKind() == MAssociationEnd::ASSOCIATION;
-        bool b_flat = association->getB().getKind() == MAssociationEnd::ASSOCIATION;
+        bool aFlat = association->getA().getKind() == MAssociationEnd::ASSOCIATION;
+        bool bFlat = association->getB().getKind() == MAssociationEnd::ASSOCIATION;
 
         switch (association->getA().getKind()) {
         case MAssociationEnd::ASSOCIATION:
-            end_a_head = ((b_nav && !a_nav && b_flat) || (a_nav && b_nav && !b_flat)) ? ArrowItem::HEAD_FILLED_TRIANGLE : ArrowItem::HEAD_NONE;
+            endAHead = ((bNav && !aNav && bFlat) || (aNav && bNav && !bFlat)) ? ArrowItem::HEAD_FILLED_TRIANGLE : ArrowItem::HEAD_NONE;
             break;
         case MAssociationEnd::AGGREGATION:
-            end_a_head = association->getB().isNavigable() ? ArrowItem::HEAD_DIAMOND_FILLED_TRIANGLE : ArrowItem::HEAD_DIAMOND;
+            endAHead = association->getB().isNavigable() ? ArrowItem::HEAD_DIAMOND_FILLED_TRIANGLE : ArrowItem::HEAD_DIAMOND;
             break;
         case MAssociationEnd::COMPOSITION:
-            end_a_head = association->getB().isNavigable() ? ArrowItem::HEAD_FILLED_DIAMOND_FILLED_TRIANGLE : ArrowItem::HEAD_FILLED_DIAMOND;
+            endAHead = association->getB().isNavigable() ? ArrowItem::HEAD_FILLED_DIAMOND_FILLED_TRIANGLE : ArrowItem::HEAD_FILLED_DIAMOND;
             break;
         }
 
         switch (association->getB().getKind()) {
         case MAssociationEnd::ASSOCIATION:
-            end_b_head = ((a_nav && !b_nav && a_flat) || (a_nav && b_nav && !a_flat)) ? ArrowItem::HEAD_FILLED_TRIANGLE : ArrowItem::HEAD_NONE;
+            endBHead = ((aNav && !bNav && aFlat) || (aNav && bNav && !aFlat)) ? ArrowItem::HEAD_FILLED_TRIANGLE : ArrowItem::HEAD_NONE;
             break;
         case MAssociationEnd::AGGREGATION:
-            end_b_head = association->getA().isNavigable() ? ArrowItem::HEAD_DIAMOND_FILLED_TRIANGLE : ArrowItem::HEAD_DIAMOND;
+            endBHead = association->getA().isNavigable() ? ArrowItem::HEAD_DIAMOND_FILLED_TRIANGLE : ArrowItem::HEAD_DIAMOND;
             break;
         case MAssociationEnd::COMPOSITION:
-            end_b_head = association->getA().isNavigable() ? ArrowItem::HEAD_FILLED_DIAMOND_FILLED_TRIANGLE : ArrowItem::HEAD_FILLED_DIAMOND;
+            endBHead = association->getA().isNavigable() ? ArrowItem::HEAD_FILLED_DIAMOND_FILLED_TRIANGLE : ArrowItem::HEAD_FILLED_DIAMOND;
             break;
         }
 
-        m_arrow->setStartHead(end_a_head);
-        m_arrow->setEndHead(end_b_head);
+        m_arrow->setStartHead(endAHead);
+        m_arrow->setEndHead(endBHead);
         m_arrow->setPoints(m_points);
     }
 
@@ -186,10 +186,10 @@ private:
 };
 
 
-RelationItem::RelationItem(DRelation *relation, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent)
+RelationItem::RelationItem(DRelation *relation, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : QGraphicsItem(parent),
       m_relation(relation),
-      m_diagramSceneModel(diagram_scene_model),
+      m_diagramSceneModel(diagramSceneModel),
       m_secondarySelected(false),
       m_focusSelected(false),
       m_arrow(0),
@@ -254,14 +254,14 @@ void RelationItem::moveDelta(const QPointF &delta)
     m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_relation, m_diagramSceneModel->getDiagram(), false);
 }
 
-void RelationItem::alignItemPositionToRaster(double raster_width, double raster_height)
+void RelationItem::alignItemPositionToRaster(double rasterWidth, double rasterHeight)
 {
     m_diagramSceneModel->getDiagramController()->startUpdateElement(m_relation, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
     QList<DRelation::IntermediatePoint> points;
     foreach (const DRelation::IntermediatePoint &point, m_relation->getIntermediatePoints()) {
         QPointF pos = point.getPos();
-        double x = qRound(pos.x() / raster_width) * raster_width;
-        double y = qRound(pos.y() / raster_height) * raster_height;
+        double x = qRound(pos.x() / rasterWidth) * rasterWidth;
+        double y = qRound(pos.y() / rasterHeight) * rasterHeight;
         points << DRelation::IntermediatePoint(QPointF(x,y));
     }
     m_relation->setIntermediatePoints(points);
@@ -273,10 +273,10 @@ bool RelationItem::isSecondarySelected() const
     return m_secondarySelected;
 }
 
-void RelationItem::setSecondarySelected(bool secondary_selected)
+void RelationItem::setSecondarySelected(bool secondarySelected)
 {
-    if (m_secondarySelected != secondary_selected) {
-        m_secondarySelected = secondary_selected;
+    if (m_secondarySelected != secondarySelected) {
+        m_secondarySelected = secondarySelected;
         update();
     }
 }
@@ -286,10 +286,10 @@ bool RelationItem::isFocusSelected() const
     return m_focusSelected;
 }
 
-void RelationItem::setFocusSelected(bool focus_selected)
+void RelationItem::setFocusSelected(bool focusSelected)
 {
-    if (m_focusSelected != focus_selected) {
-        m_focusSelected = focus_selected;
+    if (m_focusSelected != focusSelected) {
+        m_focusSelected = focusSelected;
         update();
     }
 }
@@ -303,21 +303,21 @@ QPointF RelationItem::getHandlePos(int index)
         // TODO implement
         return QPointF(0,0);
     } else {
-        QList<DRelation::IntermediatePoint> intermediate_points = m_relation->getIntermediatePoints();
+        QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->getIntermediatePoints();
         --index;
-        QMT_CHECK(index >= 0 && index < intermediate_points.size());
-        return intermediate_points.at(index).getPos();
+        QMT_CHECK(index >= 0 && index < intermediatePoints.size());
+        return intermediatePoints.at(index).getPos();
     }
 }
 
-void RelationItem::insertHandle(int before_index, const QPointF &pos)
+void RelationItem::insertHandle(int beforeIndex, const QPointF &pos)
 {
-    if (before_index >= 1 && before_index <= m_relation->getIntermediatePoints().size() + 1) {
-        QList<DRelation::IntermediatePoint> intermediate_points = m_relation->getIntermediatePoints();
-        intermediate_points.insert(before_index - 1, DRelation::IntermediatePoint(pos));
+    if (beforeIndex >= 1 && beforeIndex <= m_relation->getIntermediatePoints().size() + 1) {
+        QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->getIntermediatePoints();
+        intermediatePoints.insert(beforeIndex - 1, DRelation::IntermediatePoint(pos));
 
         m_diagramSceneModel->getDiagramController()->startUpdateElement(m_relation, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_MAJOR);
-        m_relation->setIntermediatePoints(intermediate_points);
+        m_relation->setIntermediatePoints(intermediatePoints);
         m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_relation, m_diagramSceneModel->getDiagram(), false);
     }
 }
@@ -325,11 +325,11 @@ void RelationItem::insertHandle(int before_index, const QPointF &pos)
 void RelationItem::deleteHandle(int index)
 {
     if (index >= 1 && index <= m_relation->getIntermediatePoints().size()) {
-        QList<DRelation::IntermediatePoint> intermediate_points = m_relation->getIntermediatePoints();
-        intermediate_points.removeAt(index - 1);
+        QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->getIntermediatePoints();
+        intermediatePoints.removeAt(index - 1);
 
         m_diagramSceneModel->getDiagramController()->startUpdateElement(m_relation, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_MAJOR);
-        m_relation->setIntermediatePoints(intermediate_points);
+        m_relation->setIntermediatePoints(intermediatePoints);
         m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_relation, m_diagramSceneModel->getDiagram(), false);
     }
 }
@@ -341,35 +341,35 @@ void RelationItem::setHandlePos(int index, const QPointF &pos)
     } else if (index == m_relation->getIntermediatePoints().size() + 1) {
         // TODO implement
     } else {
-        QList<DRelation::IntermediatePoint> intermediate_points = m_relation->getIntermediatePoints();
+        QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->getIntermediatePoints();
         --index;
-        QMT_CHECK(index >= 0 && index < intermediate_points.size());
-        intermediate_points[index].setPos(pos);
+        QMT_CHECK(index >= 0 && index < intermediatePoints.size());
+        intermediatePoints[index].setPos(pos);
 
         m_diagramSceneModel->getDiagramController()->startUpdateElement(m_relation, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_MINOR);
-        m_relation->setIntermediatePoints(intermediate_points);
+        m_relation->setIntermediatePoints(intermediatePoints);
         m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_relation, m_diagramSceneModel->getDiagram(), false);
     }
 }
 
-void RelationItem::alignHandleToRaster(int index, double raster_width, double raster_height)
+void RelationItem::alignHandleToRaster(int index, double rasterWidth, double rasterHeight)
 {
     if (index == 0) {
         // TODO implement
     } else if (index ==m_relation->getIntermediatePoints().size() + 1) {
         // TODO implement
     } else {
-        QList<DRelation::IntermediatePoint> intermediate_points = m_relation->getIntermediatePoints();
+        QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->getIntermediatePoints();
         --index;
-        QMT_CHECK(index >= 0 && index < intermediate_points.size());
+        QMT_CHECK(index >= 0 && index < intermediatePoints.size());
 
-        QPointF pos = intermediate_points.at(index).getPos();
-        double x = qRound(pos.x() / raster_width) * raster_width;
-        double y = qRound(pos.y() / raster_height) * raster_height;
-        intermediate_points[index].setPos(QPointF(x, y));
+        QPointF pos = intermediatePoints.at(index).getPos();
+        double x = qRound(pos.x() / rasterWidth) * rasterWidth;
+        double y = qRound(pos.y() / rasterHeight) * rasterHeight;
+        intermediatePoints[index].setPos(QPointF(x, y));
 
         m_diagramSceneModel->getDiagramController()->startUpdateElement(m_relation, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_MINOR);
-        m_relation->setIntermediatePoints(intermediate_points);
+        m_relation->setIntermediatePoints(intermediatePoints);
         m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_relation, m_diagramSceneModel->getDiagram(), false);
     }
 }
@@ -389,17 +389,17 @@ void RelationItem::update()
 
 void RelationItem::update(const Style *style)
 {
-    QPointF end_b_pos = calcEndPoint(m_relation->getEndB(), m_relation->getEndA(), m_relation->getIntermediatePoints().size() - 1);
-    QPointF end_a_pos = calcEndPoint(m_relation->getEndA(), end_b_pos, 0);
+    QPointF endBPos = calcEndPoint(m_relation->getEndB(), m_relation->getEndA(), m_relation->getIntermediatePoints().size() - 1);
+    QPointF endAPos = calcEndPoint(m_relation->getEndA(), endBPos, 0);
 
-    setPos(end_a_pos);
+    setPos(endAPos);
 
     QList<QPointF> points;
-    points << (end_a_pos - end_a_pos);
+    points << (endAPos - endAPos);
     foreach (const DRelation::IntermediatePoint &point, m_relation->getIntermediatePoints()) {
-        points << (point.getPos() - end_a_pos);
+        points << (point.getPos() - endAPos);
     }
-    points << (end_b_pos - end_a_pos);
+    points << (endBPos - endAPos);
 
     ArrowConfigurator visitor(m_diagramSceneModel, m_arrow, points);
     m_relation->accept(&visitor);
@@ -469,71 +469,71 @@ void RelationItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 const Style *RelationItem::getAdaptedStyle()
 {
-    DObject *end_a_object = m_diagramSceneModel->getDiagramController()->findElement<DObject>(m_relation->getEndA(), m_diagramSceneModel->getDiagram());
-    DObject *end_b_object = m_diagramSceneModel->getDiagramController()->findElement<DObject>(m_relation->getEndB(), m_diagramSceneModel->getDiagram());
-    StyledRelation styled_relation(m_relation, end_a_object, end_b_object);
-    return m_diagramSceneModel->getStyleController()->adaptRelationStyle(styled_relation);
+    DObject *endAObject = m_diagramSceneModel->getDiagramController()->findElement<DObject>(m_relation->getEndA(), m_diagramSceneModel->getDiagram());
+    DObject *endBObject = m_diagramSceneModel->getDiagramController()->findElement<DObject>(m_relation->getEndB(), m_diagramSceneModel->getDiagram());
+    StyledRelation styledRelation(m_relation, endAObject, endBObject);
+    return m_diagramSceneModel->getStyleController()->adaptRelationStyle(styledRelation);
 }
 
-QPointF RelationItem::calcEndPoint(const Uid &end, const Uid &other_end, int nearest_intermediate_point_index)
+QPointF RelationItem::calcEndPoint(const Uid &end, const Uid &otherEnd, int nearestIntermediatePointIndex)
 {
-    QPointF other_end_pos;
-    if (nearest_intermediate_point_index >= 0 && nearest_intermediate_point_index < m_relation->getIntermediatePoints().size()) {
-        // other_end_pos will not be used
+    QPointF otherEndPos;
+    if (nearestIntermediatePointIndex >= 0 && nearestIntermediatePointIndex < m_relation->getIntermediatePoints().size()) {
+        // otherEndPos will not be used
     } else {
-        DObject *end_other_object = m_diagramSceneModel->getDiagramController()->findElement<DObject>(other_end, m_diagramSceneModel->getDiagram());
-        QMT_CHECK(end_other_object);
-        other_end_pos = end_other_object->getPos();
+        DObject *endOtherObject = m_diagramSceneModel->getDiagramController()->findElement<DObject>(otherEnd, m_diagramSceneModel->getDiagram());
+        QMT_CHECK(endOtherObject);
+        otherEndPos = endOtherObject->getPos();
     }
-    return calcEndPoint(end, other_end_pos, nearest_intermediate_point_index);
+    return calcEndPoint(end, otherEndPos, nearestIntermediatePointIndex);
 }
 
-QPointF RelationItem::calcEndPoint(const Uid &end, const QPointF &other_end_pos, int nearest_intermediate_point_index)
+QPointF RelationItem::calcEndPoint(const Uid &end, const QPointF &otherEndPos, int nearestIntermediatePointIndex)
 {
-    QGraphicsItem *end_item = m_diagramSceneModel->getGraphicsItem(end);
-    QMT_CHECK(end_item);
-    IIntersectionable *end_object_item = dynamic_cast<IIntersectionable *>(end_item);
-    QPointF end_pos;
-    if (end_object_item) {
-        DObject *end_object = m_diagramSceneModel->getDiagramController()->findElement<DObject>(end, m_diagramSceneModel->getDiagram());
-        QMT_CHECK(end_object);
-        bool prefer_axis = false;
-        QPointF other_pos;
-        if (nearest_intermediate_point_index >= 0 && nearest_intermediate_point_index < m_relation->getIntermediatePoints().size()) {
-            other_pos = m_relation->getIntermediatePoints().at(nearest_intermediate_point_index).getPos();
-            prefer_axis = true;
+    QGraphicsItem *endItem = m_diagramSceneModel->getGraphicsItem(end);
+    QMT_CHECK(endItem);
+    IIntersectionable *endObjectItem = dynamic_cast<IIntersectionable *>(endItem);
+    QPointF endPos;
+    if (endObjectItem) {
+        DObject *endObject = m_diagramSceneModel->getDiagramController()->findElement<DObject>(end, m_diagramSceneModel->getDiagram());
+        QMT_CHECK(endObject);
+        bool preferAxis = false;
+        QPointF otherPos;
+        if (nearestIntermediatePointIndex >= 0 && nearestIntermediatePointIndex < m_relation->getIntermediatePoints().size()) {
+            otherPos = m_relation->getIntermediatePoints().at(nearestIntermediatePointIndex).getPos();
+            preferAxis = true;
         } else {
-            other_pos = other_end_pos;
+            otherPos = otherEndPos;
         }
 
         bool ok = false;
-        QLineF direct_line(end_object->getPos(), other_pos);
-        if (prefer_axis) {
+        QLineF directLine(endObject->getPos(), otherPos);
+        if (preferAxis) {
             {
-                QPointF axis_direction = GeometryUtilities::calcPrimaryAxisDirection(direct_line);
-                QLineF axis(other_pos, other_pos + axis_direction);
-                QPointF projection = GeometryUtilities::calcProjection(axis, end_object->getPos());
-                QLineF projected_line(projection, other_pos);
-                ok = end_object_item->intersectShapeWithLine(projected_line, &end_pos);
+                QPointF axisDirection = GeometryUtilities::calcPrimaryAxisDirection(directLine);
+                QLineF axis(otherPos, otherPos + axisDirection);
+                QPointF projection = GeometryUtilities::calcProjection(axis, endObject->getPos());
+                QLineF projectedLine(projection, otherPos);
+                ok = endObjectItem->intersectShapeWithLine(projectedLine, &endPos);
             }
             if (!ok) {
-                QPointF axis_direction = GeometryUtilities::calcSecondaryAxisDirection(direct_line);
-                QLineF axis(other_pos, other_pos + axis_direction);
-                QPointF projection = GeometryUtilities::calcProjection(axis, end_object->getPos());
-                QLineF projected_line(projection, other_pos);
-                ok = end_object_item->intersectShapeWithLine(projected_line, &end_pos);
+                QPointF axisDirection = GeometryUtilities::calcSecondaryAxisDirection(directLine);
+                QLineF axis(otherPos, otherPos + axisDirection);
+                QPointF projection = GeometryUtilities::calcProjection(axis, endObject->getPos());
+                QLineF projectedLine(projection, otherPos);
+                ok = endObjectItem->intersectShapeWithLine(projectedLine, &endPos);
             }
         }
         if (!ok) {
-            ok = end_object_item->intersectShapeWithLine(direct_line, &end_pos);
+            ok = endObjectItem->intersectShapeWithLine(directLine, &endPos);
         }
         if (!ok) {
-            end_pos = end_item->pos();
+            endPos = endItem->pos();
         }
     } else {
-        end_pos = end_item->pos();
+        endPos = endItem->pos();
     }
-    return end_pos;
+    return endPos;
 }
 
 }

@@ -58,11 +58,11 @@ public:
 
     QString getNamespace() const { return m_namespace; }
 
-    void setNamespace(const QString &name_space);
+    void setNamespace(const QString &nameSpace);
 
     QList<QString> getTemplateParameters() const { return m_templateParameters; }
 
-    void setTemplateParameters(const QList<QString> &template_parameters);
+    void setTemplateParameters(const QList<QString> &templateParameters);
 
     QList<MClassMember> getMembers() const { return m_members; }
 
@@ -70,7 +70,7 @@ public:
 
     void addMember(const MClassMember &member);
 
-    void insertMember(int before_index, const MClassMember &member);
+    void insertMember(int beforeIndex, const MClassMember &member);
 
     void removeMember(const Uid &uid);
 

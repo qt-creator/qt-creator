@@ -48,7 +48,7 @@ class RelationStarter :
         public QGraphicsRectItem
 {
 public:
-    RelationStarter(IRelationable *owner, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent = 0);
+    RelationStarter(IRelationable *owner, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
 
     ~RelationStarter();
 
@@ -60,7 +60,7 @@ public:
 
 public:
 
-    void addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowItem::Head end_head, ArrowItem::Head start_head = ArrowItem::HEAD_NONE);
+    void addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowItem::Head endHead, ArrowItem::Head startHead = ArrowItem::HEAD_NONE);
 
 protected:
 
@@ -74,7 +74,7 @@ protected:
 
 private:
 
-    void updateCurrentPreviewArrow(const QPointF &head_point);
+    void updateCurrentPreviewArrow(const QPointF &headPoint);
 
 public:
 

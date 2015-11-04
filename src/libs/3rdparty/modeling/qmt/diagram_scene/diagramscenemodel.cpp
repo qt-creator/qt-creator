@@ -117,7 +117,7 @@ DiagramSceneModel::DiagramSceneModel(QObject *parent)
       m_focusItem(0)
 {
     m_latchController->setDiagramSceneModel(this);
-    connect(m_graphicsScene, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
+    connect(m_graphicsScene, SIGNAL(selectionHasChanged()), this, SLOT(onSelectionChanged()));
 
     // add one item at origin to force scene rect to include origin always
     m_graphicsScene->addItem(m_originItem);
@@ -137,17 +137,17 @@ DiagramSceneModel::~DiagramSceneModel()
     m_graphicsScene->deleteLater();
 }
 
-void DiagramSceneModel::setDiagramController(DiagramController *diagram_controller)
+void DiagramSceneModel::setDiagramController(DiagramController *diagramController)
 {
-    if (m_diagramController == diagram_controller) {
+    if (m_diagramController == diagramController) {
         return;
     }
     if (m_diagramController) {
         disconnect(m_diagramController, 0, this, 0);
         m_diagramController = 0;
     }
-    m_diagramController = diagram_controller;
-    if (diagram_controller) {
+    m_diagramController = diagramController;
+    if (diagramController) {
         connect(m_diagramController, SIGNAL(beginResetAllDiagrams()), this, SLOT(onBeginResetAllDiagrams()));
         connect(m_diagramController, SIGNAL(endResetAllDiagrams()), this, SLOT(onEndResetAllDiagrams()));
         connect(m_diagramController, SIGNAL(beginResetDiagram(const MDiagram*)), this, SLOT(onBeginResetDiagram(const MDiagram*)));
@@ -161,19 +161,19 @@ void DiagramSceneModel::setDiagramController(DiagramController *diagram_controll
     }
 }
 
-void DiagramSceneModel::setDiagramSceneController(DiagramSceneController *diagram_scene_controller)
+void DiagramSceneModel::setDiagramSceneController(DiagramSceneController *diagramSceneController)
 {
-    m_diagramSceneController = diagram_scene_controller;
+    m_diagramSceneController = diagramSceneController;
 }
 
-void DiagramSceneModel::setStyleController(StyleController *style_controller)
+void DiagramSceneModel::setStyleController(StyleController *styleController)
 {
-    m_styleController = style_controller;
+    m_styleController = styleController;
 }
 
-void DiagramSceneModel::setStereotypeController(StereotypeController *stereotype_controller)
+void DiagramSceneModel::setStereotypeController(StereotypeController *stereotypeController)
 {
-    m_stereotypeController = stereotype_controller;
+    m_stereotypeController = stereotypeController;
 }
 
 void DiagramSceneModel::setDiagram(MDiagram *diagram)
@@ -222,10 +222,10 @@ DSelection DiagramSceneModel::getSelectedElements() const
     return selection;
 }
 
-DElement *DiagramSceneModel::findTopmostElement(const QPointF &scene_pos) const
+DElement *DiagramSceneModel::findTopmostElement(const QPointF &scenePos) const
 {
     // fetch affected items from scene in correct drawing order to find topmost element
-    QList<QGraphicsItem *> items = m_graphicsScene->items(scene_pos);
+    QList<QGraphicsItem *> items = m_graphicsScene->items(scenePos);
     foreach (QGraphicsItem *item, items) {
         if (m_graphicsItems.contains(item)) {
             return m_itemToElementMap.value(item);
@@ -269,14 +269,14 @@ void DiagramSceneModel::selectAllElements()
 
 void DiagramSceneModel::selectElement(DElement *element)
 {
-    QGraphicsItem *select_item = m_elementToItemMap.value(element);
+    QGraphicsItem *selectItem = m_elementToItemMap.value(element);
     foreach (QGraphicsItem *item, m_selectedItems) {
-        if (item != select_item) {
+        if (item != selectItem) {
             item->setSelected(false);
         }
     }
-    if (select_item) {
-        select_item->setSelected(true);
+    if (selectItem) {
+        selectItem->setSelected(true);
     }
 }
 
@@ -290,26 +290,26 @@ void DiagramSceneModel::editElement(DElement *element)
 
 void DiagramSceneModel::copyToClipboard()
 {
-    QMimeData *mime_data = new QMimeData();
+    QMimeData *mimeData = new QMimeData();
 
     // Selections would also render to the clipboard
     m_graphicsScene->clearSelection();
     removeExtraSceneItems();
 
-    QRectF scene_bounding_rect = m_graphicsScene->itemsBoundingRect();
+    QRectF sceneBoundingRect = m_graphicsScene->itemsBoundingRect();
 
     {
         // Create the image with the size of the shrunk scene
-        const int scale_factor = 4;
+        const int scaleFactor = 4;
         const int border = 4;
-        const int base_dpi = 75;
-        const int dots_per_meter = 10000 * base_dpi / 254;
-        QSize image_size = scene_bounding_rect.size().toSize();
-        image_size += QSize(2 * border, 2 * border);
-        image_size *= scale_factor;
-        QImage image(image_size, QImage::Format_ARGB32);
-        image.setDotsPerMeterX(dots_per_meter * scale_factor);
-        image.setDotsPerMeterY(dots_per_meter * scale_factor);
+        const int baseDpi = 75;
+        const int dotsPerMeter = 10000 * baseDpi / 254;
+        QSize imageSize = sceneBoundingRect.size().toSize();
+        imageSize += QSize(2 * border, 2 * border);
+        imageSize *= scaleFactor;
+        QImage image(imageSize, QImage::Format_ARGB32);
+        image.setDotsPerMeterX(dotsPerMeter * scaleFactor);
+        image.setDotsPerMeterY(dotsPerMeter * scaleFactor);
         image.fill(Qt::white);
         QPainter painter;
         painter.begin(&image);
@@ -317,57 +317,57 @@ void DiagramSceneModel::copyToClipboard()
         m_graphicsScene->render(&painter,
                                 QRectF(border, border,
                                        painter.device()->width() - 2 * border, painter.device()->height() - 2 * border),
-                                scene_bounding_rect);
+                                sceneBoundingRect);
         painter.end();
-        mime_data->setImageData(image);
+        mimeData->setImageData(image);
     }
 
 #ifdef USE_PDF_CLIPBOARD
     {
-        const double scale_factor = 1.0;
+        const double scaleFactor = 1.0;
         const double border = 5;
-        const double base_dpi = 100;
-        const double dots_per_mm = 25.4 / base_dpi;
+        const double baseDpi = 100;
+        const double dotsPerMm = 25.4 / baseDpi;
 
-        QBuffer pdf_buffer;
-        pdf_buffer.open(QIODevice::WriteOnly);
+        QBuffer pdfBuffer;
+        pdfBuffer.open(QIODevice::WriteOnly);
 
-        QPdfWriter pdf_writer(&pdf_buffer);
-        QSizeF page_size = scene_bounding_rect.size();
-        page_size += QSizeF(2.0 * border, 2.0 * border);
-        page_size *= scale_factor;
-        pdf_writer.setPageSize(QPdfWriter::Custom);
-        pdf_writer.setPageSizeMM(page_size * dots_per_mm);
+        QPdfWriter pdfWriter(&pdfBuffer);
+        QSizeF pageSize = sceneBoundingRect.size();
+        pageSize += QSizeF(2.0 * border, 2.0 * border);
+        pageSize *= scaleFactor;
+        pdfWriter.setPageSize(QPdfWriter::Custom);
+        pdfWriter.setPageSizeMM(pageSize * dotsPerMm);
 
-        QPainter pdf_painter;
-        pdf_painter.begin(&pdf_writer);
-        m_graphicsScene->render(&pdf_painter,
+        QPainter pdfPainter;
+        pdfPainter.begin(&pdfWriter);
+        m_graphicsScene->render(&pdfPainter,
                                 QRectF(border, border,
-                                       pdf_painter.device()->width() - 2 * border, pdf_painter.device()->height() - 2 * border),
-                                scene_bounding_rect);
-        pdf_painter.end();
-        pdf_buffer.close();
-        mime_data->setData(QStringLiteral("application/pdf"), pdf_buffer.buffer());
+                                       pdfPainter.device()->width() - 2 * border, pdfPainter.device()->height() - 2 * border),
+                                sceneBoundingRect);
+        pdfPainter.end();
+        pdfBuffer.close();
+        mimeData->setData(QStringLiteral("application/pdf"), pdfBuffer.buffer());
     }
 #endif
 
 #ifdef USE_SVG_CLIPBOARD
     {
-        QBuffer svg_buffer;
-        QSvgGenerator svg_generator;
-        svg_generator.setOutputDevice(&svg_buffer);
-        QSize svg_scene_size = scene_bounding_rect.size().toSize();
-        svg_generator.setSize(svg_scene_size);
-        svg_generator.setViewBox(QRect(QPoint(0,0), svg_scene_size));
-        QPainter svg_painter;
-        svg_painter.begin(&svg_generator);
-        svg_painter.setRenderHint(QPainter::Antialiasing);
-        m_graphicsScene->render(&svg_painter,
+        QBuffer svgBuffer;
+        QSvgGenerator svgGenerator;
+        svgGenerator.setOutputDevice(&svgBuffer);
+        QSize svgSceneSize = sceneBoundingRect.size().toSize();
+        svgGenerator.setSize(svgSceneSize);
+        svgGenerator.setViewBox(QRect(QPoint(0,0), svgSceneSize));
+        QPainter svgPainter;
+        svgPainter.begin(&svgGenerator);
+        svgPainter.setRenderHint(QPainter::Antialiasing);
+        m_graphicsScene->render(&svgPainter,
                                 QRectF(border, border,
                                        painter.device()->width() - 2 * border, painter.device()->height() - 2 * border),
-                                scene_bounding_rect);
-        svg_painter.end();
-        mime_data->setData(QStringLiteral("image/svg+xml"), svg_buffer.buffer());
+                                sceneBoundingRect);
+        svgPainter.end();
+        mimeData->setData(QStringLiteral("image/svg+xml"), svgBuffer.buffer());
     }
 #endif
 
@@ -375,30 +375,30 @@ void DiagramSceneModel::copyToClipboard()
     // TODO implement emf clipboard
 #endif
 
-    QApplication::clipboard()->setMimeData(mime_data, QClipboard::Clipboard);
+    QApplication::clipboard()->setMimeData(mimeData, QClipboard::Clipboard);
 
     addExtraSceneItems();
 }
 
-bool DiagramSceneModel::exportPng(const QString &file_name)
+bool DiagramSceneModel::exportPng(const QString &fileName)
 {
     removeExtraSceneItems();
 
-    QRectF scene_bounding_rect = m_graphicsScene->itemsBoundingRect();
+    QRectF sceneBoundingRect = m_graphicsScene->itemsBoundingRect();
 
     // Create the image with the size of the shrunk scene
-    const int scale_factor = 1;
+    const int scaleFactor = 1;
     const int border = 5;
-    const int base_dpi = 75;
-    const int dots_per_meter = 10000 * base_dpi / 254;
+    const int baseDpi = 75;
+    const int dotsPerMeter = 10000 * baseDpi / 254;
 
-    QSize image_size = scene_bounding_rect.size().toSize();
-    image_size += QSize(2 * border, 2 * border);
-    image_size *= scale_factor;
+    QSize imageSize = sceneBoundingRect.size().toSize();
+    imageSize += QSize(2 * border, 2 * border);
+    imageSize *= scaleFactor;
 
-    QImage image(image_size, QImage::Format_ARGB32);
-    image.setDotsPerMeterX(dots_per_meter * scale_factor);
-    image.setDotsPerMeterY(dots_per_meter * scale_factor);
+    QImage image(imageSize, QImage::Format_ARGB32);
+    image.setDotsPerMeterX(dotsPerMeter * scaleFactor);
+    image.setDotsPerMeterY(dotsPerMeter * scaleFactor);
     image.fill(Qt::white);
 
     QPainter painter;
@@ -407,53 +407,53 @@ bool DiagramSceneModel::exportPng(const QString &file_name)
     m_graphicsScene->render(&painter,
                             QRectF(border, border,
                                    painter.device()->width() - 2 * border, painter.device()->height() - 2 * border),
-                            scene_bounding_rect);
+                            sceneBoundingRect);
     painter.end();
 
-    bool success = image.save(file_name);
+    bool success = image.save(fileName);
 
     addExtraSceneItems();
 
     return success;
 }
 
-void DiagramSceneModel::exportPdf(const QString &file_name)
+void DiagramSceneModel::exportPdf(const QString &fileName)
 {
     removeExtraSceneItems();
 
-    QRectF scene_bounding_rect = m_graphicsScene->itemsBoundingRect();
+    QRectF sceneBoundingRect = m_graphicsScene->itemsBoundingRect();
 
-    const double scale_factor = 1.0;
+    const double scaleFactor = 1.0;
     const double border = 5;
-    const double base_dpi = 100;
-    const double dots_per_mm = 25.4 / base_dpi;
+    const double baseDpi = 100;
+    const double dotsPerMm = 25.4 / baseDpi;
 
-    QSizeF page_size = scene_bounding_rect.size();
-    page_size += QSizeF(2.0 * border, 2.0 * border);
-    page_size *= scale_factor;
+    QSizeF pageSize = sceneBoundingRect.size();
+    pageSize += QSizeF(2.0 * border, 2.0 * border);
+    pageSize *= scaleFactor;
 
-    QPdfWriter pdf_writer(file_name);
-    pdf_writer.setPageSize(QPdfWriter::Custom);
-    pdf_writer.setPageSizeMM(page_size * dots_per_mm);
+    QPdfWriter pdfWriter(fileName);
+    pdfWriter.setPageSize(QPdfWriter::Custom);
+    pdfWriter.setPageSizeMM(pageSize * dotsPerMm);
 
-    QPainter pdf_painter;
-    pdf_painter.begin(&pdf_writer);
-    m_graphicsScene->render(&pdf_painter,
+    QPainter pdfPainter;
+    pdfPainter.begin(&pdfWriter);
+    m_graphicsScene->render(&pdfPainter,
                             QRectF(border, border,
-                                   pdf_painter.device()->width() - 2 * border, pdf_painter.device()->height() - 2 * border),
-                            scene_bounding_rect);
-    pdf_painter.end();
+                                   pdfPainter.device()->width() - 2 * border, pdfPainter.device()->height() - 2 * border),
+                            sceneBoundingRect);
+    pdfPainter.end();
 
     addExtraSceneItems();
 }
 
-void DiagramSceneModel::selectItem(QGraphicsItem *item, bool multi_select)
+void DiagramSceneModel::selectItem(QGraphicsItem *item, bool multiSelect)
 {
-    if (!multi_select) {
+    if (!multiSelect) {
         if (!item->isSelected()) {
-            foreach (QGraphicsItem *selected_item, m_selectedItems) {
-                if (selected_item != item) {
-                    selected_item->setSelected(false);
+            foreach (QGraphicsItem *selectedItem, m_selectedItems) {
+                if (selectedItem != item) {
+                    selectedItem->setSelected(false);
                 }
             }
             item->setSelected(true);
@@ -463,9 +463,9 @@ void DiagramSceneModel::selectItem(QGraphicsItem *item, bool multi_select)
     }
 }
 
-void DiagramSceneModel::moveSelectedItems(QGraphicsItem *grabbed_item, const QPointF &delta)
+void DiagramSceneModel::moveSelectedItems(QGraphicsItem *grabbedItem, const QPointF &delta)
 {
-    Q_UNUSED(grabbed_item);
+    Q_UNUSED(grabbedItem);
 
     if (delta != QPointF(0.0, 0.0)) {
         foreach (QGraphicsItem *item, m_selectedItems) {
@@ -503,50 +503,50 @@ void DiagramSceneModel::onDoubleClickedItem(QGraphicsItem *item)
     }
 }
 
-QList<QGraphicsItem *> DiagramSceneModel::collectCollidingObjectItems(const QGraphicsItem *item, CollidingMode colliding_mode) const
+QList<QGraphicsItem *> DiagramSceneModel::collectCollidingObjectItems(const QGraphicsItem *item, CollidingMode collidingMode) const
 {
-    QList<QGraphicsItem *> colliding_items;
+    QList<QGraphicsItem *> collidingItems;
 
     const IResizable *resizable = dynamic_cast<const IResizable *>(item);
     if (!resizable) {
-        return colliding_items;
+        return collidingItems;
     }
     QRectF rect = resizable->getRect();
     rect.translate(resizable->getPos());
 
-    switch (colliding_mode) {
+    switch (collidingMode) {
     case COLLIDING_INNER_ITEMS:
         foreach (QGraphicsItem *candidate, m_graphicsItems) {
-            if (const IResizable *candidate_resizable = dynamic_cast<const IResizable *>(candidate)) {
-                QRectF candidate_rect = candidate_resizable->getRect();
-                candidate_rect.translate(candidate_resizable->getPos());
-                if (candidate_rect.left() >= rect.left() && candidate_rect.right() <= rect.right()
-                        && candidate_rect.top() >= rect.top() && candidate_rect.bottom() <= rect.bottom()) {
-                    colliding_items.append(candidate);
+            if (const IResizable *candidateResizable = dynamic_cast<const IResizable *>(candidate)) {
+                QRectF candidateRect = candidateResizable->getRect();
+                candidateRect.translate(candidateResizable->getPos());
+                if (candidateRect.left() >= rect.left() && candidateRect.right() <= rect.right()
+                        && candidateRect.top() >= rect.top() && candidateRect.bottom() <= rect.bottom()) {
+                    collidingItems.append(candidate);
                 }
             }
         }
         break;
     case COLLIDING_ITEMS:
         foreach (QGraphicsItem *candidate, m_graphicsItems) {
-            if (const IResizable *candidate_resizable = dynamic_cast<const IResizable *>(candidate)) {
-                QRectF candidate_rect = candidate_resizable->getRect();
-                candidate_rect.translate(candidate_resizable->getPos());
-                if (candidate_rect.left() <= rect.right() && candidate_rect.right() >= rect.left()
-                        && candidate_rect.top() <= rect.bottom() && candidate_rect.bottom() >= rect.top()) {
-                    colliding_items.append(candidate);
+            if (const IResizable *candidateResizable = dynamic_cast<const IResizable *>(candidate)) {
+                QRectF candidateRect = candidateResizable->getRect();
+                candidateRect.translate(candidateResizable->getPos());
+                if (candidateRect.left() <= rect.right() && candidateRect.right() >= rect.left()
+                        && candidateRect.top() <= rect.bottom() && candidateRect.bottom() >= rect.top()) {
+                    collidingItems.append(candidate);
                 }
             }
         }
         break;
     case COLLIDING_OUTER_ITEMS:
         foreach (QGraphicsItem *candidate, m_graphicsItems) {
-            if (const IResizable *candidate_resizable = dynamic_cast<const IResizable *>(candidate)) {
-                QRectF candidate_rect = candidate_resizable->getRect();
-                candidate_rect.translate(candidate_resizable->getPos());
-                if (candidate_rect.left() <= rect.left() && candidate_rect.right() >= rect.right()
-                        && candidate_rect.top() <= rect.top() && candidate_rect.bottom() >= rect.bottom()) {
-                    colliding_items.append(candidate);
+            if (const IResizable *candidateResizable = dynamic_cast<const IResizable *>(candidate)) {
+                QRectF candidateRect = candidateResizable->getRect();
+                candidateRect.translate(candidateResizable->getPos());
+                if (candidateRect.left() <= rect.left() && candidateRect.right() >= rect.right()
+                        && candidateRect.top() <= rect.top() && candidateRect.bottom() >= rect.bottom()) {
+                    collidingItems.append(candidate);
                 }
             }
         }
@@ -554,7 +554,7 @@ QList<QGraphicsItem *> DiagramSceneModel::collectCollidingObjectItems(const QGra
     default:
         QMT_CHECK(false);
     }
-    return colliding_items;
+    return collidingItems;
 }
 
 void DiagramSceneModel::sceneActivated()
@@ -605,31 +605,31 @@ void DiagramSceneModel::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 void DiagramSceneModel::mouseReleaseEventReparenting(QGraphicsSceneMouseEvent *event)
 {
     if (event->modifiers() & Qt::AltModifier) {
-        ModelController *model_controller = getDiagramController()->getModelController();
-        MPackage *new_owner = 0;
-        QSet<QGraphicsItem *> selected_item_set = m_graphicsScene->selectedItems().toSet();
-        QList<QGraphicsItem *> items_under_mouse = m_graphicsScene->items(event->scenePos());
-        foreach (QGraphicsItem *item, items_under_mouse) {
-            if (!selected_item_set.contains(item)) {
+        ModelController *modelController = getDiagramController()->getModelController();
+        MPackage *newOwner = 0;
+        QSet<QGraphicsItem *> selectedItemSet = m_graphicsScene->selectedItems().toSet();
+        QList<QGraphicsItem *> itemsUnderMouse = m_graphicsScene->items(event->scenePos());
+        foreach (QGraphicsItem *item, itemsUnderMouse) {
+            if (!selectedItemSet.contains(item)) {
                 // the item may be any graphics item not matching to a DElement
                 DElement *element = m_itemToElementMap.value(item);
                 if (element && element->getModelUid().isValid()) {
-                    new_owner = model_controller->findElement<MPackage>(element->getModelUid());
+                    newOwner = modelController->findElement<MPackage>(element->getModelUid());
                 }
             }
-            if (new_owner) {
+            if (newOwner) {
                 break;
             }
         }
-        if (new_owner) {
+        if (newOwner) {
             foreach (QGraphicsItem *item, m_graphicsScene->selectedItems()) {
                 DElement *element = m_itemToElementMap.value(item);
                 QMT_CHECK(element);
                 if (element->getModelUid().isValid()) {
-                    MObject *model_object = model_controller->findObject(element->getModelUid());
-                    if (model_object) {
-                        if (new_owner != model_object->getOwner()) {
-                            model_controller->moveObject(new_owner, model_object);
+                    MObject *modelObject = modelController->findObject(element->getModelUid());
+                    if (modelObject) {
+                        if (newOwner != modelObject->getOwner()) {
+                            modelController->moveObject(newOwner, modelObject);
                         }
                     }
                 }
@@ -743,38 +743,38 @@ void DiagramSceneModel::onEndRemoveElement(int row, const MDiagram *diagram)
 
 void DiagramSceneModel::onSelectionChanged()
 {
-    bool selection_changed = false;
+    bool selectionChanged = false;
 
     // collect and update all primary selected items (selected by user)
-    QSet<QGraphicsItem *> new_selected_items = QSet<QGraphicsItem *>::fromList(m_graphicsScene->selectedItems());
-    updateFocusItem(new_selected_items);
+    QSet<QGraphicsItem *> newSelectedItems = QSet<QGraphicsItem *>::fromList(m_graphicsScene->selectedItems());
+    updateFocusItem(newSelectedItems);
     foreach (QGraphicsItem *item, m_selectedItems) {
-        if (!new_selected_items.contains(item)) {
+        if (!newSelectedItems.contains(item)) {
             DElement *element = m_itemToElementMap.value(item);
             updateGraphicsItem(item, element);
-            selection_changed = true;
+            selectionChanged = true;
         }
     }
-    foreach (QGraphicsItem *item, new_selected_items) {
+    foreach (QGraphicsItem *item, newSelectedItems) {
         if (!m_selectedItems.contains(item)) {
             DElement *element = m_itemToElementMap.value(item);
             updateGraphicsItem(item, element);
-            selection_changed = true;
+            selectionChanged = true;
         }
     }
-    m_selectedItems = new_selected_items;
+    m_selectedItems = newSelectedItems;
 
     // collect and update all secondary selected items
-    QSet<QGraphicsItem *> new_secondary_selected_items;
+    QSet<QGraphicsItem *> newSecondarySelectedItems;
 
     // select all contained objects secondarily
-    foreach (QGraphicsItem *selected_item, m_selectedItems) {
-        foreach (QGraphicsItem *item, collectCollidingObjectItems(selected_item, COLLIDING_INNER_ITEMS)) {
+    foreach (QGraphicsItem *selectedItem, m_selectedItems) {
+        foreach (QGraphicsItem *item, collectCollidingObjectItems(selectedItem, COLLIDING_INNER_ITEMS)) {
             if (!item->isSelected() && dynamic_cast<ISelectable *>(item) != 0
-                    && item->collidesWithItem(selected_item, Qt::ContainsItemBoundingRect)
-                    && isInFrontOf(item, selected_item)) {
+                    && item->collidesWithItem(selectedItem, Qt::ContainsItemBoundingRect)
+                    && isInFrontOf(item, selectedItem)) {
                 QMT_CHECK(!m_selectedItems.contains(item));
-                new_secondary_selected_items.insert(item);
+                newSecondarySelectedItems.insert(item);
             }
         }
     }
@@ -783,48 +783,48 @@ void DiagramSceneModel::onSelectionChanged()
     foreach (DElement *element, m_diagram->getDiagramElements()) {
         DRelation *relation = dynamic_cast<DRelation *>(element);
         if (relation) {
-            QGraphicsItem *relation_item = m_elementToItemMap.value(relation);
-            QMT_CHECK(relation_item);
-            DObject *end_a_object = m_diagramController->findElement<DObject>(relation->getEndA(), m_diagram);
-            QMT_CHECK(end_a_object);
-            QGraphicsItem *end_a_item = m_elementToItemMap.value(end_a_object);
-            QMT_CHECK(end_a_item);
-            DObject *end_b_object = m_diagramController->findElement<DObject>(relation->getEndB(), m_diagram);
-            QMT_CHECK(end_b_object);
-            QGraphicsItem *end_b_item = m_elementToItemMap.value(end_b_object);
-            QMT_CHECK(end_b_item);
-            if (!relation_item->isSelected()
-                    && (m_selectedItems.contains(end_a_item) || new_secondary_selected_items.contains(end_a_item))
-                    && (m_selectedItems.contains(end_b_item) || new_secondary_selected_items.contains(end_b_item))) {
-                QMT_CHECK(!m_selectedItems.contains(relation_item));
-                new_secondary_selected_items.insert(relation_item);
+            QGraphicsItem *relationItem = m_elementToItemMap.value(relation);
+            QMT_CHECK(relationItem);
+            DObject *endAObject = m_diagramController->findElement<DObject>(relation->getEndA(), m_diagram);
+            QMT_CHECK(endAObject);
+            QGraphicsItem *endAItem = m_elementToItemMap.value(endAObject);
+            QMT_CHECK(endAItem);
+            DObject *endBObject = m_diagramController->findElement<DObject>(relation->getEndB(), m_diagram);
+            QMT_CHECK(endBObject);
+            QGraphicsItem *endBItem = m_elementToItemMap.value(endBObject);
+            QMT_CHECK(endBItem);
+            if (!relationItem->isSelected()
+                    && (m_selectedItems.contains(endAItem) || newSecondarySelectedItems.contains(endAItem))
+                    && (m_selectedItems.contains(endBItem) || newSecondarySelectedItems.contains(endBItem))) {
+                QMT_CHECK(!m_selectedItems.contains(relationItem));
+                newSecondarySelectedItems.insert(relationItem);
             }
         }
     }
 
     foreach (QGraphicsItem *item, m_secondarySelectedItems) {
-        if (!new_secondary_selected_items.contains(item)) {
+        if (!newSecondarySelectedItems.contains(item)) {
             ISelectable *selectable = dynamic_cast<ISelectable *>(item);
             QMT_CHECK(selectable);
             selectable->setSecondarySelected(false);
-            selection_changed = true;
+            selectionChanged = true;
         }
     }
-    foreach (QGraphicsItem *item, new_secondary_selected_items) {
+    foreach (QGraphicsItem *item, newSecondarySelectedItems) {
         if (!m_secondarySelectedItems.contains(item)) {
             ISelectable *selectable = dynamic_cast<ISelectable *>(item);
             QMT_CHECK(selectable);
             selectable->setSecondarySelected(true);
-            selection_changed = true;
+            selectionChanged = true;
         }
     }
-    m_secondarySelectedItems = new_secondary_selected_items;
+    m_secondarySelectedItems = newSecondarySelectedItems;
 
     QMT_CHECK((m_selectedItems & m_secondarySelectedItems).isEmpty());
 
-    if (selection_changed) {
+    if (selectionChanged) {
         m_diagramController->breakUndoChain();
-        emit selectionChanged(m_diagram);
+        emit selectionHasChanged(m_diagram);
     }
 }
 
@@ -892,23 +892,23 @@ void DiagramSceneModel::deleteGraphicsItem(QGraphicsItem *item, DElement *elemen
     delete item;
 }
 
-void DiagramSceneModel::updateFocusItem(const QSet<QGraphicsItem *> &selected_items)
+void DiagramSceneModel::updateFocusItem(const QSet<QGraphicsItem *> &selectedItems)
 {
-    QGraphicsItem *mouse_grabber_item = m_graphicsScene->mouseGrabberItem();
-    QGraphicsItem *focus_item = 0;
+    QGraphicsItem *mouseGrabberItem = m_graphicsScene->mouseGrabberItem();
+    QGraphicsItem *focusItem = 0;
     ISelectable *selectable = 0;
 
-    if (mouse_grabber_item && selected_items.contains(mouse_grabber_item)) {
-        selectable = dynamic_cast<ISelectable *>(mouse_grabber_item);
+    if (mouseGrabberItem && selectedItems.contains(mouseGrabberItem)) {
+        selectable = dynamic_cast<ISelectable *>(mouseGrabberItem);
         if (selectable) {
-            focus_item = mouse_grabber_item;
+            focusItem = mouseGrabberItem;
         }
     }
-    if (focus_item && focus_item != m_focusItem) {
+    if (focusItem && focusItem != m_focusItem) {
         unsetFocusItem();
         selectable->setFocusSelected(true);
-        m_focusItem = focus_item;
-    } else if (m_focusItem && !selected_items.contains(m_focusItem)) {
+        m_focusItem = focusItem;
+    } else if (m_focusItem && !selectedItems.contains(m_focusItem)) {
         unsetFocusItem();
     }
 }
@@ -916,8 +916,8 @@ void DiagramSceneModel::updateFocusItem(const QSet<QGraphicsItem *> &selected_it
 void DiagramSceneModel::unsetFocusItem()
 {
     if (m_focusItem) {
-        if (ISelectable *old_selectable = dynamic_cast<ISelectable *>(m_focusItem)) {
-            old_selectable->setFocusSelected(false);
+        if (ISelectable *oldSelectable = dynamic_cast<ISelectable *>(m_focusItem)) {
+            oldSelectable->setFocusSelected(false);
         } else {
             QMT_CHECK(false);
         }
@@ -925,17 +925,17 @@ void DiagramSceneModel::unsetFocusItem()
     }
 }
 
-bool DiagramSceneModel::isInFrontOf(const QGraphicsItem *front_item, const QGraphicsItem *back_item)
+bool DiagramSceneModel::isInFrontOf(const QGraphicsItem *frontItem, const QGraphicsItem *backItem)
 {
-    QMT_CHECK(front_item);
-    QMT_CHECK(back_item);
+    QMT_CHECK(frontItem);
+    QMT_CHECK(backItem);
 
     // shortcut for usual case of root items
-    if (front_item->parentItem() == 0 && back_item->parentItem() == 0) {
+    if (frontItem->parentItem() == 0 && backItem->parentItem() == 0) {
         foreach (const QGraphicsItem *item, m_graphicsScene->items()) {
-            if (item == front_item) {
+            if (item == frontItem) {
                 return true;
-            } else if (item == back_item) {
+            } else if (item == backItem) {
                 return false;
             }
         }
@@ -944,56 +944,56 @@ bool DiagramSceneModel::isInFrontOf(const QGraphicsItem *front_item, const QGrap
     }
 
     // collect all anchestors of front item
-    QList<const QGraphicsItem *> front_stack;
-    const QGraphicsItem *iterator = front_item;
+    QList<const QGraphicsItem *> frontStack;
+    const QGraphicsItem *iterator = frontItem;
     while (iterator != 0) {
-        front_stack.append(iterator);
+        frontStack.append(iterator);
         iterator = iterator->parentItem();
     }
 
     // collect all anchestors of back item
-    QList<const QGraphicsItem *> back_stack;
-    iterator = back_item;
+    QList<const QGraphicsItem *> backStack;
+    iterator = backItem;
     while (iterator != 0) {
-        back_stack.append(iterator);
+        backStack.append(iterator);
         iterator = iterator->parentItem();
     }
 
     // search lowest common anchestor
-    int front_index = front_stack.size() - 1;
-    int back_index = back_stack.size() - 1;
-    while (front_index >= 0 && back_index >= 0 && front_stack.at(front_index) == back_stack.at(back_index)) {
-        --front_index;
-        --back_index;
+    int frontIndex = frontStack.size() - 1;
+    int backIndex = backStack.size() - 1;
+    while (frontIndex >= 0 && backIndex >= 0 && frontStack.at(frontIndex) == backStack.at(backIndex)) {
+        --frontIndex;
+        --backIndex;
     }
 
-    if (front_index < 0 && back_index < 0) {
-        QMT_CHECK(front_item == back_item);
+    if (frontIndex < 0 && backIndex < 0) {
+        QMT_CHECK(frontItem == backItem);
         return false;
-    } else if (front_index < 0) {
+    } else if (frontIndex < 0) {
         // front item is higher in hierarchy and thus behind back item
         return false;
-    } else if (back_index < 0) {
+    } else if (backIndex < 0) {
         // back item is higher in hierarchy and thus in behind front item
         return true;
     } else {
-        front_item = front_stack.at(front_index);
-        back_item = back_stack.at(back_index);
-        QMT_CHECK(front_item != back_item);
+        frontItem = frontStack.at(frontIndex);
+        backItem = backStack.at(backIndex);
+        QMT_CHECK(frontItem != backItem);
 
-        if (front_item->zValue() != back_item->zValue()) {
-            return front_item->zValue() > back_item->zValue();
+        if (frontItem->zValue() != backItem->zValue()) {
+            return frontItem->zValue() > backItem->zValue();
         } else {
             QList<QGraphicsItem *> children;
-            if (front_index + 1 < front_stack.size()) {
-                children = front_stack.at(front_index + 1)->childItems();
+            if (frontIndex + 1 < frontStack.size()) {
+                children = frontStack.at(frontIndex + 1)->childItems();
             } else {
                 children = m_graphicsScene->items(Qt::AscendingOrder);
             }
             foreach (const QGraphicsItem *item, children) {
-                if (item == front_item) {
+                if (item == frontItem) {
                     return false;
-                } else if (item == back_item) {
+                } else if (item == backItem) {
                     return true;
                 }
             }

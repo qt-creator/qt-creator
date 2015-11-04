@@ -63,39 +63,39 @@ void TemplateParameterBox::setTextBrush(const QBrush &brush)
     }
 }
 
-void TemplateParameterBox::setTemplateParameters(const QList<QString> &template_parameters)
+void TemplateParameterBox::setTemplateParameters(const QList<QString> &templateParameters)
 {
-    if (m_templateParameters != template_parameters) {
-        m_templateParameters = template_parameters;
+    if (m_templateParameters != templateParameters) {
+        m_templateParameters = templateParameters;
         updateText();
     }
 }
 
-void TemplateParameterBox::setBreakLines(bool break_lines)
+void TemplateParameterBox::setBreakLines(bool breakLines)
 {
-    if (break_lines != m_breakLines) {
-        m_breakLines = break_lines;
+    if (breakLines != m_breakLines) {
+        m_breakLines = breakLines;
         updateText();
     }
 }
 
 void TemplateParameterBox::updateText()
 {
-    QString template_text;
+    QString templateText;
     bool first = true;
     foreach (const QString &parameter, m_templateParameters) {
         if (!first) {
             if (m_breakLines) {
-                template_text += QLatin1Char('\n');
+                templateText += QLatin1Char('\n');
             } else {
-                template_text += QStringLiteral(", ");
+                templateText += QStringLiteral(", ");
             }
         }
-        template_text += parameter;
+        templateText += parameter;
         first = false;
     }
-    if (template_text != m_parametersText->text()) {
-        m_parametersText->setText(template_text);
+    if (templateText != m_parametersText->text()) {
+        m_parametersText->setText(templateText);
         update();
     }
 }

@@ -51,7 +51,7 @@ public:
 
     int id() const;
 
-    void setDoNotMerge(bool do_not_merge);
+    void setDoNotMerge(bool doNotMerge);
 
 public:
 

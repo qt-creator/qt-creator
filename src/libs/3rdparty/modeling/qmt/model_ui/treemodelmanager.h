@@ -60,11 +60,11 @@ public:
 
     TreeModel *getTreeModel() const { return m_treeModel; }
 
-    void setTreeModel(TreeModel *tree_model);
+    void setTreeModel(TreeModel *treeModel);
 
     ModelTreeViewInterface *getModelTreeView() const { return m_modelTreeView; }
 
-    void setModelTreeView(ModelTreeViewInterface *model_tree_view);
+    void setModelTreeView(ModelTreeViewInterface *modelTreeView);
 
 public:
 

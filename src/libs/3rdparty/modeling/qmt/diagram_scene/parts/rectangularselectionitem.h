@@ -86,7 +86,7 @@ public:
 
 public:
 
-    RectangularSelectionItem(IResizable *item_resizer, QGraphicsItem *parent = 0);
+    RectangularSelectionItem(IResizable *itemResizer, QGraphicsItem *parent = 0);
 
     ~RectangularSelectionItem();
 
@@ -110,7 +110,7 @@ public:
 
     bool getShowBorder() const { return m_showBorder; }
 
-    void setShowBorder(bool show_border);
+    void setShowBorder(bool showBorder);
 
     Freedom getFreedom() const { return m_freedom; }
 
@@ -118,13 +118,13 @@ public:
 
     bool isSecondarySelected() const { return m_secondarySelected; }
 
-    void setSecondarySelected(bool secondary_selected);
+    void setSecondarySelected(bool secondarySelected);
 
 private:
 
     void update();
 
-    void moveHandle(Handle handle, const QPointF &delta_move, HandleStatus handle_status, HandleQualifier handle_qualifier);
+    void moveHandle(Handle handle, const QPointF &deltaMove, HandleStatus handleStatus, HandleQualifier handleQualifier);
 
 private:
 

@@ -72,9 +72,9 @@ signals:
 
     void changed();
 
-    void modelClipboardChanged(bool is_empty);
+    void modelClipboardChanged(bool isEmpty);
 
-    void diagramClipboardChanged(bool is_empty);
+    void diagramClipboardChanged(bool isEmpty);
 
 public:
 
@@ -122,7 +122,7 @@ public:
 
     void copyDiagram(const MDiagram *diagram);
 
-    void pasteIntoModel(MObject *model_object);
+    void pasteIntoModel(MObject *modelObject);
 
     void pasteIntoDiagram(MDiagram *diagram);
 
@@ -152,9 +152,9 @@ public:
 
 public:
 
-    void createNewProject(const QString &file_name);
+    void createNewProject(const QString &fileName);
 
-    void loadProject(const QString &file_name);
+    void loadProject(const QString &fileName);
 
 private:
 

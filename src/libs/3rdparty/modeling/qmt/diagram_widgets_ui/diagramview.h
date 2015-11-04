@@ -55,7 +55,7 @@ public:
 
     DiagramSceneModel *getDiagramSceneModel() const;
 
-    void setDiagramSceneModel(DiagramSceneModel *diagram_scene_model);
+    void setDiagramSceneModel(DiagramSceneModel *diagramSceneModel);
 
 protected:
 

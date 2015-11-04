@@ -56,7 +56,7 @@ class ComponentItem :
         public IRelationable
 {
 public:
-    ComponentItem(DComponent *component, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent = 0);
+    ComponentItem(DComponent *component, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
 
     ~ComponentItem();
 
@@ -66,7 +66,7 @@ public:
 
 public:
 
-    bool intersectShapeWithLine(const QLineF &line, QPointF *intersection_point, QLineF *intersection_line) const;
+    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const;
 
 public:
 
@@ -74,15 +74,15 @@ public:
 
 public:
 
-    QList<Latch> getHorizontalLatches(Action action, bool grabbed_item) const;
+    QList<Latch> getHorizontalLatches(Action action, bool grabbedItem) const;
 
-    QList<Latch> getVerticalLatches(Action action, bool grabbed_item) const;
+    QList<Latch> getVerticalLatches(Action action, bool grabbedItem) const;
 
 public:
 
     QPointF getRelationStartPos() const;
 
-    void relationDrawn(const QString &id, const QPointF &to_scene_pos, const QList<QPointF> &intermediate_points);
+    void relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints);
 
 private:
 

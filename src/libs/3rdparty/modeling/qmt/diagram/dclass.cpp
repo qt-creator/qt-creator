@@ -42,14 +42,14 @@ DClass::DClass()
 {
 }
 
-void DClass::setNamespace(const QString &name_space)
+void DClass::setNamespace(const QString &nameSpace)
 {
-    m_namespace = name_space;
+    m_namespace = nameSpace;
 }
 
-void DClass::setTemplateParameters(const QList<QString> &template_parameters)
+void DClass::setTemplateParameters(const QList<QString> &templateParameters)
 {
-    m_templateParameters = template_parameters;
+    m_templateParameters = templateParameters;
 }
 
 void DClass::setMembers(const QList<MClassMember> &members)
@@ -57,19 +57,19 @@ void DClass::setMembers(const QList<MClassMember> &members)
     m_members = members;
 }
 
-void DClass::setVisibleMembers(const QSet<Uid> &visible_members)
+void DClass::setVisibleMembers(const QSet<Uid> &visibleMembers)
 {
-    m_visibleMembers = visible_members;
+    m_visibleMembers = visibleMembers;
 }
 
-void DClass::setTemplateDisplay(DClass::TemplateDisplay template_display)
+void DClass::setTemplateDisplay(DClass::TemplateDisplay templateDisplay)
 {
-    m_templateDisplay = template_display;
+    m_templateDisplay = templateDisplay;
 }
 
-void DClass::setShowAllMembers(bool show_all_members)
+void DClass::setShowAllMembers(bool showAllMembers)
 {
-    m_showAllMembers = show_all_members;
+    m_showAllMembers = showAllMembers;
 }
 
 void DClass::accept(DVisitor *visitor)

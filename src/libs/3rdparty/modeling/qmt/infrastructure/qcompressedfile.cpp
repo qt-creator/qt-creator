@@ -44,9 +44,9 @@ QCompressedDevice::QCompressedDevice(QObject *parent)
 {
 }
 
-QCompressedDevice::QCompressedDevice(QIODevice *target_device, QObject *parent)
+QCompressedDevice::QCompressedDevice(QIODevice *targetDevice, QObject *parent)
     : QIODevice(parent),
-      m_targetDevice(target_device),
+      m_targetDevice(targetDevice),
       m_bytesInBuffer(0),
       m_indexInBuffer(0)
 {
@@ -57,9 +57,9 @@ QCompressedDevice::~QCompressedDevice()
     flush();
 }
 
-void QCompressedDevice::setTargetDevice(QIODevice *target_device)
+void QCompressedDevice::setTargetDevice(QIODevice *targetDevice)
 {
-    m_targetDevice = target_device;
+    m_targetDevice = targetDevice;
 }
 
 void QCompressedDevice::close()
@@ -75,14 +75,14 @@ qint64 QCompressedDevice::readData(char *data, qint64 maxlen)
     QMT_CHECK(m_targetDevice->openMode() == QIODevice::ReadOnly);
 
     if (m_bytesInBuffer == 0) {
-        QByteArray compressed_buffer;
-        int compressed_len = 0;
-        if (m_targetDevice->read((char *) &compressed_len, sizeof(int)) != sizeof(int)) {
+        QByteArray compressedBuffer;
+        int compressedLen = 0;
+        if (m_targetDevice->read((char *) &compressedLen, sizeof(int)) != sizeof(int)) {
             return -1;
         }
-        compressed_buffer.resize(compressed_len);
-        qint64 compressed_bytes = m_targetDevice->read(compressed_buffer.data(), compressed_len);
-        m_buffer = qUncompress((const uchar *) compressed_buffer.data(), compressed_bytes);
+        compressedBuffer.resize(compressedLen);
+        qint64 compressedBytes = m_targetDevice->read(compressedBuffer.data(), compressedLen);
+        m_buffer = qUncompress((const uchar *) compressedBuffer.data(), compressedBytes);
         m_bytesInBuffer = m_buffer.size();
         if (m_bytesInBuffer == 0) {
             return 0;
@@ -104,12 +104,12 @@ qint64 QCompressedDevice::writeData(const char *data, qint64 len)
 
     m_buffer.append(data, len);
     if (m_buffer.size() > 1024*1024) {
-        QByteArray compressed_buffer = qCompress(m_buffer);
-        int compressed_len = (int) compressed_buffer.size();
-        if (m_targetDevice->write((const char *) &compressed_len, sizeof(int)) != sizeof(int)) {
+        QByteArray compressedBuffer = qCompress(m_buffer);
+        int compressedLen = (int) compressedBuffer.size();
+        if (m_targetDevice->write((const char *) &compressedLen, sizeof(int)) != sizeof(int)) {
             return -1;
         }
-        if (m_targetDevice->write(compressed_buffer.data(), compressed_len) != compressed_buffer.size()) {
+        if (m_targetDevice->write(compressedBuffer.data(), compressedLen) != compressedBuffer.size()) {
             return -1;
         }
         m_buffer.clear();
@@ -122,12 +122,12 @@ qint64 QCompressedDevice::flush()
     if (openMode() == QIODevice::WriteOnly && m_buffer.size() > 0) {
         QMT_CHECK(m_targetDevice->isOpen());
         QMT_CHECK(m_targetDevice->openMode() == QIODevice::WriteOnly);
-        QByteArray compressed_buffer = qCompress(m_buffer);
-        int compressed_len = (int) compressed_buffer.size();
-        if (m_targetDevice->write((const char *) &compressed_len, sizeof(int)) != sizeof(int)) {
+        QByteArray compressedBuffer = qCompress(m_buffer);
+        int compressedLen = (int) compressedBuffer.size();
+        if (m_targetDevice->write((const char *) &compressedLen, sizeof(int)) != sizeof(int)) {
             return -1;
         }
-        return m_targetDevice->write(compressed_buffer.data(), compressed_len);
+        return m_targetDevice->write(compressedBuffer.data(), compressedLen);
     }
     return 0;
 }

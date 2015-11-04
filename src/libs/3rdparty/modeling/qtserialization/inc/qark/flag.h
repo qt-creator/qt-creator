@@ -35,15 +35,15 @@ namespace qark {
 
 class Flag {
 public:
-    typedef unsigned int mask_type;
+    typedef unsigned int maskType;
 
     explicit Flag() : m_mask(m_nextMask) { m_nextMask *= 2; }
 
-    mask_type getMask() const { return m_mask; }
+    maskType getMask() const { return m_mask; }
 
 private:
-    static mask_type m_nextMask;
-    mask_type m_mask;
+    static maskType m_nextMask;
+    maskType m_mask;
 };
 
 }

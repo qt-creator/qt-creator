@@ -53,11 +53,11 @@ public:
 
     bool isVarietyEditable() const { return m_varietyEditable; }
 
-    void setVarietyEditable(bool variety_editable);
+    void setVarietyEditable(bool varietyEditable);
 
     bool isShapeEditable() const { return m_shapeEditable; }
 
-    void setShapeEditable(bool shape_editable);
+    void setShapeEditable(bool shapeEditable);
 
 public:
 

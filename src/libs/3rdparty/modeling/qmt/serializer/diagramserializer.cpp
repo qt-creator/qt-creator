@@ -81,33 +81,33 @@ QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DElement)
 // functions for backward compatibility to old visual role
 static DObject::VisualPrimaryRole getVisualRole(const DObject &object)
 {
-    DObject::VisualPrimaryRole visual_role = object.getVisualPrimaryRole();
-    if (visual_role == DObject::DEPRECATED_PRIMARY_ROLE_DARKER
-            || visual_role == DObject::DEPRECATED_PRIMARY_ROLE_LIGHTER
-            || visual_role == DObject::DEPRECATED_PRIMARY_ROLE_OUTLINE
-            || visual_role == DObject::DEPRECATED_PRIMARY_ROLE_SOFTEN) {
+    DObject::VisualPrimaryRole visualRole = object.getVisualPrimaryRole();
+    if (visualRole == DObject::DEPRECATED_PRIMARY_ROLE_DARKER
+            || visualRole == DObject::DEPRECATED_PRIMARY_ROLE_LIGHTER
+            || visualRole == DObject::DEPRECATED_PRIMARY_ROLE_OUTLINE
+            || visualRole == DObject::DEPRECATED_PRIMARY_ROLE_SOFTEN) {
         QMT_CHECK(false);
-        visual_role = DObject::PRIMARY_ROLE_NORMAL;
+        visualRole = DObject::PRIMARY_ROLE_NORMAL;
     }
-    return visual_role;
+    return visualRole;
 }
 
-static void setVisualRole(DObject &object, DObject::VisualPrimaryRole visual_role)
+static void setVisualRole(DObject &object, DObject::VisualPrimaryRole visualRole)
 {
-    if (visual_role == DObject::DEPRECATED_PRIMARY_ROLE_DARKER) {
+    if (visualRole == DObject::DEPRECATED_PRIMARY_ROLE_DARKER) {
         object.setVisualPrimaryRole(DObject::PRIMARY_ROLE_NORMAL);
         object.setVisualSecondaryRole(DObject::SECONDARY_ROLE_DARKER);
-    } else if (visual_role == DObject::DEPRECATED_PRIMARY_ROLE_LIGHTER) {
+    } else if (visualRole == DObject::DEPRECATED_PRIMARY_ROLE_LIGHTER) {
         object.setVisualPrimaryRole(DObject::PRIMARY_ROLE_NORMAL);
         object.setVisualSecondaryRole(DObject::SECONDARY_ROLE_LIGHTER);
-    } else if (visual_role == DObject::DEPRECATED_PRIMARY_ROLE_OUTLINE) {
+    } else if (visualRole == DObject::DEPRECATED_PRIMARY_ROLE_OUTLINE) {
         object.setVisualPrimaryRole(DObject::PRIMARY_ROLE_NORMAL);
         object.setVisualSecondaryRole(DObject::SECONDARY_ROLE_OUTLINE);
-    } else if (visual_role == DObject::DEPRECATED_PRIMARY_ROLE_SOFTEN) {
+    } else if (visualRole == DObject::DEPRECATED_PRIMARY_ROLE_SOFTEN) {
         object.setVisualPrimaryRole(DObject::PRIMARY_ROLE_NORMAL);
         object.setVisualSecondaryRole(DObject::SECONDARY_ROLE_SOFTEN);
     } else {
-        object.setVisualPrimaryRole(visual_role);
+        object.setVisualPrimaryRole(visualRole);
     }
 }
 
@@ -319,13 +319,13 @@ QARK_REGISTER_TYPE_NAME(DAssociationEnd, "DAssociationEnd")
 QARK_ACCESS_SERIALIZE(DAssociationEnd)
 
 template<class Archive>
-inline void Access<Archive, DAssociationEnd>::serialize(Archive &archive, DAssociationEnd &association_end)
+inline void Access<Archive, DAssociationEnd>::serialize(Archive &archive, DAssociationEnd &associationEnd)
 {
-    archive || tag(association_end)
-            || attr(QStringLiteral("name"), association_end, &DAssociationEnd::getName, &DAssociationEnd::setName)
-            || attr(QStringLiteral("cradinality"), association_end, &DAssociationEnd::getCardinality, &DAssociationEnd::setCardinatlity)
-            || attr(QStringLiteral("navigable"), association_end, &DAssociationEnd::isNavigable, &DAssociationEnd::setNavigable)
-            || attr(QStringLiteral("kind"), association_end, &DAssociationEnd::getKind, &DAssociationEnd::setKind)
+    archive || tag(associationEnd)
+            || attr(QStringLiteral("name"), associationEnd, &DAssociationEnd::getName, &DAssociationEnd::setName)
+            || attr(QStringLiteral("cradinality"), associationEnd, &DAssociationEnd::getCardinality, &DAssociationEnd::setCardinatlity)
+            || attr(QStringLiteral("navigable"), associationEnd, &DAssociationEnd::isNavigable, &DAssociationEnd::setNavigable)
+            || attr(QStringLiteral("kind"), associationEnd, &DAssociationEnd::getKind, &DAssociationEnd::setKind)
             || end;
 }
 

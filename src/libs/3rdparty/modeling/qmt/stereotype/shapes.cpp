@@ -168,13 +168,13 @@ void PathShape::arcMoveTo(const ShapePointF &center, const ShapeSizeF &radius, q
     m_elements.append(element);
 }
 
-void PathShape::arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal start_angle, qreal sweep_length)
+void PathShape::arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal sweepLength)
 {
     Element element(TYPE_ARCTO);
     element.m_position = center;
     element.m_size = radius;
-    element.m_angle1 = start_angle;
-    element.m_angle2 = sweep_length;
+    element.m_angle1 = startAngle;
+    element.m_angle2 = sweepLength;
     m_elements.append(element);
 }
 

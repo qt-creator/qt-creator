@@ -53,14 +53,14 @@ TreeModelManager::~TreeModelManager()
 {
 }
 
-void TreeModelManager::setTreeModel(TreeModel *tree_model)
+void TreeModelManager::setTreeModel(TreeModel *treeModel)
 {
-    m_treeModel = tree_model;
+    m_treeModel = treeModel;
 }
 
-void TreeModelManager::setModelTreeView(ModelTreeViewInterface *model_tree_view)
+void TreeModelManager::setModelTreeView(ModelTreeViewInterface *modelTreeView)
 {
-    m_modelTreeView = model_tree_view;
+    m_modelTreeView = modelTreeView;
 }
 
 bool TreeModelManager::isRootPackageSelected() const
@@ -106,16 +106,16 @@ MPackage *TreeModelManager::getSelectedPackage() const
 
 MSelection TreeModelManager::getSelectedObjects() const
 {
-    MSelection model_selection;
+    MSelection modelSelection;
     foreach (const QModelIndex &index, m_modelTreeView->getSelectedSourceModelIndexes()) {
         MElement *element = m_treeModel->getElement(index);
         if (MObject *object = dynamic_cast<MObject *>(element)) {
-            model_selection.append(object->getUid(), m_treeModel->getModelController()->getOwnerKey(object));
+            modelSelection.append(object->getUid(), m_treeModel->getModelController()->getOwnerKey(object));
         } else if (MRelation *relation = dynamic_cast<MRelation *>(element)) {
-            model_selection.append(relation->getUid(), m_treeModel->getModelController()->getOwnerKey(relation));
+            modelSelection.append(relation->getUid(), m_treeModel->getModelController()->getOwnerKey(relation));
         }
     }
-    return model_selection;
+    return modelSelection;
 }
 
 }

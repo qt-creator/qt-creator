@@ -243,11 +243,11 @@ public:
     {
     }
 
-    ArcShape(const ShapePointF &center, const ShapeSizeF &radius, qreal start_angle, qreal span_angle)
+    ArcShape(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal spanAngle)
         : m_center(center),
           m_radius(radius),
-          m_startAngle(start_angle),
-          m_spanAngle(span_angle)
+          m_startAngle(startAngle),
+          m_spanAngle(spanAngle)
     {
     }
 
@@ -336,7 +336,7 @@ public:
 
     void arcMoveTo(const ShapePointF &center, const ShapeSizeF &radius, qreal angle);
 
-    void arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal start_angle, qreal sweep_length);
+    void arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal sweepLength);
 
     void close();
 

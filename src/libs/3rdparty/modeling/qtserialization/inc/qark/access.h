@@ -38,12 +38,12 @@ class Access {
 public:
     static void save(Archive &archive, const T &t)
     {
-        serialize_helper(archive, const_cast<T &>(t));
+        serializeHelper(archive, const_cast<T &>(t));
     }
 
     static void load(Archive &archive, T &t)
     {
-        serialize_helper(archive, t);
+        serializeHelper(archive, t);
     }
 
     static void serialize(Archive &archive, T &t);
@@ -80,7 +80,7 @@ void serialize(Archive &archive, T &t)
 }
 
 template<class Archive, class T>
-void serialize_helper(Archive &archive, T &t)
+void serializeHelper(Archive &archive, T &t)
 {
     serialize(archive, t);
 }
@@ -99,8 +99,8 @@ void serialize_helper(Archive &archive, T &t)
     template<class Archive> \
     class Access<Archive, TYPE> { \
     public: \
-        static inline void save(Archive &archive, const TYPE &t) { serialize_helper(archive, const_cast<TYPE &>(t)); } \
-        static inline void load(Archive &archive, TYPE &t) { serialize_helper(archive, t); } \
+        static inline void save(Archive &archive, const TYPE &t) { serializeHelper(archive, const_cast<TYPE &>(t)); } \
+        static inline void load(Archive &archive, TYPE &t) { serializeHelper(archive, t); } \
         static inline void serialize(Archive &archive, TYPE &); \
     };
 

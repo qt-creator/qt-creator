@@ -45,12 +45,12 @@
 
 namespace qark {
 
-class unregistered_type :
+class unregisteredType :
         public std::exception
 {
 };
 
-class abstract_type :
+class abstractType :
         public std::exception
 {
 };
@@ -63,18 +63,18 @@ template<int N>
 class TypeNameMaps {
 public:
 
-    typedef QHash<QString, QString> map_type;
+    typedef QHash<QString, QString> mapType;
 
 public:
 
-    static map_type &get_name_to_uid_map() { return *typeid_name_to_uid_map; }
+    static mapType &getNameToUidMap() { return *typeidNameToUidMap; }
 
-    static map_type &get_uid_to_name_map() { return *typeid_uid_to_name_map; }
+    static mapType &getUidToNameMap() { return *typeidUidToNameMap; }
 
 #if !defined(QT_NO_DEBUG)
-    static bool has_name_to_uid_map() { return typeid_name_to_uid_map != 0; }
+    static bool hasNameToUidMap() { return typeidNameToUidMap != 0; }
 
-    static bool has_uid_to_name_map() { return typeid_uid_to_name_map != 0; }
+    static bool hasUidToNameMap() { return typeidUidToNameMap != 0; }
 #endif
 
 protected:
@@ -82,28 +82,28 @@ protected:
     static void init()
     {
         static bool initialized = false;
-        static map_type name_to_uid_map;
-        static map_type uid_to_name_map;
+        static mapType nameToUidMap;
+        static mapType uidToNameMap;
 
         if (!initialized) {
-            typeid_name_to_uid_map = &name_to_uid_map;
-            typeid_uid_to_name_map = &uid_to_name_map;
+            typeidNameToUidMap = &nameToUidMap;
+            typeidUidToNameMap = &uidToNameMap;
             initialized = true;
         }
     }
 
 private:
 
-    static map_type *typeid_name_to_uid_map;
+    static mapType *typeidNameToUidMap;
 
-    static map_type *typeid_uid_to_name_map;
+    static mapType *typeidUidToNameMap;
 };
 
 template<int N>
-typename TypeNameMaps<N>::map_type *TypeNameMaps<N>::typeid_name_to_uid_map;
+typename TypeNameMaps<N>::mapType *TypeNameMaps<N>::typeidNameToUidMap;
 
 template<int N>
-typename TypeNameMaps<N>::map_type *TypeNameMaps<N>::typeid_uid_to_name_map;
+typename TypeNameMaps<N>::mapType *TypeNameMaps<N>::typeidUidToNameMap;
 
 
 template<class T>
@@ -121,10 +121,10 @@ private:
     static int __init(const QString &name)
     {
         base::init();
-        QMT_CHECK(!base::get_name_to_uid_map().contains(QLatin1String(typeid(T).name())) || base::get_name_to_uid_map().value(QLatin1String(typeid(T).name())) == name);
-        QMT_CHECK(!base::get_uid_to_name_map().contains(name) || base::get_uid_to_name_map().value(name) == QLatin1String(typeid(T).name()));
-        base::get_name_to_uid_map().insert(QLatin1String(typeid(T).name()), name);
-        base::get_uid_to_name_map().insert(name, QLatin1String(typeid(T).name()));
+        QMT_CHECK(!base::getNameToUidMap().contains(QLatin1String(typeid(T).name())) || base::getNameToUidMap().value(QLatin1String(typeid(T).name())) == name);
+        QMT_CHECK(!base::getUidToNameMap().contains(name) || base::getUidToNameMap().value(name) == QLatin1String(typeid(T).name()));
+        base::getNameToUidMap().insert(QLatin1String(typeid(T).name()), name);
+        base::getUidToNameMap().insert(name, QLatin1String(typeid(T).name()));
         return 0;
     }
 };
@@ -135,61 +135,61 @@ template<class Archive, class BASE>
 class TypeRegistry {
 public:
 
-    struct type_info {
+    struct typeInfo {
 
-        typedef Archive &(*save_func_type)(Archive &, BASE * const &p);
-        typedef Archive &(*load_func_type)(Archive &, BASE * &p);
+        typedef Archive &(*saveFuncType)(Archive &, BASE * const &p);
+        typedef Archive &(*loadFuncType)(Archive &, BASE * &p);
 
-        explicit type_info()
-            : save_func(0),
-              load_func(0)
+        explicit typeInfo()
+            : m_saveFunc(0),
+              m_loadFunc(0)
         {
         }
 
-        explicit type_info(save_func_type sfunc, load_func_type lfunc)
-            : save_func(sfunc),
-              load_func(lfunc)
+        explicit typeInfo(saveFuncType sfunc, loadFuncType lfunc)
+            : m_saveFunc(sfunc),
+              m_loadFunc(lfunc)
         {
         }
 
-        bool operator==(const type_info &rhs) const
+        bool operator==(const typeInfo &rhs) const
         {
-            return save_func == rhs.save_func && load_func == rhs.load_func;
+            return m_saveFunc == rhs.m_saveFunc && m_loadFunc == rhs.m_loadFunc;
         }
 
-        save_func_type save_func;
-        load_func_type load_func;
+        saveFuncType m_saveFunc;
+        loadFuncType m_loadFunc;
     };
 
-    typedef QHash<QString, type_info> map_type;
+    typedef QHash<QString, typeInfo> mapType;
 
 public:
 
-    static map_type &get_map() { return *map; }
+    static mapType &getMap() { return *map; }
 
 #if !defined(QT_NO_DEBUG)
-    static bool has_map() { return map != 0; }
+    static bool hasMap() { return map != 0; }
 #endif
 
 protected:
 
     static void init() {
         static bool initialized = false;
-        static map_type the_map;
+        static mapType theMap;
 
         if (!initialized) {
-            map = &the_map;
+            map = &theMap;
             initialized = true;
         }
     }
 
 private:
 
-    static map_type *map;
+    static mapType *map;
 };
 
 template<class Archive, class BASE>
-typename TypeRegistry<Archive, BASE>::map_type *TypeRegistry<Archive,BASE>::map;
+typename TypeRegistry<Archive, BASE>::mapType *TypeRegistry<Archive,BASE>::map;
 
 
 template<class Archive, class BASE, class DERIVED>
@@ -199,26 +199,26 @@ class DerivedTypeRegistry :
 
     typedef TypeRegistry<Archive, BASE> base;
 
-    typedef Archive &(*save_func_type)(Archive &, BASE * const &);
+    typedef Archive &(*saveFuncType)(Archive &, BASE * const &);
 
-    typedef Archive &(*load_func_type)(Archive &, BASE * &);
+    typedef Archive &(*loadFuncType)(Archive &, BASE * &);
 
 private:
 
     static int __static_init;
 
 private:
-    static int __init(save_func_type sfunc, load_func_type lfunc)
+    static int __init(saveFuncType sfunc, loadFuncType lfunc)
     {
         base::init();
-        QMT_CHECK(!base::get_map().contains(QLatin1String(typeid(DERIVED).name())) || base::get_map().value(QLatin1String(typeid(DERIVED).name())) == typename base::type_info(sfunc, lfunc));
-        base::get_map().insert(QLatin1String(typeid(DERIVED).name()), typename base::type_info(sfunc, lfunc));
+        QMT_CHECK(!base::getMap().contains(QLatin1String(typeid(DERIVED).name())) || base::getMap().value(QLatin1String(typeid(DERIVED).name())) == typename base::typeInfo(sfunc, lfunc));
+        base::getMap().insert(QLatin1String(typeid(DERIVED).name()), typename base::typeInfo(sfunc, lfunc));
         return 0;
     }
 };
 
 template<class Archive, class BASE, class DERIVED>
-Archive &save_pointer(Archive &ar, BASE * const &p)
+Archive &savePointer(Archive &ar, BASE * const &p)
 {
     DERIVED &t = dynamic_cast<DERIVED &>(*p);
     save(ar, t, Parameters());
@@ -226,7 +226,7 @@ Archive &save_pointer(Archive &ar, BASE * const &p)
 }
 
 template<class Archive, class BASE, class DERIVED>
-Archive &load_pointer(Archive &ar, BASE *&p)
+Archive &loadPointer(Archive &ar, BASE *&p)
 {
     DERIVED *t = new DERIVED();
     load(ar, *t, Parameters());
@@ -235,79 +235,79 @@ Archive &load_pointer(Archive &ar, BASE *&p)
 }
 
 template<class Archive, class T>
-typename std::enable_if<!std::is_abstract<T>::value, void>::type load_non_virtual_pointer(Archive &archive, T *&p)
+typename std::enable_if<!std::is_abstract<T>::value, void>::type loadNonVirtualPointer(Archive &archive, T *&p)
 {
-    registry::load_pointer<Archive, T, T>(archive, p);
+    registry::loadPointer<Archive, T, T>(archive, p);
 }
 
 template<class Archive, class T>
-typename std::enable_if<std::is_abstract<T>::value, void>::type load_non_virtual_pointer(Archive &archive, T *&p)
+typename std::enable_if<std::is_abstract<T>::value, void>::type loadNonVirtualPointer(Archive &archive, T *&p)
 {
     (void) archive;
     (void) p;
 
-    throw abstract_type();
+    throw abstractType();
 }
 
-inline QString demangle_typename(const char *mangled_name)
+inline QString demangleTypename(const char *mangledName)
 {
-    // TODO convert compiler specific mangled_name into human readable type name
-    return QLatin1String(mangled_name);
+    // TODO convert compiler specific mangledName into human readable type name
+    return QLatin1String(mangledName);
 }
 
-inline QString flatten_typename(const char *type_name)
+inline QString flattenTypename(const char *typeName)
 {
     // convert C++ type name into simple identifier (no extra characters)
-    return QString(QLatin1String(type_name)).replace(QChar(QLatin1Char(':')), QLatin1String("-"));
+    return QString(QLatin1String(typeName)).replace(QChar(QLatin1Char(':')), QLatin1String("-"));
 }
 
 }
 
 template<class T>
-QString get_type_uid()
+QString getTypeUid()
 {
-#if !defined(QT_NO_DEBUG) // avoid warning about unused function ::has_name_to_uid_map in Qt >= 5.5
-    QMT_CHECK_X((registry::TypeNameRegistry<T>::has_name_to_uid_map()), "get_type_uid<T>()", "type maps are not correctly initialized");
-    QMT_CHECK_X((registry::TypeNameRegistry<T>::get_name_to_uid_map().contains(QLatin1String(typeid(T).name()))), "get_type_uid<T>()",
-                qPrintable(QString(QLatin1String("type with typeid %1 is not registered. Use QARK_REGISTER_TYPE or QARK_REGISTER_TYPE_NAME.")).arg(registry::demangle_typename(typeid(T).name()))));
+#if !defined(QT_NO_DEBUG) // avoid warning about unused function ::hasNameToUidMap in Qt >= 5.5
+    QMT_CHECK_X((registry::TypeNameRegistry<T>::hasNameToUidMap()), "getTypeUid<T>()", "type maps are not correctly initialized");
+    QMT_CHECK_X((registry::TypeNameRegistry<T>::getNameToUidMap().contains(QLatin1String(typeid(T).name()))), "getTypeUid<T>()",
+                qPrintable(QString(QLatin1String("type with typeid %1 is not registered. Use QARK_REGISTER_TYPE or QARK_REGISTER_TYPE_NAME.")).arg(registry::demangleTypename(typeid(T).name()))));
 #endif
-    return registry::TypeNameRegistry<T>::get_name_to_uid_map().value(QLatin1String(typeid(T).name()));
+    return registry::TypeNameRegistry<T>::getNameToUidMap().value(QLatin1String(typeid(T).name()));
 }
 
 template<class T>
-QString get_type_uid(const T &t)
+QString getTypeUid(const T &t)
 {
     Q_UNUSED(t);
-#if !defined(QT_NO_DEBUG) // avoid warning about unused function ::has_name_to_uid_map in Qt >= 5.5
-    QMT_CHECK_X((registry::TypeNameRegistry<T>::has_name_to_uid_map()), "get_type_uid<T>()", "type maps are not correctly initialized");
-    QMT_CHECK_X((registry::TypeNameRegistry<T>::get_name_to_uid_map().contains(QLatin1String(typeid(t).name()))), "get_type_uid<T>()",
-                qPrintable(QString(QLatin1String("type with typeid %1 is not registered. Use QARK_REGISTER_TYPE or QARK_REGISTER_TYPE_NAME.")).arg(registry::demangle_typename(typeid(t).name()))));
+#if !defined(QT_NO_DEBUG) // avoid warning about unused function ::hasNameToUidMap in Qt >= 5.5
+    QMT_CHECK_X((registry::TypeNameRegistry<T>::hasNameToUidMap()), "getTypeUid<T>()", "type maps are not correctly initialized");
+    QMT_CHECK_X((registry::TypeNameRegistry<T>::getNameToUidMap().contains(QLatin1String(typeid(t).name()))), "getTypeUid<T>()",
+                qPrintable(QString(QLatin1String("type with typeid %1 is not registered. Use QARK_REGISTER_TYPE or QARK_REGISTER_TYPE_NAME.")).arg(registry::demangleTypename(typeid(t).name()))));
 #endif
-    return registry::TypeNameRegistry<T>::get_name_to_uid_map().value(QLatin1String(typeid(t).name()));
+    return registry::TypeNameRegistry<T>::getNameToUidMap().value(QLatin1String(typeid(t).name()));
 }
 
 template<class Archive, class T>
-typename registry::TypeRegistry<Archive, T>::type_info get_type_info(const T &t)
+typename registry::TypeRegistry<Archive, T>::typeInfo getTypeInfo(const T &t)
 {
     Q_UNUSED(t);
-#if !defined(QT_NO_DEBUG) // avoid warning about unused function ::has_name_to_uid_map in Qt >= 5.5
-    QMT_CHECK_X((registry::TypeRegistry<Archive,T>::has_map()),
-                qPrintable(QString(QLatin1String("TypeRegistry<Archive, %1>::get_type_info(const T&)")).arg(get_type_uid<T>())),
-                qPrintable(QString(QLatin1String("%1 is not a registered base class. Declare your derived classes with QARK_REGISTER_DERIVED_CLASS.")).arg(get_type_uid<T>())));
+#if !defined(QT_NO_DEBUG) // avoid warning about unused function ::hasNameToUidMap in Qt >= 5.5
+    QMT_CHECK_X((registry::TypeRegistry<Archive,T>::hasMap()),
+                qPrintable(QString(QLatin1String("TypeRegistry<Archive, %1>::getTypeInfo(const T&)")).arg(getTypeUid<T>())),
+                qPrintable(QString(QLatin1String("%1 is not a registered base class. Declare your derived classes with QARK_REGISTER_DERIVED_CLASS.")).arg(getTypeUid<T>())));
 #endif
-    return registry::TypeRegistry<Archive,T>::get_map()[QLatin1String(typeid(t).name())];
+    return registry::TypeRegistry<Archive,T>::getMap()[QLatin1String(typeid(t).name())];
 }
 
 template<class Archive, class T>
-typename registry::TypeRegistry<Archive,T>::type_info get_type_info(const QString &uid)
+typename registry::TypeRegistry<Archive,T>::typeInfo getTypeInfo(const QString &uid)
 {
-#if !defined(QT_NO_DEBUG) // avoid warning about unused function ::has_name_to_uid_map in Qt >= 5.5
-    QMT_CHECK_X((registry::TypeNameRegistry<T>::has_uid_to_name_map()), "get_type_info<T>(const QString &)", "type maps are not correctly initialized");
-    QMT_CHECK_X((registry::TypeRegistry<Archive,T>::has_map()),
-                qPrintable(QString(QLatin1String("TypeRegistry<Archive, %1>::get_type_info(const QString &)")).arg(get_type_uid<T>())),
-                qPrintable(QString(QLatin1String("%1 is not a registered base class. Declare your derived classes with QARK_REGISTER_DERIVED_CLASS.")).arg(get_type_uid<T>())));
+#if !defined(QT_NO_DEBUG) // avoid warning about unused function ::hasNameToUidMap in Qt >= 5.5
+    QMT_CHECK_X((registry::TypeNameRegistry<T>::hasUidToNameMap()), "getTypeInfo<T>(const QString &)", "type maps are not correctly initialized");
+    QMT_CHECK_X((registry::TypeRegistry<Archive,T>::hasMap()),
+                qPrintable(QString(QLatin1String("TypeRegistry<Archive, %1>::getTypeInfo(const QString &)")).arg(getTypeUid<T>())),
+                qPrintable(QString(QLatin1String("%1 is not a registered base class. Declare your derived classes with QARK_REGISTER_DERIVED_CLASS.")).arg(getTypeUid<T>())));
 #endif
-    return registry::TypeRegistry<Archive,T>::get_map().value(registry::TypeNameRegistry<T>::get_uid_to_name_map().value(uid));
+    return registry::TypeRegistry<Archive,T>::getMap().value(registry::TypeNameRegistry<T>::getUidToNameMap().value(uid));
 }
 
 }
@@ -321,18 +321,18 @@ typename registry::TypeRegistry<Archive,T>::type_info get_type_info(const QStrin
 
 #define QARK_REGISTER_TYPE(T) \
     template<> \
-    int qark::registry::TypeNameRegistry<T>::__static_init = qark::registry::TypeNameRegistry<T>::__init(qark::registry::flatten_typename(QARK_TYPE_STRING(T)));
+    int qark::registry::TypeNameRegistry<T>::__static_init = qark::registry::TypeNameRegistry<T>::__init(qark::registry::flattenTypename(QARK_TYPE_STRING(T)));
 
 #define QARK_REGISTER_DERIVED_CLASS(INARCHIVE, OUTARCHIVE, DERIVED, BASE) \
     template<> \
     int qark::registry::DerivedTypeRegistry<INARCHIVE,BASE,DERIVED>::__static_init = \
-            qark::registry::DerivedTypeRegistry<INARCHIVE, BASE, DERIVED>::__init(0, qark::registry::load_pointer<INARCHIVE, BASE, DERIVED>); \
+            qark::registry::DerivedTypeRegistry<INARCHIVE, BASE, DERIVED>::__init(0, qark::registry::loadPointer<INARCHIVE, BASE, DERIVED>); \
     template<> \
     int qark::registry::DerivedTypeRegistry<OUTARCHIVE, BASE, DERIVED>::__static_init = \
-            qark::registry::DerivedTypeRegistry<OUTARCHIVE, BASE, DERIVED>::__init(qark::registry::save_pointer<OUTARCHIVE, BASE, DERIVED>, 0); \
+            qark::registry::DerivedTypeRegistry<OUTARCHIVE, BASE, DERIVED>::__init(qark::registry::savePointer<OUTARCHIVE, BASE, DERIVED>, 0); \
     template<> \
     int qark::registry::DerivedTypeRegistry<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>::__static_init = \
             qark::registry::DerivedTypeRegistry<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>:: \
-                __init(qark::registry::save_pointer<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>, 0);
+                __init(qark::registry::savePointer<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>, 0);
 
 #endif // QARK_TYPEREGISTRY_H

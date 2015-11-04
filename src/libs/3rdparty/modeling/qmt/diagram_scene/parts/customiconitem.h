@@ -51,17 +51,17 @@ class CustomIconItem :
 
 public:
 
-    CustomIconItem(DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent = 0);
+    CustomIconItem(DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
 
     ~CustomIconItem();
 
 public:
 
-    void setStereotypeIconId(const QString &stereotype_icon_id);
+    void setStereotypeIconId(const QString &stereotypeIconId);
 
-    void setBaseSize(const QSizeF &base_size);
+    void setBaseSize(const QSizeF &baseSize);
 
-    void setActualSize(const QSizeF &actual_size);
+    void setActualSize(const QSizeF &actualSize);
 
     void setBrush(const QBrush &brush);
 

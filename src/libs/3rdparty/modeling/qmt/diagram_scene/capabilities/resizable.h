@@ -60,9 +60,9 @@ public:
 
     virtual QSizeF getMinimumSize() const = 0;
 
-    virtual void setPosAndRect(const QPointF &original_pos, const QRectF &original_rect, const QPointF &top_left_delta, const QPointF &bottom_right_delta) = 0;
+    virtual void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta) = 0;
 
-    virtual void alignItemSizeToRaster(Side adjust_horizontal_side, Side adjust_vertical_side, double raster_width, double raster_height) = 0;
+    virtual void alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide, double rasterWidth, double rasterHeight) = 0;
 };
 
 }

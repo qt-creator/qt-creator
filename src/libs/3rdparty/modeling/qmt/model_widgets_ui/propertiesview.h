@@ -74,31 +74,31 @@ public:
 
     ModelController *getModelController() const { return m_modelController; }
 
-    void setModelController(ModelController *model_controller);
+    void setModelController(ModelController *modelController);
 
     DiagramController *getDiagramController() const { return m_diagramController; }
 
-    void setDiagramController(DiagramController *diagram_controller);
+    void setDiagramController(DiagramController *diagramController);
 
     StereotypeController *getStereotypeController() const { return m_stereotypeController; }
 
-    void setStereotypeController(StereotypeController *stereotype_controller);
+    void setStereotypeController(StereotypeController *stereotypeController);
 
     StyleController *getStyleController() const { return m_styleController; }
 
-    void setStyleController(StyleController *style_controller);
+    void setStyleController(StyleController *styleController);
 
 public:
 
     QList<MElement *> getSelectedModelElements() const { return m_selectedModelElements; }
 
-    void setSelectedModelElements(const QList<MElement *> &model_elements);
+    void setSelectedModelElements(const QList<MElement *> &modelElements);
 
     QList<DElement *> getSelectedDiagramElements() const { return m_selectedDiagramElements; }
 
     MDiagram *getSelectedDiagram() const { return m_selectedDiagram; }
 
-    void setSelectedDiagramElements(const QList<DElement *> &diagram_elements, MDiagram *diagram);
+    void setSelectedDiagramElements(const QList<DElement *> &diagramElements, MDiagram *diagram);
 
     void clearSelection();
 
@@ -126,7 +126,7 @@ private slots:
 
     void onEndRemoveObject(int row, const MObject *parent);
 
-    void onBeginMoveObject(int former_row, const MObject *former_owner);
+    void onBeginMoveObject(int formerRow, const MObject *formerOwner);
 
     void onEndMoveObject(int row, const MObject *owner);
 
@@ -142,11 +142,11 @@ private slots:
 
     void onEndRemoveRelation(int row, const MObject *parent);
 
-    void onBeginMoveRelation(int former_row, const MObject *former_owner);
+    void onBeginMoveRelation(int formerRow, const MObject *formerOwner);
 
     void onEndMoveRelation(int row, const MObject *owner);
 
-    void onRelationEndChanged(MRelation *relation, MObject *end_object);
+    void onRelationEndChanged(MRelation *relation, MObject *endObject);
 
 private slots:
 
@@ -172,13 +172,13 @@ private slots:
 
 private:
 
-    void beginUpdate(MElement *model_element);
+    void beginUpdate(MElement *modelElement);
 
-    void endUpdate(MElement *model_element, bool cancelled);
+    void endUpdate(MElement *modelElement, bool cancelled);
 
-    void beginUpdate(DElement *diagram_element);
+    void beginUpdate(DElement *diagramElement);
 
-    void endUpdate(DElement *diagram_element, bool cancelled);
+    void endUpdate(DElement *diagramElement, bool cancelled);
 
 private:
 

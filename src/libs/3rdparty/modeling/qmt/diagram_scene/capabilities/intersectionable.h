@@ -46,7 +46,7 @@ public:
 
     virtual ~IIntersectionable() { }
 
-    virtual bool intersectShapeWithLine(const QLineF &line, QPointF *intersection_point, QLineF *intersection_line = 0) const = 0;
+    virtual bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine = 0) const = 0;
 
 };
 

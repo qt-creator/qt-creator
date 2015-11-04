@@ -88,7 +88,7 @@ bool operator==(const Handle<T> &lhs, const Handle<U> &rhs)
 }
 
 template<class T>
-Handle<T> make_handle(T *t)
+Handle<T> makeHandle(T *t)
 {
     return Handle<T>(t);
 }

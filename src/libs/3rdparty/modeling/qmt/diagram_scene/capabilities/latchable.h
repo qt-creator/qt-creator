@@ -66,11 +66,11 @@ public:
         {
         }
 
-        Latch(LatchType latch_type, qreal pos, qreal other_pos1, qreal other_pos2, const QString &identifier)
-            : m_latchType(latch_type),
+        Latch(LatchType latchType, qreal pos, qreal otherPos1, qreal otherPos2, const QString &identifier)
+            : m_latchType(latchType),
               m_pos(pos),
-              m_otherPos1(other_pos1),
-              m_otherPos2(other_pos2),
+              m_otherPos1(otherPos1),
+              m_otherPos2(otherPos2),
               m_identifier(identifier)
         {
         }
@@ -85,9 +85,9 @@ public:
 
     virtual ~ILatchable() { }
 
-    virtual QList<Latch> getHorizontalLatches(Action action, bool grabbed_item) const = 0;
+    virtual QList<Latch> getHorizontalLatches(Action action, bool grabbedItem) const = 0;
 
-    virtual QList<Latch> getVerticalLatches(Action action, bool grabbed_item) const = 0;
+    virtual QList<Latch> getVerticalLatches(Action action, bool grabbedItem) const = 0;
 
 };
 

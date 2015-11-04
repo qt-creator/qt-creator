@@ -56,20 +56,20 @@ void AlignLineItem::setLine(qreal pos)
     setLine(pos, 0.0, 0.0);
 }
 
-void AlignLineItem::setLine(qreal pos, qreal other_pos1, qreal other_pos2)
+void AlignLineItem::setLine(qreal pos, qreal otherPos1, qreal otherPos2)
 {
-    QRectF scene_rect = scene()->sceneRect();
+    QRectF sceneRect = scene()->sceneRect();
     switch (m_direction) {
     case HORIZONTAL:
-        m_alignLine->setLine(scene_rect.left() + 1.0, pos, scene_rect.right() - 1.0, pos);
-        m_highlightLine->setLine(other_pos1, pos, other_pos2, pos);
+        m_alignLine->setLine(sceneRect.left() + 1.0, pos, sceneRect.right() - 1.0, pos);
+        m_highlightLine->setLine(otherPos1, pos, otherPos2, pos);
         break;
     case VERTICAL:
-        m_alignLine->setLine(pos, scene_rect.top() + 1.0, pos, scene_rect.bottom() - 1.0);
-        m_highlightLine->setLine(pos, other_pos1, pos, other_pos2);
+        m_alignLine->setLine(pos, sceneRect.top() + 1.0, pos, sceneRect.bottom() - 1.0);
+        m_highlightLine->setLine(pos, otherPos1, pos, otherPos2);
         break;
     }
-    m_highlightLine->setVisible(other_pos1 - other_pos2 != 0);
+    m_highlightLine->setVisible(otherPos1 - otherPos2 != 0);
 }
 
 QRectF AlignLineItem::boundingRect() const

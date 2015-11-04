@@ -51,15 +51,15 @@ private:
 
 public:
 
-    static QString convertFileNameToElementName(const QString &file_name);
+    static QString convertFileNameToElementName(const QString &fileName);
 
-    static QString convertElementNameToBaseFileName(const QString &element_name);
+    static QString convertElementNameToBaseFileName(const QString &elementName);
 
-    static QString calcRelativePath(const QString &absolute_file_name, const QString &anchor_path);
+    static QString calcRelativePath(const QString &absoluteFileName, const QString &anchorPath);
 
-    static QString calcElementNameSearchId(const QString &element_name);
+    static QString calcElementNameSearchId(const QString &elementName);
 
-    static QList<QString> buildElementsPath(const QString &file_path, bool ignore_last_file_path_part);
+    static QList<QString> buildElementsPath(const QString &filePath, bool ignoreLastFilePathPart);
 
 private:
 

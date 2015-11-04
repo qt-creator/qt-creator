@@ -49,7 +49,7 @@ class AssociationItem :
 {
 public:
 
-    AssociationItem(DAssociation *association, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent = 0);
+    AssociationItem(DAssociation *association, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
 
     ~AssociationItem();
 
@@ -59,9 +59,9 @@ protected:
 
 private:
 
-    void updateEndLabels(const DAssociationEnd &end, const DAssociationEnd &other_end, QGraphicsSimpleTextItem **end_name, QGraphicsSimpleTextItem **end_cardinality, const Style *style);
+    void updateEndLabels(const DAssociationEnd &end, const DAssociationEnd &otherEnd, QGraphicsSimpleTextItem **endName, QGraphicsSimpleTextItem **endCardinality, const Style *style);
 
-    void placeEndLabels(const QLineF &line_segment, QGraphicsItem *end_name, QGraphicsItem *end_cardinality, QGraphicsItem *end_item, double head_length);
+    void placeEndLabels(const QLineF &lineSegment, QGraphicsItem *endName, QGraphicsItem *endCardinality, QGraphicsItem *endItem, double headLength);
 
 private:
 

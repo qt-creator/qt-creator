@@ -55,7 +55,7 @@ public:
 
 public:
 
-    void setStereotypeController(StereotypeController *stereotype_controller);
+    void setStereotypeController(StereotypeController *stereotypeController);
 
 public:
 
@@ -63,7 +63,7 @@ public:
 
 private slots:
 
-    void onStereotypeIconParsed(const StereotypeIcon &stereotype_icon);
+    void onStereotypeIconParsed(const StereotypeIcon &stereotypeIcon);
 
     void onToolbarParsed(const Toolbar &toolbar);
 

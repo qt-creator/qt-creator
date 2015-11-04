@@ -87,15 +87,15 @@ public:
 
     ModelController *getModelController() const { return m_modelController; }
 
-    void setModelController(ModelController *model_controller);
+    void setModelController(ModelController *modelController);
 
     StereotypeController *getStereotypeController() const { return m_stereotypeController; }
 
-    void setStereotypeController(StereotypeController *stereotype_controller);
+    void setStereotypeController(StereotypeController *stereotypeController);
 
     StyleController *getStyleController() const { return m_styleController; }
 
-    void setStyleController(StyleController *style_controller);
+    void setStyleController(StyleController *styleController);
 
     MElement *getElement(const QModelIndex &index) const;
 
@@ -127,7 +127,7 @@ private slots:
 
     void onEndRemoveObject(int row, const MObject *parent);
 
-    void onBeginMoveObject(int former_row, const MObject *former_owner);
+    void onBeginMoveObject(int formerRow, const MObject *formerOwner);
 
     void onEndMoveObject(int row, const MObject *owner);
 
@@ -143,11 +143,11 @@ private slots:
 
     void onEndRemoveRelation(int row, const MObject *parent);
 
-    void onBeginMoveRelation(int former_row, const MObject *former_owner);
+    void onBeginMoveRelation(int formerRow, const MObject *formerOwner);
 
     void onEndMoveRelation(int row, const MObject *owner);
 
-    void onRelationEndChanged(MRelation *relation, MObject *end_object);
+    void onRelationEndChanged(MRelation *relation, MObject *endObject);
 
     void onModelDataChanged(const QModelIndex &topleft, const QModelIndex &bottomright);
 
@@ -157,7 +157,7 @@ private:
 
     ModelItem *createItem(const MElement *element);
 
-    void createChildren(const MObject *parent_object, ModelItem *parent_item);
+    void createChildren(const MObject *parentObject, ModelItem *parentItem);
 
     void removeObjectFromItemMap(const MObject *object);
 
@@ -165,7 +165,7 @@ private:
 
     QString createRelationLabel(const MRelation *relation);
 
-    QIcon createIcon(StereotypeIcon::Element stereotype_icon_element, StyleEngine::ElementType style_element_type, const QStringList &stereotypes, const QString &default_icon_path);
+    QIcon createIcon(StereotypeIcon::Element stereotypeIconElement, StyleEngine::ElementType styleElementType, const QStringList &stereotypes, const QString &defaultIconPath);
 
 private:
     enum Busy {

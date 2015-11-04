@@ -89,9 +89,9 @@ void DRelation::setName(const QString &name)
     m_name = name;
 }
 
-void DRelation::setIntermediatePoints(const QList<DRelation::IntermediatePoint> &intermediate_points)
+void DRelation::setIntermediatePoints(const QList<DRelation::IntermediatePoint> &intermediatePoints)
 {
-    m_intermediatePoints = intermediate_points;
+    m_intermediatePoints = intermediatePoints;
 }
 
 }

@@ -42,7 +42,7 @@ class QMT_EXPORT DiagramSceneModel::CreationVisitor :
 {
 public:
 
-    CreationVisitor(DiagramSceneModel *diagram_scene_model);
+    CreationVisitor(DiagramSceneModel *diagramSceneModel);
 
 public:
 
@@ -88,7 +88,7 @@ class DiagramSceneModel::UpdateVisitor :
 {
 public:
 
-    UpdateVisitor(QGraphicsItem *item, DiagramSceneModel *diagram_scene_model, DElement *related_element = 0);
+    UpdateVisitor(QGraphicsItem *item, DiagramSceneModel *diagramSceneModel, DElement *relatedElement = 0);
 
 public:
 

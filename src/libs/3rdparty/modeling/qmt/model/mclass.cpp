@@ -65,14 +65,14 @@ MClass &MClass::operator=(const MClass &rhs)
     return *this;
 }
 
-void MClass::setNamespace(const QString &name_space)
+void MClass::setNamespace(const QString &nameSpace)
 {
-    m_namespace = name_space;
+    m_namespace = nameSpace;
 }
 
-void MClass::setTemplateParameters(const QList<QString> &template_parameters)
+void MClass::setTemplateParameters(const QList<QString> &templateParameters)
 {
-    m_templateParameters = template_parameters;
+    m_templateParameters = templateParameters;
 }
 
 void MClass::setMembers(const QList<MClassMember> &members)
@@ -85,9 +85,9 @@ void MClass::addMember(const MClassMember &member)
     m_members.append(member);
 }
 
-void MClass::insertMember(int before_index, const MClassMember &member)
+void MClass::insertMember(int beforeIndex, const MClassMember &member)
 {
-    m_members.insert(before_index, member);
+    m_members.insert(beforeIndex, member);
 }
 
 void MClass::removeMember(const Uid &uid)

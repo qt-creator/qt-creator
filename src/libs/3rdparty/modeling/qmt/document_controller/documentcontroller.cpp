@@ -181,10 +181,10 @@ void DocumentController::copyDiagram(const MDiagram *diagram)
     m_diagramsManager->getDiagramSceneModel(diagram)->copyToClipboard();
 }
 
-void DocumentController::pasteIntoModel(MObject *model_object)
+void DocumentController::pasteIntoModel(MObject *modelObject)
 {
-    if (model_object) {
-        m_modelController->pasteElements(model_object, *m_modelClipboard);
+    if (modelObject) {
+        m_modelController->pasteElements(modelObject, *m_modelClipboard);
     }
 }
 
@@ -218,83 +218,83 @@ void DocumentController::selectAllOnDiagram(MDiagram *diagram)
 
 MPackage *DocumentController::createNewPackage(MPackage *parent)
 {
-    MPackage *new_package = new MPackage();
-    new_package->setName(tr("New Package"));
-    m_modelController->addObject(parent, new_package);
-    return new_package;
+    MPackage *newPackage = new MPackage();
+    newPackage->setName(tr("New Package"));
+    m_modelController->addObject(parent, newPackage);
+    return newPackage;
 }
 
 MClass *DocumentController::createNewClass(MPackage *parent)
 {
-    MClass *new_class = new MClass();
-    new_class->setName(tr("New Class"));
-    m_modelController->addObject(parent, new_class);
-    return new_class;
+    MClass *newClass = new MClass();
+    newClass->setName(tr("New Class"));
+    m_modelController->addObject(parent, newClass);
+    return newClass;
 }
 
 MComponent *DocumentController::createNewComponent(MPackage *parent)
 {
-    MComponent *new_component = new MComponent();
-    new_component->setName(tr("New Component"));
-    m_modelController->addObject(parent, new_component);
-    return new_component;
+    MComponent *newComponent = new MComponent();
+    newComponent->setName(tr("New Component"));
+    m_modelController->addObject(parent, newComponent);
+    return newComponent;
 }
 
 MCanvasDiagram *DocumentController::createNewCanvasDiagram(MPackage *parent)
 {
-    MCanvasDiagram *new_diagram = new MCanvasDiagram();
+    MCanvasDiagram *newDiagram = new MCanvasDiagram();
     if (!m_diagramSceneController->findDiagramBySearchId(parent, parent->getName())) {
-        new_diagram->setName(parent->getName());
+        newDiagram->setName(parent->getName());
     } else {
-        new_diagram->setName(tr("New Diagram"));
+        newDiagram->setName(tr("New Diagram"));
     }
-    m_modelController->addObject(parent, new_diagram);
-    return new_diagram;
+    m_modelController->addObject(parent, newDiagram);
+    return newDiagram;
 }
 
 MDiagram *DocumentController::findRootDiagram()
 {
     FindRootDiagramVisitor visitor;
     m_modelController->getRootPackage()->accept(&visitor);
-    MDiagram *root_diagram = visitor.getDiagram();
-    return root_diagram;
+    MDiagram *rootDiagram = visitor.getDiagram();
+    return rootDiagram;
 }
 
 MDiagram *DocumentController::findOrCreateRootDiagram()
 {
-    MDiagram *root_diagram = findRootDiagram();
-    if (!root_diagram) {
-        root_diagram = createNewCanvasDiagram(m_modelController->getRootPackage());
-        m_modelController->startUpdateObject(root_diagram);
+    MDiagram *rootDiagram = findRootDiagram();
+    if (!rootDiagram) {
+        rootDiagram = createNewCanvasDiagram(m_modelController->getRootPackage());
+        m_modelController->startUpdateObject(rootDiagram);
         if (m_projectController->getProject()->hasFileName()) {
-           root_diagram->setName(NameController::convertFileNameToElementName(m_projectController->getProject()->getFileName()));
+           rootDiagram->setName(NameController::convertFileNameToElementName(m_projectController->getProject()->getFileName()));
         }
-        m_modelController->finishUpdateObject(root_diagram, false);
+        m_modelController->finishUpdateObject(rootDiagram, false);
     }
-    return root_diagram;
+    return rootDiagram;
 }
 
-void DocumentController::createNewProject(const QString &file_name)
+void DocumentController::createNewProject(const QString &fileName)
 {
     m_diagramsManager->removeAllDiagrams();
     m_treeModel->setModelController(0);
     m_modelController->setRootPackage(0);
     m_undoController->reset();
 
-    m_projectController->newProject(file_name);
+    m_projectController->newProject(fileName);
 
     m_treeModel->setModelController(m_modelController);
     m_modelController->setRootPackage(m_projectController->getProject()->getRootPackage());
 }
 
-void DocumentController::loadProject(const QString &file_name)
+void DocumentController::loadProject(const QString &fileName)
 {
     m_diagramsManager->removeAllDiagrams();
     m_treeModel->setModelController(0);
     m_modelController->setRootPackage(0);
     m_undoController->reset();
 
-    m_projectController->newProject(file_name);
+    m_projectController->newProject(fileName);
     m_projectController->load();
 
     m_treeModel->setModelController(m_modelController);

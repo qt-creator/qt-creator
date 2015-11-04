@@ -55,9 +55,9 @@ void StringTextSource::setText(const QString &text)
     m_columnNumber = 1;
 }
 
-void StringTextSource::setSourceId(int source_id)
+void StringTextSource::setSourceId(int sourceId)
 {
-    m_sourceId = source_id;
+    m_sourceId = sourceId;
 }
 
 SourceChar StringTextSource::readNextChar()

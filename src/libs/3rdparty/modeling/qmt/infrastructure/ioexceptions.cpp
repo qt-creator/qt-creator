@@ -32,45 +32,45 @@
 
 namespace qmt {
 
-IOException::IOException(const QString &error_msg)
-    : Exception(error_msg)
+IOException::IOException(const QString &errorMsg)
+    : Exception(errorMsg)
 {
 }
 
-FileIOException::FileIOException(const QString &error_msg, const QString &file_name, int line_number)
-    : IOException(error_msg),
-      m_fileName(file_name),
-      m_lineNumber(line_number)
+FileIOException::FileIOException(const QString &errorMsg, const QString &fileName, int lineNumber)
+    : IOException(errorMsg),
+      m_fileName(fileName),
+      m_lineNumber(lineNumber)
 {
 }
 
-FileNotFoundException::FileNotFoundException(const QString &file_name)
-    : FileIOException(QStringLiteral("file not found"), file_name)
+FileNotFoundException::FileNotFoundException(const QString &fileName)
+    : FileIOException(QStringLiteral("file not found"), fileName)
 {
 }
 
-FileCreationException::FileCreationException(const QString &file_name)
-    : FileIOException(QStringLiteral("unable to create file"), file_name)
+FileCreationException::FileCreationException(const QString &fileName)
+    : FileIOException(QStringLiteral("unable to create file"), fileName)
 {
 }
 
-FileWriteError::FileWriteError(const QString &file_name, int line_number)
-    : FileIOException(QStringLiteral("writing to file failed"), file_name, line_number)
+FileWriteError::FileWriteError(const QString &fileName, int lineNumber)
+    : FileIOException(QStringLiteral("writing to file failed"), fileName, lineNumber)
 {
 }
 
-FileReadError::FileReadError(const QString &file_name, int line_number)
-    : FileIOException(QStringLiteral("reading from file failed"), file_name, line_number)
+FileReadError::FileReadError(const QString &fileName, int lineNumber)
+    : FileIOException(QStringLiteral("reading from file failed"), fileName, lineNumber)
 {
 }
 
-IllegalXmlFile::IllegalXmlFile(const QString &file_name, int line_number)
-    : FileIOException(QStringLiteral("illegal xml file"), file_name, line_number)
+IllegalXmlFile::IllegalXmlFile(const QString &fileName, int lineNumber)
+    : FileIOException(QStringLiteral("illegal xml file"), fileName, lineNumber)
 {
 }
 
-UnknownFileVersion::UnknownFileVersion(int version, const QString &file_name, int line_number)
-    : FileIOException(QString(QStringLiteral("unable to handle file version %1")).arg(version), file_name, line_number)
+UnknownFileVersion::UnknownFileVersion(int version, const QString &fileName, int lineNumber)
+    : FileIOException(QString(QStringLiteral("unable to handle file version %1")).arg(version), fileName, lineNumber)
 {
 }
 

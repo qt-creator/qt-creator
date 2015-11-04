@@ -122,23 +122,23 @@ public:
 
     VisualPrimaryRole getVisualPrimaryRole() const { return m_visualPrimaryRole; }
 
-    void setVisualPrimaryRole(VisualPrimaryRole visual_primary_role);
+    void setVisualPrimaryRole(VisualPrimaryRole visualPrimaryRole);
 
     VisualSecondaryRole getVisualSecondaryRole() const { return m_visualSecondaryRole; }
 
-    void setVisualSecondaryRole(VisualSecondaryRole visual_secondary_role);
+    void setVisualSecondaryRole(VisualSecondaryRole visualSecondaryRole);
 
     StereotypeDisplay getStereotypeDisplay() const { return m_stereotypeDisplay; }
 
-    void setStereotypeDisplay(StereotypeDisplay stereotype_display);
+    void setStereotypeDisplay(StereotypeDisplay stereotypeDisplay);
 
     bool hasAutoSize() const { return m_autoSized; }
 
-    void setAutoSize(bool auto_sized);
+    void setAutoSize(bool autoSized);
 
     bool isVisualEmphasized() const { return m_visualEmphasized; }
 
-    void setVisualEmphasized(bool visual_emphasized);
+    void setVisualEmphasized(bool visualEmphasized);
 
 public:
 

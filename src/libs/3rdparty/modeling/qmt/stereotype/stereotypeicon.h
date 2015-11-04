@@ -111,17 +111,17 @@ public:
 
     qreal getMinWidth() const { return m_minWidth; }
 
-    void setMinWidth(qreal min_width);
+    void setMinWidth(qreal minWidth);
 
     bool hasMinHeight() const { return m_minHeight > 0; }
 
     qreal getMinHeight() const { return m_minHeight; }
 
-    void setMinHeight(qreal min_height);
+    void setMinHeight(qreal minHeight);
 
     SizeLock getSizeLock() const { return m_sizeLock; }
 
-    void setSizeLock(SizeLock size_lock);
+    void setSizeLock(SizeLock sizeLock);
 
     Display getDisplay() const { return m_display; }
 
@@ -129,15 +129,15 @@ public:
 
     TextAlignment getTextAlignment() const { return m_textAlignment; }
 
-    void setTextAlignment(TextAlignment text_alignment);
+    void setTextAlignment(TextAlignment textAlignment);
 
     QColor getBaseColor() const { return m_baseColor; }
 
-    void setBaseColor(const QColor &base_color);
+    void setBaseColor(const QColor &baseColor);
 
     IconShape getIconShape() const { return m_iconShape; }
 
-    void setIconShape(const IconShape &icon_shape);
+    void setIconShape(const IconShape &iconShape);
 
 private:
 

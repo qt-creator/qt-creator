@@ -46,7 +46,7 @@ public:
 
     virtual void moveDelta(const QPointF &delta) = 0;
 
-    virtual void alignItemPositionToRaster(double raster_width, double raster_height) = 0;
+    virtual void alignItemPositionToRaster(double rasterWidth, double rasterHeight) = 0;
 };
 
 }

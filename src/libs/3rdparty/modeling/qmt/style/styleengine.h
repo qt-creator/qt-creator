@@ -76,17 +76,17 @@ public:
 
 public:
 
-    virtual const Style *applyStyle(const Style *base_style, ElementType element_type, const Parameters *) = 0;
+    virtual const Style *applyStyle(const Style *baseStyle, ElementType elementType, const Parameters *) = 0;
 
-    virtual const Style *applyObjectStyle(const Style *base_style, ElementType element_type, const ObjectVisuals &object_visuals, const Parameters *parameters) = 0;
+    virtual const Style *applyObjectStyle(const Style *baseStyle, ElementType elementType, const ObjectVisuals &objectVisuals, const Parameters *parameters) = 0;
 
-    virtual const Style *applyObjectStyle(const Style *base_style, const StyledObject &, const Parameters *) = 0;
+    virtual const Style *applyObjectStyle(const Style *baseStyle, const StyledObject &, const Parameters *) = 0;
 
-    virtual const Style *applyRelationStyle(const Style *base_style, const StyledRelation &, const Parameters *) = 0;
+    virtual const Style *applyRelationStyle(const Style *baseStyle, const StyledRelation &, const Parameters *) = 0;
 
-    virtual const Style *applyAnnotationStyle(const Style *base_style, const DAnnotation *, const Parameters *) = 0;
+    virtual const Style *applyAnnotationStyle(const Style *baseStyle, const DAnnotation *, const Parameters *) = 0;
 
-    virtual const Style *applyBoundaryStyle(const Style *base_style, const DBoundary *, const Parameters *) = 0;
+    virtual const Style *applyBoundaryStyle(const Style *baseStyle, const DBoundary *, const Parameters *) = 0;
 };
 
 }

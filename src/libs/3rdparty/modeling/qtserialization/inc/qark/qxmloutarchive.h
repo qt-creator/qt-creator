@@ -59,8 +59,8 @@ public:
     {
     };
 
-    static const bool in_archive = false;
-    static const bool out_archive = true;
+    static const bool inArchive = false;
+    static const bool outArchive = true;
 
 public:
 
@@ -327,10 +327,10 @@ public:
         m_stream.writeStartElement(QLatin1String("instance"));
     }
 
-    void beginInstance(const QString &type_uid)
+    void beginInstance(const QString &typeUid)
     {
         m_stream.writeStartElement(QLatin1String("instance"));
-        m_stream.writeAttribute(QLatin1String("type"), type_uid);
+        m_stream.writeAttribute(QLatin1String("type"), typeUid);
     }
 
     void endInstance()

@@ -45,10 +45,10 @@
 
 namespace qmt {
 
-RelationStarter::RelationStarter(IRelationable *owner, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent)
+RelationStarter::RelationStarter(IRelationable *owner, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : QGraphicsRectItem(parent),
       m_owner(owner),
-      m_diagramSceneModel(diagram_scene_model),
+      m_diagramSceneModel(diagramSceneModel),
       m_currentPreviewArrow(0)
 {
     setBrush(QBrush(QColor(192, 192, 192)));
@@ -78,7 +78,7 @@ void RelationStarter::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     painter->restore();
 }
 
-void RelationStarter::addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowItem::Head end_head, ArrowItem::Head start_head)
+void RelationStarter::addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowItem::Head endHead, ArrowItem::Head startHead)
 {
     QMT_CHECK(!id.isEmpty());
     prepareGeometryChange();
@@ -86,8 +86,8 @@ void RelationStarter::addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowI
     arrow->setArrowSize(10.0);
     arrow->setDiamondSize(15.0);
     arrow->setShaft(shaft);
-    arrow->setStartHead(start_head);
-    arrow->setEndHead(end_head);
+    arrow->setStartHead(startHead);
+    arrow->setEndHead(endHead);
     arrow->setPoints(QList<QPointF>() << QPointF(0.0, 10.0) << QPointF(15.0, 0.0));
     arrow->setPos(6.0, m_arrows.size() * 20.0 + 8.0);
     arrow->update(m_diagramSceneModel->getStyleController()->getRelationStarterStyle());
@@ -154,11 +154,11 @@ void RelationStarter::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void RelationStarter::updateCurrentPreviewArrow(const QPointF &head_point)
+void RelationStarter::updateCurrentPreviewArrow(const QPointF &headPoint)
 {
     prepareGeometryChange();
     m_currentPreviewArrow->setPoints(QList<QPointF>() << m_owner->getRelationStartPos()
-                                      << m_currentPreviewArrowIntermediatePoints << head_point);
+                                      << m_currentPreviewArrowIntermediatePoints << headPoint);
     m_currentPreviewArrow->update(m_diagramSceneModel->getStyleController()->getRelationStarterStyle());
 }
 

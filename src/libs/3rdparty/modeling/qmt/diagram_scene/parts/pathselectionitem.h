@@ -81,7 +81,7 @@ public:
 
     void setPoints(const QList<QPointF> &points);
 
-    void setSecondarySelected(bool secondary_selected);
+    void setSecondarySelected(bool secondarySelected);
 
 protected:
 
@@ -91,7 +91,7 @@ private:
 
     void update();
 
-    void moveHandle(int point_index, const QPointF &delta_move, HandleStatus handle_status, HandleQualifier handle_qualifier);
+    void moveHandle(int pointIndex, const QPointF &deltaMove, HandleStatus handleStatus, HandleQualifier handleQualifier);
 
 private:
 

@@ -51,14 +51,14 @@ bool Project::hasFileName() const
     return !m_fileName.isEmpty();
 }
 
-void Project::setFileName(const QString &file_name)
+void Project::setFileName(const QString &fileName)
 {
-    m_fileName = file_name;
+    m_fileName = fileName;
 }
 
-void Project::setRootPackage(MPackage *root_package)
+void Project::setRootPackage(MPackage *rootPackage)
 {
-    m_rootPackage = root_package;
+    m_rootPackage = rootPackage;
 }
 
 }

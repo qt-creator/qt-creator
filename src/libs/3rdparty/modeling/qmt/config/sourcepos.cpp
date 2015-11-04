@@ -39,10 +39,10 @@ SourcePos::SourcePos()
 {
 }
 
-SourcePos::SourcePos(int source_id, int line_number, int column_number)
-    : m_sourceId(source_id),
-      m_lineNumber(line_number),
-      m_columnNumber(column_number)
+SourcePos::SourcePos(int sourceId, int lineNumber, int columnNumber)
+    : m_sourceId(sourceId),
+      m_lineNumber(lineNumber),
+      m_columnNumber(columnNumber)
 {
 }
 

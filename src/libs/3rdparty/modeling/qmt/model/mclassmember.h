@@ -75,7 +75,7 @@ public:
 
 public:
 
-    MClassMember(MemberType member_type = MEMBER_UNDEFINED);
+    MClassMember(MemberType memberType = MEMBER_UNDEFINED);
 
     MClassMember(const MClassMember &rhs);
 
@@ -111,7 +111,7 @@ public:
 
     MemberType getMemberType() const { return m_memberType; }
 
-    void setMemberType(MemberType member_type);
+    void setMemberType(MemberType memberType);
 
     Properties getProperties() const { return m_properties; }
 

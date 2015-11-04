@@ -35,30 +35,30 @@ namespace qmt {
 DefaultStyle::DefaultStyle()
     : Style(GlobalStyle)
 {
-    QPen line_pen;
-    line_pen.setColor("black");
-    line_pen.setWidth(1);
-    setLinePen(line_pen);
-    setOuterLinePen(line_pen);
-    setInnerLinePen(line_pen);
-    setExtraLinePen(line_pen);
+    QPen linePen;
+    linePen.setColor("black");
+    linePen.setWidth(1);
+    setLinePen(linePen);
+    setOuterLinePen(linePen);
+    setInnerLinePen(linePen);
+    setExtraLinePen(linePen);
     setTextBrush(QBrush(QColor("black")));
     setFillBrush(QBrush(QColor("yellow")));
     setExtraFillBrush(QBrush(QColor("white")));
-    QFont normal_font;
+    QFont normalFont;
     // TODO the standard font family is "MS Shell Dlg 2" which is not good for small fonts in diagrams
-    //normal_font.setFamily(QStringLiteral("ModelEditor"));
-    //normal_font.setPointSizeF(9.0);
-    normal_font.setPixelSize(11);
-    setNormalFont(normal_font);
-    QFont small_font(normal_font);
-    //small_font.setPointSizeF(normal_font.pointSizeF() * 0.80);
-    small_font.setPixelSize(9);
-    setSmallFont(small_font);
-    QFont header_font(normal_font);
-    //header_font.setPointSizeF(normal_font.pointSizeF() * 1.4);
-    header_font.setPixelSize(16);
-    setHeaderFont(header_font);
+    //normalFont.setFamily(QStringLiteral("ModelEditor"));
+    //normalFont.setPointSizeF(9.0);
+    normalFont.setPixelSize(11);
+    setNormalFont(normalFont);
+    QFont smallFont(normalFont);
+    //smallFont.setPointSizeF(normalFont.pointSizeF() * 0.80);
+    smallFont.setPixelSize(9);
+    setSmallFont(smallFont);
+    QFont headerFont(normalFont);
+    //headerFont.setPointSizeF(normalFont.pointSizeF() * 1.4);
+    headerFont.setPixelSize(16);
+    setHeaderFont(headerFont);
 }
 
 DefaultStyle::~DefaultStyle()

@@ -92,11 +92,11 @@ public:
 
     DAssociationEnd getA() const { return m_endA; }
 
-    void setA(const DAssociationEnd &end_a);
+    void setA(const DAssociationEnd &endA);
 
     DAssociationEnd getB() const { return m_endB; }
 
-    void setB(const DAssociationEnd &end_b);
+    void setB(const DAssociationEnd &endB);
 
     Uid getAssoicationClassUid() const { return m_associationClassUid; }
 

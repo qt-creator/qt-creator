@@ -54,18 +54,18 @@
 
 namespace qmt {
 
-DUpdateVisitor::DUpdateVisitor(DElement *target, const MDiagram *diagram, bool check_needs_update)
+DUpdateVisitor::DUpdateVisitor(DElement *target, const MDiagram *diagram, bool checkNeedsUpdate)
     : m_target(target),
       m_diagram(diagram),
-      m_checkNeedsUpdate(check_needs_update),
-      m_updateNeeded(!check_needs_update)
+      m_checkNeedsUpdate(checkNeedsUpdate),
+      m_updateNeeded(!checkNeedsUpdate)
 {
 }
 
-void DUpdateVisitor::setCheckNeedsUpdate(bool check_needs_update)
+void DUpdateVisitor::setCheckNeedsUpdate(bool checkNeedsUpdate)
 {
-    m_checkNeedsUpdate = check_needs_update;
-    m_updateNeeded = !check_needs_update;
+    m_checkNeedsUpdate = checkNeedsUpdate;
+    m_updateNeeded = !checkNeedsUpdate;
 }
 
 void DUpdateVisitor::visitMElement(const MElement *element)
@@ -82,11 +82,11 @@ void DUpdateVisitor::visitMObject(const MObject *object)
     if (isUpdating(object->getStereotypes() != dobject->getStereotypes())) {
         dobject->setStereotypes(object->getStereotypes());
     }
-    const MObject *object_owner = object->getOwner();
-    const MObject *diagram_owner = m_diagram->getOwner();
-    if (object_owner && diagram_owner && object_owner->getUid() != diagram_owner->getUid()) {
-        if (isUpdating(object_owner->getName() != dobject->getContext())) {
-            dobject->setContext(object_owner->getName());
+    const MObject *objectOwner = object->getOwner();
+    const MObject *diagramOwner = m_diagram->getOwner();
+    if (objectOwner && diagramOwner && objectOwner->getUid() != diagramOwner->getUid()) {
+        if (isUpdating(objectOwner->getName() != dobject->getContext())) {
+            dobject->setContext(objectOwner->getName());
         }
     } else {
         if (isUpdating(!dobject->getContext().isEmpty())) {
@@ -191,34 +191,34 @@ void DUpdateVisitor::visitMAssociation(const MAssociation *association)
 {
     DAssociation *dassociation = dynamic_cast<DAssociation *>(m_target);
     QMT_CHECK(dassociation);
-    DAssociationEnd end_a;
-    end_a.setName(association->getA().getName());
-    end_a.setCardinatlity(association->getA().getCardinality());
-    end_a.setNavigable(association->getA().isNavigable());
-    end_a.setKind(association->getA().getKind());
-    if (isUpdating(end_a != dassociation->getA())) {
-        dassociation->setA(end_a);
+    DAssociationEnd endA;
+    endA.setName(association->getA().getName());
+    endA.setCardinatlity(association->getA().getCardinality());
+    endA.setNavigable(association->getA().isNavigable());
+    endA.setKind(association->getA().getKind());
+    if (isUpdating(endA != dassociation->getA())) {
+        dassociation->setA(endA);
     }
-    DAssociationEnd end_b;
-    end_b.setName(association->getB().getName());
-    end_b.setCardinatlity(association->getB().getCardinality());
-    end_b.setNavigable(association->getB().isNavigable());
-    end_b.setKind(association->getB().getKind());
-    if (isUpdating(end_b != dassociation->getB())) {
-        dassociation->setB(end_b);
+    DAssociationEnd endB;
+    endB.setName(association->getB().getName());
+    endB.setCardinatlity(association->getB().getCardinality());
+    endB.setNavigable(association->getB().isNavigable());
+    endB.setKind(association->getB().getKind());
+    if (isUpdating(endB != dassociation->getB())) {
+        dassociation->setB(endB);
     }
     visitMRelation(association);
 }
 
-bool DUpdateVisitor::isUpdating(bool value_changed)
+bool DUpdateVisitor::isUpdating(bool valueChanged)
 {
     if (m_checkNeedsUpdate) {
-        if (value_changed) {
+        if (valueChanged) {
             m_updateNeeded = true;
         }
         return false;
     }
-    return value_changed;
+    return valueChanged;
 }
 
 }

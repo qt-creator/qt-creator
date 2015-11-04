@@ -71,9 +71,9 @@ public:
 
     void addChild(MObject *child);
 
-    void insertChild(int before_index, const Uid &uid);
+    void insertChild(int beforeIndex, const Uid &uid);
 
-    void insertChild(int before_index, MObject *child);
+    void insertChild(int beforeIndex, MObject *child);
 
     void removeChild(const Uid &uid);
 
@@ -91,7 +91,7 @@ public:
 
     void addRelation(MRelation *relation);
 
-    void insertRelation(int before_index, MRelation *relation);
+    void insertRelation(int beforeIndex, MRelation *relation);
 
     void removeRelation(MRelation *relation);
 

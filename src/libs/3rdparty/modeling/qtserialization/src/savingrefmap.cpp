@@ -37,7 +37,7 @@ namespace impl {
 int SavingRefMap::countDanglingReferences()
 {
     int dangling = 0;
-    for (map_type::const_iterator it = m_references.begin(); it != m_references.end(); ++it) {
+    for (mapType::const_iterator it = m_references.begin(); it != m_references.end(); ++it) {
         if (!it.value().second) {
             ++dangling;
         }
@@ -45,24 +45,24 @@ int SavingRefMap::countDanglingReferences()
     return dangling;
 }
 
-bool SavingRefMap::hasRef(const void *address, const char *type_name)
+bool SavingRefMap::hasRef(const void *address, const char *typeName)
 {
-    return m_references.find(key_type(address, type_name)) != m_references.end();
+    return m_references.find(keyType(address, typeName)) != m_references.end();
 }
 
-bool SavingRefMap::hasDefinedRef(const void *address, const char *type_name)
+bool SavingRefMap::hasDefinedRef(const void *address, const char *typeName)
 {
-    map_type::const_iterator it = m_references.find(key_type(address, type_name));
+    mapType::const_iterator it = m_references.find(keyType(address, typeName));
     if (it == m_references.end()) {
         return false;
     }
     return it.value().second;
 }
 
-ObjectId SavingRefMap::getRef(const void *address, const char *type_name, bool define)
+ObjectId SavingRefMap::getRef(const void *address, const char *typeName, bool define)
 {
-    key_type k = key_type(address, type_name);
-    map_type::iterator it = m_references.find(k);
+    keyType k = keyType(address, typeName);
+    mapType::iterator it = m_references.find(k);
     if (it != m_references.end()) {
         if (define) {
             it.value().second = true;
@@ -70,7 +70,7 @@ ObjectId SavingRefMap::getRef(const void *address, const char *type_name, bool d
         return it.value().first;
     }
     ObjectId id = m_nextRef++;
-    m_references[k] = value_type(id, define);
+    m_references[k] = valueType(id, define);
     return id;
 }
 

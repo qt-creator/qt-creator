@@ -56,7 +56,7 @@ public:
 
     TreeModel *getTreeModel() const { return m_treeModel; }
 
-    void setTreeModel(TreeModel *tree_model);
+    void setTreeModel(TreeModel *treeModel);
 
 protected:
 

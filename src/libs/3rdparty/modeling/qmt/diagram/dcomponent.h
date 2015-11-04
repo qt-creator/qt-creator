@@ -46,7 +46,7 @@ public:
 
     bool getPlainShape() const { return m_plainShape; }
 
-    void setPlainShape(bool plane_shape);
+    void setPlainShape(bool planeShape);
 
 public:
 

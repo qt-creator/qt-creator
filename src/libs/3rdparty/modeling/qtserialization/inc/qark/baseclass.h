@@ -42,14 +42,14 @@ namespace qark {
 template<class BASE, class DERIVED>
 class Base {
 public:
-    Base(const QString &qualified_name, DERIVED &obj)
-        : m_qualifiedName(qualified_name),
+    Base(const QString &qualifiedName, DERIVED &obj)
+        : m_qualifiedName(qualifiedName),
           m_base(obj)
     {
     }
 
-    Base(const QString &qualified_name, DERIVED &obj, const Parameters &parameters)
-        : m_qualifiedName(qualified_name),
+    Base(const QString &qualifiedName, DERIVED &obj, const Parameters &parameters)
+        : m_qualifiedName(qualifiedName),
           m_base(obj),
           m_parameters(parameters)
     {
@@ -70,39 +70,39 @@ private:
 };
 
 template<class BASE, class DERIVED>
-Base<BASE, DERIVED> base(const QString &qualified_name, DERIVED &obj)
+Base<BASE, DERIVED> base(const QString &qualifiedName, DERIVED &obj)
 {
-    return Base<BASE, DERIVED>(qualified_name, obj);
+    return Base<BASE, DERIVED>(qualifiedName, obj);
 }
 
 template<class BASE, class DERIVED>
-Base<BASE, DERIVED> base(const QString &qualified_name, DERIVED &obj, const Parameters &parameters)
+Base<BASE, DERIVED> base(const QString &qualifiedName, DERIVED &obj, const Parameters &parameters)
 {
-    return Base<BASE, DERIVED>(qualified_name, obj, parameters);
+    return Base<BASE, DERIVED>(qualifiedName, obj, parameters);
 }
 
 template<class BASE, class DERIVED>
-Base<BASE, DERIVED> base(const QString &qualified_name, DERIVED *&obj)
+Base<BASE, DERIVED> base(const QString &qualifiedName, DERIVED *&obj)
 {
-    return Base<BASE, DERIVED>(qualified_name, *obj);
+    return Base<BASE, DERIVED>(qualifiedName, *obj);
 }
 
 template<class BASE, class DERIVED>
-Base<BASE, DERIVED> base(const QString &qualified_name, DERIVED *&obj, const Parameters &parameters)
+Base<BASE, DERIVED> base(const QString &qualifiedName, DERIVED *&obj, const Parameters &parameters)
 {
-    return Base<BASE, DERIVED>(qualified_name, *obj, parameters);
+    return Base<BASE, DERIVED>(qualifiedName, *obj, parameters);
 }
 
 template<class BASE, class DERIVED>
 Base<BASE, DERIVED> base(DERIVED &obj)
 {
-    return Base<BASE, DERIVED>(QString(QStringLiteral("base-%1")).arg(get_type_uid<BASE>()), obj);
+    return Base<BASE, DERIVED>(QString(QStringLiteral("base-%1")).arg(getTypeUid<BASE>()), obj);
 }
 
 template<class BASE, class DERIVED>
 Base<BASE, DERIVED> base(DERIVED &obj, const Parameters &parameters)
 {
-    return Base<BASE, DERIVED>(QString(QStringLiteral("base-%1")).arg(get_type_uid<BASE>()), obj, parameters);
+    return Base<BASE, DERIVED>(QString(QStringLiteral("base-%1")).arg(getTypeUid<BASE>()), obj, parameters);
 }
 
 }

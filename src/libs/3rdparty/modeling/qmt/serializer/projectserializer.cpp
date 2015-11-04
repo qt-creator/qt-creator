@@ -79,26 +79,26 @@ ProjectSerializer::~ProjectSerializer()
 {
 }
 
-void ProjectSerializer::save(const QString &file_name, const Project *project)
+void ProjectSerializer::save(const QString &fileName, const Project *project)
 {
     QMT_CHECK(project);
 
-    QFile file(file_name);
+    QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly)) {
-        throw FileCreationException(file_name);
+        throw FileCreationException(fileName);
     }
 
-    QIODevice *xml_device = &file;
+    QIODevice *xmlDevice = &file;
 
 #ifdef USE_COMPRESSED_FILES
     qmt::QCompressedDevice compressor(&file);
     if (!compressor.open(QIODevice::WriteOnly)) {
         throw IOException("Unable to create compressed file");
     }
-    xml_device = &compressor;
+    xmlDevice = &compressor;
 #endif
 
-    QXmlStreamWriter writer(xml_device);
+    QXmlStreamWriter writer(xmlDevice);
     write(&writer, project);
 
 #ifdef USE_COMPRESSED_FILES
@@ -117,26 +117,26 @@ QByteArray ProjectSerializer::save(const Project *project)
     return buffer;
 }
 
-void ProjectSerializer::load(const QString &file_name, Project *project)
+void ProjectSerializer::load(const QString &fileName, Project *project)
 {
     QMT_CHECK(project);
 
-    QFile file(file_name);
+    QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) {
-        throw FileNotFoundException(file_name);
+        throw FileNotFoundException(fileName);
     }
 
-    QIODevice *xml_device = &file;
+    QIODevice *xmlDevice = &file;
 
 #ifdef USE_COMPRESSED_FILES
     qmt::QCompressedDevice uncompressor(&file);
     if (!uncompressor.open(QIODevice::ReadOnly)) {
         throw IOException("Unable to access compressed file");
     }
-    xml_device = &uncompressor;
+    xmlDevice = &uncompressor;
 #endif
 
-    QXmlStreamReader reader(xml_device);
+    QXmlStreamReader reader(xmlDevice);
 
     try {
         qark::QXmlInArchive archive(reader);
@@ -146,9 +146,9 @@ void ProjectSerializer::load(const QString &file_name, Project *project)
         archive >> qark::end;
         archive.endDocument();
     } catch (const qark::QXmlInArchive::FileFormatException &) {
-        throw FileIOException(QStringLiteral("illegal file format"), file_name);
+        throw FileIOException(QStringLiteral("illegal file format"), fileName);
     } catch (...) {
-        throw FileIOException(QStringLiteral("serialization error"), file_name);
+        throw FileIOException(QStringLiteral("serialization error"), fileName);
     }
 
 #ifdef USE_COMPRESSED_FILES

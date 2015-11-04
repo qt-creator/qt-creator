@@ -84,7 +84,7 @@ protected:
 
 public:
 
-    ObjectItem(DObject *object, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent = 0);
+    ObjectItem(DObject *object, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
 
     ~ObjectItem();
 
@@ -106,7 +106,7 @@ public:
 
 public:
 
-    bool intersectShapeWithLine(const QLineF &line, QPointF *intersection_point, QLineF *intersection_line) const = 0;
+    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const = 0;
 
 public:
 
@@ -116,35 +116,35 @@ public:
 
     QSizeF getMinimumSize() const = 0;
 
-    void setPosAndRect(const QPointF &original_pos, const QRectF &original_rect, const QPointF &top_left_delta, const QPointF &bottom_right_delta);
+    void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta);
 
-    void alignItemSizeToRaster(Side adjust_horizontal_side, Side adjust_vertical_side, double raster_width, double raster_height);
+    void alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide, double rasterWidth, double rasterHeight);
 
 public:
 
     void moveDelta(const QPointF &delta);
 
-    void alignItemPositionToRaster(double raster_width, double raster_height);
+    void alignItemPositionToRaster(double rasterWidth, double rasterHeight);
 
 public:
 
     bool isSecondarySelected() const;
 
-    void setSecondarySelected(bool secondary_selected);
+    void setSecondarySelected(bool secondarySelected);
 
     bool isFocusSelected() const;
 
-    void setFocusSelected(bool focus_selected);
+    void setFocusSelected(bool focusSelected);
 
 public:
 
-    QList<Latch> getHorizontalLatches(Action action, bool grabbed_item) const;
+    QList<Latch> getHorizontalLatches(Action action, bool grabbedItem) const;
 
-    QList<Latch> getVerticalLatches(Action action, bool grabbed_item) const;
+    QList<Latch> getVerticalLatches(Action action, bool grabbedItem) const;
 
 public:
 
-    void align(AlignType align_type, const QString &identifier);
+    void align(AlignType alignType, const QString &identifier);
 
 protected:
 
@@ -156,29 +156,29 @@ protected:
 
     StereotypeIcon::Display getStereotypeIconDisplay() const { return m_stereotypeIconDisplay; }
 
-    void updateStereotypes(const QString &stereotype_icon_id, StereotypeIcon::Display stereotype_display, const Style *style);
+    void updateStereotypes(const QString &stereotypeIconId, StereotypeIcon::Display stereotypeDisplay, const Style *style);
 
     StereotypesItem *getStereotypesItem() const { return m_stereotypes; }
 
     CustomIconItem *getStereotypeIconItem() const { return m_stereotypeIcon; }
 
-    QSizeF getStereotypeIconMinimumSize(const StereotypeIcon &stereotype_icon, qreal minimum_width, qreal minimum_height) const;
+    QSizeF getStereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon, qreal minimumWidth, qreal minimumHeight) const;
 
     void updateDepth();
 
-    void updateSelectionMarker(CustomIconItem *custom_icon_item);
+    void updateSelectionMarker(CustomIconItem *customIconItem);
 
-    void updateSelectionMarker(ResizeFlags resize_flags);
+    void updateSelectionMarker(ResizeFlags resizeFlags);
 
-    void updateSelectionMarkerGeometry(const QRectF &object_rect);
+    void updateSelectionMarkerGeometry(const QRectF &objectRect);
 
     void updateAlignmentButtons();
 
-    void updateAlignmentButtonsGeometry(const QRectF &object_rect);
+    void updateAlignmentButtonsGeometry(const QRectF &objectRect);
 
-    IAlignable::AlignType translateLatchTypeToAlignType(ILatchable::LatchType latch_type);
+    IAlignable::AlignType translateLatchTypeToAlignType(ILatchable::LatchType latchType);
 
-    const Style *getAdaptedStyle(const QString &stereotype_icon_id);
+    const Style *getAdaptedStyle(const QString &stereotypeIconId);
 
     bool showContext() const;
 

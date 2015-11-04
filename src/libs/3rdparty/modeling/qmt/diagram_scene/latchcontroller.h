@@ -61,13 +61,13 @@ public:
 
 public:
 
-    void setDiagramSceneModel(DiagramSceneModel *diagram_scene_model);
+    void setDiagramSceneModel(DiagramSceneModel *diagramSceneModel);
 
 public:
 
-    void addToGraphicsScene(QGraphicsScene *graphics_scene);
+    void addToGraphicsScene(QGraphicsScene *graphicsScene);
 
-    void removeFromGraphicsScene(QGraphicsScene *graphics_scene);
+    void removeFromGraphicsScene(QGraphicsScene *graphicsScene);
 
     void mousePressEventLatching(QGraphicsSceneMouseEvent *event);
 

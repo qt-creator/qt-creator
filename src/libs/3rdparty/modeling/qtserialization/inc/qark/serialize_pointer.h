@@ -46,15 +46,15 @@ inline void save(Archive &archive, T *p, const Parameters &)
         } else {
             if (typeid(*p) == typeid(T)) {
                 archive.beginInstance();
-                registry::save_pointer<Archive, T, T>(archive, p);
+                registry::savePointer<Archive, T, T>(archive, p);
                 archive.endInstance();
             } else {
-                archive.beginInstance(get_type_uid(*p));
-                typename registry::TypeRegistry<Archive, T>::type_info type_data = get_type_info<Archive, T>(*p);
-                if (type_data.save_func == 0) {
-                    throw unregistered_type();
+                archive.beginInstance(getTypeUid(*p));
+                typename registry::TypeRegistry<Archive, T>::typeInfo typeData = getTypeInfo<Archive, T>(*p);
+                if (typeData.m_saveFunc == 0) {
+                    throw unregisteredType();
                 } else {
-                    type_data.save_func(archive, p);
+                    typeData.m_saveFunc(archive, p);
                 }
                 archive.endInstance();
             }
@@ -68,8 +68,8 @@ inline void save(Archive &archive, T *p, const Parameters &)
 template<class Archive, class T>
 void load(Archive &archive, T *&p, const Parameters &)
 {
-    typename Archive::ReferenceTag ref_tag = archive.readReferenceTag();
-    switch (ref_tag.kind) {
+    typename Archive::ReferenceTag refTag = archive.readReferenceTag();
+    switch (refTag.kind) {
     case Archive::NULLPOINTER:
         p = 0;
         break;
@@ -77,19 +77,19 @@ void load(Archive &archive, T *&p, const Parameters &)
         archive.read(p);
         break;
     case Archive::INSTANCE:
-        if (ref_tag.type_name.isEmpty()) {
-            registry::load_non_virtual_pointer<Archive,T>(archive, p);
+        if (refTag.typeName.isEmpty()) {
+            registry::loadNonVirtualPointer<Archive,T>(archive, p);
         } else {
-            typename registry::TypeRegistry<Archive, T>::type_info type_data = get_type_info<Archive, T>(ref_tag.type_name);
-            if (type_data.load_func == 0) {
-                throw unregistered_type();
+            typename registry::TypeRegistry<Archive, T>::typeInfo typeData = getTypeInfo<Archive, T>(refTag.typeName);
+            if (typeData.m_loadFunc == 0) {
+                throw unregisteredType();
             } else {
-                type_data.load_func(archive, p);
+                typeData.m_loadFunc(archive, p);
             }
         }
         break;
     }
-    archive.readReferenceEndTag(ref_tag.kind);
+    archive.readReferenceEndTag(refTag.kind);
 }
 
 }

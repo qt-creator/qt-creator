@@ -41,13 +41,13 @@ namespace qark {
 
 class Tag {
 public:
-    explicit Tag(const QString &qualified_name)
-        : m_qualifiedName(qualified_name)
+    explicit Tag(const QString &qualifiedName)
+        : m_qualifiedName(qualifiedName)
     {
     }
 
-    Tag(const QString &qualified_name, const Parameters &parameters)
-        : m_qualifiedName(qualified_name),
+    Tag(const QString &qualifiedName, const Parameters &parameters)
+        : m_qualifiedName(qualifiedName),
           m_parameters(parameters)
     {
     }
@@ -67,14 +67,14 @@ class Object :
         public Tag
 {
 public:
-    Object(const QString &qualified_name, T *object)
-        : Tag(qualified_name),
+    Object(const QString &qualifiedName, T *object)
+        : Tag(qualifiedName),
           m_object(object)
     {
     }
 
-    Object(const QString &qualified_name, T *object, const Parameters &parameters)
-        : Tag(qualified_name, parameters),
+    Object(const QString &qualifiedName, T *object, const Parameters &parameters)
+        : Tag(qualifiedName, parameters),
           m_object(object)
     {
     }
@@ -86,48 +86,48 @@ private:
 };
 
 
-inline Tag tag(const QString &qualified_name)
+inline Tag tag(const QString &qualifiedName)
 {
-    return Tag(qualified_name);
+    return Tag(qualifiedName);
 }
 
-inline Tag tag(const QString &qualified_name, const Parameters &parameters)
+inline Tag tag(const QString &qualifiedName, const Parameters &parameters)
 {
-    return Tag(qualified_name, parameters);
+    return Tag(qualifiedName, parameters);
 }
 
-inline Tag tag(const char *qualified_name)
+inline Tag tag(const char *qualifiedName)
 {
-    return Tag(QLatin1String(qualified_name));
+    return Tag(QLatin1String(qualifiedName));
 }
 
-inline Tag tag(const char *qualified_name, const Parameters &parameters)
+inline Tag tag(const char *qualifiedName, const Parameters &parameters)
 {
-    return Tag(QLatin1String(qualified_name), parameters);
+    return Tag(QLatin1String(qualifiedName), parameters);
 }
 
 template<class T>
 inline Object<T> tag(T &object)
 {
-    return Object<T>(get_type_uid<T>(), &object);
+    return Object<T>(getTypeUid<T>(), &object);
 }
 
 template<class T>
 inline Object<T> tag(T &object, const Parameters &parameters)
 {
-    return Object<T>(get_type_uid<T>(), &object, parameters);
+    return Object<T>(getTypeUid<T>(), &object, parameters);
 }
 
 template<class T>
-inline Object<T> tag(const QString &qualified_name, T &object)
+inline Object<T> tag(const QString &qualifiedName, T &object)
 {
-    return Object<T>(qualified_name, &object);
+    return Object<T>(qualifiedName, &object);
 }
 
 template<class T>
-inline Object<T> tag(const QString &qualified_name, T &object, const Parameters &parameters)
+inline Object<T> tag(const QString &qualifiedName, T &object, const Parameters &parameters)
 {
-    return Object<T>(qualified_name, &object, parameters);
+    return Object<T>(qualifiedName, &object, parameters);
 }
 
 

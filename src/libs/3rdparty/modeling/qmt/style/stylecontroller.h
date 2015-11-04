@@ -67,13 +67,13 @@ public:
 
     bool getSuppressGradients() const { return m_suppressGradients; }
 
-    void setSuppressGradients(bool suppress_gradients);
+    void setSuppressGradients(bool suppressGradients);
 
 public:
 
-    const Style *adaptStyle(StyleEngine::ElementType element_type);
+    const Style *adaptStyle(StyleEngine::ElementType elementType);
 
-    const Style *adaptObjectStyle(StyleEngine::ElementType element_type, const ObjectVisuals &object_visuals);
+    const Style *adaptObjectStyle(StyleEngine::ElementType elementType, const ObjectVisuals &objectVisuals);
 
     const Style *adaptObjectStyle(const StyledObject &object);
 

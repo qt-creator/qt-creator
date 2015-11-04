@@ -83,15 +83,15 @@ public:
 
     void setModel(TreeModel *model);
 
-    void setDiagramsView(DiagramsViewInterface *diagrams_view);
+    void setDiagramsView(DiagramsViewInterface *diagramsView);
 
-    void setDiagramController(DiagramController *diagram_controller);
+    void setDiagramController(DiagramController *diagramController);
 
-    void setDiagramSceneController(DiagramSceneController *diagram_scene_controller);
+    void setDiagramSceneController(DiagramSceneController *diagramSceneController);
 
-    void setStyleController(StyleController *style_controller);
+    void setStyleController(StyleController *styleController);
 
-    void setStereotypeController(StereotypeController *stereotype_controller);
+    void setStereotypeController(StereotypeController *stereotypeController);
 
 public:
 

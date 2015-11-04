@@ -53,7 +53,7 @@ public:
 
 public:
 
-    explicit Handles(bool take_ownership = false) : m_takeOwnership(take_ownership) { }
+    explicit Handles(bool takeOwnership = false) : m_takeOwnership(takeOwnership) { }
 
     Handles(const Handles<T> &rhs)
         : m_handleList(rhs.m_handleList),
@@ -61,9 +61,9 @@ public:
     {
     }
 
-    Handles(const Handles<T> &rhs, bool take_ownership)
+    Handles(const Handles<T> &rhs, bool takeOwnership)
         : m_handleList(rhs.m_handleList),
-          m_takeOwnership(take_ownership)
+          m_takeOwnership(takeOwnership)
     {
         if (m_takeOwnership && rhs.m_takeOwnership) {
             const_cast<Handles<T> &>(rhs).m_handleList.clear();
@@ -201,18 +201,18 @@ public:
         m_handleList.append(Handle<T>(t));
     }
 
-    void insert(int before_index, const Uid &uid)
+    void insert(int beforeIndex, const Uid &uid)
     {
-        QMT_CHECK(before_index >= 0 && before_index <= m_handleList.size());
+        QMT_CHECK(beforeIndex >= 0 && beforeIndex <= m_handleList.size());
         QMT_CHECK(uid.isValid());
-        m_handleList.insert(before_index, Handle<T>(uid));
+        m_handleList.insert(beforeIndex, Handle<T>(uid));
     }
 
-    void insert(int before_index, T *t)
+    void insert(int beforeIndex, T *t)
     {
-        QMT_CHECK(before_index >= 0 && before_index <= m_handleList.size());
+        QMT_CHECK(beforeIndex >= 0 && beforeIndex <= m_handleList.size());
         QMT_CHECK(t);
-        m_handleList.insert(before_index, Handle<T>(t));
+        m_handleList.insert(beforeIndex, Handle<T>(t));
     }
 
     void remove(int index)

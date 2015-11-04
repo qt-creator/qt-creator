@@ -45,7 +45,7 @@ class QMT_EXPORT DiagramGraphicsScene :
     Q_OBJECT
 
 public:
-    DiagramGraphicsScene(DiagramSceneModel *diagram_scene_model, QObject *parent = 0);
+    DiagramGraphicsScene(DiagramSceneModel *diagramSceneModel, QObject *parent = 0);
 
     ~DiagramGraphicsScene();
 

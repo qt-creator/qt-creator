@@ -48,7 +48,7 @@ public:
 
     virtual QPointF getRelationStartPos() const = 0;
 
-    virtual void relationDrawn(const QString &id, const QPointF &to_scene_pos, const QList<QPointF> &intermediate_points) = 0;
+    virtual void relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints) = 0;
 };
 
 }

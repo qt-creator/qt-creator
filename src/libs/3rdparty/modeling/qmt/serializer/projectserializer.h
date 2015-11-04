@@ -55,11 +55,11 @@ public:
 
 public:
 
-    void save(const QString &file_name, const Project *project);
+    void save(const QString &fileName, const Project *project);
 
     QByteArray save(const Project *project);
 
-    void load(const QString &file_name, Project *project);
+    void load(const QString &fileName, Project *project);
 
 private:
 

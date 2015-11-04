@@ -64,7 +64,7 @@ public:
 
     void addDiagramElement(DElement *element);
 
-    void insertDiagramElement(int before_element, DElement *element);
+    void insertDiagramElement(int beforeElement, DElement *element);
 
     void removeDiagramElement(int index);
 
@@ -72,7 +72,7 @@ public:
 
     QDateTime getLastModified() const { return m_lastModified; }
 
-    void setLastModified(const QDateTime &last_modified);
+    void setLastModified(const QDateTime &lastModified);
 
     void setLastModifiedToNow();
 

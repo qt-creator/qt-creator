@@ -63,11 +63,11 @@ DiagramSceneModel *DiagramView::getDiagramSceneModel() const
     return m_diagramSceneModel;
 }
 
-void DiagramView::setDiagramSceneModel(DiagramSceneModel *diagram_scene_model)
+void DiagramView::setDiagramSceneModel(DiagramSceneModel *diagramSceneModel)
 {
     setScene(0);
-    m_diagramSceneModel = diagram_scene_model;
-    if (diagram_scene_model)
+    m_diagramSceneModel = diagramSceneModel;
+    if (diagramSceneModel)
         setScene(m_diagramSceneModel->getGraphicsScene());
 }
 
@@ -75,10 +75,10 @@ void DiagramView::dragEnterEvent(QDragEnterEvent *event)
 {
     if (event->mimeData()->hasFormat(QLatin1String(MIME_TYPE_MODEL_ELEMENTS))) {
         bool accept = false;
-        QDataStream data_stream(event->mimeData()->data(QLatin1String(MIME_TYPE_MODEL_ELEMENTS)));
-        while (data_stream.status() == QDataStream::Ok) {
+        QDataStream dataStream(event->mimeData()->data(QLatin1String(MIME_TYPE_MODEL_ELEMENTS)));
+        while (dataStream.status() == QDataStream::Ok) {
             QString key;
-            data_stream >> key;
+            dataStream >> key;
             if (!key.isEmpty()) {
                 if (m_diagramSceneModel->getDiagramSceneController()->isAddingAllowed(Uid(key), m_diagramSceneModel->getDiagram())) {
                     accept = true;
@@ -88,12 +88,12 @@ void DiagramView::dragEnterEvent(QDragEnterEvent *event)
         event->setAccepted(accept);
     } else if (event->mimeData()->hasFormat(QLatin1String(MIME_TYPE_NEW_MODEL_ELEMENTS))) {
         bool accept = false;
-        QDataStream data_stream(event->mimeData()->data(QLatin1String(MIME_TYPE_NEW_MODEL_ELEMENTS)));
-        while (data_stream.status() == QDataStream::Ok) {
-            QString new_element_id;
-            data_stream >> new_element_id;
-            if (!new_element_id.isEmpty()) {
-                // TODO ask a factory if new_element_id is a known type
+        QDataStream dataStream(event->mimeData()->data(QLatin1String(MIME_TYPE_NEW_MODEL_ELEMENTS)));
+        while (dataStream.status() == QDataStream::Ok) {
+            QString newElementId;
+            dataStream >> newElementId;
+            if (!newElementId.isEmpty()) {
+                // TODO ask a factory if newElementId is a known type
                 accept = true;
             }
         }
@@ -117,10 +117,10 @@ void DiagramView::dropEvent(QDropEvent *event)
 {
     event->setDropAction(Qt::MoveAction);
     if (event->mimeData()->hasFormat(QLatin1String(MIME_TYPE_MODEL_ELEMENTS))) {
-        QDataStream data_stream(event->mimeData()->data(QLatin1String(MIME_TYPE_MODEL_ELEMENTS)));
-        while (data_stream.status() == QDataStream::Ok) {
+        QDataStream dataStream(event->mimeData()->data(QLatin1String(MIME_TYPE_MODEL_ELEMENTS)));
+        while (dataStream.status() == QDataStream::Ok) {
             QString key;
-            data_stream >> key;
+            dataStream >> key;
             if (!key.isEmpty()) {
                 if (m_diagramSceneModel->getDiagramSceneController()->isAddingAllowed(Uid(key), m_diagramSceneModel->getDiagram())) {
                     m_diagramSceneModel->getDiagramSceneController()->addExistingModelElement(Uid(key), mapToScene(event->pos()), m_diagramSceneModel->getDiagram());
@@ -129,15 +129,15 @@ void DiagramView::dropEvent(QDropEvent *event)
         }
         event->accept();
     } else if (event->mimeData()->hasFormat(QLatin1String(MIME_TYPE_NEW_MODEL_ELEMENTS))) {
-        QDataStream data_stream(event->mimeData()->data(QLatin1String(MIME_TYPE_NEW_MODEL_ELEMENTS)));
-        while (data_stream.status() == QDataStream::Ok) {
-            QString new_element_id;
+        QDataStream dataStream(event->mimeData()->data(QLatin1String(MIME_TYPE_NEW_MODEL_ELEMENTS)));
+        while (dataStream.status() == QDataStream::Ok) {
+            QString newElementId;
             QString name;
             QString stereotype;
-            data_stream >> new_element_id >> name >> stereotype;
-            if (!new_element_id.isEmpty()) {
+            dataStream >> newElementId >> name >> stereotype;
+            if (!newElementId.isEmpty()) {
                 QPointF pos = mapToScene(event->pos());
-                m_diagramSceneModel->getDiagramSceneController()->dropNewElement(new_element_id, name, stereotype, m_diagramSceneModel->findTopmostElement(pos), pos, m_diagramSceneModel->getDiagram());
+                m_diagramSceneModel->getDiagramSceneController()->dropNewElement(newElementId, name, stereotype, m_diagramSceneModel->findTopmostElement(pos), pos, m_diagramSceneModel->getDiagram());
             }
         }
         event->accept();

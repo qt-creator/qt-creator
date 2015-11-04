@@ -44,10 +44,10 @@ ContextLabelItem::~ContextLabelItem()
 {
 }
 
-void ContextLabelItem::setMaxWidth(double max_width)
+void ContextLabelItem::setMaxWidth(double maxWidth)
 {
-    if (m_maxWidth != max_width) {
-        m_maxWidth = max_width;
+    if (m_maxWidth != maxWidth) {
+        m_maxWidth = maxWidth;
         update();
     }
 }
@@ -77,12 +77,12 @@ void ContextLabelItem::update()
 {
     setText(QString(QStringLiteral("(from %1)")).arg(m_context));
     if (m_maxWidth > 0.0) {
-        double context_width = boundingRect().width();
-        if (context_width > m_maxWidth) {
+        double contextWidth = boundingRect().width();
+        if (contextWidth > m_maxWidth) {
             setText(QString(QStringLiteral("(%1)")).arg(m_context));
-            context_width = boundingRect().width();
+            contextWidth = boundingRect().width();
         }
-        if (context_width > m_maxWidth) {
+        if (contextWidth > m_maxWidth) {
             QFontMetricsF metrics(font());
             setText(metrics.elidedText(QString(QStringLiteral("(%1)")).arg(m_context), Qt::ElideMiddle, m_maxWidth));
         }

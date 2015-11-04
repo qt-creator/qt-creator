@@ -39,11 +39,11 @@ namespace qmt {
 class Exception
 {
 public:
-    Exception(const QString &err_msg);
+    Exception(const QString &errMsg);
 
     QString getErrorMsg() const { return m_errorMessage; }
 
-    void setErrorMsg(const QString &err_msg) { m_errorMessage = err_msg; }
+    void setErrorMsg(const QString &errMsg) { m_errorMessage = errMsg; }
 
 private:
     QString m_errorMessage;

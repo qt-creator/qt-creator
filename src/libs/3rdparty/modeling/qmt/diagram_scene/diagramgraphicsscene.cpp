@@ -37,9 +37,9 @@
 
 namespace qmt {
 
-DiagramGraphicsScene::DiagramGraphicsScene(DiagramSceneModel *diagram_scene_model, QObject *parent)
+DiagramGraphicsScene::DiagramGraphicsScene(DiagramSceneModel *diagramSceneModel, QObject *parent)
     : QGraphicsScene(parent),
-      m_diagramSceneModel(diagram_scene_model)
+      m_diagramSceneModel(diagramSceneModel)
 {
 }
 

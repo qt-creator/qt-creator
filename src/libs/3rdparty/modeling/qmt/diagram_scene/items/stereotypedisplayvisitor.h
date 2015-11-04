@@ -52,9 +52,9 @@ public:
 
 public:
 
-    void setModelController(ModelController *model_controller);
+    void setModelController(ModelController *modelController);
 
-    void setStereotypeController(StereotypeController *stereotype_controller);
+    void setStereotypeController(StereotypeController *stereotypeController);
 
     DObject::StereotypeDisplay getStereotypeDisplay() const { return m_stereotypeDisplay; }
 

@@ -32,9 +32,9 @@
 
 namespace qmt {
 
-MClassMember::MClassMember(MemberType member_type)
+MClassMember::MClassMember(MemberType memberType)
     : m_visibility(VISIBILITY_UNDEFINED),
-      m_memberType(member_type)
+      m_memberType(memberType)
 {
 }
 
@@ -97,9 +97,9 @@ void MClassMember::setVisibility(MClassMember::Visibility visibility)
     m_visibility = visibility;
 }
 
-void MClassMember::setMemberType(MClassMember::MemberType member_type)
+void MClassMember::setMemberType(MClassMember::MemberType memberType)
 {
-    m_memberType = member_type;
+    m_memberType = memberType;
 }
 
 void MClassMember::setProperties(Properties properties)

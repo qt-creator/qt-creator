@@ -50,8 +50,8 @@
 
 namespace qmt {
 
-AssociationItem::AssociationItem(DAssociation *association, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent)
-    : RelationItem(association, diagram_scene_model, parent),
+AssociationItem::AssociationItem(DAssociation *association, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
+    : RelationItem(association, diagramSceneModel, parent),
       m_association(association),
       m_endAName(0),
       m_endACardinality(0),
@@ -72,107 +72,107 @@ void AssociationItem::update(const Style *style)
     updateEndLabels(m_association->getB(), m_association->getA(), &m_endBName, &m_endBCardinality, style);
 
     QMT_CHECK(m_arrow);
-    QGraphicsItem *end_a_item = m_diagramSceneModel->getGraphicsItem(m_association->getEndA());
-    QMT_CHECK(end_a_item);
-    placeEndLabels(m_arrow->getFirstLineSegment(), m_endAName, m_endACardinality, end_a_item, m_arrow->getStartHeadLength());
-    QGraphicsItem *end_b_item = m_diagramSceneModel->getGraphicsItem(m_association->getEndB());
-    QMT_CHECK(end_b_item);
-    placeEndLabels(m_arrow->getLastLineSegment(), m_endBName, m_endBCardinality, end_b_item, m_arrow->getEndHeadLength());
+    QGraphicsItem *endAItem = m_diagramSceneModel->getGraphicsItem(m_association->getEndA());
+    QMT_CHECK(endAItem);
+    placeEndLabels(m_arrow->getFirstLineSegment(), m_endAName, m_endACardinality, endAItem, m_arrow->getStartHeadLength());
+    QGraphicsItem *endBItem = m_diagramSceneModel->getGraphicsItem(m_association->getEndB());
+    QMT_CHECK(endBItem);
+    placeEndLabels(m_arrow->getLastLineSegment(), m_endBName, m_endBCardinality, endBItem, m_arrow->getEndHeadLength());
 }
 
-void AssociationItem::updateEndLabels(const DAssociationEnd &end, const DAssociationEnd &other_end, QGraphicsSimpleTextItem **end_name, QGraphicsSimpleTextItem **end_cardinality, const Style *style)
+void AssociationItem::updateEndLabels(const DAssociationEnd &end, const DAssociationEnd &otherEnd, QGraphicsSimpleTextItem **endName, QGraphicsSimpleTextItem **endCardinality, const Style *style)
 {
     Q_UNUSED(end);
 
-    if (!other_end.getName().isEmpty()) {
-        if (!*end_name) {
-            *end_name = new QGraphicsSimpleTextItem(this);
+    if (!otherEnd.getName().isEmpty()) {
+        if (!*endName) {
+            *endName = new QGraphicsSimpleTextItem(this);
         }
-        (*end_name)->setFont(style->getSmallFont());
-        (*end_name)->setBrush(style->getTextBrush());
-        (*end_name)->setText(other_end.getName());
-    } else if (*end_name) {
-        (*end_name)->scene()->removeItem(*end_name);
-        delete *end_name;
-        *end_name = 0;
+        (*endName)->setFont(style->getSmallFont());
+        (*endName)->setBrush(style->getTextBrush());
+        (*endName)->setText(otherEnd.getName());
+    } else if (*endName) {
+        (*endName)->scene()->removeItem(*endName);
+        delete *endName;
+        *endName = 0;
     }
 
-    if (!other_end.getCardinality().isEmpty()) {
-        if (!*end_cardinality) {
-            *end_cardinality = new QGraphicsSimpleTextItem(this);
+    if (!otherEnd.getCardinality().isEmpty()) {
+        if (!*endCardinality) {
+            *endCardinality = new QGraphicsSimpleTextItem(this);
         }
-        (*end_cardinality)->setFont(style->getSmallFont());
-        (*end_cardinality)->setBrush(style->getTextBrush());
-        (*end_cardinality)->setText(other_end.getCardinality());
-    } else if (*end_cardinality) {
-        (*end_cardinality)->scene()->removeItem(*end_cardinality);
-        delete *end_cardinality;
-        *end_cardinality = 0;
+        (*endCardinality)->setFont(style->getSmallFont());
+        (*endCardinality)->setBrush(style->getTextBrush());
+        (*endCardinality)->setText(otherEnd.getCardinality());
+    } else if (*endCardinality) {
+        (*endCardinality)->scene()->removeItem(*endCardinality);
+        delete *endCardinality;
+        *endCardinality = 0;
     }
 }
 
-void AssociationItem::placeEndLabels(const QLineF &line_segment, QGraphicsItem *end_name, QGraphicsItem *end_cardinality, QGraphicsItem *end_item, double head_length)
+void AssociationItem::placeEndLabels(const QLineF &lineSegment, QGraphicsItem *endName, QGraphicsItem *endCardinality, QGraphicsItem *endItem, double headLength)
 {
-    const double HEAD_OFFSET = head_length + 6.0;
+    const double HEAD_OFFSET = headLength + 6.0;
     const double SIDE_OFFSET = 4.0;
-    QPointF head_offset = QPointF(HEAD_OFFSET, 0);
-    QPointF side_offset = QPointF(0.0, SIDE_OFFSET);
+    QPointF headOffset = QPointF(HEAD_OFFSET, 0);
+    QPointF sideOffset = QPointF(0.0, SIDE_OFFSET);
 
-    double angle = GeometryUtilities::calcAngle(line_segment);
+    double angle = GeometryUtilities::calcAngle(lineSegment);
     if (angle >= -5 && angle <= 5) {
-        if (end_name) {
-            end_name->setPos(line_segment.p1() + head_offset + side_offset);
+        if (endName) {
+            endName->setPos(lineSegment.p1() + headOffset + sideOffset);
         }
-        if (end_cardinality) {
-            end_cardinality->setPos(line_segment.p1() + head_offset - side_offset - end_cardinality->boundingRect().bottomLeft());
+        if (endCardinality) {
+            endCardinality->setPos(lineSegment.p1() + headOffset - sideOffset - endCardinality->boundingRect().bottomLeft());
         }
     } else if (angle <= -175 || angle >= 175) {
-        if (end_name) {
-            end_name->setPos(line_segment.p1() - head_offset + side_offset - end_name->boundingRect().topRight());
+        if (endName) {
+            endName->setPos(lineSegment.p1() - headOffset + sideOffset - endName->boundingRect().topRight());
         }
-        if (end_cardinality) {
-            end_cardinality->setPos(line_segment.p1() - head_offset - side_offset - end_cardinality->boundingRect().bottomRight());
+        if (endCardinality) {
+            endCardinality->setPos(lineSegment.p1() - headOffset - sideOffset - endCardinality->boundingRect().bottomRight());
         }
     } else {
         QRectF rect;
-        if (end_cardinality) {
-            rect = end_cardinality->boundingRect();
+        if (endCardinality) {
+            rect = endCardinality->boundingRect();
         }
-        if (end_name) {
-            rect = rect.united(end_name->boundingRect().translated(rect.bottomLeft()));
+        if (endName) {
+            rect = rect.united(endName->boundingRect().translated(rect.bottomLeft()));
         }
 
-        QPointF rect_placement;
-        GeometryUtilities::Side aligned_side = GeometryUtilities::SIDE_UNSPECIFIED;
+        QPointF rectPlacement;
+        GeometryUtilities::Side alignedSide = GeometryUtilities::SIDE_UNSPECIFIED;
 
-        if (IIntersectionable *object_item = dynamic_cast<IIntersectionable *>(end_item)) {
-            QPointF intersection_point;
-            QLineF intersection_line;
+        if (IIntersectionable *objectItem = dynamic_cast<IIntersectionable *>(endItem)) {
+            QPointF intersectionPoint;
+            QLineF intersectionLine;
 
-            if (object_item->intersectShapeWithLine(GeometryUtilities::stretch(line_segment.translated(pos()), 2.0, 0.0), &intersection_point, &intersection_line)) {
-                if (!GeometryUtilities::placeRectAtLine(rect, line_segment, HEAD_OFFSET, SIDE_OFFSET, intersection_line, &rect_placement, &aligned_side)) {
-                    rect_placement = intersection_point;
+            if (objectItem->intersectShapeWithLine(GeometryUtilities::stretch(lineSegment.translated(pos()), 2.0, 0.0), &intersectionPoint, &intersectionLine)) {
+                if (!GeometryUtilities::placeRectAtLine(rect, lineSegment, HEAD_OFFSET, SIDE_OFFSET, intersectionLine, &rectPlacement, &alignedSide)) {
+                    rectPlacement = intersectionPoint;
                 }
             } else {
-                rect_placement = line_segment.p1();
+                rectPlacement = lineSegment.p1();
             }
         } else {
-            rect_placement = end_item->pos();
+            rectPlacement = endItem->pos();
         }
 
-        if (end_cardinality) {
-            if (aligned_side == GeometryUtilities::SIDE_RIGHT) {
-                end_cardinality->setPos(rect_placement + QPointF(rect.width() - end_cardinality->boundingRect().width(), 0.0));
+        if (endCardinality) {
+            if (alignedSide == GeometryUtilities::SIDE_RIGHT) {
+                endCardinality->setPos(rectPlacement + QPointF(rect.width() - endCardinality->boundingRect().width(), 0.0));
             } else {
-                end_cardinality->setPos(rect_placement);
+                endCardinality->setPos(rectPlacement);
             }
-            rect_placement += end_cardinality->boundingRect().bottomLeft();
+            rectPlacement += endCardinality->boundingRect().bottomLeft();
         }
-        if (end_name) {
-            if (aligned_side == GeometryUtilities::SIDE_RIGHT) {
-                end_name->setPos(rect_placement + QPointF(rect.width() - end_name->boundingRect().width(), 0.0));
+        if (endName) {
+            if (alignedSide == GeometryUtilities::SIDE_RIGHT) {
+                endName->setPos(rectPlacement + QPointF(rect.width() - endName->boundingRect().width(), 0.0));
             } else {
-                end_name->setPos(rect_placement);
+                endName->setPos(rectPlacement);
             }
         }
     }

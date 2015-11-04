@@ -118,17 +118,17 @@ inline void load(Archive &archive, QRectF &point, const Parameters &)
 // QDateTime
 
 template<class Archive>
-inline void save(Archive &archive, const QDateTime &date_time, const Parameters &)
+inline void save(Archive &archive, const QDateTime &dateTime, const Parameters &)
 {
-    archive << date_time.toMSecsSinceEpoch();
+    archive << dateTime.toMSecsSinceEpoch();
 }
 
 template<class Archive>
-inline void load(Archive &archive, QDateTime &date_time, const Parameters &)
+inline void load(Archive &archive, QDateTime &dateTime, const Parameters &)
 {
     qint64 t;
     archive >> t;
-    date_time = QDateTime::fromMSecsSinceEpoch(t);
+    dateTime = QDateTime::fromMSecsSinceEpoch(t);
 }
 
 }

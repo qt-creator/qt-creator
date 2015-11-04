@@ -56,11 +56,11 @@ public:
 
     QString getFileName() const { return m_fileName; }
 
-    void setFileName(const QString &file_name);
+    void setFileName(const QString &fileName);
 
     MPackage *getRootPackage() const { return m_rootPackage; }
 
-    void setRootPackage(MPackage *root_package);
+    void setRootPackage(MPackage *rootPackage);
 
 private:
 

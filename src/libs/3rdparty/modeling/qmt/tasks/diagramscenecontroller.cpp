@@ -69,14 +69,14 @@
 namespace qmt {
 
 namespace {
-static VoidElementTasks dummy_element_tasks;
+static VoidElementTasks dummyElementTasks;
 }
 
 DiagramSceneController::DiagramSceneController(QObject *parent)
     : QObject(parent),
       m_modelController(0),
       m_diagramController(0),
-      m_elementTasks(&dummy_element_tasks),
+      m_elementTasks(&dummyElementTasks),
       m_sceneInspector(0)
 {
 }
@@ -85,49 +85,49 @@ DiagramSceneController::~DiagramSceneController()
 {
 }
 
-void DiagramSceneController::setModelController(ModelController *model_controller)
+void DiagramSceneController::setModelController(ModelController *modelController)
 {
-    if (m_modelController == model_controller) {
+    if (m_modelController == modelController) {
         return;
     }
     if (m_modelController) {
         disconnect(m_modelController, 0, this, 0);
         m_modelController = 0;
     }
-    if (model_controller) {
-        m_modelController = model_controller;
+    if (modelController) {
+        m_modelController = modelController;
     }
 }
 
-void DiagramSceneController::setDiagramController(DiagramController *diagram_controller)
+void DiagramSceneController::setDiagramController(DiagramController *diagramController)
 {
-    if (m_diagramController == diagram_controller) {
+    if (m_diagramController == diagramController) {
         return;
     }
     if (m_diagramController) {
         disconnect(m_diagramController, 0, this, 0);
         m_diagramController = 0;
     }
-    if (diagram_controller) {
-        m_diagramController = diagram_controller;
+    if (diagramController) {
+        m_diagramController = diagramController;
     }
 }
 
-void DiagramSceneController::setElementTasks(IElementTasks *element_tasks)
+void DiagramSceneController::setElementTasks(IElementTasks *elementTasks)
 {
-    m_elementTasks = element_tasks;
+    m_elementTasks = elementTasks;
 }
 
-void DiagramSceneController::setSceneInspector(ISceneInspector *scene_inspector)
+void DiagramSceneController::setSceneInspector(ISceneInspector *sceneInspector)
 {
-    m_sceneInspector = scene_inspector;
+    m_sceneInspector = sceneInspector;
 }
 
 void DiagramSceneController::deleteFromDiagram(const DSelection &dselection, MDiagram *diagram)
 {
     if (!dselection.isEmpty()) {
         MSelection mselection;
-        DSelection remaining_dselection;
+        DSelection remainingDselection;
         foreach (const DSelection::Index &index, dselection.getIndices()) {
             DElement *delement = m_diagramController->findElement(index.getElementKey(), diagram);
             QMT_CHECK(delement);
@@ -138,11 +138,11 @@ void DiagramSceneController::deleteFromDiagram(const DSelection &dselection, MDi
                     mselection.append(melement->getUid(), melement->getOwner()->getUid());
                 }
             } else {
-                remaining_dselection.append(index);
+                remainingDselection.append(index);
             }
         }
-        if (!remaining_dselection.isEmpty()) {
-            m_diagramController->deleteElements(remaining_dselection, diagram);
+        if (!remainingDselection.isEmpty()) {
+            m_diagramController->deleteElements(remainingDselection, diagram);
         }
         if (!mselection.isEmpty()) {
             m_modelController->deleteElements(mselection);
@@ -150,26 +150,26 @@ void DiagramSceneController::deleteFromDiagram(const DSelection &dselection, MDi
     }
 }
 
-void DiagramSceneController::createDependency(DObject *end_a_object, DObject *end_b_object, const QList<QPointF> &intermediate_points, MDiagram *diagram)
+void DiagramSceneController::createDependency(DObject *endAObject, DObject *endBObject, const QList<QPointF> &intermediatePoints, MDiagram *diagram)
 {
     m_diagramController->getUndoController()->beginMergeSequence(tr("Create Dependency"));
 
-    MObject *end_a_model_object = m_modelController->findObject<MObject>(end_a_object->getModelUid());
-    QMT_CHECK(end_a_model_object);
-    MObject *end_b_model_object = m_modelController->findObject<MObject>(end_b_object->getModelUid());
-    QMT_CHECK(end_b_model_object);
+    MObject *endAModelObject = m_modelController->findObject<MObject>(endAObject->getModelUid());
+    QMT_CHECK(endAModelObject);
+    MObject *endBModelObject = m_modelController->findObject<MObject>(endBObject->getModelUid());
+    QMT_CHECK(endBModelObject);
 
-    if (end_a_model_object == end_b_model_object) {
+    if (endAModelObject == endBModelObject) {
         return;
     }
 
-    MDependency *model_dependency = new MDependency();
-    model_dependency->setEndA(end_a_model_object->getUid());
-    model_dependency->setEndB(end_b_model_object->getUid());
-    model_dependency->setDirection(MDependency::A_TO_B);
-    m_modelController->addRelation(end_a_model_object, model_dependency);
+    MDependency *modelDependency = new MDependency();
+    modelDependency->setEndA(endAModelObject->getUid());
+    modelDependency->setEndB(endBModelObject->getUid());
+    modelDependency->setDirection(MDependency::A_TO_B);
+    m_modelController->addRelation(endAModelObject, modelDependency);
 
-    DRelation *relation = addRelation(model_dependency, intermediate_points, diagram);
+    DRelation *relation = addRelation(modelDependency, intermediatePoints, diagram);
 
     m_diagramController->getUndoController()->endMergeSequence();
 
@@ -178,25 +178,25 @@ void DiagramSceneController::createDependency(DObject *end_a_object, DObject *en
     }
 }
 
-void DiagramSceneController::createInheritance(DClass *derived_class, DClass *base_class, const QList<QPointF> &intermediate_points, MDiagram *diagram)
+void DiagramSceneController::createInheritance(DClass *derivedClass, DClass *baseClass, const QList<QPointF> &intermediatePoints, MDiagram *diagram)
 {
     m_diagramController->getUndoController()->beginMergeSequence(tr("Create Inheritance"));
 
-    MClass *derived_model_class = m_modelController->findObject<MClass>(derived_class->getModelUid());
-    QMT_CHECK(derived_model_class);
-    MClass *base_model_class = m_modelController->findObject<MClass>(base_class->getModelUid());
-    QMT_CHECK(base_model_class);
+    MClass *derivedModelClass = m_modelController->findObject<MClass>(derivedClass->getModelUid());
+    QMT_CHECK(derivedModelClass);
+    MClass *baseModelClass = m_modelController->findObject<MClass>(baseClass->getModelUid());
+    QMT_CHECK(baseModelClass);
 
-    if (derived_model_class == base_model_class) {
+    if (derivedModelClass == baseModelClass) {
         return;
     }
 
-    MInheritance *model_inheritance = new MInheritance();
-    model_inheritance->setDerived(derived_model_class->getUid());
-    model_inheritance->setBase(base_model_class->getUid());
-    m_modelController->addRelation(derived_model_class, model_inheritance);
+    MInheritance *modelInheritance = new MInheritance();
+    modelInheritance->setDerived(derivedModelClass->getUid());
+    modelInheritance->setBase(baseModelClass->getUid());
+    m_modelController->addRelation(derivedModelClass, modelInheritance);
 
-    DRelation *relation = addRelation(model_inheritance, intermediate_points, diagram);
+    DRelation *relation = addRelation(modelInheritance, intermediatePoints, diagram);
 
     m_diagramController->getUndoController()->endMergeSequence();
 
@@ -205,29 +205,29 @@ void DiagramSceneController::createInheritance(DClass *derived_class, DClass *ba
     }
 }
 
-void DiagramSceneController::createAssociation(DClass *end_a_class, DClass *end_b_class, const QList<QPointF> &intermediate_points, MDiagram *diagram)
+void DiagramSceneController::createAssociation(DClass *endAClass, DClass *endBClass, const QList<QPointF> &intermediatePoints, MDiagram *diagram)
 {
     m_diagramController->getUndoController()->beginMergeSequence(tr("Create Association"));
 
-    MClass *end_a_model_object = m_modelController->findObject<MClass>(end_a_class->getModelUid());
-    QMT_CHECK(end_a_model_object);
-    MClass *end_b_model_object = m_modelController->findObject<MClass>(end_b_class->getModelUid());
-    QMT_CHECK(end_b_model_object);
+    MClass *endAModelObject = m_modelController->findObject<MClass>(endAClass->getModelUid());
+    QMT_CHECK(endAModelObject);
+    MClass *endBModelObject = m_modelController->findObject<MClass>(endBClass->getModelUid());
+    QMT_CHECK(endBModelObject);
 
     // TODO allow self assignment with just one intermediate point and a nice round arrow
-    if (end_a_model_object == end_b_model_object && intermediate_points.count() < 2) {
+    if (endAModelObject == endBModelObject && intermediatePoints.count() < 2) {
         return;
     }
 
-    MAssociation *model_association = new MAssociation();
-    model_association->setEndA(end_a_model_object->getUid());
-    MAssociationEnd end_a = model_association->getA();
-    end_a.setNavigable(true);
-    model_association->setA(end_a);
-    model_association->setEndB(end_b_model_object->getUid());
-    m_modelController->addRelation(end_a_model_object, model_association);
+    MAssociation *modelAssociation = new MAssociation();
+    modelAssociation->setEndA(endAModelObject->getUid());
+    MAssociationEnd endA = modelAssociation->getA();
+    endA.setNavigable(true);
+    modelAssociation->setA(endA);
+    modelAssociation->setEndB(endBModelObject->getUid());
+    m_modelController->addRelation(endAModelObject, modelAssociation);
 
-    DRelation *relation = addRelation(model_association, intermediate_points, diagram);
+    DRelation *relation = addRelation(modelAssociation, intermediatePoints, diagram);
 
     m_diagramController->getUndoController()->endMergeSequence();
 
@@ -236,136 +236,136 @@ void DiagramSceneController::createAssociation(DClass *end_a_class, DClass *end_
     }
 }
 
-bool DiagramSceneController::isAddingAllowed(const Uid &model_element_key, MDiagram *diagram)
+bool DiagramSceneController::isAddingAllowed(const Uid &modelElementKey, MDiagram *diagram)
 {
-    MElement *model_element = m_modelController->findElement(model_element_key);
-    QMT_CHECK(model_element);
-    if (m_diagramController->hasDelegate(model_element, diagram)) {
+    MElement *modelElement = m_modelController->findElement(modelElementKey);
+    QMT_CHECK(modelElement);
+    if (m_diagramController->hasDelegate(modelElement, diagram)) {
         return false;
     }
-    if (MRelation *model_relation = dynamic_cast<MRelation *>(model_element)) {
-        MObject *end_a_model_object = m_modelController->findObject(model_relation->getEndA());
-        QMT_CHECK(end_a_model_object);
-        DObject *end_a_diagram_object = m_diagramController->findDelegate<DObject>(end_a_model_object, diagram);
-        if (!end_a_diagram_object) {
+    if (MRelation *modelRelation = dynamic_cast<MRelation *>(modelElement)) {
+        MObject *endAModelObject = m_modelController->findObject(modelRelation->getEndA());
+        QMT_CHECK(endAModelObject);
+        DObject *endADiagramObject = m_diagramController->findDelegate<DObject>(endAModelObject, diagram);
+        if (!endADiagramObject) {
             return false;
         }
 
-        MObject *end_b_model_object = m_modelController->findObject(model_relation->getEndB());
-        QMT_CHECK(end_b_model_object);
-        DObject *end_b_diagram_object = m_diagramController->findDelegate<DObject>(end_b_model_object, diagram);
-        if (!end_b_diagram_object) {
+        MObject *endBModelObject = m_modelController->findObject(modelRelation->getEndB());
+        QMT_CHECK(endBModelObject);
+        DObject *endBDiagramObject = m_diagramController->findDelegate<DObject>(endBModelObject, diagram);
+        if (!endBDiagramObject) {
             return false;
         }
     }
     return true;
 }
 
-void DiagramSceneController::addExistingModelElement(const Uid &model_element_key, const QPointF &pos, MDiagram *diagram)
+void DiagramSceneController::addExistingModelElement(const Uid &modelElementKey, const QPointF &pos, MDiagram *diagram)
 {
-    DElement *element = addModelElement(model_element_key, pos, diagram);
+    DElement *element = addModelElement(modelElementKey, pos, diagram);
     if (element) {
         emit elementAdded(element, diagram);
     }
 }
 
-void DiagramSceneController::dropNewElement(const QString &new_element_id, const QString &name, const QString &stereotype, DElement *top_most_element_at_pos, const QPointF &pos, MDiagram *diagram)
+void DiagramSceneController::dropNewElement(const QString &newElementId, const QString &name, const QString &stereotype, DElement *topMostElementAtPos, const QPointF &pos, MDiagram *diagram)
 {
-    if (new_element_id == QLatin1String(ELEMENT_TYPE_ANNOTATION)) {
+    if (newElementId == QLatin1String(ELEMENT_TYPE_ANNOTATION)) {
         DAnnotation *annotation = new DAnnotation();
         annotation->setText(QStringLiteral(""));
         annotation->setPos(pos - QPointF(10.0, 10.0));
         m_diagramController->addElement(annotation, diagram);
         alignOnRaster(annotation, diagram);
         emit newElementCreated(annotation, diagram);
-    } else if (new_element_id == QLatin1String(ELEMENT_TYPE_BOUNDARY)) {
+    } else if (newElementId == QLatin1String(ELEMENT_TYPE_BOUNDARY)) {
         DBoundary *boundary = new DBoundary();
         boundary->setPos(pos);
         m_diagramController->addElement(boundary, diagram);
         alignOnRaster(boundary, diagram);
         emit newElementCreated(boundary, diagram);
     } else {
-        MPackage *parent_package = findSuitableParentPackage(top_most_element_at_pos, diagram);
-        MObject *new_object = 0;
-        QString new_name;
-        if (new_element_id == QLatin1String(ELEMENT_TYPE_PACKAGE)) {
+        MPackage *parentPackage = findSuitableParentPackage(topMostElementAtPos, diagram);
+        MObject *newObject = 0;
+        QString newName;
+        if (newElementId == QLatin1String(ELEMENT_TYPE_PACKAGE)) {
             MPackage *package = new MPackage();
-            new_name = tr("New Package");
+            newName = tr("New Package");
             if (!stereotype.isEmpty()) {
                 package->setStereotypes(QStringList() << stereotype);
             }
-            new_object = package;
-        } else if (new_element_id == QLatin1String(ELEMENT_TYPE_COMPONENT)) {
+            newObject = package;
+        } else if (newElementId == QLatin1String(ELEMENT_TYPE_COMPONENT)) {
             MComponent *component = new MComponent();
-            new_name = tr("New Component");
+            newName = tr("New Component");
             if (!stereotype.isEmpty()) {
                 component->setStereotypes(QStringList() << stereotype);
             }
-            new_object = component;
-        } else if (new_element_id == QLatin1String(ELEMENT_TYPE_CLASS)) {
+            newObject = component;
+        } else if (newElementId == QLatin1String(ELEMENT_TYPE_CLASS)) {
             MClass *klass = new MClass();
-            new_name = tr("New Class");
+            newName = tr("New Class");
             if (!stereotype.isEmpty()) {
                 klass->setStereotypes(QStringList() << stereotype);
             }
-            new_object = klass;
-        } else if (new_element_id == QLatin1String(ELEMENT_TYPE_ITEM)) {
+            newObject = klass;
+        } else if (newElementId == QLatin1String(ELEMENT_TYPE_ITEM)) {
             MItem *item = new MItem();
-            new_name = tr("New Item");
+            newName = tr("New Item");
             if (!stereotype.isEmpty()) {
                 item->setVariety(stereotype);
                 item->setVarietyEditable(false);
             }
-            new_object = item;
+            newObject = item;
         }
-        if (new_object) {
+        if (newObject) {
             if (!name.isEmpty()) {
-                new_name = tr("New %1").arg(name);
+                newName = tr("New %1").arg(name);
             }
-            new_object->setName(new_name);
-            dropNewModelElement(new_object, parent_package, pos, diagram);
+            newObject->setName(newName);
+            dropNewModelElement(newObject, parentPackage, pos, diagram);
         }
     }
 }
 
-void DiagramSceneController::dropNewModelElement(MObject *model_object, MPackage *parent_package, const QPointF &pos, MDiagram *diagram)
+void DiagramSceneController::dropNewModelElement(MObject *modelObject, MPackage *parentPackage, const QPointF &pos, MDiagram *diagram)
 {
     m_modelController->getUndoController()->beginMergeSequence(tr("Drop Element"));
-    m_modelController->addObject(parent_package, model_object);
-    DElement *element = addObject(model_object, pos, diagram);
+    m_modelController->addObject(parentPackage, modelObject);
+    DElement *element = addObject(modelObject, pos, diagram);
     m_modelController->getUndoController()->endMergeSequence();
     if (element) {
         emit newElementCreated(element, diagram);
     }
 }
 
-MPackage *DiagramSceneController::findSuitableParentPackage(DElement *topmost_diagram_element, MDiagram *diagram)
+MPackage *DiagramSceneController::findSuitableParentPackage(DElement *topmostDiagramElement, MDiagram *diagram)
 {
-    MPackage *parent_package = 0;
-    if (DPackage *diagram_package = dynamic_cast<DPackage *>(topmost_diagram_element)) {
-        parent_package = m_modelController->findObject<MPackage>(diagram_package->getModelUid());
-    } else if (DObject *diagram_object = dynamic_cast<DObject *>(topmost_diagram_element)) {
-        MObject *model_object = m_modelController->findObject(diagram_object->getModelUid());
-        if (model_object) {
-            parent_package = dynamic_cast<MPackage *>(model_object->getOwner());
+    MPackage *parentPackage = 0;
+    if (DPackage *diagramPackage = dynamic_cast<DPackage *>(topmostDiagramElement)) {
+        parentPackage = m_modelController->findObject<MPackage>(diagramPackage->getModelUid());
+    } else if (DObject *diagramObject = dynamic_cast<DObject *>(topmostDiagramElement)) {
+        MObject *modelObject = m_modelController->findObject(diagramObject->getModelUid());
+        if (modelObject) {
+            parentPackage = dynamic_cast<MPackage *>(modelObject->getOwner());
         }
     }
-    if (parent_package == 0 && diagram != 0) {
-        parent_package = dynamic_cast<MPackage *>(diagram->getOwner());
+    if (parentPackage == 0 && diagram != 0) {
+        parentPackage = dynamic_cast<MPackage *>(diagram->getOwner());
     }
-    if (parent_package == 0) {
-        parent_package = m_modelController->getRootPackage();
+    if (parentPackage == 0) {
+        parentPackage = m_modelController->getRootPackage();
     }
-    return parent_package;
+    return parentPackage;
 }
 
-MDiagram *DiagramSceneController::findDiagramBySearchId(MPackage *package, const QString &diagram_name)
+MDiagram *DiagramSceneController::findDiagramBySearchId(MPackage *package, const QString &diagramName)
 {
-    QString diagram_search_id = NameController::calcElementNameSearchId(diagram_name);
+    QString diagramSearchId = NameController::calcElementNameSearchId(diagramName);
     foreach (const Handle<MObject> &handle, package->getChildren()) {
         if (handle.hasTarget()) {
             if (MDiagram *diagram = dynamic_cast<MDiagram *>(handle.getTarget())) {
-                if (NameController::calcElementNameSearchId(diagram->getName()) == diagram_search_id) {
+                if (NameController::calcElementNameSearchId(diagram->getName()) == diagramSearchId) {
                     return diagram;
                 }
             }
@@ -376,62 +376,62 @@ MDiagram *DiagramSceneController::findDiagramBySearchId(MPackage *package, const
 
 namespace {
 
-static QPointF alignObjectLeft(DObject *object, DObject *other_object)
+static QPointF alignObjectLeft(DObject *object, DObject *otherObject)
 {
     qreal left = object->getPos().x() + object->getRect().left();
-    QPointF pos = other_object->getPos();
-    qreal other_left = pos.x() + other_object->getRect().left();
-    qreal delta = other_left - left;
+    QPointF pos = otherObject->getPos();
+    qreal otherLeft = pos.x() + otherObject->getRect().left();
+    qreal delta = otherLeft - left;
     pos.setX(pos.x() - delta);
     return pos;
 }
 
-static QPointF alignObjectRight(DObject *object, DObject *other_object)
+static QPointF alignObjectRight(DObject *object, DObject *otherObject)
 {
     qreal right = object->getPos().x() + object->getRect().right();
-    QPointF pos = other_object->getPos();
-    qreal other_right = pos.x() + other_object->getRect().right();
-    qreal delta = other_right - right;
+    QPointF pos = otherObject->getPos();
+    qreal otherRight = pos.x() + otherObject->getRect().right();
+    qreal delta = otherRight - right;
     pos.setX(pos.x() - delta);
     return pos;
 }
 
-static QPointF alignObjectHCenter(DObject *object, DObject *other_object)
+static QPointF alignObjectHCenter(DObject *object, DObject *otherObject)
 {
     qreal center = object->getPos().x();
-    QPointF pos = other_object->getPos();
-    qreal other_center = pos.x();
-    qreal delta = other_center - center;
+    QPointF pos = otherObject->getPos();
+    qreal otherCenter = pos.x();
+    qreal delta = otherCenter - center;
     pos.setX(pos.x() - delta);
     return pos;
 }
 
-static QPointF alignObjectTop(DObject *object, DObject *other_object)
+static QPointF alignObjectTop(DObject *object, DObject *otherObject)
 {
     qreal top = object->getPos().y() + object->getRect().top();
-    QPointF pos = other_object->getPos();
-    qreal other_top = pos.y() + other_object->getRect().top();
-    qreal delta = other_top - top;
+    QPointF pos = otherObject->getPos();
+    qreal otherTop = pos.y() + otherObject->getRect().top();
+    qreal delta = otherTop - top;
     pos.setY(pos.y() - delta);
     return pos;
 }
 
-static QPointF alignObjectBottom(DObject *object, DObject *other_object)
+static QPointF alignObjectBottom(DObject *object, DObject *otherObject)
 {
     qreal bottom = object->getPos().y() + object->getRect().bottom();
-    QPointF pos = other_object->getPos();
-    qreal other_bottom = pos.y() + other_object->getRect().bottom();
-    qreal delta = other_bottom - bottom;
+    QPointF pos = otherObject->getPos();
+    qreal otherBottom = pos.y() + otherObject->getRect().bottom();
+    qreal delta = otherBottom - bottom;
     pos.setY(pos.y() - delta);
     return pos;
 }
 
-static QPointF alignObjectVCenter(DObject *object, DObject *other_object)
+static QPointF alignObjectVCenter(DObject *object, DObject *otherObject)
 {
     qreal center = object->getPos().y();
-    QPointF pos = other_object->getPos();
-    qreal other_center = pos.y();
-    qreal delta = other_center - center;
+    QPointF pos = otherObject->getPos();
+    qreal otherCenter = pos.y();
+    qreal delta = otherCenter - center;
     pos.setY(pos.y() - delta);
     return pos;
 }
@@ -496,60 +496,60 @@ void DiagramSceneController::alignVCenter(DObject *object, const DSelection &sel
     alignPosition(object, selection, alignObjectVCenter, diagram);
 }
 
-void DiagramSceneController::alignWidth(DObject *object, const DSelection &selection, const QSizeF &minimum_size, MDiagram *diagram)
+void DiagramSceneController::alignWidth(DObject *object, const DSelection &selection, const QSizeF &minimumSize, MDiagram *diagram)
 {
-    alignSize(object, selection, minimum_size, alignObjectWidth, diagram);
+    alignSize(object, selection, minimumSize, alignObjectWidth, diagram);
 }
 
-void DiagramSceneController::alignHeight(DObject *object, const DSelection &selection, const QSizeF &minimum_size, MDiagram *diagram)
+void DiagramSceneController::alignHeight(DObject *object, const DSelection &selection, const QSizeF &minimumSize, MDiagram *diagram)
 {
-    alignSize(object, selection, minimum_size, alignObjectHeight, diagram);
+    alignSize(object, selection, minimumSize, alignObjectHeight, diagram);
 }
 
-void DiagramSceneController::alignSize(DObject *object, const DSelection &selection, const QSizeF &minimum_size, MDiagram *diagram)
+void DiagramSceneController::alignSize(DObject *object, const DSelection &selection, const QSizeF &minimumSize, MDiagram *diagram)
 {
-    alignSize(object, selection, minimum_size, alignObjectSize, diagram);
+    alignSize(object, selection, minimumSize, alignObjectSize, diagram);
 }
 
 void DiagramSceneController::alignPosition(DObject *object, const DSelection &selection, QPointF (*aligner)(DObject *, DObject *), MDiagram *diagram)
 {
     foreach (const DSelection::Index &index, selection.getIndices()) {
         DElement *element = m_diagramController->findElement(index.getElementKey(), diagram);
-        if (DObject *selected_object = dynamic_cast<DObject *>(element)) {
-            if (selected_object != object) {
-                QPointF new_pos = aligner(object, selected_object);
-                if (new_pos != selected_object->getPos()) {
-                    m_diagramController->startUpdateElement(selected_object, diagram, DiagramController::UPDATE_GEOMETRY);
-                    selected_object->setPos(new_pos);
-                    m_diagramController->finishUpdateElement(selected_object, diagram, false);
+        if (DObject *selectedObject = dynamic_cast<DObject *>(element)) {
+            if (selectedObject != object) {
+                QPointF newPos = aligner(object, selectedObject);
+                if (newPos != selectedObject->getPos()) {
+                    m_diagramController->startUpdateElement(selectedObject, diagram, DiagramController::UPDATE_GEOMETRY);
+                    selectedObject->setPos(newPos);
+                    m_diagramController->finishUpdateElement(selectedObject, diagram, false);
                 }
             }
         }
     }
 }
 
-void DiagramSceneController::alignSize(DObject *object, const DSelection &selection, const QSizeF &minimum_size, QRectF (*aligner)(DObject *, const QSizeF &), MDiagram *diagram)
+void DiagramSceneController::alignSize(DObject *object, const DSelection &selection, const QSizeF &minimumSize, QRectF (*aligner)(DObject *, const QSizeF &), MDiagram *diagram)
 {
     QSizeF size;
-    if (object->getRect().width() < minimum_size.width()) {
-        size.setWidth(minimum_size.width());
+    if (object->getRect().width() < minimumSize.width()) {
+        size.setWidth(minimumSize.width());
     } else {
         size.setWidth(object->getRect().width());
     }
-    if (object->getRect().height() < minimum_size.height()) {
-        size.setHeight(minimum_size.height());
+    if (object->getRect().height() < minimumSize.height()) {
+        size.setHeight(minimumSize.height());
     } else {
         size.setHeight(object->getRect().height());
     }
     foreach (const DSelection::Index &index, selection.getIndices()) {
         DElement *element = m_diagramController->findElement(index.getElementKey(), diagram);
-        if (DObject *selected_object = dynamic_cast<DObject *>(element)) {
-            QRectF new_rect = aligner(selected_object, size);
-            if (new_rect != selected_object->getRect()) {
-                m_diagramController->startUpdateElement(selected_object, diagram, DiagramController::UPDATE_GEOMETRY);
-                selected_object->setAutoSize(false);
-                selected_object->setRect(new_rect);
-                m_diagramController->finishUpdateElement(selected_object, diagram, false);
+        if (DObject *selectedObject = dynamic_cast<DObject *>(element)) {
+            QRectF newRect = aligner(selectedObject, size);
+            if (newRect != selectedObject->getRect()) {
+                m_diagramController->startUpdateElement(selectedObject, diagram, DiagramController::UPDATE_GEOMETRY);
+                selectedObject->setAutoSize(false);
+                selectedObject->setRect(newRect);
+                m_diagramController->finishUpdateElement(selectedObject, diagram, false);
             }
         }
     }
@@ -564,59 +564,59 @@ void DiagramSceneController::alignOnRaster(DElement *element, MDiagram *diagram)
     element->accept(&visitor);
 }
 
-DElement *DiagramSceneController::addModelElement(const Uid &model_element_key, const QPointF &pos, MDiagram *diagram)
+DElement *DiagramSceneController::addModelElement(const Uid &modelElementKey, const QPointF &pos, MDiagram *diagram)
 {
     DElement *element = 0;
-    if (MObject *model_object = m_modelController->findObject(model_element_key)) {
-        element = addObject(model_object, pos, diagram);
-    } else if (MRelation *model_relation = m_modelController->findRelation(model_element_key)) {
-        element = addRelation(model_relation, QList<QPointF>(), diagram);
+    if (MObject *modelObject = m_modelController->findObject(modelElementKey)) {
+        element = addObject(modelObject, pos, diagram);
+    } else if (MRelation *modelRelation = m_modelController->findRelation(modelElementKey)) {
+        element = addRelation(modelRelation, QList<QPointF>(), diagram);
     } else {
         QMT_CHECK(false);
     }
     return element;
 }
 
-DObject *DiagramSceneController::addObject(MObject *model_object, const QPointF &pos, MDiagram *diagram)
+DObject *DiagramSceneController::addObject(MObject *modelObject, const QPointF &pos, MDiagram *diagram)
 {
-    QMT_CHECK(model_object);
+    QMT_CHECK(modelObject);
 
-    if (m_diagramController->hasDelegate(model_object, diagram)) {
+    if (m_diagramController->hasDelegate(modelObject, diagram)) {
         return 0;
     }
 
     m_diagramController->getUndoController()->beginMergeSequence(tr("Add Element"));
 
     DFactory factory;
-    model_object->accept(&factory);
-    DObject *diagram_object = dynamic_cast<DObject *>(factory.getProduct());
-    QMT_CHECK(diagram_object);
-    diagram_object->setPos(pos);
-    m_diagramController->addElement(diagram_object, diagram);
-    alignOnRaster(diagram_object, diagram);
+    modelObject->accept(&factory);
+    DObject *diagramObject = dynamic_cast<DObject *>(factory.getProduct());
+    QMT_CHECK(diagramObject);
+    diagramObject->setPos(pos);
+    m_diagramController->addElement(diagramObject, diagram);
+    alignOnRaster(diagramObject, diagram);
 
     // add all relations between any other element on diagram and new element
     foreach (DElement *delement, diagram->getDiagramElements()) {
-        if (delement != diagram_object) {
+        if (delement != diagramObject) {
             DObject *dobject = dynamic_cast<DObject *>(delement);
             if (dobject) {
                 MObject *mobject = m_modelController->findObject(dobject->getModelUid());
                 if (mobject) {
                     foreach (const Handle<MRelation> &handle, mobject->getRelations()) {
                         if (handle.hasTarget()
-                                && ((handle.getTarget()->getEndA() == model_object->getUid()
+                                && ((handle.getTarget()->getEndA() == modelObject->getUid()
                                      && handle.getTarget()->getEndB() == mobject->getUid())
                                     || (handle.getTarget()->getEndA() == mobject->getUid()
-                                        && handle.getTarget()->getEndB() == model_object->getUid()))) {
+                                        && handle.getTarget()->getEndB() == modelObject->getUid()))) {
                             addRelation(handle.getTarget(), QList<QPointF>(), diagram);
                         }
                     }
-                    foreach (const Handle<MRelation> &handle, model_object->getRelations()) {
+                    foreach (const Handle<MRelation> &handle, modelObject->getRelations()) {
                         if (handle.hasTarget()
-                                && ((handle.getTarget()->getEndA() == model_object->getUid()
+                                && ((handle.getTarget()->getEndA() == modelObject->getUid()
                                      && handle.getTarget()->getEndB() == mobject->getUid())
                                     || (handle.getTarget()->getEndA() == mobject->getUid()
-                                        && handle.getTarget()->getEndB() == model_object->getUid()))) {
+                                        && handle.getTarget()->getEndB() == modelObject->getUid()))) {
                             addRelation(handle.getTarget(), QList<QPointF>(), diagram);
                         }
                     }
@@ -626,48 +626,48 @@ DObject *DiagramSceneController::addObject(MObject *model_object, const QPointF 
     }
 
     // add all self relations
-    foreach (const Handle<MRelation> &handle, model_object->getRelations()) {
+    foreach (const Handle<MRelation> &handle, modelObject->getRelations()) {
         if (handle.hasTarget ()
-                && handle.getTarget()->getEndA() == model_object->getUid()
-                && handle.getTarget()->getEndB() == model_object->getUid()) {
+                && handle.getTarget()->getEndA() == modelObject->getUid()
+                && handle.getTarget()->getEndB() == modelObject->getUid()) {
             addRelation(handle.getTarget(), QList<QPointF>(), diagram);
         }
     }
 
     m_diagramController->getUndoController()->endMergeSequence();
 
-    return diagram_object;
+    return diagramObject;
 }
 
-DRelation *DiagramSceneController::addRelation(MRelation *model_relation, const QList<QPointF> &intermediate_points, MDiagram *diagram)
+DRelation *DiagramSceneController::addRelation(MRelation *modelRelation, const QList<QPointF> &intermediatePoints, MDiagram *diagram)
 {
-    QMT_CHECK(model_relation);
+    QMT_CHECK(modelRelation);
 
-    if (m_diagramController->hasDelegate(model_relation, diagram)) {
+    if (m_diagramController->hasDelegate(modelRelation, diagram)) {
         return 0;
     }
 
     DFactory factory;
-    model_relation->accept(&factory);
-    DRelation *diagram_relation = dynamic_cast<DRelation *>(factory.getProduct());
-    QMT_CHECK(diagram_relation);
+    modelRelation->accept(&factory);
+    DRelation *diagramRelation = dynamic_cast<DRelation *>(factory.getProduct());
+    QMT_CHECK(diagramRelation);
 
-    MObject *end_a_model_object = m_modelController->findObject(model_relation->getEndA());
-    QMT_CHECK(end_a_model_object);
-    DObject *end_a_diagram_object = m_diagramController->findDelegate<DObject>(end_a_model_object, diagram);
-    QMT_CHECK(end_a_diagram_object);
-    diagram_relation->setEndA(end_a_diagram_object->getUid());
+    MObject *endAModelObject = m_modelController->findObject(modelRelation->getEndA());
+    QMT_CHECK(endAModelObject);
+    DObject *endADiagramObject = m_diagramController->findDelegate<DObject>(endAModelObject, diagram);
+    QMT_CHECK(endADiagramObject);
+    diagramRelation->setEndA(endADiagramObject->getUid());
 
-    MObject *end_b_model_object = m_modelController->findObject(model_relation->getEndB());
-    QMT_CHECK(end_b_model_object);
-    DObject *end_b_diagram_object = m_diagramController->findDelegate<DObject>(end_b_model_object, diagram);
-    QMT_CHECK(end_b_diagram_object);
-    diagram_relation->setEndB(end_b_diagram_object->getUid());
+    MObject *endBModelObject = m_modelController->findObject(modelRelation->getEndB());
+    QMT_CHECK(endBModelObject);
+    DObject *endBDiagramObject = m_diagramController->findDelegate<DObject>(endBModelObject, diagram);
+    QMT_CHECK(endBDiagramObject);
+    diagramRelation->setEndB(endBDiagramObject->getUid());
 
-    QList<DRelation::IntermediatePoint> relation_points;
-    if (end_a_diagram_object->getUid() == end_b_diagram_object->getUid() && intermediate_points.isEmpty()) {
+    QList<DRelation::IntermediatePoint> relationPoints;
+    if (endADiagramObject->getUid() == endBDiagramObject->getUid() && intermediatePoints.isEmpty()) {
         // create some intermediate points for self-relation
-        QRectF rect = end_a_diagram_object->getRect().translated(end_a_diagram_object->getPos());
+        QRectF rect = endADiagramObject->getRect().translated(endADiagramObject->getPos());
         static const qreal EDGE_RADIUS = 30.0;
         qreal w = rect.width() * 0.25;
         if (w > EDGE_RADIUS) {
@@ -680,20 +680,20 @@ DRelation *DiagramSceneController::addRelation(MRelation *model_relation, const 
         QPointF i1(rect.x() - EDGE_RADIUS, rect.bottom() - h);
         QPointF i2(rect.x() - EDGE_RADIUS, rect.bottom() + EDGE_RADIUS);
         QPointF i3(rect.x() + w, rect.bottom() + EDGE_RADIUS);
-        relation_points.append(DRelation::IntermediatePoint(i1));
-        relation_points.append(DRelation::IntermediatePoint(i2));
-        relation_points.append(DRelation::IntermediatePoint(i3));
+        relationPoints.append(DRelation::IntermediatePoint(i1));
+        relationPoints.append(DRelation::IntermediatePoint(i2));
+        relationPoints.append(DRelation::IntermediatePoint(i3));
     } else {
-        foreach (const QPointF &intermediate_point, intermediate_points) {
-            relation_points.append(DRelation::IntermediatePoint(intermediate_point));
+        foreach (const QPointF &intermediatePoint, intermediatePoints) {
+            relationPoints.append(DRelation::IntermediatePoint(intermediatePoint));
         }
     }
-    diagram_relation->setIntermediatePoints(relation_points);
+    diagramRelation->setIntermediatePoints(relationPoints);
 
-    m_diagramController->addElement(diagram_relation, diagram);
-    alignOnRaster(diagram_relation, diagram);
+    m_diagramController->addElement(diagramRelation, diagram);
+    alignOnRaster(diagramRelation, diagram);
 
-    return diagram_relation;
+    return diagramRelation;
 }
 
 }

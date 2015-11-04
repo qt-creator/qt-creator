@@ -76,7 +76,7 @@ public:
 
     void addEllipse(const ShapePointF &center, const ShapeSizeF &radius);
 
-    void addArc(const ShapePointF &center, const ShapeSizeF &radius, qreal start_angle, qreal span_angle);
+    void addArc(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal spanAngle);
 
     void moveTo(const ShapePointF &pos);
 
@@ -84,7 +84,7 @@ public:
 
     void arcMoveTo(const ShapePointF &center, const ShapeSizeF &radius, qreal angle);
 
-    void arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal start_angle, qreal sweep_length);
+    void arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal sweepLength);
 
     void closePath();
 

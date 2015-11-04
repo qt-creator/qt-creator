@@ -123,29 +123,29 @@ void DObject::setDepth(int depth)
     m_depth = depth;
 }
 
-void DObject::setVisualPrimaryRole(DObject::VisualPrimaryRole visual_primary_role)
+void DObject::setVisualPrimaryRole(DObject::VisualPrimaryRole visualPrimaryRole)
 {
-    m_visualPrimaryRole = visual_primary_role;
+    m_visualPrimaryRole = visualPrimaryRole;
 }
 
-void DObject::setVisualSecondaryRole(DObject::VisualSecondaryRole visual_secondary_role)
+void DObject::setVisualSecondaryRole(DObject::VisualSecondaryRole visualSecondaryRole)
 {
-    m_visualSecondaryRole = visual_secondary_role;
+    m_visualSecondaryRole = visualSecondaryRole;
 }
 
-void DObject::setStereotypeDisplay(DObject::StereotypeDisplay stereotype_display)
+void DObject::setStereotypeDisplay(DObject::StereotypeDisplay stereotypeDisplay)
 {
-    m_stereotypeDisplay = stereotype_display;
+    m_stereotypeDisplay = stereotypeDisplay;
 }
 
-void DObject::setAutoSize(bool auto_sized)
+void DObject::setAutoSize(bool autoSized)
 {
-    m_autoSized = auto_sized;
+    m_autoSized = autoSized;
 }
 
-void DObject::setVisualEmphasized(bool visual_emphasized)
+void DObject::setVisualEmphasized(bool visualEmphasized)
 {
-    m_visualEmphasized = visual_emphasized;
+    m_visualEmphasized = visualEmphasized;
 }
 
 void DObject::accept(DVisitor *visitor)

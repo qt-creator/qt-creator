@@ -140,7 +140,7 @@ void PaletteBox::mousePressEvent(QMouseEvent *event)
 
 void PaletteBox::keyPressEvent(QKeyEvent *event)
 {
-    bool is_known_key = false;
+    bool isKnownKey = false;
     switch (event->key()) {
     case Qt::Key_Left:
         if (m_currentIndex <= 0) {
@@ -148,7 +148,7 @@ void PaletteBox::keyPressEvent(QKeyEvent *event)
         } else {
             setCurrentIndex(m_currentIndex - 1);
         }
-        is_known_key = true;
+        isKnownKey = true;
         break;
     case Qt::Key_Right:
         if (m_currentIndex < 0 || m_currentIndex >= m_brushes.size() - 1) {
@@ -156,10 +156,10 @@ void PaletteBox::keyPressEvent(QKeyEvent *event)
         } else {
             setCurrentIndex(m_currentIndex + 1);
         }
-        is_known_key = true;
+        isKnownKey = true;
         break;
     }
-    if (is_known_key && m_currentIndex >= 0 && m_currentIndex < m_brushes.size()) {
+    if (isKnownKey && m_currentIndex >= 0 && m_currentIndex < m_brushes.size()) {
         emit activated(m_currentIndex);
     }
 }

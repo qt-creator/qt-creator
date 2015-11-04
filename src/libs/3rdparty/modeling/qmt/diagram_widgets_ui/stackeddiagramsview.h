@@ -70,7 +70,7 @@ signals:
 
 public:
 
-    void setDiagramsManager(DiagramsManager *diagrams_manager);
+    void setDiagramsManager(DiagramsManager *diagramsManager);
 
 public slots:
 
@@ -84,13 +84,13 @@ public slots:
 
 private slots:
 
-    void onCurrentChanged(int tab_index);
+    void onCurrentChanged(int tabIndex);
 
 private:
 
-    MDiagram *getDiagram(int tab_index) const;
+    MDiagram *getDiagram(int tabIndex) const;
 
-    MDiagram *getDiagram(DiagramView * diagram_view) const;
+    MDiagram *getDiagram(DiagramView * diagramView) const;
 
 private:
 

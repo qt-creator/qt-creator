@@ -59,8 +59,8 @@ static const qreal BODY_HORIZ_BORDER = 4.0;
 static const qreal BODY_VERT_BORDER = 4.0;
 
 
-DiagramItem::DiagramItem(DDiagram *diagram, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent)
-    : ObjectItem(diagram, diagram_scene_model, parent),
+DiagramItem::DiagramItem(DDiagram *diagram, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
+    : ObjectItem(diagram, diagramSceneModel, parent),
       m_customIcon(0),
       m_body(0),
       m_fold(0),
@@ -141,11 +141,11 @@ void DiagramItem::update()
     updateGeometry();
 }
 
-bool DiagramItem::intersectShapeWithLine(const QLineF &line, QPointF *intersection_point, QLineF *intersection_line) const
+bool DiagramItem::intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const
 {
     QPolygonF polygon;
     if (m_customIcon) {
-        // TODO use custom_icon path as shape
+        // TODO use customIcon path as shape
         QRectF rect = getObject()->getRect();
         rect.translate(getObject()->getPos());
         polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
@@ -154,7 +154,7 @@ bool DiagramItem::intersectShapeWithLine(const QLineF &line, QPointF *intersecti
         rect.translate(getObject()->getPos());
         polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
     }
-    return GeometryUtilities::intersect(polygon, line, intersection_point, intersection_line);
+    return GeometryUtilities::intersect(polygon, line, intersectionPoint, intersectionLine);
 }
 
 QSizeF DiagramItem::getMinimumSize() const
@@ -172,15 +172,15 @@ QSizeF DiagramItem::calcMinimumGeometry() const
     }
 
     height += BODY_VERT_BORDER;
-    if (CustomIconItem *stereotype_icon_item = getStereotypeIconItem()) {
-        width = std::max(width, stereotype_icon_item->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
-        height += std::max(FOLD_HEIGHT, stereotype_icon_item->boundingRect().height());
+    if (CustomIconItem *stereotypeIconItem = getStereotypeIconItem()) {
+        width = std::max(width, stereotypeIconItem->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
+        height += std::max(FOLD_HEIGHT, stereotypeIconItem->boundingRect().height());
     } else {
         height += FOLD_HEIGHT;
     }
-    if (StereotypesItem *stereotypes_item = getStereotypesItem()) {
-        width = std::max(width, stereotypes_item->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
-        height += stereotypes_item->boundingRect().height();
+    if (StereotypesItem *stereotypesItem = getStereotypesItem()) {
+        width = std::max(width, stereotypesItem->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
+        height += stereotypesItem->boundingRect().height();
     }
     if (m_diagramName) {
         width = std::max(width, m_diagramName->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
@@ -245,36 +245,36 @@ void DiagramItem::updateGeometry()
     }
 
     if (m_body) {
-        QPolygonF body_polygon;
-        body_polygon
+        QPolygonF bodyPolygon;
+        bodyPolygon
                 << rect.topLeft()
                 << rect.topRight() + QPointF(-FOLD_WIDTH, 0.0)
                 << rect.topRight() + QPointF(0.0, FOLD_HEIGHT)
                 << rect.bottomRight()
                 << rect.bottomLeft();
-        m_body->setPolygon(body_polygon);
+        m_body->setPolygon(bodyPolygon);
     }
     if (m_fold) {
-        QPolygonF fold_polygon;
-        fold_polygon
+        QPolygonF foldPolygon;
+        foldPolygon
                 << rect.topRight() + QPointF(-FOLD_WIDTH, 0.0)
                 << rect.topRight() + QPointF(0.0, FOLD_HEIGHT)
                 << rect.topRight() + QPointF(-FOLD_WIDTH, FOLD_HEIGHT);
-        m_fold->setPolygon(fold_polygon);
+        m_fold->setPolygon(foldPolygon);
     }
 
     y += BODY_VERT_BORDER;
     if (!m_customIcon) {
-        if (CustomIconItem *stereotype_icon_item = getStereotypeIconItem()) {
-            stereotype_icon_item->setPos(left + BODY_HORIZ_BORDER, y);
-            y += std::max(FOLD_HEIGHT, stereotype_icon_item->boundingRect().height());
+        if (CustomIconItem *stereotypeIconItem = getStereotypeIconItem()) {
+            stereotypeIconItem->setPos(left + BODY_HORIZ_BORDER, y);
+            y += std::max(FOLD_HEIGHT, stereotypeIconItem->boundingRect().height());
         } else {
             y += FOLD_HEIGHT;
         }
     }
-    if (StereotypesItem *stereotypes_item = getStereotypesItem()) {
-        stereotypes_item->setPos(-stereotypes_item->boundingRect().width() / 2.0, y);
-        y += stereotypes_item->boundingRect().height();
+    if (StereotypesItem *stereotypesItem = getStereotypesItem()) {
+        stereotypesItem->setPos(-stereotypesItem->boundingRect().width() / 2.0, y);
+        y += stereotypesItem->boundingRect().height();
     }
     if (m_diagramName) {
         m_diagramName->setPos(-m_diagramName->boundingRect().width() / 2.0, y);

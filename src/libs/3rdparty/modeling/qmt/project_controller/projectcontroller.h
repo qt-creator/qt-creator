@@ -72,7 +72,7 @@ signals:
 
     void changed();
 
-    void fileNameChanged(const QString &file_name);
+    void fileNameChanged(const QString &fileName);
 
 public:
 
@@ -82,9 +82,9 @@ public:
 
 public slots:
 
-    void newProject(const QString &file_name);
+    void newProject(const QString &fileName);
 
-    void setFileName(const QString &file_name);
+    void setFileName(const QString &fileName);
 
     void setModified();
 
@@ -92,7 +92,7 @@ public slots:
 
     void save();
 
-    void saveAs(const QString &file_name);
+    void saveAs(const QString &fileName);
 
 private:
     QScopedPointer<Project> m_project;

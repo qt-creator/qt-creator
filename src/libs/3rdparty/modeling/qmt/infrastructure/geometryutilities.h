@@ -61,11 +61,11 @@ public:
 
 public:
 
-    static QLineF stretch(const QLineF &line, double p1_extension, double p2_extension);
+    static QLineF stretch(const QLineF &line, double p1Extension, double p2Extension);
 
-    static bool intersect(const QPolygonF &polygon, const QLineF &line, QPointF *intersection_point, QLineF *intersection_line = 0);
+    static bool intersect(const QPolygonF &polygon, const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine = 0);
 
-    static bool placeRectAtLine(const QRectF &rect, const QLineF &line, double line_offset, double distance, const QLineF &intersection_line, QPointF *placement, Side *horizontal_aligned_side);
+    static bool placeRectAtLine(const QRectF &rect, const QLineF &line, double lineOffset, double distance, const QLineF &intersectionLine, QPointF *placement, Side *horizontalAlignedSide);
 
     static double calcAngle(const QLineF &line);
 
@@ -77,10 +77,10 @@ public:
 
     static QPointF calcSecondaryAxisDirection(const QLineF &line);
 
-    static void adjustPosAndRect(QPointF *pos, QRectF *rect, const QPointF &top_left_delta, const QPointF &bottom_right_delta,
-                                 const QPointF &relative_alignment);
+    static void adjustPosAndRect(QPointF *pos, QRectF *rect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta,
+                                 const QPointF &relativeAlignment);
 
-    static QSizeF ensureMinimumRasterSize(const QSizeF &size, double raster_width, double raster_height);
+    static QSizeF ensureMinimumRasterSize(const QSizeF &size, double rasterWidth, double rasterHeight);
 };
 
 }

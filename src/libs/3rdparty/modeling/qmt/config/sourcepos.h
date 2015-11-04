@@ -41,7 +41,7 @@ public:
 
     SourcePos();
 
-    SourcePos(int source_id, int line_number, int column_number = -1);
+    SourcePos(int sourceId, int lineNumber, int columnNumber = -1);
 
 public:
 

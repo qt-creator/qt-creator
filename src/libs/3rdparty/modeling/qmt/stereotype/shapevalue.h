@@ -95,9 +95,9 @@ public:
 
     qreal mapTo(qreal origin, qreal size) const;
 
-    qreal mapScaledTo(qreal scaled_origin, qreal original_size, qreal actual_size) const;
+    qreal mapScaledTo(qreal scaledOrigin, qreal originalSize, qreal actualSize) const;
 
-    qreal mapScaledTo(qreal scaled_origin, qreal original_size, qreal base_size, qreal actual_size) const;
+    qreal mapScaledTo(qreal scaledOrigin, qreal originalSize, qreal baseSize, qreal actualSize) const;
 
 private:
 
@@ -136,9 +136,9 @@ public:
 
     QPointF mapTo(const QPointF &origin, const QSizeF &size) const;
 
-    QPointF mapScaledTo(const QPointF &scaled_origin, const QSizeF &original_size, const QSizeF &actual_size) const;
+    QPointF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &actualSize) const;
 
-    QPointF mapScaledTo(const QPointF &scaled_origin, const QSizeF &original_size, const QSizeF &base_size, const QSizeF &actual_size) const;
+    QPointF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize, const QSizeF &actualSize) const;
 
 private:
 
@@ -175,9 +175,9 @@ public:
 
     QSizeF mapTo(const QPointF &origin, const QSizeF &size) const;
 
-    QSizeF mapScaledTo(const QPointF &scaled_origin, const QSizeF &original_size, const QSizeF &actual_size) const;
+    QSizeF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &actualSize) const;
 
-    QSizeF mapScaledTo(const QPointF &scaled_origin, const QSizeF &original_size, const QSizeF &base_size, const QSizeF &actual_size) const;
+    QSizeF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize, const QSizeF &actualSize) const;
 
 private:
 

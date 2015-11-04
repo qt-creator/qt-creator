@@ -50,9 +50,9 @@ public:
 
 public:
 
-    void setDiagramController(DiagramController *diagram_controller);
+    void setDiagramController(DiagramController *diagramController);
 
-    void setSceneInspector(ISceneInspector *scene_inspector);
+    void setSceneInspector(ISceneInspector *sceneInspector);
 
     void setDiagram(MDiagram *diagram);
 

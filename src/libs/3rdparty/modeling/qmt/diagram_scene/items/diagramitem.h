@@ -45,7 +45,7 @@ class DiagramItem :
         public ObjectItem
 {
 public:
-    explicit DiagramItem(DDiagram *diagram, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent = 0);
+    explicit DiagramItem(DDiagram *diagram, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
 
     ~DiagramItem();
 
@@ -55,7 +55,7 @@ public:
 
 public:
 
-    bool intersectShapeWithLine(const QLineF &line, QPointF *intersection_point, QLineF *intersection_line) const;
+    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const;
 
 public:
 

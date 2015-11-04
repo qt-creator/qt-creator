@@ -40,9 +40,9 @@ namespace qmt {
 
 struct SourceChar {
     SourceChar() { }
-    SourceChar(QChar chr, const SourcePos &source_pos)
+    SourceChar(QChar chr, const SourcePos &sourcePos)
         : ch(chr),
-          pos(source_pos)
+          pos(sourcePos)
     {
     }
 

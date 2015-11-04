@@ -61,7 +61,7 @@ class RelationItem :
     class ArrowConfigurator;
 
 public:
-    RelationItem(DRelation *relation, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent = 0);
+    RelationItem(DRelation *relation, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
 
     ~RelationItem();
 
@@ -81,29 +81,29 @@ public:
 
     void moveDelta(const QPointF &delta);
 
-    void alignItemPositionToRaster(double raster_width, double raster_height);
+    void alignItemPositionToRaster(double rasterWidth, double rasterHeight);
 
 public:
 
     bool isSecondarySelected() const;
 
-    void setSecondarySelected(bool secondary_selected);
+    void setSecondarySelected(bool secondarySelected);
 
     bool isFocusSelected() const;
 
-    void setFocusSelected(bool focus_selected);
+    void setFocusSelected(bool focusSelected);
 
 public:
 
     QPointF getHandlePos(int index);
 
-    void insertHandle(int before_index, const QPointF &pos);
+    void insertHandle(int beforeIndex, const QPointF &pos);
 
     void deleteHandle(int index);
 
     void setHandlePos(int index, const QPointF &pos);
 
-    void alignHandleToRaster(int index, double raster_width, double raster_height);
+    void alignHandleToRaster(int index, double rasterWidth, double rasterHeight);
 
 public:
 
@@ -125,9 +125,9 @@ private:
 
     const Style *getAdaptedStyle();
 
-    QPointF calcEndPoint(const Uid &end, const Uid &other_end, int nearest_intermediate_point_index);
+    QPointF calcEndPoint(const Uid &end, const Uid &otherEnd, int nearestIntermediatePointIndex);
 
-    QPointF calcEndPoint(const Uid &end, const QPointF &other_end_pos, int nearest_intermediate_point_index);
+    QPointF calcEndPoint(const Uid &end, const QPointF &otherEndPos, int nearestIntermediatePointIndex);
 
 private:
 

@@ -52,14 +52,14 @@ void MItem::setVariety(const QString &variety)
     m_variety = variety;
 }
 
-void MItem::setVarietyEditable(bool variety_editable)
+void MItem::setVarietyEditable(bool varietyEditable)
 {
-    m_varietyEditable = variety_editable;
+    m_varietyEditable = varietyEditable;
 }
 
-void MItem::setShapeEditable(bool shape_editable)
+void MItem::setShapeEditable(bool shapeEditable)
 {
-    m_shapeEditable = shape_editable;
+    m_shapeEditable = shapeEditable;
 }
 
 void MItem::accept(MVisitor *visitor)

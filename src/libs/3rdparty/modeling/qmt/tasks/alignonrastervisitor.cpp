@@ -63,14 +63,14 @@ AlignOnRasterVisitor::~AlignOnRasterVisitor()
 {
 }
 
-void AlignOnRasterVisitor::setDiagramController(DiagramController *diagram_controller)
+void AlignOnRasterVisitor::setDiagramController(DiagramController *diagramController)
 {
-    m_diagramController = diagram_controller;
+    m_diagramController = diagramController;
 }
 
-void AlignOnRasterVisitor::setSceneInspector(ISceneInspector *scene_inspector)
+void AlignOnRasterVisitor::setSceneInspector(ISceneInspector *sceneInspector)
 {
-    m_sceneInspector = scene_inspector;
+    m_sceneInspector = sceneInspector;
 }
 
 void AlignOnRasterVisitor::setDiagram(MDiagram *diagram)

@@ -61,20 +61,20 @@ public:
 
 public:
 
-    GraphicsHandleItem(int point_index, PathSelectionItem *parent)
+    GraphicsHandleItem(int pointIndex, PathSelectionItem *parent)
         : QGraphicsRectItem(parent),
           m_owner(parent),
-          m_pointIndex(point_index),
+          m_pointIndex(pointIndex),
           m_selection(NOT_SELECTED)
     {
     }
 
 public:
 
-    void setPointSize(const QSizeF &point_size)
+    void setPointSize(const QSizeF &pointSize)
     {
-        if (m_pointSize != point_size) {
-            m_pointSize = point_size;
+        if (m_pointSize != pointSize) {
+            m_pointSize = pointSize;
             update();
         }
     }
@@ -192,12 +192,12 @@ QPainterPath PathSelectionItem::shape() const
     for (int i = 0; i < m_handles.size(); ++i) {
         polygon.append(m_handles.at(i)->pos());
     }
-    QPainterPath polygon_path;
-    polygon_path.addPolygon(polygon);
+    QPainterPath polygonPath;
+    polygonPath.addPolygon(polygon);
     QPainterPathStroker ps;
     ps.setWidth(16.0);
-    polygon_path = ps.createStroke(polygon_path);
-    shape.addPath(polygon_path);
+    polygonPath = ps.createStroke(polygonPath);
+    shape.addPath(polygonPath);
     return shape;
 }
 
@@ -221,20 +221,20 @@ QList<QPointF> PathSelectionItem::getPoints() const
 void PathSelectionItem::setPoints(const QList<QPointF> &points)
 {
     prepareGeometryChange();
-    int point_index = 0;
+    int pointIndex = 0;
     foreach (const QPointF &point, points) {
         GraphicsHandleItem *handle;
-        if (point_index >= m_handles.size()) {
-            handle = new GraphicsHandleItem(point_index, this);
+        if (pointIndex >= m_handles.size()) {
+            handle = new GraphicsHandleItem(pointIndex, this);
             handle->setPointSize(m_pointSize);
             m_handles.append(handle);
         } else {
-            handle = m_handles.at(point_index);
+            handle = m_handles.at(pointIndex);
         }
         handle->setPos(point);
-        ++point_index;
+        ++pointIndex;
     }
-    while (m_handles.size() > point_index) {
+    while (m_handles.size() > pointIndex) {
         m_handles.last()->scene()->removeItem(m_handles.last());
         delete m_handles.last();
         m_handles.removeLast();
@@ -242,10 +242,10 @@ void PathSelectionItem::setPoints(const QList<QPointF> &points)
     update();
 }
 
-void PathSelectionItem::setSecondarySelected(bool secondary_selected)
+void PathSelectionItem::setSecondarySelected(bool secondarySelected)
 {
-    if (m_secondarySelected != secondary_selected) {
-        m_secondarySelected = secondary_selected;
+    if (m_secondarySelected != secondarySelected) {
+        m_secondarySelected = secondarySelected;
         update();
     }
 }
@@ -272,34 +272,34 @@ void PathSelectionItem::update()
     int i = 0;
     foreach (GraphicsHandleItem *handle, m_handles) {
         handle->setPointSize(m_pointSize);
-        bool is_end_point = (i == 0 || i == m_handles.size() - 1);
+        bool isEndPoint = (i == 0 || i == m_handles.size() - 1);
         handle->setSelection(m_secondarySelected
-                             ? (is_end_point ? GraphicsHandleItem::NOT_SELECTED : GraphicsHandleItem::SECONDARY_SELECTED)
+                             ? (isEndPoint ? GraphicsHandleItem::NOT_SELECTED : GraphicsHandleItem::SECONDARY_SELECTED)
                              : GraphicsHandleItem::SELECTED);
         ++i;
     }
 }
 
-void PathSelectionItem::moveHandle(int point_index, const QPointF &delta_move, HandleStatus handle_status, HandleQualifier handle_qualifier)
+void PathSelectionItem::moveHandle(int pointIndex, const QPointF &deltaMove, HandleStatus handleStatus, HandleQualifier handleQualifier)
 {
-    Q_UNUSED(handle_status);
+    Q_UNUSED(handleStatus);
 
-    switch (handle_qualifier) {
+    switch (handleQualifier) {
     case NONE:
     {
-        if (handle_status == PRESS) {
-            m_originalHandlePos = m_windable->getHandlePos(point_index);
+        if (handleStatus == PRESS) {
+            m_originalHandlePos = m_windable->getHandlePos(pointIndex);
         }
-        QPointF new_pos = m_originalHandlePos + delta_move;
-        m_windable->setHandlePos(point_index, new_pos);
-        if (handle_status == RELEASE) {
-            m_windable->alignHandleToRaster(point_index, RASTER_WIDTH, RASTER_HEIGHT);
+        QPointF newPos = m_originalHandlePos + deltaMove;
+        m_windable->setHandlePos(pointIndex, newPos);
+        if (handleStatus == RELEASE) {
+            m_windable->alignHandleToRaster(pointIndex, RASTER_WIDTH, RASTER_HEIGHT);
         }
         break;
     }
     case DELETE_HANDLE:
-        if (handle_status == PRESS) {
-            m_windable->deleteHandle(point_index);
+        if (handleStatus == PRESS) {
+            m_windable->deleteHandle(pointIndex);
         }
         break;
     }

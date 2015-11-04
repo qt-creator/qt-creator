@@ -101,7 +101,7 @@ bool QStringParser::Parser::scan(int *i, int *index)
 
 bool QStringParser::Parser::scan(double *d, int *index)
 {
-    int start_index = *index;
+    int startIndex = *index;
     // skip whitespaces
     while (*index < m_source.length() && m_source.at(*index).isSpace()) {
         ++(*index);
@@ -145,7 +145,7 @@ bool QStringParser::Parser::scan(double *d, int *index)
         }
     }
     bool ok = false;
-    *d = m_source.mid(start_index, *index - start_index).toDouble(&ok);
+    *d = m_source.mid(startIndex, *index - startIndex).toDouble(&ok);
     return ok;
 }
 

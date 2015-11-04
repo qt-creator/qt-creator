@@ -82,15 +82,15 @@ struct IconShape::IconShapePrivate {
 
 PathShape *IconShape::IconShapePrivate::getActivePath()
 {
-    PathShape *path_shape = 0;
+    PathShape *pathShape = 0;
     if (m_shapes.count() > 0) {
-        path_shape = dynamic_cast<PathShape *>(m_shapes.last());
+        pathShape = dynamic_cast<PathShape *>(m_shapes.last());
     }
-    if (path_shape == 0) {
-        path_shape = new PathShape();
-        m_shapes.append(path_shape);
+    if (pathShape == 0) {
+        pathShape = new PathShape();
+        m_shapes.append(pathShape);
     }
-    return path_shape;
+    return pathShape;
 }
 
 
@@ -142,9 +142,9 @@ void IconShape::addEllipse(const ShapePointF &center, const ShapeSizeF &radius)
     d->m_shapes.append(new EllipseShape(center, radius));
 }
 
-void IconShape::addArc(const ShapePointF &center, const ShapeSizeF &radius, qreal start_angle, qreal span_angle)
+void IconShape::addArc(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal spanAngle)
 {
-    d->m_shapes.append(new ArcShape(center, radius, start_angle, span_angle));
+    d->m_shapes.append(new ArcShape(center, radius, startAngle, spanAngle));
 }
 
 void IconShape::moveTo(const ShapePointF &pos)
@@ -162,9 +162,9 @@ void IconShape::arcMoveTo(const ShapePointF &center, const ShapeSizeF &radius, q
     d->getActivePath()->arcMoveTo(center, radius, angle);
 }
 
-void IconShape::arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal start_angle, qreal sweep_length)
+void IconShape::arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal sweepLength)
 {
-    d->getActivePath()->arcTo(center, radius, start_angle, sweep_length);
+    d->getActivePath()->arcTo(center, radius, startAngle, sweepLength);
 }
 
 void IconShape::closePath()

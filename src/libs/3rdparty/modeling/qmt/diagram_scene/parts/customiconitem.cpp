@@ -40,9 +40,9 @@
 
 namespace qmt {
 
-CustomIconItem::CustomIconItem(DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent)
+CustomIconItem::CustomIconItem(DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : QGraphicsItem(parent),
-      m_diagramSceneModel(diagram_scene_model),
+      m_diagramSceneModel(diagramSceneModel),
       m_baseSize(20, 20),
       m_actualSize(20, 20)
 {
@@ -52,24 +52,24 @@ CustomIconItem::~CustomIconItem()
 {
 }
 
-void CustomIconItem::setStereotypeIconId(const QString &stereotype_icon_id)
+void CustomIconItem::setStereotypeIconId(const QString &stereotypeIconId)
 {
-    if (m_stereotypeIconId != stereotype_icon_id) {
-        m_stereotypeIconId = stereotype_icon_id;
+    if (m_stereotypeIconId != stereotypeIconId) {
+        m_stereotypeIconId = stereotypeIconId;
         m_stereotypeIcon = m_diagramSceneModel->getStereotypeController()->findStereotypeIcon(m_stereotypeIconId);
         m_baseSize = QSizeF(m_stereotypeIcon.getWidth(), m_stereotypeIcon.getHeight());
         m_actualSize = m_baseSize;
     }
 }
 
-void CustomIconItem::setBaseSize(const QSizeF &base_size)
+void CustomIconItem::setBaseSize(const QSizeF &baseSize)
 {
-    m_baseSize = base_size;
+    m_baseSize = baseSize;
 }
 
-void CustomIconItem::setActualSize(const QSizeF &actual_size)
+void CustomIconItem::setActualSize(const QSizeF &actualSize)
 {
-    m_actualSize = actual_size;
+    m_actualSize = actualSize;
 }
 
 void CustomIconItem::setBrush(const QBrush &brush)

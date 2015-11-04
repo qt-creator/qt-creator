@@ -49,9 +49,9 @@ public:
 
     void setTextBrush(const QBrush &brush);
 
-    void setTemplateParameters(const QList<QString> &template_parameters);
+    void setTemplateParameters(const QList<QString> &templateParameters);
 
-    void setBreakLines(bool break_lines);
+    void setBreakLines(bool breakLines);
 
 private:
 

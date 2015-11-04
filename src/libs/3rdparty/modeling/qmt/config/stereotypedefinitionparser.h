@@ -50,7 +50,7 @@ class QMT_EXPORT StereotypeDefinitionParserError :
 {
 public:
 
-    StereotypeDefinitionParserError(const QString &error_msg, const SourcePos &source_pos);
+    StereotypeDefinitionParserError(const QString &errorMsg, const SourcePos &sourcePos);
 
     ~StereotypeDefinitionParserError();
 
@@ -79,7 +79,7 @@ public:
 
 signals:
 
-    void iconParsed(const StereotypeIcon &stereotype_icon);
+    void iconParsed(const StereotypeIcon &stereotypeIcon);
 
     void toolbarParsed(const Toolbar &toolbar);
 
@@ -93,7 +93,7 @@ private:
 
     void parseIcon();
 
-    void parseIconProperties(StereotypeIcon *stereotype_icon);
+    void parseIconProperties(StereotypeIcon *stereotypeIcon);
 
     void parseToolbar();
 
@@ -113,7 +113,7 @@ private:
 
     QColor parseColorProperty();
 
-    void parseIconCommands(StereotypeIcon *stereotype_icon);
+    void parseIconCommands(StereotypeIcon *stereotypeIcon);
 
     QList<ShapeValueF> parseIconCommandParameters(const QList<IconCommandParameter> &parameters);
 
@@ -133,13 +133,13 @@ private:
 
     Token readNextToken();
 
-    qreal expectAbsoluteValue(const ShapeValueF &value, const SourcePos &source_pos);
+    qreal expectAbsoluteValue(const ShapeValueF &value, const SourcePos &sourcePos);
 
     void expectSemicolonOrEndOfLine();
 
     bool nextIsComma();
 
-    void expectOperator(int op, const QString &op_name);
+    void expectOperator(int op, const QString &opName);
 
     void expectComma();
 

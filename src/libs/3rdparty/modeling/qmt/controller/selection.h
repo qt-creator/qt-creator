@@ -44,9 +44,9 @@ public:
     class Index {
     public:
 
-        Index(const Uid &element_key, const Uid &owner_key)
-            : m_elementKey(element_key),
-              m_ownerKey(owner_key)
+        Index(const Uid &elementKey, const Uid &ownerKey)
+            : m_elementKey(elementKey),
+              m_ownerKey(ownerKey)
         {
         }
 
@@ -83,7 +83,7 @@ public:
 
     void append(const Index &index);
 
-    void append(const Uid &element_key, const Uid &owner_key);
+    void append(const Uid &elementKey, const Uid &ownerKey);
 
 private:
 

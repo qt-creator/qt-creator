@@ -49,7 +49,7 @@ public:
 
 public:
 
-    void setDiagramsManager(DiagramsManager *diagrams_manager);
+    void setDiagramsManager(DiagramsManager *diagramsManager);
 
 public:
 

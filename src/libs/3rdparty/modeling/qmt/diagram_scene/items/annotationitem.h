@@ -58,7 +58,7 @@ class AnnotationItem :
 
 public:
 
-    AnnotationItem(DAnnotation *annotation, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent = 0);
+    AnnotationItem(DAnnotation *annotation, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
 
     ~AnnotationItem();
 
@@ -86,25 +86,25 @@ public:
 
     QSizeF getMinimumSize() const;
 
-    void setPosAndRect(const QPointF &original_pos, const QRectF &original_rect, const QPointF &top_left_delta, const QPointF &bottom_right_delta);
+    void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta);
 
-    void alignItemSizeToRaster(Side adjust_horizontal_side, Side adjust_vertical_side, double raster_width, double raster_height);
+    void alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide, double rasterWidth, double rasterHeight);
 
 public:
 
     void moveDelta(const QPointF &delta);
 
-    void alignItemPositionToRaster(double raster_width, double raster_height);
+    void alignItemPositionToRaster(double rasterWidth, double rasterHeight);
 
 public:
 
     bool isSecondarySelected() const;
 
-    void setSecondarySelected(bool secondary_selected);
+    void setSecondarySelected(bool secondarySelected);
 
     bool isFocusSelected() const;
 
-    void setFocusSelected(bool focus_selected);
+    void setFocusSelected(bool focusSelected);
 
 public:
 
@@ -124,7 +124,7 @@ protected:
 
     void updateSelectionMarker();
 
-    void updateSelectionMarkerGeometry(const QRectF &annotation_rect);
+    void updateSelectionMarkerGeometry(const QRectF &annotationRect);
 
     const Style *getAdaptedStyle();
 

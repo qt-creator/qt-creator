@@ -56,8 +56,8 @@ public:
 
 public:
     Token();
-    Token(Type type, const QString &text, const SourcePos &source_pos);
-    Token(Type type, int subtype, const QString &text, const SourcePos &source_pos);
+    Token(Type type, const QString &text, const SourcePos &sourcePos);
+    Token(Type type, int subtype, const QString &text, const SourcePos &sourcePos);
     ~Token();
 
 public:
@@ -76,7 +76,7 @@ public:
 
     SourcePos getSourcePos() const { return m_sourcePos; }
 
-    void setSourcePos(const SourcePos &source_pos);
+    void setSourcePos(const SourcePos &sourcePos);
 
 private:
     Type m_type;

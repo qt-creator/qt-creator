@@ -46,7 +46,7 @@ public:
 
 public:
 
-    void setMaxWidth(double max_width);
+    void setMaxWidth(double maxWidth);
 
     void resetMaxWidth();
 

@@ -57,7 +57,7 @@ public:
 
 public:
 
-    virtual void align(AlignType align_type, const QString &identifier) = 0;
+    virtual void align(AlignType alignType, const QString &identifier) = 0;
 };
 
 }

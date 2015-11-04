@@ -44,13 +44,13 @@ class QMT_EXPORT DUpdateVisitor :
         public MConstVisitor
 {
 public:
-    DUpdateVisitor(DElement *target, const MDiagram *diagram, bool check_needs_update = false);
+    DUpdateVisitor(DElement *target, const MDiagram *diagram, bool checkNeedsUpdate = false);
 
 public:
 
     bool updateNeeded() const { return m_updateNeeded; }
 
-    void setCheckNeedsUpdate(bool check_needs_update);
+    void setCheckNeedsUpdate(bool checkNeedsUpdate);
 
     void visitMElement(const MElement *element);
 
@@ -78,7 +78,7 @@ public:
 
 private:
 
-    bool isUpdating(bool value_changed);
+    bool isUpdating(bool valueChanged);
 
 private:
 

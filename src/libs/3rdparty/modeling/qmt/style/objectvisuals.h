@@ -41,20 +41,20 @@ class QMT_EXPORT ObjectVisuals
 {
 public:
     ObjectVisuals();
-    ObjectVisuals(DObject::VisualPrimaryRole visual_primary_role,
-                  DObject::VisualSecondaryRole visual_secondary_role,
-                  bool emphasized, const QColor &base_color, int depth);
+    ObjectVisuals(DObject::VisualPrimaryRole visualPrimaryRole,
+                  DObject::VisualSecondaryRole visualSecondaryRole,
+                  bool emphasized, const QColor &baseColor, int depth);
     ~ObjectVisuals();
 
 public:
 
     DObject::VisualPrimaryRole getVisualPrimaryRole() const { return m_visualPrimaryRole; }
 
-    void setVisualPrimaryRole(DObject::VisualPrimaryRole visual_primary_role);
+    void setVisualPrimaryRole(DObject::VisualPrimaryRole visualPrimaryRole);
 
     DObject::VisualSecondaryRole getVisualSecondaryRole() const { return m_visualSecondaryRole; }
 
-    void setVisualSecondaryRole(DObject::VisualSecondaryRole visual_secondary_role);
+    void setVisualSecondaryRole(DObject::VisualSecondaryRole visualSecondaryRole);
 
     bool isEmphasized() const { return m_emphasized; }
 
@@ -62,7 +62,7 @@ public:
 
     QColor getBaseColor() const { return m_baseColor; }
 
-    void setBaseColor(const QColor &base_color);
+    void setBaseColor(const QColor &baseColor);
 
     int getDepth() const { return m_depth; }
 
@@ -83,7 +83,7 @@ private:
 
 bool operator==(const ObjectVisuals &lhs, const ObjectVisuals &rhs);
 
-uint qHash(const ObjectVisuals &object_visuals);
+uint qHash(const ObjectVisuals &objectVisuals);
 
 } // namespace qmt
 

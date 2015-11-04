@@ -92,25 +92,25 @@ signals:
 
     void diagramSceneActivated(const MDiagram *diagram);
 
-    void selectionChanged(const MDiagram *diagram);
+    void selectionHasChanged(const MDiagram *diagram);
 
 public:
 
     DiagramController *getDiagramController() const { return m_diagramController; }
 
-    void setDiagramController(DiagramController *diagram_controller);
+    void setDiagramController(DiagramController *diagramController);
 
     DiagramSceneController *getDiagramSceneController() const { return m_diagramSceneController; }
 
-    void setDiagramSceneController(DiagramSceneController *diagram_scene_controller);
+    void setDiagramSceneController(DiagramSceneController *diagramSceneController);
 
     StyleController *getStyleController() const { return m_styleController; }
 
-    void setStyleController(StyleController *style_controller);
+    void setStyleController(StyleController *styleController);
 
     StereotypeController *getStereotypeController() const { return m_stereotypeController; }
 
-    void setStereotypeController(StereotypeController *stereotype_controller);
+    void setStereotypeController(StereotypeController *stereotypeController);
 
     MDiagram *getDiagram() const { return m_diagram; }
 
@@ -126,7 +126,7 @@ public:
 
     DSelection getSelectedElements() const;
 
-    DElement *findTopmostElement(const QPointF &scene_pos) const;
+    DElement *findTopmostElement(const QPointF &scenePos) const;
 
 public:
 
@@ -156,21 +156,21 @@ public:
 
     void copyToClipboard();
 
-    bool exportPng(const QString &file_name);
+    bool exportPng(const QString &fileName);
 
-    void exportPdf(const QString &file_name);
+    void exportPdf(const QString &fileName);
 
 public:
 
-    void selectItem(QGraphicsItem *item, bool multi_select);
+    void selectItem(QGraphicsItem *item, bool multiSelect);
 
-    void moveSelectedItems(QGraphicsItem *grabbed_item, const QPointF &delta);
+    void moveSelectedItems(QGraphicsItem *grabbedItem, const QPointF &delta);
 
     void alignSelectedItemsPositionOnRaster();
 
     void onDoubleClickedItem(QGraphicsItem *item);
 
-    QList<QGraphicsItem *> collectCollidingObjectItems(const QGraphicsItem *item, CollidingMode colliding_mode) const;
+    QList<QGraphicsItem *> collectCollidingObjectItems(const QGraphicsItem *item, CollidingMode collidingMode) const;
 
 private:
 
@@ -228,11 +228,11 @@ private:
 
     void deleteGraphicsItem(QGraphicsItem *item, DElement *element);
 
-    void updateFocusItem(const QSet<QGraphicsItem *> &selected_items);
+    void updateFocusItem(const QSet<QGraphicsItem *> &selectedItems);
 
     void unsetFocusItem();
 
-    bool isInFrontOf(const QGraphicsItem *front_item, const QGraphicsItem *back_item);
+    bool isInFrontOf(const QGraphicsItem *frontItem, const QGraphicsItem *backItem);
 
 private:
 

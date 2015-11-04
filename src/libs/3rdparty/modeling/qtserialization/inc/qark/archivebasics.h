@@ -64,11 +64,11 @@ public:
     }
 
     template<typename T>
-    T getUserData(const QString &key, const T &default_value)
+    T getUserData(const QString &key, const T &defaultValue)
     {
         // gcc 4.8.2 fails to compile if the following 2 statements are written in one expression
         //return m_userData.value(key, data).value<T>();
-        QVariant v = m_userData.value(key, default_value);
+        QVariant v = m_userData.value(key, defaultValue);
         return v.value<T>();
     }
 
@@ -84,7 +84,7 @@ public:
     }
 
 private:
-    Flag::mask_type m_flags;
+    Flag::maskType m_flags;
     QHash<QString, QVariant> m_userData;
 };
 

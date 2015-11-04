@@ -49,19 +49,19 @@ public:
 
 public:
 
-    virtual void visitLine(LineShape *shape_line) = 0;
+    virtual void visitLine(LineShape *shapeLine) = 0;
 
-    virtual void visitRect(RectShape *shape_rect) = 0;
+    virtual void visitRect(RectShape *shapeRect) = 0;
 
-    virtual void visitRoundedRect(RoundedRectShape *shape_rounded_rect) = 0;
+    virtual void visitRoundedRect(RoundedRectShape *shapeRoundedRect) = 0;
 
-    virtual void visitCircle(CircleShape *shape_circle) = 0;
+    virtual void visitCircle(CircleShape *shapeCircle) = 0;
 
-    virtual void visitEllipse(EllipseShape *shape_ellipse) = 0;
+    virtual void visitEllipse(EllipseShape *shapeEllipse) = 0;
 
-    virtual void visitArc(ArcShape *shape_arc) = 0;
+    virtual void visitArc(ArcShape *shapeArc) = 0;
 
-    virtual void visitPath(PathShape *shape_path) = 0;
+    virtual void visitPath(PathShape *shapePath) = 0;
 };
 
 
@@ -73,19 +73,19 @@ public:
 
 public:
 
-    virtual void visitLine(const LineShape *shape_line) = 0;
+    virtual void visitLine(const LineShape *shapeLine) = 0;
 
-    virtual void visitRect(const RectShape *shape_rect) = 0;
+    virtual void visitRect(const RectShape *shapeRect) = 0;
 
-    virtual void visitRoundedRect(const RoundedRectShape *shape_rounded_rect) = 0;
+    virtual void visitRoundedRect(const RoundedRectShape *shapeRoundedRect) = 0;
 
-    virtual void visitCircle(const CircleShape *shape_circle) = 0;
+    virtual void visitCircle(const CircleShape *shapeCircle) = 0;
 
-    virtual void visitEllipse(const EllipseShape *shape_ellipse) = 0;
+    virtual void visitEllipse(const EllipseShape *shapeEllipse) = 0;
 
-    virtual void visitArc(const ArcShape *shape_arc) = 0;
+    virtual void visitArc(const ArcShape *shapeArc) = 0;
 
-    virtual void visitPath(const PathShape *shape_path) = 0;
+    virtual void visitPath(const PathShape *shapePath) = 0;
 };
 
 }

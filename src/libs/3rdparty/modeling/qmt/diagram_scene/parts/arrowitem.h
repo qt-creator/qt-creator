@@ -79,9 +79,9 @@ public:
 
     void setShaft(Shaft shaft);
 
-    void setArrowSize(double arrow_size);
+    void setArrowSize(double arrowSize);
 
-    void setDiamondSize(double diamond_size);
+    void setDiamondSize(double diamondSize);
 
     void setStartHead(Head head);
 
@@ -115,9 +115,9 @@ private:
 
     void updateShaft(const Style *style);
 
-    void updateHead(GraphicsHeadItem **head_item, Head head, const Style *style);
+    void updateHead(GraphicsHeadItem **headItem, Head head, const Style *style);
 
-    void updateHeadGeometry(GraphicsHeadItem **head_item, const QPointF &pos, const QPointF &other_pos);
+    void updateHeadGeometry(GraphicsHeadItem **headItem, const QPointF &pos, const QPointF &otherPos);
 
     void updateGeometry();
 

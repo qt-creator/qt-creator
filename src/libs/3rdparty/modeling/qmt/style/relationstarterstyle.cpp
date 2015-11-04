@@ -35,24 +35,24 @@ namespace qmt {
 RelationStarterStyle::RelationStarterStyle()
     : Style(GlobalStyle)
 {
-    QPen line_pen;
-    line_pen.setColor("black");
-    line_pen.setWidth(1);
-    setLinePen(line_pen);
-    setOuterLinePen(line_pen);
-    setInnerLinePen(line_pen);
-    setExtraLinePen(line_pen);
+    QPen linePen;
+    linePen.setColor("black");
+    linePen.setWidth(1);
+    setLinePen(linePen);
+    setOuterLinePen(linePen);
+    setInnerLinePen(linePen);
+    setExtraLinePen(linePen);
     setTextBrush(QBrush(QColor("black")));
     setFillBrush(QBrush(QColor("black")));
     setExtraFillBrush(QBrush(QColor("white")));
-    QFont normal_font;
-    setNormalFont(normal_font);
-    QFont small_font;
-    small_font.setPointSizeF(QFont().pointSizeF() * 0.80);
-    setSmallFont(small_font);
-    QFont header_font;
-    header_font.setPointSizeF(QFont().pointSizeF() * 1.25);
-    setHeaderFont(header_font);
+    QFont normalFont;
+    setNormalFont(normalFont);
+    QFont smallFont;
+    smallFont.setPointSizeF(QFont().pointSizeF() * 0.80);
+    setSmallFont(smallFont);
+    QFont headerFont;
+    headerFont.setPointSizeF(QFont().pointSizeF() * 1.25);
+    setHeaderFont(headerFont);
 }
 
 

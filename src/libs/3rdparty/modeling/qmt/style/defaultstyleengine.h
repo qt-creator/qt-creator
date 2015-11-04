@@ -64,37 +64,37 @@ public:
 
 public:
 
-    const Style *applyStyle(const Style *base_style, ElementType element_type, const Parameters *parameters);
+    const Style *applyStyle(const Style *baseStyle, ElementType elementType, const Parameters *parameters);
 
-    const Style *applyObjectStyle(const Style *base_style, ElementType element_type, const ObjectVisuals &object_visuals, const Parameters *parameters);
+    const Style *applyObjectStyle(const Style *baseStyle, ElementType elementType, const ObjectVisuals &objectVisuals, const Parameters *parameters);
 
-    const Style *applyObjectStyle(const Style *base_style, const StyledObject &styled_object, const Parameters *parameters);
+    const Style *applyObjectStyle(const Style *baseStyle, const StyledObject &styledObject, const Parameters *parameters);
 
-    const Style *applyRelationStyle(const Style *base_style, const StyledRelation &styled_relation, const Parameters *parameters);
+    const Style *applyRelationStyle(const Style *baseStyle, const StyledRelation &styledRelation, const Parameters *parameters);
 
-    const Style *applyAnnotationStyle(const Style *base_style, const DAnnotation *annotation, const Parameters *parameters);
+    const Style *applyAnnotationStyle(const Style *baseStyle, const DAnnotation *annotation, const Parameters *parameters);
 
-    const Style *applyBoundaryStyle(const Style *base_style, const DBoundary *boundary, const Parameters *parameters);
+    const Style *applyBoundaryStyle(const Style *baseStyle, const DBoundary *boundary, const Parameters *parameters);
 
 private:
 
-    const Style *applyAnnotationStyle(const Style *base_style, DAnnotation::VisualRole visual_role, const Parameters *parameters);
+    const Style *applyAnnotationStyle(const Style *baseStyle, DAnnotation::VisualRole visualRole, const Parameters *parameters);
 
-    const Style *applyBoundaryStyle(const Style *base_style, const Parameters *parameters);
+    const Style *applyBoundaryStyle(const Style *baseStyle, const Parameters *parameters);
 
     ElementType getObjectType(const DObject *object);
 
-    bool areStackingRoles(DObject::VisualPrimaryRole rhs_primary_role, DObject::VisualSecondaryRole rhs_secondary_role, DObject::VisualPrimaryRole lhs_primary_role, DObject::VisualSecondaryRole lhs_secondary_rols);
+    bool areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryRole, DObject::VisualSecondaryRole rhsSecondaryRole, DObject::VisualPrimaryRole lhsPrimaryRole, DObject::VisualSecondaryRole lhsSecondaryRols);
 
-    QColor getBaseColor(ElementType element_type, ObjectVisuals object_visuals);
+    QColor getBaseColor(ElementType elementType, ObjectVisuals objectVisuals);
 
-    QColor getLineColor(ElementType element_type, const ObjectVisuals &object_visuals);
+    QColor getLineColor(ElementType elementType, const ObjectVisuals &objectVisuals);
 
-    QColor getFillColor(ElementType element_type, const ObjectVisuals &object_visuals);
+    QColor getFillColor(ElementType elementType, const ObjectVisuals &objectVisuals);
 
     QColor getTextColor(const DObject *object, int depth);
 
-    QColor getTextColor(ElementType element_type, const ObjectVisuals &object_visuals);
+    QColor getTextColor(ElementType elementType, const ObjectVisuals &objectVisuals);
 
 private:
 

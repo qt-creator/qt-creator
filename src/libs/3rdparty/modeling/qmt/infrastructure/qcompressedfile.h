@@ -45,7 +45,7 @@ public:
 
     explicit QCompressedDevice(QObject *parent = 0);
 
-    explicit QCompressedDevice(QIODevice *target_device, QObject *parent = 0);
+    explicit QCompressedDevice(QIODevice *targetDevice, QObject *parent = 0);
 
     ~QCompressedDevice();
 
@@ -53,7 +53,7 @@ public:
 
     QIODevice *targetDevice() const { return m_targetDevice; }
 
-    void setTargetDevice(QIODevice *target_device);
+    void setTargetDevice(QIODevice *targetDevice);
 
 public:
 

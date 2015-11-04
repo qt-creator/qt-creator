@@ -79,10 +79,10 @@ public:
 };
 
 
-BoundaryItem::BoundaryItem(DBoundary *boundary, DiagramSceneModel *diagram_scene_model, QGraphicsItem *parent)
+BoundaryItem::BoundaryItem(DBoundary *boundary, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : QGraphicsItem(parent),
       m_boundary(boundary),
-      m_diagramSceneModel(diagram_scene_model),
+      m_diagramSceneModel(diagramSceneModel),
       m_secondarySelected(false),
       m_focusSelected(false),
       m_selectionMarker(0),
@@ -177,66 +177,66 @@ QSizeF BoundaryItem::getMinimumSize() const
     return calcMinimumGeometry();
 }
 
-void BoundaryItem::setPosAndRect(const QPointF &original_pos, const QRectF &original_rect, const QPointF &top_left_delta, const QPointF &bottom_right_delta)
+void BoundaryItem::setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta)
 {
-    QPointF new_pos = original_pos;
-    QRectF new_rect = original_rect;
-    GeometryUtilities::adjustPosAndRect(&new_pos, &new_rect, top_left_delta, bottom_right_delta, QPointF(0.5, 0.5));
-    if (new_pos != m_boundary->getPos() || new_rect != m_boundary->getRect()) {
+    QPointF newPos = originalPos;
+    QRectF newRect = originalRect;
+    GeometryUtilities::adjustPosAndRect(&newPos, &newRect, topLeftDelta, bottomRightDelta, QPointF(0.5, 0.5));
+    if (newPos != m_boundary->getPos() || newRect != m_boundary->getRect()) {
         m_diagramSceneModel->getDiagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
-        m_boundary->setPos(new_pos);
-        m_boundary->setRect(new_rect);
+        m_boundary->setPos(newPos);
+        m_boundary->setRect(newRect);
         m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), false);
     }
 }
 
-void BoundaryItem::alignItemSizeToRaster(IResizable::Side adjust_horizontal_side, IResizable::Side adjust_vertical_side, double raster_width, double raster_height)
+void BoundaryItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, IResizable::Side adjustVerticalSide, double rasterWidth, double rasterHeight)
 {
     QPointF pos = m_boundary->getPos();
     QRectF rect = m_boundary->getRect();
 
-    double horiz_delta = rect.width() - qRound(rect.width() / raster_width) * raster_width;
-    double vert_delta = rect.height() - qRound(rect.height() / raster_height) * raster_height;
+    double horizDelta = rect.width() - qRound(rect.width() / rasterWidth) * rasterWidth;
+    double vertDelta = rect.height() - qRound(rect.height() / rasterHeight) * rasterHeight;
 
     // make sure the new size is at least the minimum size
-    QSizeF minimum_size = getMinimumSize();
-    while (rect.width() + horiz_delta < minimum_size.width()) {
-        horiz_delta += raster_width;
+    QSizeF minimumSize = getMinimumSize();
+    while (rect.width() + horizDelta < minimumSize.width()) {
+        horizDelta += rasterWidth;
     }
-    while (rect.height() + vert_delta < minimum_size.height()) {
-        vert_delta += raster_height;
+    while (rect.height() + vertDelta < minimumSize.height()) {
+        vertDelta += rasterHeight;
     }
 
-    double left_delta = 0.0;
-    double right_delta = 0.0;
-    double top_delta = 0.0;
-    double bottom_delta = 0.0;
+    double leftDelta = 0.0;
+    double rightDelta = 0.0;
+    double topDelta = 0.0;
+    double bottomDelta = 0.0;
 
-    switch (adjust_horizontal_side) {
+    switch (adjustHorizontalSide) {
     case IResizable::SIDE_NONE:
         break;
     case IResizable::SIDE_LEFT_OR_TOP:
-        left_delta = horiz_delta;
+        leftDelta = horizDelta;
         break;
     case IResizable::SIDE_RIGHT_OR_BOTTOM:
-        right_delta = -horiz_delta;
+        rightDelta = -horizDelta;
         break;
     }
 
-    switch (adjust_vertical_side) {
+    switch (adjustVerticalSide) {
     case IResizable::SIDE_NONE:
         break;
     case IResizable::SIDE_LEFT_OR_TOP:
-        top_delta = vert_delta;
+        topDelta = vertDelta;
         break;
     case IResizable::SIDE_RIGHT_OR_BOTTOM:
-        bottom_delta = -vert_delta;
+        bottomDelta = -vertDelta;
         break;
     }
 
-    QPointF top_left_delta(left_delta, top_delta);
-    QPointF bottom_right_delta(right_delta, bottom_delta);
-    setPosAndRect(pos, rect, top_left_delta, bottom_right_delta);
+    QPointF topLeftDelta(leftDelta, topDelta);
+    QPointF bottomRightDelta(rightDelta, bottomDelta);
+    setPosAndRect(pos, rect, topLeftDelta, bottomRightDelta);
 }
 
 void BoundaryItem::moveDelta(const QPointF &delta)
@@ -246,17 +246,17 @@ void BoundaryItem::moveDelta(const QPointF &delta)
     m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), false);
 }
 
-void BoundaryItem::alignItemPositionToRaster(double raster_width, double raster_height)
+void BoundaryItem::alignItemPositionToRaster(double rasterWidth, double rasterHeight)
 {
     QPointF pos = m_boundary->getPos();
     QRectF rect = m_boundary->getRect();
-    QPointF top_left = pos + rect.topLeft();
+    QPointF topLeft = pos + rect.topLeft();
 
-    double left_delta = qRound(top_left.x() / raster_width) * raster_width - top_left.x();
-    double top_delta = qRound(top_left.y() / raster_height) * raster_height - top_left.y();
-    QPointF top_left_delta(left_delta, top_delta);
+    double leftDelta = qRound(topLeft.x() / rasterWidth) * rasterWidth - topLeft.x();
+    double topDelta = qRound(topLeft.y() / rasterHeight) * rasterHeight - topLeft.y();
+    QPointF topLeftDelta(leftDelta, topDelta);
 
-    setPosAndRect(pos, rect, top_left_delta, top_left_delta);
+    setPosAndRect(pos, rect, topLeftDelta, topLeftDelta);
 }
 
 bool BoundaryItem::isSecondarySelected() const
@@ -264,10 +264,10 @@ bool BoundaryItem::isSecondarySelected() const
     return m_secondarySelected;
 }
 
-void BoundaryItem::setSecondarySelected(bool secondary_selected)
+void BoundaryItem::setSecondarySelected(bool secondarySelected)
 {
-    if (m_secondarySelected != secondary_selected) {
-        m_secondarySelected = secondary_selected;
+    if (m_secondarySelected != secondarySelected) {
+        m_secondarySelected = secondarySelected;
         update();
     }
 }
@@ -277,10 +277,10 @@ bool BoundaryItem::isFocusSelected() const
     return m_focusSelected;
 }
 
-void BoundaryItem::setFocusSelected(bool focus_selected)
+void BoundaryItem::setFocusSelected(bool focusSelected)
 {
-    if (m_focusSelected != focus_selected) {
-        m_focusSelected = focus_selected;
+    if (m_focusSelected != focusSelected) {
+        m_focusSelected = focusSelected;
         update();
     }
 }
@@ -340,10 +340,10 @@ void BoundaryItem::updateSelectionMarker()
     }
 }
 
-void BoundaryItem::updateSelectionMarkerGeometry(const QRectF &boundary_rect)
+void BoundaryItem::updateSelectionMarkerGeometry(const QRectF &boundaryRect)
 {
     if (m_selectionMarker) {
-        m_selectionMarker->setRect(boundary_rect);
+        m_selectionMarker->setRect(boundaryRect);
     }
 }
 
@@ -369,10 +369,10 @@ void BoundaryItem::onContentsChanged()
     m_onChanged = true;
 
     if (!m_onUpdate) {
-        QString plain_text = m_textItem->toPlainText();
-        if (m_boundary->getText() != plain_text) {
+        QString plainText = m_textItem->toPlainText();
+        if (m_boundary->getText() != plainText) {
             m_diagramSceneModel->getDiagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_MINOR);
-            m_boundary->setText(plain_text);
+            m_boundary->setText(plainText);
             m_diagramSceneModel->getDiagramController()->finishUpdateElement(m_boundary, m_diagramSceneModel->getDiagram(), false);
         }
     }
@@ -387,14 +387,14 @@ QSizeF BoundaryItem::calcMinimumGeometry() const
 
     if (m_textItem) {
         m_textItem->setTextWidth(-1);
-        QSizeF text_size = m_textItem->document()->size();
-        qreal text_width = text_size.width() + 2 * CONTENTS_BORDER_HORIZONTAL;
-        if (text_width > width) {
-            width = text_width;
+        QSizeF textSize = m_textItem->document()->size();
+        qreal textWidth = textSize.width() + 2 * CONTENTS_BORDER_HORIZONTAL;
+        if (textWidth > width) {
+            width = textWidth;
         }
-        qreal text_height = text_size.height() + 2 * CONTENTS_BORDER_VERTICAL;
-        if (text_height > height) {
-            height = text_height;
+        qreal textHeight = textSize.height() + 2 * CONTENTS_BORDER_VERTICAL;
+        if (textHeight > height) {
+            height = textHeight;
         }
     }
     return GeometryUtilities::ensureMinimumRasterSize(QSizeF(width, height), 2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
@@ -408,21 +408,21 @@ void BoundaryItem::updateGeometry()
     qreal width = geometry.width();
     qreal height = geometry.height();
 
-    qreal text_width = 0.0;
-    qreal text_height = 0.0;
+    qreal textWidth = 0.0;
+    qreal textHeight = 0.0;
     if (m_textItem) {
         m_textItem->setTextWidth(-1);
-        QSizeF text_size = m_textItem->document()->size();
-        text_width = text_size.width();
-        text_height = text_size.height();
+        QSizeF textSize = m_textItem->document()->size();
+        textWidth = textSize.width();
+        textHeight = textSize.height();
     }
 
-    QRectF boundary_rect = m_boundary->getRect();
-    if (boundary_rect.width() > width) {
-        width = boundary_rect.width();
+    QRectF boundaryRect = m_boundary->getRect();
+    if (boundaryRect.width() > width) {
+        width = boundaryRect.width();
     }
-    if (boundary_rect.height() > height) {
-        height = boundary_rect.height();
+    if (boundaryRect.height() > height) {
+        height = boundaryRect.height();
     }
 
     // update sizes and positions
@@ -443,11 +443,11 @@ void BoundaryItem::updateGeometry()
     }
 
     if (m_noTextItem) {
-        m_noTextItem->setRect(QRectF(-text_width / 2, top + CONTENTS_BORDER_VERTICAL, text_width, text_height));
+        m_noTextItem->setRect(QRectF(-textWidth / 2, top + CONTENTS_BORDER_VERTICAL, textWidth, textHeight));
     }
 
     if (m_textItem) {
-        m_textItem->setPos(-text_width / 2.0, top + CONTENTS_BORDER_VERTICAL);
+        m_textItem->setPos(-textWidth / 2.0, top + CONTENTS_BORDER_VERTICAL);
     }
 
     updateSelectionMarkerGeometry(rect);

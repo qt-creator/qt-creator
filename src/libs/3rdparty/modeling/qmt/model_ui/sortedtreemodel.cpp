@@ -53,20 +53,20 @@ SortedTreeModel::~SortedTreeModel()
 
 }
 
-void SortedTreeModel::setTreeModel(TreeModel *tree_model)
+void SortedTreeModel::setTreeModel(TreeModel *treeModel)
 {
-    m_treeModel = tree_model;
-    setSourceModel(tree_model);
+    m_treeModel = treeModel;
+    setSourceModel(treeModel);
     startDelayedSortTimer();
 }
 
 bool SortedTreeModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    TreeModel::ItemType left_item_type = (TreeModel::ItemType) sourceModel()->data(left, TreeModel::ROLE_ITEM_TYPE).toInt();
-    TreeModel::ItemType right_item_type = (TreeModel::ItemType) sourceModel()->data(right, TreeModel::ROLE_ITEM_TYPE).toInt();
-    if (left_item_type < right_item_type) {
+    TreeModel::ItemType leftItemType = (TreeModel::ItemType) sourceModel()->data(left, TreeModel::ROLE_ITEM_TYPE).toInt();
+    TreeModel::ItemType rightItemType = (TreeModel::ItemType) sourceModel()->data(right, TreeModel::ROLE_ITEM_TYPE).toInt();
+    if (leftItemType < rightItemType) {
         return true;
-    } else if (left_item_type > right_item_type) {
+    } else if (leftItemType > rightItemType) {
         return false;
     } else {
         QVariant l = sourceModel()->data(left);

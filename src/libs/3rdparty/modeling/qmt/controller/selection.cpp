@@ -55,9 +55,9 @@ void Selection::append(const Index &index)
     m_indices.append(index);
 }
 
-void Selection::append(const Uid &element_key, const Uid &owner_key)
+void Selection::append(const Uid &elementKey, const Uid &ownerKey)
 {
-    append(Index(element_key, owner_key));
+    append(Index(elementKey, ownerKey));
 }
 
 }

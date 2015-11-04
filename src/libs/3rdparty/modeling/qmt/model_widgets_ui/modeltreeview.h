@@ -70,7 +70,7 @@ public:
 
     void setTreeModel(SortedTreeModel *model);
 
-    void setElementTasks(IElementTasks *element_tasks);
+    void setElementTasks(IElementTasks *elementTasks);
 
 public:
 
@@ -80,7 +80,7 @@ public:
 
 protected:
 
-    void startDrag(Qt::DropActions supported_actions);
+    void startDrag(Qt::DropActions supportedActions);
 
     void dragEnterEvent(QDragEnterEvent *event);
 

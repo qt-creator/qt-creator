@@ -42,7 +42,7 @@ class DObject;
 class QMT_EXPORT StyledRelation
 {
 public:
-    StyledRelation(const DRelation *relation, const DObject *end_a, const DObject *end_b);
+    StyledRelation(const DRelation *relation, const DObject *endA, const DObject *endB);
 
     ~StyledRelation();
 

@@ -55,7 +55,7 @@ public:
 
     void setLine(qreal pos);
 
-    void setLine(qreal pos, qreal other_pos1, qreal other_pos2);
+    void setLine(qreal pos, qreal otherPos1, qreal otherPos2);
 
 public:
 

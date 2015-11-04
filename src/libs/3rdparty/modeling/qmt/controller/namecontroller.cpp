@@ -45,117 +45,117 @@ NameController::~NameController()
 
 }
 
-QString NameController::convertFileNameToElementName(const QString &file_name)
+QString NameController::convertFileNameToElementName(const QString &fileName)
 {
-    QFileInfo file_info(file_name);
-    QString base_name = file_info.baseName().trimmed();
-    QString element_name;
-    bool make_uppercase = true;
-    bool insert_space = false;
-    for (int i = 0; i < base_name.size(); ++i) {
-        if (base_name.at(i) == QLatin1Char('_')) {
-            make_uppercase = true;
-            insert_space = true;
-        } else if (base_name.at(i) == QLatin1Char(' ') || base_name.at(i) == QLatin1Char('-')) {
-            make_uppercase = true;
-            insert_space = false;
-            element_name += base_name.at(i);
-        } else if (make_uppercase) {
-            if (insert_space) {
-                element_name += QLatin1Char(' ');
-                insert_space = false;
+    QFileInfo fileInfo(fileName);
+    QString baseName = fileInfo.baseName().trimmed();
+    QString elementName;
+    bool makeUppercase = true;
+    bool insertSpace = false;
+    for (int i = 0; i < baseName.size(); ++i) {
+        if (baseName.at(i) == QLatin1Char('_')) {
+            makeUppercase = true;
+            insertSpace = true;
+        } else if (baseName.at(i) == QLatin1Char(' ') || baseName.at(i) == QLatin1Char('-')) {
+            makeUppercase = true;
+            insertSpace = false;
+            elementName += baseName.at(i);
+        } else if (makeUppercase) {
+            if (insertSpace) {
+                elementName += QLatin1Char(' ');
+                insertSpace = false;
             }
-            element_name += base_name.at(i).toUpper();
-            make_uppercase = false;
+            elementName += baseName.at(i).toUpper();
+            makeUppercase = false;
         } else {
-            if (insert_space) {
-                element_name += QLatin1Char(' ');
-                insert_space = false;
+            if (insertSpace) {
+                elementName += QLatin1Char(' ');
+                insertSpace = false;
             }
-            element_name += base_name.at(i);
+            elementName += baseName.at(i);
         }
     }
-    return element_name;
+    return elementName;
 }
 
-QString NameController::convertElementNameToBaseFileName(const QString &element_name)
+QString NameController::convertElementNameToBaseFileName(const QString &elementName)
 {
-    QString base_file_name;
-    bool insert_underscore = false;
-    for (int i = 0; i < element_name.size(); ++i) {
-        if (element_name.at(i) == QLatin1Char(' ')) {
-            insert_underscore = true;
+    QString baseFileName;
+    bool insertUnderscore = false;
+    for (int i = 0; i < elementName.size(); ++i) {
+        if (elementName.at(i) == QLatin1Char(' ')) {
+            insertUnderscore = true;
         } else {
-            if (insert_underscore) {
-                base_file_name += QLatin1Char('_');
-                insert_underscore = false;
+            if (insertUnderscore) {
+                baseFileName += QLatin1Char('_');
+                insertUnderscore = false;
             }
-            base_file_name += element_name.at(i).toLower();
+            baseFileName += elementName.at(i).toLower();
         }
     }
-    return base_file_name;
+    return baseFileName;
 }
 
-QString NameController::calcRelativePath(const QString &absolute_file_name, const QString &anchor_path)
+QString NameController::calcRelativePath(const QString &absoluteFileName, const QString &anchorPath)
 {
-    int second_last_slash_index = -1;
-    int slash_index = -1;
+    int secondLastSlashIndex = -1;
+    int slashIndex = -1;
     int i = 0;
-    while (i < absolute_file_name.size() && i < anchor_path.size() && absolute_file_name.at(i) == anchor_path.at(i)) {
-        if (absolute_file_name.at(i) == QLatin1Char('/')) {
-            second_last_slash_index = slash_index;
-            slash_index = i;
+    while (i < absoluteFileName.size() && i < anchorPath.size() && absoluteFileName.at(i) == anchorPath.at(i)) {
+        if (absoluteFileName.at(i) == QLatin1Char('/')) {
+            secondLastSlashIndex = slashIndex;
+            slashIndex = i;
         }
         ++i;
     }
 
-    QString relative_path;
+    QString relativePath;
 
-    if (slash_index < 0) {
-        relative_path = absolute_file_name;
-    } else if (i >= absolute_file_name.size()) {
-        // absolute_file_name is a substring of anchor path.
-        if (slash_index == i - 1) {
-            if (second_last_slash_index < 0) {
-                relative_path = absolute_file_name;
+    if (slashIndex < 0) {
+        relativePath = absoluteFileName;
+    } else if (i >= absoluteFileName.size()) {
+        // absoluteFileName is a substring of anchor path.
+        if (slashIndex == i - 1) {
+            if (secondLastSlashIndex < 0) {
+                relativePath = absoluteFileName;
             } else {
-                relative_path = absolute_file_name.mid(second_last_slash_index + 1);
+                relativePath = absoluteFileName.mid(secondLastSlashIndex + 1);
             }
         } else {
-            relative_path = absolute_file_name.mid(slash_index + 1);
+            relativePath = absoluteFileName.mid(slashIndex + 1);
         }
     } else {
-        relative_path = absolute_file_name.mid(slash_index + 1);
+        relativePath = absoluteFileName.mid(slashIndex + 1);
     }
 
-    return relative_path;
+    return relativePath;
 }
 
-QString NameController::calcElementNameSearchId(const QString &element_name)
+QString NameController::calcElementNameSearchId(const QString &elementName)
 {
-    QString search_id;
-    foreach (const QChar &c, element_name) {
+    QString searchId;
+    foreach (const QChar &c, elementName) {
         if (c.isLetterOrNumber()) {
-            search_id += c.toLower();
+            searchId += c.toLower();
         }
     }
-    return search_id;
+    return searchId;
 }
 
-QList<QString> NameController::buildElementsPath(const QString &file_path, bool ignore_last_file_path_part)
+QList<QString> NameController::buildElementsPath(const QString &filePath, bool ignoreLastFilePathPart)
 {
-    QList<QString> relative_elements;
+    QList<QString> relativeElements;
 
-    QStringList splitted = file_path.split(QStringLiteral("/"));
-    QStringList::const_iterator splitted_end = splitted.end();
-    if (ignore_last_file_path_part || splitted.last().isEmpty()) {
-        splitted_end = --splitted_end;
+    QStringList splitted = filePath.split(QStringLiteral("/"));
+    QStringList::const_iterator splittedEnd = splitted.end();
+    if (ignoreLastFilePathPart || splitted.last().isEmpty()) {
+        splittedEnd = --splittedEnd;
     }
-    for (QStringList::const_iterator it = splitted.cbegin(); it != splitted_end; ++it) {
-        QString package_name = qmt::NameController::convertFileNameToElementName(*it);
-        relative_elements.append(package_name);
+    for (QStringList::const_iterator it = splitted.cbegin(); it != splittedEnd; ++it) {
+        QString packageName = qmt::NameController::convertFileNameToElementName(*it);
+        relativeElements.append(packageName);
     }
-    return relative_elements;
+    return relativeElements;
 }
 
 

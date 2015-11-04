@@ -72,28 +72,28 @@ LatchController::~LatchController()
     delete m_horizontalAlignLine;
 }
 
-void LatchController::setDiagramSceneModel(DiagramSceneModel *diagram_scene_model)
+void LatchController::setDiagramSceneModel(DiagramSceneModel *diagramSceneModel)
 {
-    m_diagramSceneModel = diagram_scene_model;
+    m_diagramSceneModel = diagramSceneModel;
 }
 
-void LatchController::addToGraphicsScene(QGraphicsScene *graphics_scene)
+void LatchController::addToGraphicsScene(QGraphicsScene *graphicsScene)
 {
-    QMT_CHECK(graphics_scene);
-    graphics_scene->addItem(m_horizontalAlignLine);
-    graphics_scene->addItem(m_verticalAlignLine);
+    QMT_CHECK(graphicsScene);
+    graphicsScene->addItem(m_horizontalAlignLine);
+    graphicsScene->addItem(m_verticalAlignLine);
 }
 
-void LatchController::removeFromGraphicsScene(QGraphicsScene *graphics_scene)
+void LatchController::removeFromGraphicsScene(QGraphicsScene *graphicsScene)
 {
-    Q_UNUSED(graphics_scene); // avoid warning in release mode
+    Q_UNUSED(graphicsScene); // avoid warning in release mode
 
     if (m_verticalAlignLine->scene()) {
-        QMT_CHECK(graphics_scene == m_verticalAlignLine->scene());
+        QMT_CHECK(graphicsScene == m_verticalAlignLine->scene());
         m_verticalAlignLine->scene()->removeItem(m_verticalAlignLine);
     }
     if (m_horizontalAlignLine->scene()) {
-        QMT_CHECK(graphics_scene == m_horizontalAlignLine->scene());
+        QMT_CHECK(graphicsScene == m_horizontalAlignLine->scene());
         m_horizontalAlignLine->scene()->removeItem(m_horizontalAlignLine);
     }
 }
@@ -119,51 +119,51 @@ void LatchController::mouseMoveEventLatching(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    ILatchable *palped_latchable = dynamic_cast<ILatchable *>(m_diagramSceneModel->getFocusItem());
-    if (!palped_latchable) {
+    ILatchable *palpedLatchable = dynamic_cast<ILatchable *>(m_diagramSceneModel->getFocusItem());
+    if (!palpedLatchable) {
         return;
     }
 
-    ILatchable::Action horiz_action = ILatchable::MOVE;
-    ILatchable::Action vert_action = ILatchable::MOVE;
+    ILatchable::Action horizAction = ILatchable::MOVE;
+    ILatchable::Action vertAction = ILatchable::MOVE;
 
-    QList<ILatchable::Latch> palped_horizontals = palped_latchable->getHorizontalLatches(horiz_action, true);
-    QList<ILatchable::Latch> palped_verticals = palped_latchable->getVerticalLatches(vert_action, true);
+    QList<ILatchable::Latch> palpedHorizontals = palpedLatchable->getHorizontalLatches(horizAction, true);
+    QList<ILatchable::Latch> palpedVerticals = palpedLatchable->getVerticalLatches(vertAction, true);
 
-    qreal horiz_min_dist = 10.0;
-    ILatchable::Latch best_horiz_latch;
-    bool found_best_horiz = false;
-    qreal vert_min_dist = 10.0;
-    ILatchable::Latch best_vert_latch;
-    bool found_best_vert = false;
+    qreal horizMinDist = 10.0;
+    ILatchable::Latch bestHorizLatch;
+    bool foundBestHoriz = false;
+    qreal vertMinDist = 10.0;
+    ILatchable::Latch bestVertLatch;
+    bool foundBestVert = false;
 
     foreach (QGraphicsItem *item, m_diagramSceneModel->getGraphicsItems()) {
         if (item != m_diagramSceneModel->getFocusItem() && !m_diagramSceneModel->isSelectedItem(item)) {
             if (ILatchable *latchable = dynamic_cast<ILatchable *>(item)) {
-                QList<ILatchable::Latch> horizontals = latchable->getHorizontalLatches(horiz_action, false);
-                foreach (const ILatchable::Latch &palped_latch, palped_horizontals) {
+                QList<ILatchable::Latch> horizontals = latchable->getHorizontalLatches(horizAction, false);
+                foreach (const ILatchable::Latch &palpedLatch, palpedHorizontals) {
                     foreach (const ILatchable::Latch &latch, horizontals) {
-                        if (palped_latch.m_latchType == latch.m_latchType) {
+                        if (palpedLatch.m_latchType == latch.m_latchType) {
                             // calculate distance and minimal distance with sign because this is needed later to move the objects
-                            qreal dist = latch.m_pos - palped_latch.m_pos;
-                            if (qAbs(dist) < qAbs(horiz_min_dist)) {
-                                horiz_min_dist = dist;
-                                best_horiz_latch = latch;
-                                found_best_horiz = true;
+                            qreal dist = latch.m_pos - palpedLatch.m_pos;
+                            if (qAbs(dist) < qAbs(horizMinDist)) {
+                                horizMinDist = dist;
+                                bestHorizLatch = latch;
+                                foundBestHoriz = true;
                             }
                         }
                     }
                 }
-                QList<ILatchable::Latch> verticals = latchable->getVerticalLatches(vert_action, false);
-                foreach (const ILatchable::Latch &palped_latch, palped_verticals) {
+                QList<ILatchable::Latch> verticals = latchable->getVerticalLatches(vertAction, false);
+                foreach (const ILatchable::Latch &palpedLatch, palpedVerticals) {
                     foreach (const ILatchable::Latch &latch, verticals) {
-                        if (palped_latch.m_latchType == latch.m_latchType) {
+                        if (palpedLatch.m_latchType == latch.m_latchType) {
                             // calculate distance and minimal distance with sign because this is needed later to move the objects
-                            qreal dist = latch.m_pos - palped_latch.m_pos;
-                            if (qAbs(dist) < qAbs(vert_min_dist)) {
-                                vert_min_dist = dist;
-                                best_vert_latch = latch;
-                                found_best_vert = true;
+                            qreal dist = latch.m_pos - palpedLatch.m_pos;
+                            if (qAbs(dist) < qAbs(vertMinDist)) {
+                                vertMinDist = dist;
+                                bestVertLatch = latch;
+                                foundBestVert = true;
                             }
                         }
                     }
@@ -172,16 +172,16 @@ void LatchController::mouseMoveEventLatching(QGraphicsSceneMouseEvent *event)
         }
     }
 
-    if (found_best_horiz) {
-        switch (best_horiz_latch.m_latchType) {
+    if (foundBestHoriz) {
+        switch (bestHorizLatch.m_latchType) {
         case ILatchable::LEFT:
         case ILatchable::RIGHT:
         case ILatchable::HCENTER:
-            m_verticalAlignLine->setLine(best_horiz_latch.m_pos, best_horiz_latch.m_otherPos1, best_horiz_latch.m_otherPos2);
+            m_verticalAlignLine->setLine(bestHorizLatch.m_pos, bestHorizLatch.m_otherPos1, bestHorizLatch.m_otherPos2);
             m_verticalAlignLine->setVisible(true);
             m_foundHorizontalLatch = true;
-            m_horizontalLatch = best_horiz_latch;
-            m_horizontalDist = horiz_min_dist;
+            m_horizontalLatch = bestHorizLatch;
+            m_horizontalDist = horizMinDist;
             break;
         case ILatchable::NONE:
         case ILatchable::TOP:
@@ -194,16 +194,16 @@ void LatchController::mouseMoveEventLatching(QGraphicsSceneMouseEvent *event)
         m_verticalAlignLine->setVisible(false);
     }
 
-    if (found_best_vert) {
-        switch (best_vert_latch.m_latchType) {
+    if (foundBestVert) {
+        switch (bestVertLatch.m_latchType) {
         case ILatchable::TOP:
         case ILatchable::BOTTOM:
         case ILatchable::VCENTER:
-            m_horizontalAlignLine->setLine(best_vert_latch.m_pos, best_vert_latch.m_otherPos1, best_vert_latch.m_otherPos2);
+            m_horizontalAlignLine->setLine(bestVertLatch.m_pos, bestVertLatch.m_otherPos1, bestVertLatch.m_otherPos2);
             m_horizontalAlignLine->setVisible(true);
             m_foundVerticalLatch = true;
-            m_verticalLatch = best_vert_latch;
-            m_verticalDist = vert_min_dist;
+            m_verticalLatch = bestVertLatch;
+            m_verticalDist = vertMinDist;
             break;
         case ILatchable::NONE:
         case ILatchable::LEFT:
@@ -228,12 +228,12 @@ void LatchController::mouseReleaseEventLatching(QGraphicsSceneMouseEvent *event)
         case ILatchable::HCENTER:
             foreach (QGraphicsItem *item, m_diagramSceneModel->getSelectedItems()) {
                 DElement *element = m_diagramSceneModel->getElement(item);
-                if (DObject *selected_object = dynamic_cast<DObject *>(element)) {
-                    m_diagramSceneModel->getDiagramController()->startUpdateElement(selected_object, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
-                    QPointF new_pos = selected_object->getPos();
-                    new_pos.setX(new_pos.x() + m_horizontalDist);
-                    selected_object->setPos(new_pos);
-                    m_diagramSceneModel->getDiagramController()->finishUpdateElement(selected_object, m_diagramSceneModel->getDiagram(), false);
+                if (DObject *selectedObject = dynamic_cast<DObject *>(element)) {
+                    m_diagramSceneModel->getDiagramController()->startUpdateElement(selectedObject, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
+                    QPointF newPos = selectedObject->getPos();
+                    newPos.setX(newPos.x() + m_horizontalDist);
+                    selectedObject->setPos(newPos);
+                    m_diagramSceneModel->getDiagramController()->finishUpdateElement(selectedObject, m_diagramSceneModel->getDiagram(), false);
                 }
             }
             break;
@@ -253,12 +253,12 @@ void LatchController::mouseReleaseEventLatching(QGraphicsSceneMouseEvent *event)
         case ILatchable::VCENTER:
             foreach (QGraphicsItem *item, m_diagramSceneModel->getSelectedItems()) {
                 DElement *element = m_diagramSceneModel->getElement(item);
-                if (DObject *selected_object = dynamic_cast<DObject *>(element)) {
-                    m_diagramSceneModel->getDiagramController()->startUpdateElement(selected_object, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
-                    QPointF new_pos = selected_object->getPos();
-                    new_pos.setY(new_pos.y() + m_verticalDist);
-                    selected_object->setPos(new_pos);
-                    m_diagramSceneModel->getDiagramController()->finishUpdateElement(selected_object, m_diagramSceneModel->getDiagram(), false);
+                if (DObject *selectedObject = dynamic_cast<DObject *>(element)) {
+                    m_diagramSceneModel->getDiagramController()->startUpdateElement(selectedObject, m_diagramSceneModel->getDiagram(), DiagramController::UPDATE_GEOMETRY);
+                    QPointF newPos = selectedObject->getPos();
+                    newPos.setY(newPos.y() + m_verticalDist);
+                    selectedObject->setPos(newPos);
+                    m_diagramSceneModel->getDiagramController()->finishUpdateElement(selectedObject, m_diagramSceneModel->getDiagram(), false);
                 }
             }
             break;

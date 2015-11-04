@@ -42,13 +42,13 @@ ObjectVisuals::ObjectVisuals()
 {
 }
 
-ObjectVisuals::ObjectVisuals(DObject::VisualPrimaryRole visual_primary_role,
-                             DObject::VisualSecondaryRole visual_secondary_role,
-                             bool emphasized, const QColor &base_color, int depth)
-    : m_visualPrimaryRole(visual_primary_role),
-      m_visualSecondaryRole(visual_secondary_role),
+ObjectVisuals::ObjectVisuals(DObject::VisualPrimaryRole visualPrimaryRole,
+                             DObject::VisualSecondaryRole visualSecondaryRole,
+                             bool emphasized, const QColor &baseColor, int depth)
+    : m_visualPrimaryRole(visualPrimaryRole),
+      m_visualSecondaryRole(visualSecondaryRole),
       m_emphasized(emphasized),
-      m_baseColor(base_color),
+      m_baseColor(baseColor),
       m_depth(depth)
 {
 }
@@ -57,14 +57,14 @@ ObjectVisuals::~ObjectVisuals()
 {
 }
 
-void ObjectVisuals::setVisualPrimaryRole(DObject::VisualPrimaryRole visual_primary_role)
+void ObjectVisuals::setVisualPrimaryRole(DObject::VisualPrimaryRole visualPrimaryRole)
 {
-    m_visualPrimaryRole = visual_primary_role;
+    m_visualPrimaryRole = visualPrimaryRole;
 }
 
-void ObjectVisuals::setVisualSecondaryRole(DObject::VisualSecondaryRole visual_secondary_role)
+void ObjectVisuals::setVisualSecondaryRole(DObject::VisualSecondaryRole visualSecondaryRole)
 {
-    m_visualSecondaryRole = visual_secondary_role;
+    m_visualSecondaryRole = visualSecondaryRole;
 }
 
 void ObjectVisuals::setEmphasized(bool emphasized)
@@ -72,9 +72,9 @@ void ObjectVisuals::setEmphasized(bool emphasized)
     m_emphasized = emphasized;
 }
 
-void ObjectVisuals::setBaseColor(const QColor &base_color)
+void ObjectVisuals::setBaseColor(const QColor &baseColor)
 {
-    m_baseColor = base_color;
+    m_baseColor = baseColor;
 }
 
 void ObjectVisuals::setDepth(int depth)
@@ -91,13 +91,13 @@ bool operator==(const ObjectVisuals &lhs, const ObjectVisuals &rhs)
             && lhs.getDepth() == rhs.getDepth();
 }
 
-uint qHash(const ObjectVisuals &object_visuals)
+uint qHash(const ObjectVisuals &objectVisuals)
 {
-    return ::qHash((int) object_visuals.getVisualPrimaryRole())
-            ^ ::qHash((int) object_visuals.getVisualSecondaryRole())
-            ^ ::qHash(object_visuals.isEmphasized())
-            ^ ::qHash(object_visuals.getBaseColor().rgb())
-            ^ ::qHash(object_visuals.getDepth());
+    return ::qHash((int) objectVisuals.getVisualPrimaryRole())
+            ^ ::qHash((int) objectVisuals.getVisualSecondaryRole())
+            ^ ::qHash(objectVisuals.isEmphasized())
+            ^ ::qHash(objectVisuals.getBaseColor().rgb())
+            ^ ::qHash(objectVisuals.getDepth());
 }
 
 } // namespace qmt

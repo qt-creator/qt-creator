@@ -57,11 +57,11 @@ public:
 
     QString getNamespace() const { return m_namespace; }
 
-    void setNamespace(const QString &name_space);
+    void setNamespace(const QString &nameSpace);
 
     QList<QString> getTemplateParameters() const { return m_templateParameters; }
 
-    void setTemplateParameters(const QList<QString> &template_parameters);
+    void setTemplateParameters(const QList<QString> &templateParameters);
 
     QList<MClassMember> getMembers() const { return m_members; }
 
@@ -69,15 +69,15 @@ public:
 
     QSet<Uid> getVisibleMembers() const { return m_visibleMembers; }
 
-    void setVisibleMembers(const QSet<Uid> &visible_members);
+    void setVisibleMembers(const QSet<Uid> &visibleMembers);
 
     TemplateDisplay getTemplateDisplay() const { return m_templateDisplay; }
 
-    void setTemplateDisplay(TemplateDisplay template_display);
+    void setTemplateDisplay(TemplateDisplay templateDisplay);
 
     bool getShowAllMembers() const { return m_showAllMembers; }
 
-    void setShowAllMembers(bool show_all_members);
+    void setShowAllMembers(bool showAllMembers);
 
 public:
 

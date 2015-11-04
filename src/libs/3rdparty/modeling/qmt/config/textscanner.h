@@ -48,7 +48,7 @@ class QMT_EXPORT TextScannerError :
 {
 public:
 
-    TextScannerError(const QString &error_msg, const SourcePos &source_pos);
+    TextScannerError(const QString &errorMsg, const SourcePos &sourcePos);
 
     ~TextScannerError();
 
@@ -80,7 +80,7 @@ public:
 
     void setOperators(const QList<QPair<QString, int> > &operators);
 
-    void setSource(ITextSource *text_source);
+    void setSource(ITextSource *textSource);
 
     SourcePos getSourcePos() const;
 
@@ -94,19 +94,19 @@ private:
 
     SourceChar readChar();
 
-    void unreadChar(const SourceChar &source_char);
+    void unreadChar(const SourceChar &sourceChar);
 
     void skipWhitespaces();
 
-    Token scanString(const SourceChar &delimiter_char);
+    Token scanString(const SourceChar &delimiterChar);
 
-    Token scanNumber(const SourceChar &first_digit);
+    Token scanNumber(const SourceChar &firstDigit);
 
-    Token scanIdentifier(const SourceChar &first_char);
+    Token scanIdentifier(const SourceChar &firstChar);
 
-    Token scanColorIdentifier(const SourceChar &first_char);
+    Token scanColorIdentifier(const SourceChar &firstChar);
 
-    Token scanOperator(const SourceChar &first_char);
+    Token scanOperator(const SourceChar &firstChar);
 
 private:
 

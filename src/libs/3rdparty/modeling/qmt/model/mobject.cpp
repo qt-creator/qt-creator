@@ -95,16 +95,16 @@ void MObject::addChild(MObject *child)
     child->setOwner(this);
 }
 
-void MObject::insertChild(int before_index, const Uid &uid)
+void MObject::insertChild(int beforeIndex, const Uid &uid)
 {
-    m_children.insert(before_index, uid);
+    m_children.insert(beforeIndex, uid);
 }
 
-void MObject::insertChild(int before_index, MObject *child)
+void MObject::insertChild(int beforeIndex, MObject *child)
 {
     QMT_CHECK(child);
     QMT_CHECK(child->getOwner() == 0);
-    m_children.insert(before_index, child);
+    m_children.insert(beforeIndex, child);
     child->setOwner(this);
 }
 
@@ -167,12 +167,12 @@ void MObject::addRelation(MRelation *relation)
     m_relations.add(relation);
 }
 
-void MObject::insertRelation(int before_index, MRelation *relation)
+void MObject::insertRelation(int beforeIndex, MRelation *relation)
 {
     QMT_CHECK(relation);
     QMT_CHECK(relation->getOwner() == 0);
     relation->setOwner(this);
-    m_relations.insert(before_index, relation);
+    m_relations.insert(beforeIndex, relation);
 }
 
 void MObject::removeRelation(MRelation *relation)

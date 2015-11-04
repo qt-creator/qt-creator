@@ -74,7 +74,7 @@ public:
 
     void clear();
 
-    void addButton(IAlignable::AlignType align_type, const QString &identifier, qreal pos);
+    void addButton(IAlignable::AlignType alignType, const QString &identifier, qreal pos);
 
 private:
 

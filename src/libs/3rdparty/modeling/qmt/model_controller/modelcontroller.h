@@ -95,9 +95,9 @@ signals:
 
     void endRemoveObject(int row, const MObject *owner);
 
-    void beginMoveObject(int former_row, const MObject *former_owner);
+    void beginMoveObject(int formerRow, const MObject *formerOwner);
 
-    void endMoveObject(int new_row, const MObject *new_owner);
+    void endMoveObject(int newRow, const MObject *newOwner);
 
     void beginUpdateRelation(int row, const MObject *owner);
 
@@ -111,13 +111,13 @@ signals:
 
     void endRemoveRelation(int row, const MObject *owner);
 
-    void beginMoveRelation(int former_row, const MObject *former_owner);
+    void beginMoveRelation(int formerRow, const MObject *formerOwner);
 
-    void endMoveRelation(int new_row, const MObject *new_owner);
+    void endMoveRelation(int newRow, const MObject *newOwner);
 
-    void packageNameChanged(MPackage *package, const QString &old_package_name);
+    void packageNameChanged(MPackage *package, const QString &oldPackageName);
 
-    void relationEndChanged(MRelation *relation, MObject *end_object);
+    void relationEndChanged(MRelation *relation, MObject *endObject);
 
     void modified();
 
@@ -125,11 +125,11 @@ public:
 
     MPackage *getRootPackage() const { return m_rootPackage; }
 
-    void setRootPackage(MPackage *root_package);
+    void setRootPackage(MPackage *rootPackage);
 
     UndoController *getUndoController() const { return m_undoController; }
 
-    void setUndoController(UndoController *undo_controller);
+    void setUndoController(UndoController *undoController);
 
 public:
 
@@ -155,7 +155,7 @@ public:
     template<class T>
     T *findObject(const Uid &key) const { return dynamic_cast<T *>(findObject(key)); }
 
-    void addObject(MPackage *parent_package, MObject *object);
+    void addObject(MPackage *parentPackage, MObject *object);
 
     void removeObject(MObject *object);
 
@@ -163,7 +163,7 @@ public:
 
     void finishUpdateObject(MObject *object, bool cancelled);
 
-    void moveObject(MPackage *new_owner, MObject *object);
+    void moveObject(MPackage *newOwner, MObject *object);
 
 public:
 
@@ -180,7 +180,7 @@ public:
 
     void finishUpdateRelation(MRelation *relation, bool cancelled);
 
-    void moveRelation(MObject *new_owner, MRelation *relation);
+    void moveRelation(MObject *newOwner, MRelation *relation);
 
 public:
 
@@ -188,17 +188,17 @@ public:
 
 public:
 
-    MContainer cutElements(const MSelection &model_selection);
+    MContainer cutElements(const MSelection &modelSelection);
 
-    MContainer copyElements(const MSelection &model_selection);
+    MContainer copyElements(const MSelection &modelSelection);
 
-    void pasteElements(MObject *owner, const MContainer &model_container);
+    void pasteElements(MObject *owner, const MContainer &modelContainer);
 
-    void deleteElements(const MSelection &model_selection);
+    void deleteElements(const MSelection &modelSelection);
 
 private:
 
-    void deleteElements(const MSelection &model_selection, const QString &command_label);
+    void deleteElements(const MSelection &modelSelection, const QString &commandLabel);
 
     void removeRelatedRelations(MObject *object);
 
@@ -210,11 +210,11 @@ public:
 
 private:
 
-    void renewElementKey(MElement *element, QHash<Uid, Uid> *renewed_keys);
+    void renewElementKey(MElement *element, QHash<Uid, Uid> *renewedKeys);
 
-    void updateRelationKeys(MElement *element, const QHash<Uid, Uid> &renewed_keys);
+    void updateRelationKeys(MElement *element, const QHash<Uid, Uid> &renewedKeys);
 
-    void updateRelationEndKeys(MRelation *relation, const QHash<Uid, Uid> &renewed_keys);
+    void updateRelationEndKeys(MRelation *relation, const QHash<Uid, Uid> &renewedKeys);
 
     void mapObject(MObject *object);
 
@@ -224,13 +224,13 @@ private:
 
     void unmapRelation(MRelation *relation);
 
-    MReferences simplify(const MSelection &model_selection);
+    MReferences simplify(const MSelection &modelSelection);
 
     void verifyModelIntegrity() const;
 
-    void verifyModelIntegrity(const MObject *object, QHash<Uid, const MObject *> *objects_map, QHash<Uid,
-                              const MRelation *> *relations_map,
-                              QMultiHash<Uid, MRelation *> *object_relations_map) const;
+    void verifyModelIntegrity(const MObject *object, QHash<Uid, const MObject *> *objectsMap, QHash<Uid,
+                              const MRelation *> *relationsMap,
+                              QMultiHash<Uid, MRelation *> *objectRelationsMap) const;
 
 private:
 

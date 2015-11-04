@@ -91,7 +91,7 @@ public:
 
     QList<IntermediatePoint> getIntermediatePoints() const { return m_intermediatePoints; }
 
-    void setIntermediatePoints(const QList<IntermediatePoint> &intermediate_points);
+    void setIntermediatePoints(const QList<IntermediatePoint> &intermediatePoints);
 
 private:
 

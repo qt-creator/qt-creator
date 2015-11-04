@@ -74,21 +74,21 @@ public:
 
 private:
 
-    bool hasRef(const void *address, const char *type_name);
+    bool hasRef(const void *address, const char *typeName);
 
-    bool hasDefinedRef(const void *address, const char *type_name);
+    bool hasDefinedRef(const void *address, const char *typeName);
 
-    ObjectId getRef(const void *address, const char *type_name, bool define);
-
-private:
-
-    typedef QPair<const void *, const char *> key_type;
-    typedef QPair<ObjectId, bool> value_type;
-    typedef QMap<key_type, value_type> map_type;
+    ObjectId getRef(const void *address, const char *typeName, bool define);
 
 private:
 
-    map_type m_references;
+    typedef QPair<const void *, const char *> keyType;
+    typedef QPair<ObjectId, bool> valueType;
+    typedef QMap<keyType, valueType> mapType;
+
+private:
+
+    mapType m_references;
     ObjectId m_nextRef;
 };
 

@@ -52,24 +52,24 @@ StackedDiagramsView::~StackedDiagramsView()
 {
 }
 
-void StackedDiagramsView::setDiagramsManager(DiagramsManager *diagrams_manager)
+void StackedDiagramsView::setDiagramsManager(DiagramsManager *diagramsManager)
 {
-    m_diagramsManager = diagrams_manager;
+    m_diagramsManager = diagramsManager;
 }
 
 void StackedDiagramsView::openDiagram(MDiagram *diagram)
 {
     QMT_CHECK(diagram);
-    DiagramView *diagram_view = m_diagramViews.value(diagram->getUid());
-    if (!diagram_view) {
-        DiagramSceneModel *diagram_scene_model = m_diagramsManager->bindDiagramSceneModel(diagram);
-        DiagramView *diagram_view = new DiagramView(this);
-        diagram_view->setDiagramSceneModel(diagram_scene_model);
-        int tab_index = addWidget(diagram_view);
-        setCurrentIndex(tab_index);
-        m_diagramViews.insert(diagram->getUid(), diagram_view);
+    DiagramView *diagramView = m_diagramViews.value(diagram->getUid());
+    if (!diagramView) {
+        DiagramSceneModel *diagramSceneModel = m_diagramsManager->bindDiagramSceneModel(diagram);
+        DiagramView *diagramView = new DiagramView(this);
+        diagramView->setDiagramSceneModel(diagramSceneModel);
+        int tabIndex = addWidget(diagramView);
+        setCurrentIndex(tabIndex);
+        m_diagramViews.insert(diagram->getUid(), diagramView);
     } else {
-        setCurrentWidget(diagram_view);
+        setCurrentWidget(diagramView);
     }
     emit someDiagramOpened(!m_diagramViews.isEmpty());
 }
@@ -80,10 +80,10 @@ void StackedDiagramsView::closeDiagram(const MDiagram *diagram)
         return;
     }
 
-    DiagramView *diagram_view = m_diagramViews.value(diagram->getUid());
-    if (diagram_view) {
-        removeWidget(diagram_view);
-        delete diagram_view;
+    DiagramView *diagramView = m_diagramViews.value(diagram->getUid());
+    if (diagramView) {
+        removeWidget(diagramView);
+        delete diagramView;
         m_diagramViews.remove(diagram->getUid());
     }
     emit someDiagramOpened(!m_diagramViews.isEmpty());
@@ -92,19 +92,19 @@ void StackedDiagramsView::closeDiagram(const MDiagram *diagram)
 void StackedDiagramsView::closeAllDiagrams()
 {
     for (int i = count() - 1; i >= 0; --i) {
-        DiagramView *diagram_view = dynamic_cast<DiagramView *>(widget(i));
-        if (diagram_view) {
-            removeWidget(diagram_view);
-            delete diagram_view;
+        DiagramView *diagramView = dynamic_cast<DiagramView *>(widget(i));
+        if (diagramView) {
+            removeWidget(diagramView);
+            delete diagramView;
         }
     }
     m_diagramViews.clear();
     emit someDiagramOpened(!m_diagramViews.isEmpty());
 }
 
-void StackedDiagramsView::onCurrentChanged(int tab_index)
+void StackedDiagramsView::onCurrentChanged(int tabIndex)
 {
-    emit currentDiagramChanged(getDiagram(tab_index));
+    emit currentDiagramChanged(getDiagram(tabIndex));
 }
 
 void StackedDiagramsView::onDiagramRenamed(const MDiagram *diagram)
@@ -114,18 +114,18 @@ void StackedDiagramsView::onDiagramRenamed(const MDiagram *diagram)
     // nothing to do!
 }
 
-MDiagram *StackedDiagramsView::getDiagram(int tab_index) const
+MDiagram *StackedDiagramsView::getDiagram(int tabIndex) const
 {
-    DiagramView *diagram_view = dynamic_cast<DiagramView *>(widget(tab_index));
-    return getDiagram(diagram_view);
+    DiagramView *diagramView = dynamic_cast<DiagramView *>(widget(tabIndex));
+    return getDiagram(diagramView);
 }
 
-MDiagram *StackedDiagramsView::getDiagram(DiagramView *diagram_view) const
+MDiagram *StackedDiagramsView::getDiagram(DiagramView *diagramView) const
 {
-    if (!diagram_view || !diagram_view->getDiagramSceneModel()) {
+    if (!diagramView || !diagramView->getDiagramSceneModel()) {
         return 0;
     }
-    return diagram_view->getDiagramSceneModel()->getDiagram();
+    return diagramView->getDiagramSceneModel()->getDiagram();
 }
 
 }

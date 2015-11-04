@@ -60,13 +60,13 @@ PropertiesView::~PropertiesView()
 {
 }
 
-void PropertiesView::setModelController(ModelController *model_controller)
+void PropertiesView::setModelController(ModelController *modelController)
 {
-    if (m_modelController != model_controller) {
+    if (m_modelController != modelController) {
         if (m_modelController) {
             disconnect(m_modelController, 0, this, 0);
         }
-        m_modelController = model_controller;
+        m_modelController = modelController;
         if (m_modelController) {
             connect(m_modelController, SIGNAL(beginResetModel()), this, SLOT(onBeginResetModel()));
             connect(m_modelController, SIGNAL(endResetModel()), this, SLOT(onEndResetModel()));
@@ -94,15 +94,15 @@ void PropertiesView::setModelController(ModelController *model_controller)
     }
 }
 
-void PropertiesView::setDiagramController(DiagramController *diagram_controller)
+void PropertiesView::setDiagramController(DiagramController *diagramController)
 {
-    if (m_diagramController != diagram_controller) {
+    if (m_diagramController != diagramController) {
         if (m_diagramController) {
             disconnect(m_diagramController, 0, this, 0);
             m_diagramController = 0;
         }
-        m_diagramController = diagram_controller;
-        if (diagram_controller) {
+        m_diagramController = diagramController;
+        if (diagramController) {
             connect(m_diagramController, SIGNAL(beginResetAllDiagrams()), this, SLOT(onBeginResetAllDiagrams()));
             connect(m_diagramController, SIGNAL(endResetAllDiagrams()), this, SLOT(onEndResetAllDiagrams()));
 
@@ -119,22 +119,22 @@ void PropertiesView::setDiagramController(DiagramController *diagram_controller)
     }
 }
 
-void PropertiesView::setStereotypeController(StereotypeController *stereotype_controller)
+void PropertiesView::setStereotypeController(StereotypeController *stereotypeController)
 {
-    m_stereotypeController = stereotype_controller;
+    m_stereotypeController = stereotypeController;
 }
 
-void PropertiesView::setStyleController(StyleController *style_controller)
+void PropertiesView::setStyleController(StyleController *styleController)
 {
-    m_styleController = style_controller;
+    m_styleController = styleController;
 }
 
-void PropertiesView::setSelectedModelElements(const QList<MElement *> &model_elements)
+void PropertiesView::setSelectedModelElements(const QList<MElement *> &modelElements)
 {
-    QMT_CHECK(model_elements.size() > 0);
+    QMT_CHECK(modelElements.size() > 0);
 
-    if (m_selectedModelElements != model_elements) {
-        m_selectedModelElements = model_elements;
+    if (m_selectedModelElements != modelElements) {
+        m_selectedModelElements = modelElements;
         m_selectedDiagramElements.clear();
         m_selectedDiagram = 0;
         m_mview.reset(new MView(this));
@@ -143,13 +143,13 @@ void PropertiesView::setSelectedModelElements(const QList<MElement *> &model_ele
     }
 }
 
-void PropertiesView::setSelectedDiagramElements(const QList<DElement *> &diagram_elements, MDiagram *diagram)
+void PropertiesView::setSelectedDiagramElements(const QList<DElement *> &diagramElements, MDiagram *diagram)
 {
-    QMT_CHECK(diagram_elements.size() > 0);
+    QMT_CHECK(diagramElements.size() > 0);
     QMT_CHECK(diagram);
 
-    if (m_selectedDiagramElements != diagram_elements || m_selectedDiagram != diagram) {
-        m_selectedDiagramElements = diagram_elements;
+    if (m_selectedDiagramElements != diagramElements || m_selectedDiagram != diagram) {
+        m_selectedDiagramElements = diagramElements;
         m_selectedDiagram = diagram;
         m_selectedModelElements.clear();
         m_mview.reset(new MView(this));
@@ -228,10 +228,10 @@ void PropertiesView::onEndRemoveObject(int row, const MObject *parent)
     Q_UNUSED(parent);
 }
 
-void PropertiesView::onBeginMoveObject(int former_row, const MObject *former_owner)
+void PropertiesView::onBeginMoveObject(int formerRow, const MObject *formerOwner)
 {
-    Q_UNUSED(former_row);
-    Q_UNUSED(former_owner);
+    Q_UNUSED(formerRow);
+    Q_UNUSED(formerOwner);
 }
 
 void PropertiesView::onEndMoveObject(int row, const MObject *owner)
@@ -282,10 +282,10 @@ void PropertiesView::onEndRemoveRelation(int row, const MObject *parent)
     Q_UNUSED(parent);
 }
 
-void PropertiesView::onBeginMoveRelation(int former_row, const MObject *former_owner)
+void PropertiesView::onBeginMoveRelation(int formerRow, const MObject *formerOwner)
 {
-    Q_UNUSED(former_row);
-    Q_UNUSED(former_owner);
+    Q_UNUSED(formerRow);
+    Q_UNUSED(formerOwner);
 }
 
 void PropertiesView::onEndMoveRelation(int row, const MObject *owner)
@@ -296,9 +296,9 @@ void PropertiesView::onEndMoveRelation(int row, const MObject *owner)
     }
 }
 
-void PropertiesView::onRelationEndChanged(MRelation *relation, MObject *end_object)
+void PropertiesView::onRelationEndChanged(MRelation *relation, MObject *endObject)
 {
-    Q_UNUSED(end_object);
+    Q_UNUSED(endObject);
     if (relation && m_selectedModelElements.contains(relation)) {
         m_mview->update(m_selectedModelElements);
     }
@@ -369,48 +369,48 @@ void PropertiesView::onEndRemoveElement(int row, const MDiagram *diagram)
     Q_UNUSED(diagram);
 }
 
-void PropertiesView::beginUpdate(MElement *model_element)
+void PropertiesView::beginUpdate(MElement *modelElement)
 {
-    QMT_CHECK(model_element);
+    QMT_CHECK(modelElement);
 
-    if (MObject *object = dynamic_cast<MObject *>(model_element)) {
+    if (MObject *object = dynamic_cast<MObject *>(modelElement)) {
         m_modelController->startUpdateObject(object);
-    } else if (MRelation *relation = dynamic_cast<MRelation *>(model_element)) {
+    } else if (MRelation *relation = dynamic_cast<MRelation *>(modelElement)) {
         m_modelController->startUpdateRelation(relation);
     } else {
         QMT_CHECK(false);
     }
 }
 
-void PropertiesView::endUpdate(MElement *model_element, bool cancelled)
+void PropertiesView::endUpdate(MElement *modelElement, bool cancelled)
 {
-    QMT_CHECK(model_element);
+    QMT_CHECK(modelElement);
 
-    if (MObject *object = dynamic_cast<MObject *>(model_element)) {
+    if (MObject *object = dynamic_cast<MObject *>(modelElement)) {
         m_modelController->finishUpdateObject(object, cancelled);
-    } else if (MRelation *relation = dynamic_cast<MRelation *>(model_element)) {
+    } else if (MRelation *relation = dynamic_cast<MRelation *>(modelElement)) {
         m_modelController->finishUpdateRelation(relation, cancelled);
     } else {
         QMT_CHECK(false);
     }
 }
 
-void PropertiesView::beginUpdate(DElement *diagram_element)
+void PropertiesView::beginUpdate(DElement *diagramElement)
 {
-    QMT_CHECK(diagram_element);
+    QMT_CHECK(diagramElement);
     QMT_CHECK(m_selectedDiagram != 0);
-    QMT_CHECK(m_diagramController->findElement(diagram_element->getUid(), m_selectedDiagram) == diagram_element);
+    QMT_CHECK(m_diagramController->findElement(diagramElement->getUid(), m_selectedDiagram) == diagramElement);
 
-    m_diagramController->startUpdateElement(diagram_element, m_selectedDiagram, DiagramController::UPDATE_MINOR);
+    m_diagramController->startUpdateElement(diagramElement, m_selectedDiagram, DiagramController::UPDATE_MINOR);
 }
 
-void PropertiesView::endUpdate(DElement *diagram_element, bool cancelled)
+void PropertiesView::endUpdate(DElement *diagramElement, bool cancelled)
 {
-    QMT_CHECK(diagram_element);
+    QMT_CHECK(diagramElement);
     QMT_CHECK(m_selectedDiagram != 0);
-    QMT_CHECK(m_diagramController->findElement(diagram_element->getUid(), m_selectedDiagram) == diagram_element);
+    QMT_CHECK(m_diagramController->findElement(diagramElement->getUid(), m_selectedDiagram) == diagramElement);
 
-    m_diagramController->finishUpdateElement(diagram_element, m_selectedDiagram, cancelled);
+    m_diagramController->finishUpdateElement(diagramElement, m_selectedDiagram, cancelled);
 }
 
 }

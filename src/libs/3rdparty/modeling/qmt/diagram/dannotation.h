@@ -82,11 +82,11 @@ public:
 
     VisualRole getVisualRole() const { return m_visualRole; }
 
-    void setVisualRole(VisualRole visual_role);
+    void setVisualRole(VisualRole visualRole);
 
     bool hasAutoSize() const { return m_autoSized; }
 
-    void setAutoSize(bool auto_sized);
+    void setAutoSize(bool autoSized);
 
 public:
 

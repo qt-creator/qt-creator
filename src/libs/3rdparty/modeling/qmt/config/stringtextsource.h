@@ -51,7 +51,7 @@ public:
 
     int getSourceId() const { return m_sourceId; }
 
-    void setSourceId(int source_id);
+    void setSourceId(int sourceId);
 
     // ITextSource interface
 public:

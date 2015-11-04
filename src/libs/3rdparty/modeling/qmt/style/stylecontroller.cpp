@@ -43,8 +43,8 @@ class StyleController::Parameters :
         public StyleEngine::Parameters
 {
 public:
-    Parameters(StyleController *style_controller)
-        : m_styleController(style_controller)
+    Parameters(StyleController *styleController)
+        : m_styleController(styleController)
     {
     }
 
@@ -72,21 +72,21 @@ StyleController::~StyleController()
 {
 }
 
-void StyleController::setSuppressGradients(bool suppress_gradients)
+void StyleController::setSuppressGradients(bool suppressGradients)
 {
-    m_suppressGradients = suppress_gradients;
+    m_suppressGradients = suppressGradients;
 }
 
-const Style *StyleController::adaptStyle(StyleEngine::ElementType element_type)
+const Style *StyleController::adaptStyle(StyleEngine::ElementType elementType)
 {
     Parameters parameters(this);
-    return m_defaultStyleEngine->applyStyle(m_defaultStyle.data(), element_type, &parameters);
+    return m_defaultStyleEngine->applyStyle(m_defaultStyle.data(), elementType, &parameters);
 }
 
-const Style *StyleController::adaptObjectStyle(StyleEngine::ElementType element_type, const ObjectVisuals &object_visuals)
+const Style *StyleController::adaptObjectStyle(StyleEngine::ElementType elementType, const ObjectVisuals &objectVisuals)
 {
     Parameters parameters(this);
-    return m_defaultStyleEngine->applyObjectStyle(m_defaultStyle.data(), element_type, object_visuals, &parameters);
+    return m_defaultStyleEngine->applyObjectStyle(m_defaultStyle.data(), elementType, objectVisuals, &parameters);
 }
 
 const Style *StyleController::adaptObjectStyle(const StyledObject &object)

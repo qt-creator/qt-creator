@@ -60,22 +60,22 @@ ProjectController::~ProjectController()
 {
 }
 
-void ProjectController::newProject(const QString &file_name)
+void ProjectController::newProject(const QString &fileName)
 {
     m_project.reset(new Project());
-    MPackage *root_package = new MPackage();
-    root_package->setName(tr("Model"));
-    m_project->setRootPackage(root_package);
-    m_project->setFileName(file_name);
+    MPackage *rootPackage = new MPackage();
+    rootPackage->setName(tr("Model"));
+    m_project->setRootPackage(rootPackage);
+    m_project->setFileName(fileName);
     m_isModified = false;
     emit fileNameChanged(m_project->getFileName());
     emit changed();
 }
 
-void ProjectController::setFileName(const QString &file_name)
+void ProjectController::setFileName(const QString &fileName)
 {
-    if (file_name != m_project->getFileName()) {
-        m_project->setFileName(file_name);
+    if (fileName != m_project->getFileName()) {
+        m_project->setFileName(fileName);
         setModified();
         emit fileNameChanged(m_project->getFileName());
     }
@@ -114,9 +114,9 @@ void ProjectController::save()
     emit changed();
 }
 
-void ProjectController::saveAs(const QString &file_name)
+void ProjectController::saveAs(const QString &fileName)
 {
-    setFileName(file_name);
+    setFileName(fileName);
     save();
 }
 
