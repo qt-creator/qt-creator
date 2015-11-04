@@ -42,7 +42,7 @@ class QTreeView;
 class QLineEdit;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class SelectableFilesModel; }
+namespace ProjectExplorer { class SelectableFilesWidget; }
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -61,30 +61,10 @@ public:
     Utils::FileNameList selectedFiles() const;
     Utils::FileNameList selectedPaths() const;
 
-private slots:
-    void applyFilter();
-    void parsingProgress(const Utils::FileName &text);
-    void parsingFinished();
-
 private:
-    void createHideFileFilterControls(QVBoxLayout *layout);
-    void createShowFileFilterControls(QVBoxLayout *layout);
-    void createApplyButton(QVBoxLayout *layout);
-
     GenericProjectWizardDialog *m_genericProjectWizardDialog;
-    ProjectExplorer::SelectableFilesModel *m_model;
-
-    QLabel *m_hideFilesFilterLabel;
-    QLineEdit *m_hideFilesfilterLineEdit;
-
-    QLabel *m_showFilesFilterLabel;
-    QLineEdit *m_showFilesfilterLineEdit;
-
-    QPushButton *m_applyFilterButton;
-
-    QTreeView *m_view;
-    QLabel *m_label;
-    bool m_finished;
+    ProjectExplorer::SelectableFilesWidget *m_filesWidget;
+    bool m_finished = false;
 };
 
 } // namespace Internal

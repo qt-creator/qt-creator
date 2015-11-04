@@ -122,10 +122,8 @@ signals:
     void parsingFinished();
     void parsingProgress(const Utils::FileName &fileName);
 
-private slots:
-    void buildTreeFinished();
-
 private:
+    void buildTreeFinished();
     QList<Glob> parseFilter(const QString &filter);
     Qt::CheckState applyFilter(const QModelIndex &index);
     bool filter(Tree *t);
@@ -152,6 +150,56 @@ private:
     QList<Glob> m_showFilesFilter;
 };
 
+class PROJECTEXPLORER_EXPORT SelectableFilesWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit SelectableFilesWidget(QWidget *parent = 0);
+    SelectableFilesWidget(const Utils::FileName &path, const Utils::FileNameList &files,
+                          QWidget *parent = 0);
+
+    void setAddFileFilter(const QString &filter);
+    void setBaseDirEditable(bool edit);
+
+    Utils::FileNameList selectedFiles() const;
+    Utils::FileNameList selectedPaths() const;
+
+    void resetModel(const Utils::FileName &path, const Utils::FileNameList &files);
+    void cancelParsing();
+
+private:
+    void enableWidgets(bool enabled);
+    void applyFilter();
+    void baseDirectoryChanged(bool validState);
+
+    void startParsing();
+    void parsingProgress(const Utils::FileName &fileName);
+    void parsingFinished();
+
+    void smartExpand(const QModelIndex &index);
+
+    SelectableFilesModel *m_model;
+
+    Utils::PathChooser *m_baseDirChooser;
+    QLabel *m_baseDirLabel;
+    QPushButton *m_startParsingButton;
+
+    QLabel *m_showFilesFilterLabel;
+    QLineEdit *m_showFilesFilterEdit;
+
+    QLabel *m_hideFilesFilterLabel;
+    QLineEdit *m_hideFilesFilterEdit;
+
+    QPushButton *m_applyFilterButton;
+
+    QTreeView *m_view;
+
+    QLabel *m_preservedFilesLabel;
+
+    QLabel *m_progressLabel;
+};
+
 class PROJECTEXPLORER_EXPORT SelectableFilesDialogEditFiles : public QDialog
 {
     Q_OBJECT
@@ -159,35 +207,12 @@ class PROJECTEXPLORER_EXPORT SelectableFilesDialogEditFiles : public QDialog
 public:
     SelectableFilesDialogEditFiles(const Utils::FileName &path, const Utils::FileNameList &files,
                                    QWidget *parent);
-    ~SelectableFilesDialogEditFiles();
     Utils::FileNameList selectedFiles() const;
 
-    void setAddFileFilter(const QString &filter);
-
-private slots:
-    void applyFilter();
-    void parsingProgress(const QString &fileName);
-    void parsingFinished();
+    void setAddFileFilter(const QString &filter) { m_filesWidget->setAddFileFilter(filter); }
 
 protected:
-    void smartExpand(const QModelIndex &index);
-    void createShowFileFilterControls(QVBoxLayout *layout);
-    void createHideFileFilterControls(QVBoxLayout *layout);
-    void createApplyButton(QVBoxLayout *layout);
-
-    SelectableFilesModel *m_selectableFilesModel;
-
-    QLabel *m_hideFilesFilterLabel;
-    QLineEdit *m_hideFilesfilterLineEdit;
-
-    QLabel *m_showFilesFilterLabel;
-    QLineEdit *m_showFilesfilterLineEdit;
-
-    QPushButton *m_applyFilterButton;
-
-    QTreeView *m_view;
-    QLabel *m_preservedFiles;
-    QLabel *m_progressLabel;
+    SelectableFilesWidget *m_filesWidget;
 };
 
 class SelectableFilesDialogAddDirectory : public SelectableFilesDialogEditFiles
@@ -198,18 +223,7 @@ public:
     SelectableFilesDialogAddDirectory(const Utils::FileName &path, const Utils::FileNameList &files,
                                       QWidget *parent);
 
-private slots:
-    void validityOfDirectoryChanged(bool validState);
-    void parsingFinished();
-    void startParsing();
-
-private:
-    Utils::PathChooser *m_pathChooser;
-    QLabel *m_sourceDirectoryLabel;
-    QPushButton *m_startParsingButton;
-
-    void setWidgetsEnabled(bool enabled);
-    void createPathChooser(QVBoxLayout *layout, const Utils::FileName &path);
+    void setAddFileFilter(const QString &filter) { m_filesWidget->setAddFileFilter(filter); }
 };
 
 } // namespace ProjectExplorer
