@@ -343,7 +343,7 @@ void IpcCommunicator::registerCurrentCodeModelUiHeaders()
         updateUnsavedFile(es->fileName(), es->contents(), es->revision());
 }
 
-static QStringList projectPartMessageLine(const CppTools::ProjectPart::Ptr &projectPart)
+static QStringList projectPartOptions(const CppTools::ProjectPart::Ptr &projectPart)
 {
     QStringList options = ClangCodeModel::Utils::createClangOptions(projectPart,
         CppTools::ProjectFile::Unclassified); // No language option
@@ -356,8 +356,8 @@ static QStringList projectPartMessageLine(const CppTools::ProjectPart::Ptr &proj
 static ClangBackEnd::ProjectPartContainer toProjectPartContainer(
         const CppTools::ProjectPart::Ptr &projectPart)
 {
-    const QStringList arguments = projectPartMessageLine(projectPart);
-    return ClangBackEnd::ProjectPartContainer(projectPart->id(), Utf8StringVector(arguments));
+    const QStringList options = projectPartOptions(projectPart);
+    return ClangBackEnd::ProjectPartContainer(projectPart->id(), Utf8StringVector(options));
 }
 
 static QVector<ClangBackEnd::ProjectPartContainer> toProjectPartContainers(
