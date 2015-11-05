@@ -559,7 +559,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new ConfigTaskHandler(Task::compilerMissingTask(),
                                                 Constants::KITS_SETTINGS_PAGE_ID));
 
-    ICore::addPreCloseListener([]() -> bool { return coreAboutToClose(); });
+    ICore::addPreCloseListener([this]() -> bool { return coreAboutToClose(); });
 
     dd->m_outputPane = new AppOutputPane;
     addAutoReleasedObject(dd->m_outputPane);
