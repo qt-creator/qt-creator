@@ -804,14 +804,9 @@ class DumperBase:
             raise RuntimeError("Check failed")
 
     def checkRef(self, ref):
-        try:
-            count = int(ref["atomic"]["_q_value"]) # Qt 5.
-            minimum = -1
-        except:
-            count = int(ref["_q_value"]) # Qt 4.
-            minimum = 0
+        count = self.extractInt(ref.address)
         # Assume there aren't a million references to any object.
-        self.check(count >= minimum)
+        self.check(count >= -1)
         self.check(count < 1000000)
 
     def readToFirstZero(self, p, tsize, maximum):
