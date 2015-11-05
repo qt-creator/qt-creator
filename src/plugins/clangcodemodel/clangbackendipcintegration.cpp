@@ -306,12 +306,44 @@ void IpcCommunicator::initializeBackend()
         initializeBackendWithCurrentData();
 }
 
+static QStringList projectPartOptions(const CppTools::ProjectPart::Ptr &projectPart)
+{
+    QStringList options = ClangCodeModel::Utils::createClangOptions(projectPart,
+        CppTools::ProjectFile::Unclassified); // No language option
+    if (PchInfo::Ptr pchInfo = PchManager::instance()->pchInfo(projectPart))
+        options += ClangCodeModel::Utils::createPCHInclusionOptions(pchInfo->fileName());
+
+    return options;
+}
+
+static ClangBackEnd::ProjectPartContainer toProjectPartContainer(
+        const CppTools::ProjectPart::Ptr &projectPart)
+{
+    const QStringList options = projectPartOptions(projectPart);
+
+    return ClangBackEnd::ProjectPartContainer(projectPart->id(), Utf8StringVector(options));
+}
+
+static QVector<ClangBackEnd::ProjectPartContainer> toProjectPartContainers(
+        const QList<CppTools::ProjectPart::Ptr> projectParts)
+{
+    QVector<ClangBackEnd::ProjectPartContainer> projectPartContainers;
+    projectPartContainers.reserve(projectParts.size());
+
+    foreach (const CppTools::ProjectPart::Ptr &projectPart, projectParts)
+        projectPartContainers << toProjectPartContainer(projectPart);
+
+    return projectPartContainers;
+}
+
 void IpcCommunicator::registerEmptyProjectForProjectLessFiles()
 {
     QTC_CHECK(m_connection.isConnected());
-    registerProjectPartsForEditor({ClangBackEnd::ProjectPartContainer(
-                                   Utf8String(),
-                                   Utf8StringVector())});
+
+    const auto projectPart = CppTools::CppModelManager::instance()->fallbackProjectPart();
+    const auto projectPartContainer = toProjectPartContainer(projectPart);
+
+    registerProjectPartsForEditor({projectPartContainer});
 }
 
 void IpcCommunicator::registerCurrentProjectParts()
@@ -341,33 +373,6 @@ void IpcCommunicator::registerCurrentCodeModelUiHeaders()
     const auto editorSupports = CppModelManager::instance()->abstractEditorSupports();
     foreach (const AbstractEditorSupport *es, editorSupports)
         updateUnsavedFile(es->fileName(), es->contents(), es->revision());
-}
-
-static QStringList projectPartOptions(const CppTools::ProjectPart::Ptr &projectPart)
-{
-    QStringList options = ClangCodeModel::Utils::createClangOptions(projectPart,
-        CppTools::ProjectFile::Unclassified); // No language option
-    if (PchInfo::Ptr pchInfo = PchManager::instance()->pchInfo(projectPart))
-        options += ClangCodeModel::Utils::createPCHInclusionOptions(pchInfo->fileName());
-
-    return options;
-}
-
-static ClangBackEnd::ProjectPartContainer toProjectPartContainer(
-        const CppTools::ProjectPart::Ptr &projectPart)
-{
-    const QStringList options = projectPartOptions(projectPart);
-    return ClangBackEnd::ProjectPartContainer(projectPart->id(), Utf8StringVector(options));
-}
-
-static QVector<ClangBackEnd::ProjectPartContainer> toProjectPartContainers(
-        const QList<CppTools::ProjectPart::Ptr> projectParts)
-{
-    QVector<ClangBackEnd::ProjectPartContainer> projectPartContainers;
-    projectPartContainers.reserve(projectParts.size());
-    foreach (const CppTools::ProjectPart::Ptr &projectPart, projectParts)
-        projectPartContainers << toProjectPartContainer(projectPart);
-    return projectPartContainers;
 }
 
 void IpcCommunicator::registerProjectsParts(const QList<CppTools::ProjectPart::Ptr> projectParts)
