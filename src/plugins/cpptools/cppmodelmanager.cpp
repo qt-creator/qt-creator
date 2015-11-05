@@ -948,7 +948,12 @@ ProjectPart::Ptr CppModelManager::fallbackProjectPart() const
     part->projectDefines = d->m_definedMacros;
     part->headerPaths = d->m_headerPaths;
     part->languageVersion = ProjectPart::CXX14;
+
+    // Do not activate ObjectiveCExtensions since this will lead to the
+    // "objective-c++" language option for a project-less *.cpp file.
     part->languageExtensions = ProjectPart::AllExtensions;
+    part->languageExtensions &= ~ProjectPart::ObjectiveCExtensions;
+
     part->qtVersion = ProjectPart::Qt5;
     part->updateLanguageFeatures();
 

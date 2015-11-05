@@ -82,6 +82,7 @@ protected:
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
     TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_source_range.cpp"),
                                     projectPart,
+                                    Utf8StringVector(),
                                     translationUnits};
     DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
     Diagnostic diagnostic{diagnosticSet.front()};

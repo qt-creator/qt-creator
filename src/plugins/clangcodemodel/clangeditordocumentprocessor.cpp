@@ -41,6 +41,7 @@
 #include <diagnosticcontainer.h>
 #include <sourcelocationcontainer.h>
 
+#include <cpptools/cppprojects.h>
 #include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cppworkingcopy.h>
 
@@ -294,13 +295,32 @@ void ClangEditorDocumentProcessor::requestDiagnostics()
     }
 }
 
+static CppTools::ProjectPart projectPartForLanguageOption(CppTools::ProjectPart *projectPart)
+{
+    if (projectPart)
+        return *projectPart;
+    return *CppTools::CppModelManager::instance()->fallbackProjectPart().data();
+}
+
+static QStringList languageOptions(const QString &filePath, CppTools::ProjectPart *projectPart)
+{
+    const auto theProjectPart = CppTools::ProjectPart::Ptr(
+                new CppTools::ProjectPart(projectPartForLanguageOption(projectPart)));
+    CppTools::CompilerOptionsBuilder builder(theProjectPart);
+    builder.addLanguageOption(CppTools::ProjectFile::classify(filePath));
+
+    return builder.options();
+}
+
 ClangBackEnd::FileContainer
 ClangEditorDocumentProcessor::fileContainer(CppTools::ProjectPart *projectPart) const
 {
-    if (projectPart)
-        return {filePath(), projectPart->id(), revision()};
+    const auto projectPartId = projectPart
+            ? Utf8String::fromString(projectPart->id())
+            : Utf8String();
+    const auto theLanguageOption = languageOptions(filePath(), projectPart);
 
-    return {filePath(), Utf8String(), revision()};
+    return {filePath(), projectPartId, Utf8StringVector(theLanguageOption), revision()};
 }
 
 } // namespace Internal

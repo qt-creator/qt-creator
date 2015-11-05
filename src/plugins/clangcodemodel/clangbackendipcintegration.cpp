@@ -310,8 +310,8 @@ void IpcCommunicator::registerEmptyProjectForProjectLessFiles()
 {
     QTC_CHECK(m_connection.isConnected());
     registerProjectPartsForEditor({ClangBackEnd::ProjectPartContainer(
-                                           Utf8String(),
-                                           Utf8StringVector())});
+                                   Utf8String(),
+                                   Utf8StringVector())});
 }
 
 void IpcCommunicator::registerCurrentProjectParts()
@@ -466,6 +466,7 @@ void IpcCommunicator::requestDiagnostics(Core::IDocument *document)
 
     requestDiagnostics(FileContainer(filePath,
                                      projectPartId,
+                                     Utf8StringVector(),
                                      textDocument->document()->revision()));
 }
 

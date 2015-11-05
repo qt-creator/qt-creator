@@ -54,9 +54,11 @@ FileContainer::FileContainer(const Utf8String &filePath,
 
 FileContainer::FileContainer(const Utf8String &filePath,
                              const Utf8String &projectPartId,
+                             const Utf8StringVector &fileArguments,
                              quint32 documentRevision)
     : filePath_(filePath),
       projectPartId_(projectPartId),
+      fileArguments_(fileArguments),
       documentRevision_(documentRevision),
       hasUnsavedFileContent_(false)
 {
@@ -70,6 +72,11 @@ const Utf8String &FileContainer::filePath() const
 const Utf8String &FileContainer::projectPartId() const
 {
     return projectPartId_;
+}
+
+const Utf8StringVector &FileContainer::fileArguments() const
+{
+    return fileArguments_;
 }
 
 const Utf8String &FileContainer::unsavedFileContent() const
@@ -91,6 +98,7 @@ QDataStream &operator<<(QDataStream &out, const FileContainer &container)
 {
     out << container.filePath_;
     out << container.projectPartId_;
+    out << container.fileArguments_;
     out << container.unsavedFileContent_;
     out << container.documentRevision_;
     out << container.hasUnsavedFileContent_;
@@ -102,6 +110,7 @@ QDataStream &operator>>(QDataStream &in, FileContainer &container)
 {
     in >> container.filePath_;
     in >> container.projectPartId_;
+    in >> container.fileArguments_;
     in >> container.unsavedFileContent_;
     in >> container.documentRevision_;
     in >> container.hasUnsavedFileContent_;
@@ -127,6 +136,7 @@ QDebug operator<<(QDebug debug, const FileContainer &container)
     debug.nospace() << "FileContainer("
                     << container.filePath() << ", "
                     << container.projectPartId() << ", "
+                    << container.fileArguments() << ", "
                     << container.documentRevision();
 
     if (container.hasUnsavedFileContent()) {
@@ -147,6 +157,7 @@ void PrintTo(const FileContainer &container, ::std::ostream* os)
     *os << "FileContainer("
         << container.filePath().constData() << ", "
         << container.projectPartId().constData() << ", "
+        << container.fileArguments().constData() << ", "
         << container.documentRevision();
 
     if (container.hasUnsavedFileContent())

@@ -66,6 +66,7 @@ public:
     TranslationUnit() = default;
     TranslationUnit(const Utf8String &filePath,
                     const ProjectPart &projectPart,
+                    const Utf8StringVector &fileArguments,
                     TranslationUnits &translationUnits,
                     FileExistsCheck fileExistsCheck = CheckIfFileExists);
     ~TranslationUnit();

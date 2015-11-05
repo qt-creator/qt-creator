@@ -58,6 +58,7 @@ TEST(ClangCodeCompleteResults, GetData)
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
     TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"),
                                     projectPart,
+                                    Utf8StringVector(),
                                     translationUnits);
     CXCodeCompleteResults *cxCodeCompleteResults = clang_codeCompleteAt(translationUnit.cxTranslationUnit(), translationUnit.filePath().constData(), 49, 1, 0, 0, 0);
 
@@ -83,6 +84,7 @@ TEST(ClangCodeCompleteResults, MoveClangCodeCompleteResults)
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
     TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"),
                                     projectPart,
+                                    Utf8StringVector(),
                                     translationUnits);
     CXCodeCompleteResults *cxCodeCompleteResults = clang_codeCompleteAt(translationUnit.cxTranslationUnit(), translationUnit.filePath().constData(), 49, 1, 0, 0, 0);
 

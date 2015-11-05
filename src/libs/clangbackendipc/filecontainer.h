@@ -34,6 +34,7 @@
 #include <clangbackendipc_global.h>
 
 #include <utf8string.h>
+#include <utf8stringvector.h>
 
 #include <QMetaType>
 
@@ -54,10 +55,12 @@ public:
                   quint32 documentRevision = 0);
     FileContainer(const Utf8String &filePath,
                   const Utf8String &projectPartId,
+                  const Utf8StringVector &fileArguments,
                   quint32 documentRevision);
 
     const Utf8String &filePath() const;
     const Utf8String &projectPartId() const;
+    const Utf8StringVector &fileArguments() const;
     const Utf8String &unsavedFileContent() const;
     bool hasUnsavedFileContent() const;
     quint32 documentRevision() const;
@@ -65,6 +68,7 @@ public:
 private:
     Utf8String filePath_;
     Utf8String projectPartId_;
+    Utf8StringVector fileArguments_;
     Utf8String unsavedFileContent_;
     quint32 documentRevision_;
     bool hasUnsavedFileContent_ = false;

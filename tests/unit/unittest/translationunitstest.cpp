@@ -129,7 +129,7 @@ TEST_F(TranslationUnits, DoNotThrowForAddingNonExistingFileWithUnsavedContent)
 
 TEST_F(TranslationUnits, Add)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, 74u);
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
 
     translationUnits.create({fileContainer});
 
@@ -139,7 +139,7 @@ TEST_F(TranslationUnits, Add)
 
 TEST_F(TranslationUnits, ThrowForCreatingAnExistingTranslationUnit)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, 74u);
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
     translationUnits.create({fileContainer});
 
     ASSERT_THROW(translationUnits.create({fileContainer}),
@@ -148,15 +148,15 @@ TEST_F(TranslationUnits, ThrowForCreatingAnExistingTranslationUnit)
 
 TEST_F(TranslationUnits, ThrowForUpdatingANonExistingTranslationUnit)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, 74u);
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
     ASSERT_THROW(translationUnits.update({fileContainer}),
                  ClangBackEnd::TranslationUnitDoesNotExistException);
 }
 
 TEST_F(TranslationUnits, Update)
 {
-    ClangBackEnd::FileContainer createFileContainer(filePath, projectPartId, 74u);
-    ClangBackEnd::FileContainer updateFileContainer(filePath, Utf8String(), 75u);
+    ClangBackEnd::FileContainer createFileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer updateFileContainer(filePath, Utf8String(), Utf8StringVector(), 75u);
     translationUnits.create({createFileContainer});
 
     translationUnits.update({updateFileContainer});
@@ -167,8 +167,8 @@ TEST_F(TranslationUnits, Update)
 
 TEST_F(TranslationUnits, UpdateUnsavedFileAndCheckForReparse)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, 74u);
-    ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, 74u);
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
     translationUnits.create({fileContainer, headerContainer});
     translationUnits.translationUnit(filePath, projectPartId).cxTranslationUnit();
@@ -180,8 +180,8 @@ TEST_F(TranslationUnits, UpdateUnsavedFileAndCheckForReparse)
 
 TEST_F(TranslationUnits, UpdateUnsavedFileAndCheckForDiagnostics)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, 74u);
-    ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, 74u);
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
     translationUnits.create({fileContainer, headerContainer});
     translationUnits.translationUnit(filePath, projectPartId).diagnostics();
@@ -193,8 +193,8 @@ TEST_F(TranslationUnits, UpdateUnsavedFileAndCheckForDiagnostics)
 
 TEST_F(TranslationUnits, RemoveFileAndCheckForDiagnostics)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, 74u);
-    ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, 74u);
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
     translationUnits.create({fileContainer, headerContainer});
     translationUnits.translationUnit(filePath, projectPartId).diagnostics();
@@ -206,7 +206,7 @@ TEST_F(TranslationUnits, RemoveFileAndCheckForDiagnostics)
 
 TEST_F(TranslationUnits, DontGetNewerFileContainerIfRevisionIsTheSame)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, 74u);
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
     translationUnits.create({fileContainer});
 
     auto newerFileContainers = translationUnits.newerFileContainers({fileContainer});
@@ -216,8 +216,8 @@ TEST_F(TranslationUnits, DontGetNewerFileContainerIfRevisionIsTheSame)
 
 TEST_F(TranslationUnits, GetNewerFileContainerIfRevisionIsDifferent)
 {
-    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, 74u);
-    ClangBackEnd::FileContainer newerContainer(filePath, projectPartId, 75u);
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer newerContainer(filePath, projectPartId, Utf8StringVector(), 75u);
     translationUnits.create({fileContainer});
 
     auto newerFileContainers = translationUnits.newerFileContainers({newerContainer});
@@ -263,6 +263,7 @@ TEST_F(TranslationUnits, RemoveAllValidIfExceptionIsThrown)
     ASSERT_THAT(translationUnits.translationUnits(),
                 Not(Contains(TranslationUnit(filePath,
                                              projects.project(projectPartId),
+                                             Utf8StringVector(),
                                              translationUnits))));
 }
 

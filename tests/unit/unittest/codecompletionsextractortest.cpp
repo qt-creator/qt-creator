@@ -160,13 +160,13 @@ protected:
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    TranslationUnit functionTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"), project, translationUnits};
-    TranslationUnit variableTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_variable.cpp"), project, translationUnits};
-    TranslationUnit classTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_class.cpp"), project, translationUnits};
-    TranslationUnit namespaceTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_namespace.cpp"), project, translationUnits};
-    TranslationUnit enumerationTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_enumeration.cpp"), project, translationUnits};
-    TranslationUnit constructorTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_constructor.cpp"), project, translationUnits};
-    TranslationUnit briefCommentTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_brief_comment.cpp"), project, translationUnits};
+    TranslationUnit functionTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"), project, Utf8StringVector(), translationUnits};
+    TranslationUnit variableTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_variable.cpp"), project, Utf8StringVector(), translationUnits};
+    TranslationUnit classTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_class.cpp"), project, Utf8StringVector(), translationUnits};
+    TranslationUnit namespaceTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_namespace.cpp"), project, Utf8StringVector(), translationUnits};
+    TranslationUnit enumerationTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_enumeration.cpp"), project, Utf8StringVector(), translationUnits};
+    TranslationUnit constructorTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_constructor.cpp"), project, Utf8StringVector(), translationUnits};
+    TranslationUnit briefCommentTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_brief_comment.cpp"), project, Utf8StringVector(), translationUnits};
 };
 
 TEST_F(CodeCompletionsExtractor, Function)
@@ -527,7 +527,7 @@ TEST_F(CodeCompletionsExtractor, NotAvailableFunction)
 
 TEST_F(CodeCompletionsExtractor, UnsavedFile)
 {
-    TranslationUnit translationUnit(Utf8String::fromUtf8(TESTDATA_DIR"/complete_extractor_function.cpp"), project, translationUnits);
+    TranslationUnit translationUnit(Utf8String::fromUtf8(TESTDATA_DIR"/complete_extractor_function.cpp"), project, Utf8StringVector(), translationUnits);
     unsavedFiles.createOrUpdate({unsavedDataFileContainer(TESTDATA_DIR"/complete_extractor_function.cpp",
                                  TESTDATA_DIR"/complete_extractor_function_unsaved.cpp")});
     ClangCodeCompleteResults completeResults(getResults(translationUnit, 20));
@@ -542,7 +542,7 @@ TEST_F(CodeCompletionsExtractor, UnsavedFile)
 
 TEST_F(CodeCompletionsExtractor, ChangeUnsavedFile)
 {
-    TranslationUnit translationUnit(Utf8String::fromUtf8(TESTDATA_DIR"/complete_extractor_function.cpp"), project, translationUnits);
+    TranslationUnit translationUnit(Utf8String::fromUtf8(TESTDATA_DIR"/complete_extractor_function.cpp"), project, Utf8StringVector(), translationUnits);
     unsavedFiles.createOrUpdate({unsavedDataFileContainer(TESTDATA_DIR"/complete_extractor_function.cpp",
                                  TESTDATA_DIR"/complete_extractor_function_unsaved.cpp")});
     ClangCodeCompleteResults completeResults(getResults(translationUnit, 20));

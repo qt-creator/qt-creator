@@ -82,6 +82,7 @@ protected:
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
     ::TranslationUnit translationUnit{translationUnitFilePath,
                                       projectPart,
+                                      Utf8StringVector(),
                                       translationUnits};
 };
 
@@ -94,13 +95,13 @@ TEST_F(TranslationUnit, DefaultTranslationUnitIsInvalid)
 
 TEST_F(TranslationUnit, ThrowExceptionForNonExistingFilePath)
 {
-    ASSERT_THROW(::TranslationUnit(Utf8StringLiteral("file.cpp"), projectPart, translationUnits),
+    ASSERT_THROW(::TranslationUnit(Utf8StringLiteral("file.cpp"), projectPart, Utf8StringVector(), translationUnits),
                  ClangBackEnd::TranslationUnitFileNotExitsException);
 }
 
 TEST_F(TranslationUnit, ThrowNoExceptionForNonExistingFilePathIfDoNotCheckIfFileExistsIsSet)
 {
-    ASSERT_NO_THROW(::TranslationUnit(Utf8StringLiteral("file.cpp"), projectPart, translationUnits, ::TranslationUnit::DoNotCheckIfFileExists));
+    ASSERT_NO_THROW(::TranslationUnit(Utf8StringLiteral("file.cpp"), projectPart, Utf8StringVector(), translationUnits, ::TranslationUnit::DoNotCheckIfFileExists));
 }
 
 TEST_F(TranslationUnit, TranslationUnitIsValid)
@@ -274,6 +275,7 @@ TEST_F(TranslationUnit, DeletedFileShouldBeNotSetDirty)
     EXPECT_TRUE(temporaryFile.write(readContentFromTranslationUnitFile()));
     ::TranslationUnit translationUnit(temporaryFile.fileName(),
                                       projectPart,
+                                      Utf8StringVector(),
                                       translationUnits);
 
 return translationUnit;

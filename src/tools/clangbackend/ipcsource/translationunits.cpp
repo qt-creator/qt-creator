@@ -200,6 +200,7 @@ void TranslationUnits::createTranslationUnit(const FileContainer &fileContainer)
     if (findIterator == translationUnits_.end()) {
         translationUnits_.push_back(TranslationUnit(fileContainer.filePath(),
                                                     projectParts.project(fileContainer.projectPartId()),
+                                                    fileContainer.fileArguments(),
                                                     *this,
                                                     checkIfFileExists));
         translationUnits_.back().setDocumentRevision(fileContainer.documentRevision());
