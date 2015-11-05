@@ -109,13 +109,19 @@
     Click the
     \inlineimage qmldesigner-show-hide-icon.png
     icon to change the visibility of an item on the canvas. To change the
-    visibility of an item in the application, use the \uicontrol Visibility
-    check box or the \uicontrol Opacity field in the \uicontrol Properties pane. If you set
-    \uicontrol Opacity to 0, items are hidden, but you can still apply animation
-    to them.
+    visibility of an item in the application, select the \uicontrol Visibility
+    check box in the \uicontrol Properties pane or select \uicontrol Edit >
+    \uicontrol Visibility in the context menu.
+
+    You can also set the \uicontrol Opacity field to 0 to hide items that you
+    want to apply animation to.
 
     As all properties, visibility and opacity are inherited from the parent
     item. To hide or show child items, edit the properties of the parent item.
+
+    To reset item size, position, or anchors, select context menu commands. To
+    change the source of an Image type, select \uicontrol {Change Source URL} in
+    the context menu.
 
     To view lists of files or projects, instead, select \uicontrol {File System},
     \uicontrol {Open Documents}, or \uicontrol Projects in the menu.
@@ -132,7 +138,8 @@
     stacking value are drawn in the order they are listed, from the last item
     up.
 
-    To change the stacking order of an item, right-click it on the canvas and
+    To change the stacking order of an item, right-click it in the navigator or
+    on the canvas and
     select \uicontrol {Stack (z)}. You can raise or lower the stack value of an item
     or move the item to the front or back of all its siblings. To remove the
     \c z property, select \uicontrol {Reset z Property}.
