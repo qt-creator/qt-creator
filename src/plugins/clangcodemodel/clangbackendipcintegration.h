@@ -133,8 +133,6 @@ public:
 
     void registerProjectsParts(const QList<CppTools::ProjectPart::Ptr> projectParts);
 
-    void registerTranslationUnit(TextEditor::TextDocument *document);
-    void registerTranslationUnit(const QString &filePath, const QByteArray &contents, uint documentRevision);
     void updateTranslationUnitIfNotCurrentDocument(Core::IDocument *document);
     void updateTranslationUnit(Core::IDocument *document);
     void updateUnsavedFile(Core::IDocument *document);

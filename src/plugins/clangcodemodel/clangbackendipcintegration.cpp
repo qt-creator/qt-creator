@@ -376,16 +376,6 @@ void IpcCommunicator::registerProjectsParts(const QList<CppTools::ProjectPart::P
     registerProjectPartsForEditor(projectPartContainers);
 }
 
-void IpcCommunicator::registerTranslationUnit(TextEditor::TextDocument *document)
-{
-    const QString filePath = document->filePath().toString();
-    const QString projectPartId = Utils::projectPartIdForFile(filePath);
-
-    registerTranslationUnitsForEditor({{Utf8String(filePath),
-                                        Utf8String(projectPartId),
-                                        uint(document->document()->revision())}});
-}
-
 void IpcCommunicator::updateTranslationUnitFromCppEditorDocument(const QString &filePath)
 {
     const auto document = CppTools::CppModelManager::instance()->cppEditorDocument(filePath);
@@ -424,25 +414,6 @@ void setLastSentDocumentRevision(const QString &filePath,
     if (document)
         document->sendTracker().setLastSentRevision(int(revision));
 }
-}
-
-void IpcCommunicator::registerTranslationUnit(const QString &filePath,
-                                              const QByteArray &contents,
-                                              uint documentRevision)
-{
-    const QString projectPartId = Utils::projectPartIdForFile(filePath);
-
-    if (documentHasChanged(filePath)) {
-        const bool hasUnsavedContent = true;
-
-        registerTranslationUnitsForEditor({{filePath,
-                                            projectPartId,
-                                            Utf8String::fromByteArray(contents),
-                                            hasUnsavedContent,
-                                            documentRevision}});
-
-        setLastSentDocumentRevision(filePath, documentRevision);
-    }
 }
 
 void IpcCommunicator::updateTranslationUnit(const QString &filePath,
