@@ -569,7 +569,9 @@ class DumperBase:
         elided, shown = self.computeLimit(size, limit)
         return elided, self.readMemory(data, shown)
 
-    def putCharArrayHelper(self, data, size, charSize, displayFormat = AutomaticFormat):
+    def putCharArrayHelper(self, data, size, charSize,
+                           displayFormat = AutomaticFormat,
+                           makeExpandable = True):
         bytelen = size * charSize
         elided, shown = self.computeLimit(bytelen, self.displayStringLimit)
         mem = self.readMemory(data, shown)
@@ -594,6 +596,13 @@ class DumperBase:
             self.putField("editformat", displayType)
             elided, shown = self.computeLimit(bytelen, 100000)
             self.putField("editvalue", self.readMemory(data, shown))
+
+        if makeExpandable:
+            self.putNumChild(size)
+            if self.isExpanded():
+                with Children(self):
+                    for i in range(size):
+                        self.putSubItem(size, data[i])
 
     def readMemory(self, addr, size):
         data = self.extractBlob(addr, size).toBytes()
@@ -1010,7 +1019,8 @@ class DumperBase:
         n = int(arrayByteSize / ts)
         if displayFormat != RawFormat and p:
             if innerTypeName == "char" or innerTypeName == "wchar_t":
-                self.putCharArrayHelper(p, n, ts, self.currentItemFormat())
+                self.putCharArrayHelper(p, n, ts, self.currentItemFormat(),
+                                        makeExpandable = False)
             else:
                 self.tryPutSimpleFormattedPointer(p, arrayType, innerTypeName,
                     displayFormat, arrayByteSize)
