@@ -103,7 +103,11 @@ def qdump__boost__container__list(d, value):
         innerType = d.templateArgument(value.type, 0)
         offset = 2 * d.ptrSize()
         with Children(d, n):
-            p = r["root_"]["next_"]
+            try:
+                root = r["root_"]
+            except:
+                root = r["m_header"]
+            p = root["next_"]
             for i in xrange(n):
                 d.putSubItem("%s" % i, d.createValue(d.pointerValue(p) + offset, innerType))
                 p = p["next_"]

@@ -5252,7 +5252,7 @@ void tst_Dumpers::dumper_data()
                     "l.push_back(p(15, 65));\n"
                     "l.push_back(p(16, 66));\n")
              + BoostProfile()
-             + Check("l", "<4 items>", "boost::container::list<std::pair<int,double>>")
+             + Check("l", "<4 items>", Pattern("boost::container::list<std::pair<int,double>.*>"))
              + Check("l.2.second", "65", "double");
 
 
