@@ -14,6 +14,7 @@ Project {
         "externaltool/externaltool.qbs",
         "filesearch/filesearch.qbs",
         "generichighlighter/generichighlighter.qbs",
+        "json/json.qbs",
         "profilewriter/profilewriter.qbs",
         "qml/qml.qbs",
         "qtcprocess/qtcprocess.qbs",
