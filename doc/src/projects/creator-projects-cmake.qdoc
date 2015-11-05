@@ -93,6 +93,23 @@
     Normally, there is no need to pass any command line arguments for projects
     that are already built, as CMake caches that information.
 
+    \section1 Editing CMake Configuration Files
+
+    You can open CMake configuration files in \QC for editing. The following
+    features are supported:
+
+    \list
+
+        \li Pressing \key F2 when the cursor is on a filename to open the file
+
+        \li Keyword completion
+
+        \li Auto-indentation
+
+        \li Matching parentheses and quotes
+
+    \endlist
+
     \section1 Building CMake Projects
 
     \QC builds CMake projects by running \c make, \c mingw32-make,
