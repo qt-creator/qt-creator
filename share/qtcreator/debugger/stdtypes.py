@@ -471,7 +471,7 @@ def qdump__std____1__wstring(d, value):
         size = firstByte / 2
         data = base + 4
     d.putCharArrayHelper(data, size, 4)
-    d.putType("std::xxwstring")
+    d.putType("std::wstring")
 
 
 def qdump__std__shared_ptr(d, value):
@@ -804,12 +804,28 @@ def qform__std__wstring():
 
 def qdump__std__wstring(d, value):
     charSize = d.lookupType('wchar_t').sizeof
-    # HACK: Shift format by 4 to account for latin1 and utf8
     qdump__std__stringHelper1(d, value, charSize, d.currentItemFormat())
 
 def qdump__std__basic_string(d, value):
     innerType = d.templateArgument(value.type, 0)
     qdump__std__stringHelper1(d, value, innerType.sizeof, d.currentItemFormat())
+
+def qdump__std____cxx11__basic_string(d, value):
+    innerType = d.templateArgument(value.type, 0)
+    data = value["_M_dataplus"]["_M_p"]
+    size = int(value["_M_string_length"])
+    d.check(0 <= size) #and size <= alloc and alloc <= 100*1000*1000)
+    d.putCharArrayHelper(data, size, innerType.sizeof, d.currentItemFormat())
+
+def qform__std____cxx11__string(d, value):
+    qdump__std____cxx11__basic_string(d, value)
+
+# Needed only to trigger the form report above.
+def qform__std____cxx11__string():
+    return qform__std__string()
+
+def qform__std____cxx11__wstring():
+    return qform__std__wstring()
 
 def qdump__std____1__basic_string(d, value):
     innerType = str(d.templateArgument(value.type, 0))

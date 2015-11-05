@@ -40,6 +40,8 @@ const char *description[] =
 {
     "g++_stdstring",
     "g++_stdwstring",
+    "g++_5stdstring",
+    "g++_5stdwstring",
     "g++_stringmap",
     "g++_wstringmap",
     "g++_stringlist",
@@ -75,6 +77,8 @@ const char *input[] =
 // g++
 "std::string",
 "std::wstring",
+"std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >",
+"std::__cxx11::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >",
 "std::map<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >",
 "std::map<std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >, std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >, std::less<std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> > >, std::allocator<std::pair<std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> > const, std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> > > > >",
 "std::list<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char> > > >",
@@ -114,6 +118,8 @@ const char *input[] =
 const char *output[] =
 {
     // Gcc
+    "std::string",
+    "std::wstring",
     "std::string",
     "std::wstring",
     "std::map<std::string, std::string>",
