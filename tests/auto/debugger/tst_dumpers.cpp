@@ -4113,6 +4113,7 @@ void tst_Dumpers::dumper_data()
             << Data("#include <set>\n",
 
                     "std::set<double> s0;\n"
+                    "unused(&s0);\n\n"
 
                     "std::set<int> s1;\n"
                     "s1.insert(11);\n"

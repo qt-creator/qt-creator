@@ -292,7 +292,12 @@ def stdTreeIteratorHelper(d, value):
             nodeTypeName = str(value.type).replace("_Rb_tree_iterator", "_Rb_tree_node", 1)
             nodeTypeName = nodeTypeName.replace("_Rb_tree_const_iterator", "_Rb_tree_node", 1)
             nodeType = d.lookupType(nodeTypeName + '*')
-            data = node.cast(nodeType).dereference()["_M_value_field"]
+            nnode = node.cast(nodeType).dereference()
+            try:
+                data = nnode["_M_value_field"]
+            except: # GCC 5.x, C++11.
+                data = nnode["_M_storage"] # __gnu_cxx::__aligned_membuf<T>
+                data = data.cast(d.templateArgument(data.type, 0))
             first = d.childWithName(data, "first")
             if first:
                 d.putSubItem("first", first)
