@@ -215,7 +215,7 @@ private:
 class CPPTOOLS_EXPORT CompilerOptionsBuilder
 {
 public:
-    CompilerOptionsBuilder(const ProjectPart::Ptr &projectPart);
+    CompilerOptionsBuilder(const ProjectPart &projectPart);
     virtual ~CompilerOptionsBuilder() {}
 
     QStringList options() const;
@@ -237,7 +237,7 @@ protected:
     virtual QString defineOption() const;
     virtual QString includeOption() const;
 
-    const ProjectPart::Ptr m_projectPart;
+    const ProjectPart m_projectPart;
 
 private:
     QString defineLineToDefineOption(const QByteArray &defineLine);

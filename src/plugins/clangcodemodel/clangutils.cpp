@@ -112,7 +112,7 @@ public:
         if (projectPart.isNull())
             return QStringList();
 
-        LibClangOptionsBuilder optionsBuilder(projectPart);
+        LibClangOptionsBuilder optionsBuilder(*projectPart.data());
 
         if (verboseRunLog().isDebugEnabled())
             optionsBuilder.add(QLatin1String("-v"));
@@ -135,7 +135,7 @@ public:
     }
 
 private:
-    LibClangOptionsBuilder(const CppTools::ProjectPart::Ptr &projectPart)
+    LibClangOptionsBuilder(const CppTools::ProjectPart &projectPart)
         : CompilerOptionsBuilder(projectPart)
     {
     }
@@ -171,7 +171,7 @@ private:
         static const QString wrappedQtHeaders = ICore::instance()->resourcePath()
                 + QLatin1String("/cplusplus/wrappedQtHeaders");
 
-        if (m_projectPart->qtVersion != ProjectPart::NoQt) {
+        if (m_projectPart.qtVersion != ProjectPart::NoQt) {
             add(QLatin1String("-I") + wrappedQtHeaders);
             add(QLatin1String("-I") + wrappedQtHeaders + QLatin1String("/QtCore"));
         }
@@ -179,9 +179,9 @@ private:
 
     void addProjectConfigFileInclude()
     {
-        if (!m_projectPart->projectConfigFile.isEmpty()) {
+        if (!m_projectPart.projectConfigFile.isEmpty()) {
             add(QLatin1String("-include"));
-            add(m_projectPart->projectConfigFile);
+            add(m_projectPart.projectConfigFile);
         }
     }
 
@@ -213,7 +213,7 @@ private:
         add(QStringLiteral("-Wno-documentation"));
         add(QStringLiteral("-Wno-shadow"));
 
-        if (m_projectPart->languageVersion >= ProjectPart::CXX98)
+        if (m_projectPart.languageVersion >= ProjectPart::CXX98)
             add(QStringLiteral("-Wno-missing-prototypes"));
     }
 };

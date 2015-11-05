@@ -312,8 +312,7 @@ static CppTools::ProjectPart projectPartForLanguageOption(CppTools::ProjectPart 
 
 static QStringList languageOptions(const QString &filePath, CppTools::ProjectPart *projectPart)
 {
-    const auto theProjectPart = CppTools::ProjectPart::Ptr(
-                new CppTools::ProjectPart(projectPartForLanguageOption(projectPart)));
+    const auto theProjectPart = projectPartForLanguageOption(projectPart);
     CppTools::CompilerOptionsBuilder builder(theProjectPart);
     builder.addLanguageOption(CppTools::ProjectFile::classify(filePath));
 

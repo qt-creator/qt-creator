@@ -505,7 +505,7 @@ void ProjectPartBuilder::createProjectPart(const QStringList &theSources,
 }
 
 
-CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart::Ptr &projectPart)
+CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart)
     : m_projectPart(projectPart)
 {
 }
@@ -544,7 +544,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
 
     QStringList result;
 
-    foreach (const HeaderPath &headerPath , m_projectPart->headerPaths) {
+    foreach (const HeaderPath &headerPath , m_projectPart.headerPaths) {
         if (headerPath.path.isEmpty())
             continue;
 
@@ -571,7 +571,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
 
 void CompilerOptionsBuilder::addToolchainAndProjectDefines()
 {
-    QByteArray extendedDefines = m_projectPart->toolchainDefines + m_projectPart->projectDefines;
+    QByteArray extendedDefines = m_projectPart.toolchainDefines + m_projectPart.projectDefines;
     QStringList result;
 
     foreach (QByteArray def, extendedDefines.split('\n')) {
@@ -645,7 +645,7 @@ static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objc
 
 void CompilerOptionsBuilder::addLanguageOption(ProjectFile::Kind fileKind)
 {
-    const bool objcExt = m_projectPart->languageExtensions & ProjectPart::ObjectiveCExtensions;
+    const bool objcExt = m_projectPart.languageExtensions & ProjectPart::ObjectiveCExtensions;
     const QStringList options = createLanguageOptionGcc(fileKind, objcExt);
     m_options.append(options);
 }
@@ -653,9 +653,9 @@ void CompilerOptionsBuilder::addLanguageOption(ProjectFile::Kind fileKind)
 void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtensions)
 {
     QStringList opts;
-    const ProjectPart::LanguageExtensions languageExtensions = m_projectPart->languageExtensions;
+    const ProjectPart::LanguageExtensions languageExtensions = m_projectPart.languageExtensions;
     const bool gnuExtensions = languageExtensions & ProjectPart::GnuExtensions;
-    switch (m_projectPart->languageVersion) {
+    switch (m_projectPart.languageVersion) {
     case ProjectPart::C89:
         opts << (gnuExtensions ? QLatin1String("-std=gnu89") : QLatin1String("-std=c89"));
         break;
@@ -716,7 +716,7 @@ bool CompilerOptionsBuilder::excludeDefineLine(const QByteArray &defineLine) con
     // The right-hand sides are gcc built-ins that clang does not understand, and they'd
     // override clang's own (non-macro, it seems) definitions of the symbols on the left-hand
     // side.
-    const bool isGccToolchain = m_projectPart->toolchainType == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
+    const bool isGccToolchain = m_projectPart.toolchainType == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
     if (isGccToolchain && defineLine.contains("has_include"))
         return true;
 
