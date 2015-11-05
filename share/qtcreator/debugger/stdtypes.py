@@ -172,6 +172,9 @@ def qdump__std__list__QNX(d, value):
 def qdump__std____debug__list(d, value):
     qdump__std__list(d, value)
 
+def qdump__std____cxx11__list(d, value):
+    qdump__std__list(d, value)
+
 def qform__std__map():
     return mapForms()
 
