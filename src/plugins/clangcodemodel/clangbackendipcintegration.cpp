@@ -336,7 +336,7 @@ static QVector<ClangBackEnd::ProjectPartContainer> toProjectPartContainers(
     return projectPartContainers;
 }
 
-void IpcCommunicator::registerEmptyProjectForProjectLessFiles()
+void IpcCommunicator::registerFallbackProjectPart()
 {
     QTC_CHECK(m_connection.isConnected());
 
@@ -524,7 +524,7 @@ void IpcCommunicator::onCoreAboutToClose()
 
 void IpcCommunicator::initializeBackendWithCurrentData()
 {
-    registerEmptyProjectForProjectLessFiles();
+    registerFallbackProjectPart();
     registerCurrentProjectParts();
     registerCurrentCppEditorDocuments();
     registerCurrentCodeModelUiHeaders();

@@ -144,6 +144,8 @@ public:
     void requestDiagnostics(Core::IDocument *document);
     void updateChangeContentStartPosition(const QString &filePath, int position);
 
+    void registerFallbackProjectPart();
+
 public: // for tests
     IpcSenderInterface *setIpcSender(IpcSenderInterface *ipcSender);
     void killBackendProcess();
@@ -156,7 +158,6 @@ private:
 
     void initializeBackend();
     void initializeBackendWithCurrentData();
-    void registerEmptyProjectForProjectLessFiles();
     void registerCurrentProjectParts();
     void registerCurrentCppEditorDocuments();
     void registerCurrentCodeModelUiHeaders();

@@ -300,7 +300,9 @@ void ModelManagerSupportClang::onProjectPartsUpdated(ProjectExplorer::Project *p
     QTC_ASSERT(project, return);
     const CppTools::ProjectInfo projectInfo = cppModelManager()->projectInfo(project);
     QTC_ASSERT(projectInfo.isValid(), return);
+
     m_ipcCommunicator.registerProjectsParts(projectInfo.projectParts());
+    m_ipcCommunicator.registerFallbackProjectPart();
 }
 
 void ModelManagerSupportClang::onProjectPartsRemoved(const QStringList &projectPartIds)
@@ -308,6 +310,7 @@ void ModelManagerSupportClang::onProjectPartsRemoved(const QStringList &projectP
     if (!projectPartIds.isEmpty()) {
         unregisterTranslationUnitsWithProjectParts(projectPartIds);
         m_ipcCommunicator.unregisterProjectPartsForEditor(projectPartIds);
+        m_ipcCommunicator.registerFallbackProjectPart();
     }
 }
 
