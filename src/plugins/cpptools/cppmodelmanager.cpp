@@ -384,9 +384,9 @@ bool CppModelManager::replaceDocument(Document::Ptr newDoc)
     return true;
 }
 
+/// Make sure that m_projectMutex is locked when calling this.
 void CppModelManager::ensureUpdated()
 {
-    QMutexLocker locker(&d->m_projectMutex);
     if (!d->m_dirty)
         return;
 
@@ -475,8 +475,7 @@ void CppModelManager::dumpModelManagerConfiguration(const QString &logFileId)
     dumper.dumpProjectInfos(projectInfos());
     dumper.dumpSnapshot(globalSnapshot, globalSnapshotTitle, /*isGlobalSnapshot=*/ true);
     dumper.dumpWorkingCopy(workingCopy());
-    ensureUpdated();
-    dumper.dumpMergedEntities(d->m_headerPaths, d->m_definedMacros);
+    dumper.dumpMergedEntities(headerPaths(), definedMacros());
 }
 
 QSet<AbstractEditorSupport *> CppModelManager::abstractEditorSupports() const
@@ -941,12 +940,12 @@ QList<ProjectPart::Ptr> CppModelManager::projectPartFromDependencies(
     return parts.values();
 }
 
-ProjectPart::Ptr CppModelManager::fallbackProjectPart() const
+ProjectPart::Ptr CppModelManager::fallbackProjectPart()
 {
     ProjectPart::Ptr part(new ProjectPart);
 
-    part->projectDefines = d->m_definedMacros;
-    part->headerPaths = d->m_headerPaths;
+    part->projectDefines = definedMacros();
+    part->headerPaths = headerPaths();
     part->languageVersion = ProjectPart::CXX14;
 
     // Do not activate ObjectiveCExtensions since this will lead to the
@@ -1259,24 +1258,31 @@ CppIndexingSupport *CppModelManager::indexingSupport()
 
 QStringList CppModelManager::projectFiles()
 {
+    QMutexLocker locker(&d->m_projectMutex);
     ensureUpdated();
+
     return d->m_projectFiles;
 }
 
 ProjectPart::HeaderPaths CppModelManager::headerPaths()
 {
+    QMutexLocker locker(&d->m_projectMutex);
     ensureUpdated();
+
     return d->m_headerPaths;
 }
 
 void CppModelManager::setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths)
 {
+    QMutexLocker locker(&d->m_projectMutex);
     d->m_headerPaths = headerPaths;
 }
 
 QByteArray CppModelManager::definedMacros()
 {
+    QMutexLocker locker(&d->m_projectMutex);
     ensureUpdated();
+
     return d->m_definedMacros;
 }
 

@@ -109,7 +109,7 @@ public:
     QList<ProjectPart::Ptr> projectPartFromDependencies(const Utils::FileName &fileName) const;
     /// \return A synthetic \c ProjectPart which consists of all defines/includes/frameworks from
     ///         all loaded projects.
-    ProjectPart::Ptr fallbackProjectPart() const;
+    ProjectPart::Ptr fallbackProjectPart();
 
     CPlusPlus::Snapshot snapshot() const;
     Document::Ptr document(const QString &fileName) const;
