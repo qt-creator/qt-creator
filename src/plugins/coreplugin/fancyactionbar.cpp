@@ -57,6 +57,7 @@ FancyToolButton::FancyToolButton(QAction *action, QWidget *parent)
 {
     setDefaultAction(action);
     connect(action, &QAction::changed, this, &FancyToolButton::actionChanged);
+    actionChanged();
 
     setAttribute(Qt::WA_Hover, true);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
