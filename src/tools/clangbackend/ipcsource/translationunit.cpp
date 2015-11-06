@@ -276,11 +276,12 @@ void TranslationUnit::createTranslationUnitIfNeeded() const
     if (!d->translationUnit) {
         d->translationUnit = CXTranslationUnit();
 
-        const bool verboseMode = isVerboseModeEnabled();
-        const CommandLineArguments args(d->projectPart.arguments(), d->fileArguments, verboseMode);
+        const auto args = commandLineArguments();
+        if (isVerboseModeEnabled())
+            args.print();
 
         CXErrorCode errorCode = clang_parseTranslationUnit2(index(),
-                                                            d->filePath.constData(),
+                                                            NULL,
                                                             args.data(),
                                                             args.count(),
                                                             unsavedFiles().cxUnsavedFiles(),
@@ -291,7 +292,6 @@ void TranslationUnit::createTranslationUnitIfNeeded() const
         checkTranslationUnitErrorCode(errorCode);
 
         updateIncludeFilePaths();
-
 
         updateLastProjectPartChangeTimePoint();
     }
@@ -354,6 +354,14 @@ void TranslationUnit::updateIncludeFilePaths() const
         d->dependedFilePaths = oldDependedFilePaths;
 
     d->translationUnits.addWatchedFiles(d->dependedFilePaths);
+}
+
+CommandLineArguments TranslationUnit::commandLineArguments() const
+{
+    return CommandLineArguments(d->filePath.constData(),
+                                d->projectPart.arguments(),
+                                d->fileArguments,
+                                isVerboseModeEnabled());
 }
 
 uint TranslationUnit::defaultOptions()

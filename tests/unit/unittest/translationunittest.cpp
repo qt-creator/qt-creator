@@ -28,6 +28,7 @@
 **
 ****************************************************************************/
 
+#include <commandlinearguments.h>
 #include <diagnosticset.h>
 #include <filecontainer.h>
 #include <projectpart.h>
@@ -61,6 +62,7 @@ using ClangBackEnd::TranslationUnits;
 
 using testing::IsNull;
 using testing::NotNull;
+using testing::Eq;
 using testing::Gt;
 using testing::Contains;
 using testing::EndsWith;
@@ -146,6 +148,13 @@ TEST_F(TranslationUnit, ResetedTranslationUnitIsNull)
     translationUnit.reset();
 
     ASSERT_TRUE(translationUnit.isNull());
+}
+
+TEST_F(TranslationUnit, LastCommandLineArgumentIsFilePath)
+{
+    const auto arguments = translationUnit.commandLineArguments();
+
+    ASSERT_THAT(arguments.at(arguments.count() - 1), Eq(translationUnitFilePath));
 }
 
 TEST_F(TranslationUnit, TimeStampForProjectPartChangeIsUpdatedAsNewCxTranslationUnitIsGenerated)

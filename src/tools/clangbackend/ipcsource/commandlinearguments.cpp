@@ -30,9 +30,12 @@
 
 #include "commandlinearguments.h"
 
+#include <iostream>
+
 namespace ClangBackEnd {
 
-CommandLineArguments::CommandLineArguments(const std::vector<const char *> &projectPartArguments,
+CommandLineArguments::CommandLineArguments(const char *filePath,
+                                           const std::vector<const char *> &projectPartArguments,
                                            const Utf8StringVector &fileArguments,
                                            bool addVerboseOption)
 {
@@ -46,6 +49,7 @@ CommandLineArguments::CommandLineArguments(const std::vector<const char *> &proj
         m_arguments.push_back(argument.constData());
     if (addVerboseOption)
         m_arguments.push_back("-v");
+    m_arguments.push_back(filePath);
 }
 
 const char * const *CommandLineArguments::data() const
@@ -56,6 +60,21 @@ const char * const *CommandLineArguments::data() const
 int CommandLineArguments::count() const
 {
     return int(m_arguments.size());
+}
+
+const char *CommandLineArguments::at(int position) const
+{
+    return m_arguments.at(uint(position));
+}
+
+void CommandLineArguments::print() const
+{
+    using namespace std;
+
+    cerr << "Arguments to libclang:";
+    for (const auto &argument : m_arguments)
+        cerr << ' ' << argument;
+    cerr << endl;
 }
 
 } // namespace ClangBackEnd

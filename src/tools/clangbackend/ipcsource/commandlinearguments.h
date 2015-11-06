@@ -40,12 +40,16 @@ namespace ClangBackEnd {
 class CommandLineArguments
 {
 public:
-    CommandLineArguments(const std::vector<const char *> &projectPartArguments,
+    CommandLineArguments(const char *filePath,
+                         const std::vector<const char *> &projectPartArguments,
                          const Utf8StringVector &fileArguments,
                          bool addVerboseOption);
 
     const char * const *data() const;
     int count() const;
+    const char * at(int position) const;
+
+    void print() const;
 
 private:
     std::vector<const char *> m_arguments;
