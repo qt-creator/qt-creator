@@ -37,6 +37,7 @@
 #include <QLabel>
 #include <QPainter>
 #include <QPixmap>
+#include <QPointer>
 #include <QPropertyAnimation>
 #include <QTimer>
 
@@ -130,14 +131,20 @@ namespace FadingIndicator {
 
 void showText(QWidget *parent, const QString &text, TextSize size)
 {
-    auto indicator = new Internal::FadingIndicatorPrivate(parent, size);
+    static QPointer<Internal::FadingIndicatorPrivate> indicator;
+    if (indicator)
+        delete indicator;
+    indicator = new Internal::FadingIndicatorPrivate(parent, size);
     indicator->setText(text);
     indicator->run(2500); // deletes itself
 }
 
 void showPixmap(QWidget *parent, const QString &pixmap)
 {
-    auto indicator = new Internal::FadingIndicatorPrivate(parent, LargeText);
+    static QPointer<Internal::FadingIndicatorPrivate> indicator;
+    if (indicator)
+        delete indicator;
+    indicator = new Internal::FadingIndicatorPrivate(parent, LargeText);
     indicator->setPixmap(pixmap);
     indicator->run(300); // deletes itself
 }
