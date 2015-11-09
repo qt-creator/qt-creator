@@ -230,13 +230,19 @@ bool MimeDatabasePrivate::inherits(const QString &mime, const QString &parent)
     const QString resolvedParent = provider()->resolveAlias(parent);
     //Q_ASSERT(provider()->resolveAlias(mime) == mime);
     QStack<QString> toCheck;
+    QSet<QString> seen; // avoid endless loop on bogus mime data
     toCheck.push(mime);
+    seen.insert(mime);
     while (!toCheck.isEmpty()) {
         const QString current = toCheck.pop();
         if (current == resolvedParent)
             return true;
-        foreach (const QString &par, provider()->parents(current))
-            toCheck.push(par);
+        foreach (const QString &par, provider()->parents(current)) {
+            int seenSize = seen.size();
+            seen.insert(par);
+            if (seen.size() != seenSize) // haven't seen before, so add
+                toCheck.push(par);
+        }
     }
     return false;
 }

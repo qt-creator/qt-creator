@@ -2516,7 +2516,9 @@ static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
     //         * application/octet-stream
     //     * text/plain
     QList<Utils::MimeType> queue;
+    QSet<QString> seen;
     queue.append(mimeType);
+    seen.insert(mimeType.name());
     while (!queue.isEmpty()) {
         Utils::MimeType mt = queue.takeFirst();
         // check for matching factories
@@ -2536,8 +2538,14 @@ static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
         QStringList parentNames = mt.parentMimeTypes();
         foreach (const QString &parentName, parentNames) {
             const Utils::MimeType parent = mdb.mimeTypeForName(parentName);
-            if (parent.isValid())
-                queue.append(parent);
+            if (parent.isValid()) {
+                int seenSize = seen.size();
+                seen.insert(parent.name());
+                if (seen.size() != seenSize) // not seen before, so add
+                    queue.append(parent);
+                else
+                    qWarning("MimeTypes: Parent hierarchy loop detected for '%s'!", qPrintable(parent.name()));
+            }
         }
     }
 }
