@@ -608,8 +608,14 @@ struct Cxx11Profile : public Profile
 struct BoostProfile : public Profile
 {
     BoostProfile()
-      : Profile("macx:INCLUDEPATH += /usr/local/include")
-    {}
+      : Profile(QByteArray())
+    {
+        const QByteArray &boostIncPath = qgetenv("QTC_BOOST_INCLUDE_PATH_FOR_TEST");
+        if (!boostIncPath.isEmpty())
+            contents = QByteArray("INCLUDEPATH += ") + boostIncPath.constData();
+        else
+            contents = "macx:INCLUDEPATH += /usr/local/include";
+    }
 };
 
 struct MacLibCppProfile : public Profile
