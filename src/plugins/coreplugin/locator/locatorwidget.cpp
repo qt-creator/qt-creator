@@ -407,12 +407,12 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
         }
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusOut) {
         QFocusEvent *fev = static_cast<QFocusEvent *>(event);
-        if (fev->reason() != Qt::ActiveWindowFocusReason || !m_completionList->isActiveWindow()) {
+        if (fev->reason() != Qt::ActiveWindowFocusReason || !m_completionList->isActiveWindow())
             m_completionList->hide();
-            m_fileLineEdit->clearFocus();
-        }
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusIn) {
-        showPopupNow();
+        QFocusEvent *fev = static_cast<QFocusEvent *>(event);
+        if (fev->reason() != Qt::ActiveWindowFocusReason)
+            showPopupNow();
     } else if (obj == this && event->type() == QEvent::ShortcutOverride) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         switch (ke->key()) {
@@ -581,10 +581,8 @@ void LocatorWidget::show(const QString &text, int selectionStart, int selectionL
 {
     if (!text.isEmpty())
         m_fileLineEdit->setText(text);
-    if (!m_fileLineEdit->hasFocus())
-        m_fileLineEdit->setFocus();
-    else
-        showPopupNow();
+    m_fileLineEdit->setFocus();
+    showPopupNow();
     ICore::raiseWindow(ICore::mainWindow());
 
     if (selectionStart >= 0) {
