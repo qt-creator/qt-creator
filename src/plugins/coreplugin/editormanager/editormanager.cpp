@@ -515,9 +515,6 @@ void EditorManagerPrivate::init()
     connect(m_autoSaveTimer, SIGNAL(timeout()), SLOT(autoSave()));
     updateAutoSave();
 
-    d->m_coreListener = new EditorClosingCoreListener();
-    ExtensionSystem::PluginManager::addObject(d->m_coreListener);
-
     d->m_openEditorsFactory = new OpenEditorsViewFactory();
     ExtensionSystem::PluginManager::addObject(d->m_openEditorsFactory);
 
@@ -539,7 +536,13 @@ void EditorManagerPrivate::init()
         []() -> int {
             IEditor *editor = EditorManager::currentEditor();
             return editor ? editor->widget()->mapToGlobal(QPoint(0, 0)).y() : 0;
-        });
+                                               });
+}
+
+void EditorManagerPrivate::extensionsInitialized()
+{
+    d->m_coreListener = new EditorClosingCoreListener();
+    ExtensionSystem::PluginManager::addObject(d->m_coreListener);
 }
 
 EditorManagerPrivate *EditorManagerPrivate::instance()
