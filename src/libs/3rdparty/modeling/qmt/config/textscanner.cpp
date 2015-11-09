@@ -54,7 +54,9 @@ TextScannerError::~TextScannerError()
 {
 }
 
-struct TextScanner::TextScannerPrivate {
+class TextScanner::TextScannerPrivate
+{
+public:
     TextScannerPrivate()
         : m_maxOperatorLength(0),
           m_source(0)

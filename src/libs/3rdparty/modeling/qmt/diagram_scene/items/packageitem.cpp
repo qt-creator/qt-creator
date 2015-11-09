@@ -64,7 +64,9 @@ static const qreal MINIMUM_AUTO_WIDTH = 100.0;
 static const qreal MINIMUM_AUTO_HEIGHT = 70.0;
 
 
-struct PackageItem::ShapeGeometry {
+class PackageItem::ShapeGeometry
+{
+public:
     ShapeGeometry(const QSizeF &minimumSize, const QSizeF &minimumTabSize)
         : m_minimumSize(minimumSize),
           m_minimumTabSize(minimumTabSize)

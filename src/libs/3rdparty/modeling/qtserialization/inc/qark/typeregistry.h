@@ -45,12 +45,12 @@
 
 namespace qark {
 
-class unregisteredType :
+class UnregisteredType :
         public std::exception
 {
 };
 
-class abstractType :
+class AbstractType :
         public std::exception
 {
 };
@@ -63,13 +63,13 @@ template<int N>
 class TypeNameMaps {
 public:
 
-    typedef QHash<QString, QString> mapType;
+    typedef QHash<QString, QString> MapType;
 
 public:
 
-    static mapType &nameToUidMap() { return *typeidNameToUidMap; }
+    static MapType &nameToUidMap() { return *typeidNameToUidMap; }
 
-    static mapType &uidToNameMap() { return *typeidUidToNameMap; }
+    static MapType &uidToNameMap() { return *typeidUidToNameMap; }
 
 #if !defined(QT_NO_DEBUG)
     static bool hasNameToUidMap() { return typeidNameToUidMap != 0; }
@@ -82,8 +82,8 @@ protected:
     static void init()
     {
         static bool initialized = false;
-        static mapType nameToUidMap;
-        static mapType uidToNameMap;
+        static MapType nameToUidMap;
+        static MapType uidToNameMap;
 
         if (!initialized) {
             typeidNameToUidMap = &nameToUidMap;
@@ -94,16 +94,16 @@ protected:
 
 private:
 
-    static mapType *typeidNameToUidMap;
+    static MapType *typeidNameToUidMap;
 
-    static mapType *typeidUidToNameMap;
+    static MapType *typeidUidToNameMap;
 };
 
 template<int N>
-typename TypeNameMaps<N>::mapType *TypeNameMaps<N>::typeidNameToUidMap;
+typename TypeNameMaps<N>::MapType *TypeNameMaps<N>::typeidNameToUidMap;
 
 template<int N>
-typename TypeNameMaps<N>::mapType *TypeNameMaps<N>::typeidUidToNameMap;
+typename TypeNameMaps<N>::MapType *TypeNameMaps<N>::typeidUidToNameMap;
 
 
 template<class T>
@@ -111,7 +111,7 @@ class TypeNameRegistry :
         public TypeNameMaps<0>
 {
 
-    typedef TypeNameMaps<0> base;
+    typedef TypeNameMaps<0> Base;
 
 private:
 
@@ -120,11 +120,11 @@ private:
 private:
     static int __init(const QString &name)
     {
-        base::init();
-        QMT_CHECK(!base::nameToUidMap().contains(QLatin1String(typeid(T).name())) || base::nameToUidMap().value(QLatin1String(typeid(T).name())) == name);
-        QMT_CHECK(!base::uidToNameMap().contains(name) || base::uidToNameMap().value(name) == QLatin1String(typeid(T).name()));
-        base::nameToUidMap().insert(QLatin1String(typeid(T).name()), name);
-        base::uidToNameMap().insert(name, QLatin1String(typeid(T).name()));
+        Base::init();
+        QMT_CHECK(!Base::nameToUidMap().contains(QLatin1String(typeid(T).name())) || Base::nameToUidMap().value(QLatin1String(typeid(T).name())) == name);
+        QMT_CHECK(!Base::uidToNameMap().contains(name) || Base::uidToNameMap().value(name) == QLatin1String(typeid(T).name()));
+        Base::nameToUidMap().insert(QLatin1String(typeid(T).name()), name);
+        Base::uidToNameMap().insert(name, QLatin1String(typeid(T).name()));
         return 0;
     }
 };
@@ -135,37 +135,39 @@ template<class Archive, class BASE>
 class TypeRegistry {
 public:
 
-    struct typeInfo {
+    class TypeInfo
+    {
+    public:
 
-        typedef Archive &(*saveFuncType)(Archive &, BASE * const &p);
-        typedef Archive &(*loadFuncType)(Archive &, BASE * &p);
+        typedef Archive &(*SaveFuncType)(Archive &, BASE * const &p);
+        typedef Archive &(*LoadFuncType)(Archive &, BASE * &p);
 
-        explicit typeInfo()
+        explicit TypeInfo()
             : m_saveFunc(0),
               m_loadFunc(0)
         {
         }
 
-        explicit typeInfo(saveFuncType sfunc, loadFuncType lfunc)
+        explicit TypeInfo(SaveFuncType sfunc, LoadFuncType lfunc)
             : m_saveFunc(sfunc),
               m_loadFunc(lfunc)
         {
         }
 
-        bool operator==(const typeInfo &rhs) const
+        bool operator==(const TypeInfo &rhs) const
         {
             return m_saveFunc == rhs.m_saveFunc && m_loadFunc == rhs.m_loadFunc;
         }
 
-        saveFuncType m_saveFunc;
-        loadFuncType m_loadFunc;
+        SaveFuncType m_saveFunc;
+        LoadFuncType m_loadFunc;
     };
 
-    typedef QHash<QString, typeInfo> mapType;
+    typedef QHash<QString, TypeInfo> MapType;
 
 public:
 
-    static mapType &map() { return *m_map; }
+    static MapType &map() { return *m_map; }
 
 #if !defined(QT_NO_DEBUG)
     static bool hasMap() { return m_map != 0; }
@@ -175,7 +177,7 @@ protected:
 
     static void init() {
         static bool initialized = false;
-        static mapType theMap;
+        static MapType theMap;
 
         if (!initialized) {
             m_map = &theMap;
@@ -185,11 +187,11 @@ protected:
 
 private:
 
-    static mapType *m_map;
+    static MapType *m_map;
 };
 
 template<class Archive, class BASE>
-typename TypeRegistry<Archive, BASE>::mapType *TypeRegistry<Archive,BASE>::m_map;
+typename TypeRegistry<Archive, BASE>::MapType *TypeRegistry<Archive,BASE>::m_map;
 
 
 template<class Archive, class BASE, class DERIVED>
@@ -197,22 +199,22 @@ class DerivedTypeRegistry :
         public TypeRegistry<Archive, BASE>
 {
 
-    typedef TypeRegistry<Archive, BASE> base;
+    typedef TypeRegistry<Archive, BASE> Base;
 
-    typedef Archive &(*saveFuncType)(Archive &, BASE * const &);
+    typedef Archive &(*SaveFuncType)(Archive &, BASE * const &);
 
-    typedef Archive &(*loadFuncType)(Archive &, BASE * &);
+    typedef Archive &(*LoadFuncType)(Archive &, BASE * &);
 
 private:
 
     static int __static_init;
 
 private:
-    static int __init(saveFuncType sfunc, loadFuncType lfunc)
+    static int __init(SaveFuncType sfunc, LoadFuncType lfunc)
     {
-        base::init();
-        QMT_CHECK(!base::map().contains(QLatin1String(typeid(DERIVED).name())) || base::map().value(QLatin1String(typeid(DERIVED).name())) == typename base::typeInfo(sfunc, lfunc));
-        base::map().insert(QLatin1String(typeid(DERIVED).name()), typename base::typeInfo(sfunc, lfunc));
+        Base::init();
+        QMT_CHECK(!Base::map().contains(QLatin1String(typeid(DERIVED).name())) || Base::map().value(QLatin1String(typeid(DERIVED).name())) == typename Base::TypeInfo(sfunc, lfunc));
+        Base::map().insert(QLatin1String(typeid(DERIVED).name()), typename Base::TypeInfo(sfunc, lfunc));
         return 0;
     }
 };
@@ -246,7 +248,7 @@ typename std::enable_if<std::is_abstract<T>::value, void>::type loadNonVirtualPo
     (void) archive;
     (void) p;
 
-    throw abstractType();
+    throw AbstractType();
 }
 
 inline QString demangleTypename(const char *mangledName)
@@ -287,7 +289,7 @@ QString typeUid(const T &t)
 }
 
 template<class Archive, class T>
-typename registry::TypeRegistry<Archive, T>::typeInfo typeInfo(const T &t)
+typename registry::TypeRegistry<Archive, T>::TypeInfo typeInfo(const T &t)
 {
     Q_UNUSED(t);
 #if !defined(QT_NO_DEBUG) // avoid warning about unused function ::hasNameToUidMap in Qt >= 5.5
@@ -299,7 +301,7 @@ typename registry::TypeRegistry<Archive, T>::typeInfo typeInfo(const T &t)
 }
 
 template<class Archive, class T>
-typename registry::TypeRegistry<Archive,T>::typeInfo typeInfo(const QString &uid)
+typename registry::TypeRegistry<Archive,T>::TypeInfo typeInfo(const QString &uid)
 {
 #if !defined(QT_NO_DEBUG) // avoid warning about unused function ::hasNameToUidMap in Qt >= 5.5
     QMT_CHECK_X((registry::TypeNameRegistry<T>::hasUidToNameMap()), "typeInfo<T>(const QString &)", "type maps are not correctly initialized");

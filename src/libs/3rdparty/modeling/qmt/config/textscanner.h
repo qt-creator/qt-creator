@@ -40,7 +40,7 @@
 namespace qmt {
 
 class ITextSource;
-struct SourceChar;
+class SourceChar;
 class Token;
 
 class QMT_EXPORT TextScannerError :
@@ -65,7 +65,7 @@ class QMT_EXPORT TextScanner : public QObject
 {
     Q_OBJECT
 
-    struct TextScannerPrivate;
+    class TextScannerPrivate;
 
 public:
     explicit TextScanner(QObject *parent = 0);

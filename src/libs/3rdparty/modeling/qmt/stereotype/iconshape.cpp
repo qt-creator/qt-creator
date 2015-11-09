@@ -51,7 +51,9 @@ QList<T *> CloneAll(const QList<T *> &rhs)
 
 namespace qmt {
 
-struct IconShape::IconShapePrivate {
+class IconShape::IconShapePrivate
+{
+public:
     IconShapePrivate()
     {
     }

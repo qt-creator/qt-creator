@@ -44,7 +44,7 @@ class ShapeConstVisitor;
 
 class QMT_EXPORT IconShape
 {
-    struct IconShapePrivate;
+    class IconShapePrivate;
 
 public:
 

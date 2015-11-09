@@ -71,7 +71,7 @@ public:
 
 private:
 
-    struct Clone;
+    class Clone;
 
     class DiagramUndoCommand;
     class UpdateElementCommand;

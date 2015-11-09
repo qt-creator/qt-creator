@@ -50,9 +50,9 @@ inline void save(Archive &archive, T *p, const Parameters &)
                 archive.endInstance();
             } else {
                 archive.beginInstance(typeUid(*p));
-                typename registry::TypeRegistry<Archive, T>::typeInfo typeData = typeInfo<Archive, T>(*p);
+                typename registry::TypeRegistry<Archive, T>::TypeInfo typeData = typeInfo<Archive, T>(*p);
                 if (typeData.m_saveFunc == 0) {
-                    throw unregisteredType();
+                    throw UnregisteredType();
                 } else {
                     typeData.m_saveFunc(archive, p);
                 }
@@ -80,9 +80,9 @@ void load(Archive &archive, T *&p, const Parameters &)
         if (refTag.typeName.isEmpty()) {
             registry::loadNonVirtualPointer<Archive,T>(archive, p);
         } else {
-            typename registry::TypeRegistry<Archive, T>::typeInfo typeData = typeInfo<Archive, T>(refTag.typeName);
+            typename registry::TypeRegistry<Archive, T>::TypeInfo typeData = typeInfo<Archive, T>(refTag.typeName);
             if (typeData.m_loadFunc == 0) {
-                throw unregisteredType();
+                throw UnregisteredType();
             } else {
                 typeData.m_loadFunc(archive, p);
             }

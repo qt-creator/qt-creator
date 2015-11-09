@@ -67,9 +67,9 @@ class QMT_EXPORT StereotypeDefinitionParser : public QObject
 {
     Q_OBJECT
 
-    struct StereotypeDefinitionParserPrivate;
+    class StereotypeDefinitionParserPrivate;
 
-    struct IconCommandParameter;
+    class IconCommandParameter;
 
 public:
 

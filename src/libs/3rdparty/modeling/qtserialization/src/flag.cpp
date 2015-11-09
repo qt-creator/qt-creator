@@ -32,6 +32,6 @@
 
 namespace qark {
 
-Flag::maskType Flag::m_nextMask = 1;
+Flag::MaskType Flag::m_nextMask = 1;
 
 }

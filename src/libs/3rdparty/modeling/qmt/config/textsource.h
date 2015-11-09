@@ -38,7 +38,9 @@
 
 namespace qmt {
 
-struct SourceChar {
+class SourceChar
+{
+public:
     SourceChar() { }
     SourceChar(QChar chr, const SourcePos &sourcePos)
         : ch(chr),

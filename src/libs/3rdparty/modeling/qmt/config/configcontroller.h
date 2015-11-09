@@ -45,7 +45,7 @@ class QMT_EXPORT ConfigController : public QObject
 {
     Q_OBJECT
 
-    struct ConfigControllerPrivate;
+    class ConfigControllerPrivate;
 
 public:
 

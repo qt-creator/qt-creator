@@ -47,7 +47,9 @@
 
 namespace qmt {
 
-struct ModelController::Clone {
+class ModelController::Clone
+{
+public:
     Clone();
 
     ElementType m_elementType;
@@ -379,7 +381,7 @@ public:
 
     void add(MElement *element, MObject *owner)
     {
-        struct Clone clone;
+        ModelController::Clone clone;
 
         clone.m_elementKey = element->uid();
         clone.m_ownerKey = owner->uid();

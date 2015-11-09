@@ -55,7 +55,7 @@ class PackageItem :
         public ObjectItem,
         public IRelationable
 {
-    struct ShapeGeometry;
+    class ShapeGeometry;
 
 public:
     PackageItem(DPackage *package, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);

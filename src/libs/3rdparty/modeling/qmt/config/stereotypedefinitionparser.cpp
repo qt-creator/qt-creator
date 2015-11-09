@@ -107,8 +107,9 @@ StereotypeDefinitionParserError::~StereotypeDefinitionParserError()
 }
 
 
-struct StereotypeDefinitionParser::StereotypeDefinitionParserPrivate
+class StereotypeDefinitionParser::StereotypeDefinitionParserPrivate
 {
+public:
     StereotypeDefinitionParserPrivate()
         : m_scanner(0)
     {
@@ -119,8 +120,9 @@ struct StereotypeDefinitionParser::StereotypeDefinitionParserPrivate
 };
 
 
-struct StereotypeDefinitionParser::IconCommandParameter
+class StereotypeDefinitionParser::IconCommandParameter
 {
+public:
     IconCommandParameter(ShapeValueF::Unit unit, ShapeValueF::Origin origin = ShapeValueF::OriginSmart)
         : m_unit(unit),
           m_origin(origin)

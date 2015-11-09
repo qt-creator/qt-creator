@@ -45,11 +45,11 @@ class Handles
 {
 public:
 
-    typedef QList<Handle<T> > type;
+    typedef QList<Handle<T> > value_type;
 
-    typedef typename type::iterator iterator;
+    typedef typename value_type::iterator iterator;
 
-    typedef typename type::const_iterator const_iterator;
+    typedef typename value_type::const_iterator const_iterator;
 
 public:
 
@@ -154,16 +154,16 @@ public:
 
 public:
 
-    const type &get() const { return m_handleList; }
+    const value_type &get() const { return m_handleList; }
 
-    type take()
+    value_type take()
     {
-        type handles = m_handleList;
+        value_type handles = m_handleList;
         m_handleList.clear();
         return handles;
     }
 
-    void set(const type &handles) {
+    void set(const value_type &handles) {
         reset();
         m_handleList = handles;
     }
@@ -259,7 +259,7 @@ public:
 
 private:
 
-    type m_handleList;
+    value_type m_handleList;
 
     bool m_takeOwnership;
 };

@@ -46,8 +46,9 @@
 
 namespace qmt {
 
-struct StereotypeController::StereotypeControllerPrivate
+class StereotypeController::StereotypeControllerPrivate
 {
+public:
     StereotypeControllerPrivate()
     {
     }

@@ -54,7 +54,9 @@
 
 namespace qmt {
 
-struct DiagramController::Clone {
+class DiagramController::Clone
+{
+public:
     Clone();
     Uid m_elementKey;
     int m_indexOfElement;

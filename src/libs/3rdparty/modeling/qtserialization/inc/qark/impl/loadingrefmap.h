@@ -61,13 +61,13 @@ public:
 
 private:
 
-    typedef ObjectId keyType;
-    typedef void * valueType;
-    typedef QMap<keyType, valueType> mapType;
+    typedef ObjectId KeyType;
+    typedef void *ValueType;
+    typedef QMap<KeyType, ValueType> MapType;
 
 private:
 
-    mapType m_references;
+    MapType m_references;
 };
 
 }

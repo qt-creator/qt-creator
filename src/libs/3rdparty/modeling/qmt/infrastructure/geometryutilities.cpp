@@ -81,7 +81,9 @@ bool GeometryUtilities::intersect(const QPolygonF &polygon, const QLineF &line, 
 
 namespace {
 
-struct Candidate {
+class Candidate
+{
+public:
     Candidate() : third(GeometryUtilities::SideUnspecified) { }
 
     Candidate(const QVector2D &f, const QPointF &s, GeometryUtilities::Side t) : first(f), second(s), third(t) { }

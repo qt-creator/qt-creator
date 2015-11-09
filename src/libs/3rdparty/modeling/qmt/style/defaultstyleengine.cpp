@@ -49,7 +49,9 @@ namespace qmt {
 
 // TODO use tuple instead of these 4 explicit key classes
 
-struct ObjectStyleKey {
+class ObjectStyleKey
+{
+public:
     ObjectStyleKey()
         : m_elementType(StyleEngine::TypeOther)
     {
@@ -76,7 +78,9 @@ bool operator==(const ObjectStyleKey &lhs, const ObjectStyleKey &rhs)
 }
 
 
-struct RelationStyleKey {
+class RelationStyleKey
+{
+public:
     RelationStyleKey(StyleEngine::ElementType elementType = StyleEngine::TypeOther,
                      DObject::VisualPrimaryRole visualPrimaryRole = DObject::PrimaryRoleNormal)
         : m_elementType(elementType),
@@ -98,7 +102,9 @@ bool operator==(const RelationStyleKey &lhs, const RelationStyleKey &rhs)
 }
 
 
-struct AnnotationStyleKey {
+class AnnotationStyleKey
+{
+public:
     AnnotationStyleKey(DAnnotation::VisualRole visualRole = DAnnotation::RoleNormal)
         : m_visualRole(visualRole)
     {
@@ -117,7 +123,9 @@ bool operator==(const AnnotationStyleKey &lhs, const AnnotationStyleKey &rhs)
 }
 
 
-struct BoundaryStyleKey {
+class BoundaryStyleKey
+{
+public:
     BoundaryStyleKey()
     {
     }
@@ -229,7 +237,9 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
 {
     ElementType elementType = objectType(styledObject.object());
 
-    struct DepthProperties {
+    class DepthProperties
+    {
+    public:
         DepthProperties()
             : m_elementType(TypeOther),
               m_visualPrimaryRole(DObject::PrimaryRoleNormal),

@@ -301,7 +301,9 @@ QString ClassMembersEdit::Cursor::preparse(const QString &text)
 }
 
 
-struct ClassMembersEdit::ClassMembersEditPrivate {
+class ClassMembersEdit::ClassMembersEditPrivate
+{
+public:
     ClassMembersEditPrivate()
         : m_valid(true)
     {

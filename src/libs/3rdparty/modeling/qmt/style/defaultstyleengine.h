@@ -45,10 +45,10 @@ QT_END_NAMESPACE
 
 namespace qmt {
 
-struct ObjectStyleKey;
-struct RelationStyleKey;
-struct AnnotationStyleKey;
-struct BoundaryStyleKey;
+class ObjectStyleKey;
+class RelationStyleKey;
+class AnnotationStyleKey;
+class BoundaryStyleKey;
 
 
 class QMT_EXPORT DefaultStyleEngine :

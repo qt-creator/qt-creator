@@ -45,8 +45,9 @@
 
 namespace qmt {
 
-struct ConfigController::ConfigControllerPrivate
+class ConfigController::ConfigControllerPrivate
 {
+public:
     ConfigControllerPrivate()
         : m_stereotypeController(0)
     {

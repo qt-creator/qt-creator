@@ -48,7 +48,9 @@ public:
         TooltypeSeparator
     };
 
-    struct Tool {
+    class Tool
+    {
+    public:
         Tool()
             : m_toolType(TooltypeSeparator)
         {

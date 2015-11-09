@@ -294,7 +294,9 @@ public:
         TypeClose
     };
 
-    struct Element {
+    class Element
+    {
+    public:
         explicit Element(ElementType element = TypeNone)
             : m_elementType(element),
               m_angle1(0.0),

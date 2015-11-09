@@ -44,7 +44,7 @@ class QMT_EXPORT ClassMembersEdit :
     Q_OBJECT
 
     class Cursor;
-    struct ClassMembersEditPrivate;
+    class ClassMembersEditPrivate;
 
 public:
 

@@ -65,7 +65,7 @@ class QMT_EXPORT ModelController :
         TypeObject,
         TypeRelation };
 
-    struct Clone;
+    class Clone;
 
     class UpdateObjectCommand;
     class UpdateRelationCommand;

@@ -62,7 +62,7 @@ public:
 
 private:
 
-    Flag::maskType m_flags;
+    Flag::MaskType m_flags;
 };
 
 }

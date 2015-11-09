@@ -48,7 +48,7 @@ class QMT_EXPORT StereotypeController :
 {
     Q_OBJECT
 
-    struct StereotypeControllerPrivate;
+    class StereotypeControllerPrivate;
 
 public:
     explicit StereotypeController(QObject *parent = 0);

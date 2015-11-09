@@ -56,7 +56,9 @@ public:
         Vcenter
     };
 
-    struct Latch {
+    class Latch
+    {
+    public:
         Latch()
             : m_latchType(None),
               m_pos(0.0),

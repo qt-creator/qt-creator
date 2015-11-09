@@ -82,13 +82,13 @@ private:
 
 private:
 
-    typedef QPair<const void *, const char *> keyType;
-    typedef QPair<ObjectId, bool> valueType;
-    typedef QMap<keyType, valueType> mapType;
+    typedef QPair<const void *, const char *> KeyType;
+    typedef QPair<ObjectId, bool> ValueType;
+    typedef QMap<KeyType, ValueType> MapType;
 
 private:
 
-    mapType m_references;
+    MapType m_references;
     ObjectId m_nextRef;
 };
 

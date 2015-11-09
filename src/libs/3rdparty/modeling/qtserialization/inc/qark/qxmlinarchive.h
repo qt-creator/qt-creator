@@ -68,16 +68,16 @@ public:
 
 private:
 
-    struct XmlTag;
+    class XmlTag;
 
     class Node {
     public:
-        typedef QList<Node *> childrenType;
+        typedef QList<Node *> ChildrenType;
 
     public:
         virtual ~Node() { qDeleteAll(m_children); }
 
-        const childrenType &children() const { return m_children; }
+        const ChildrenType &children() const { return m_children; }
 
         virtual QString qualifiedName() const = 0;
 
@@ -86,7 +86,7 @@ private:
         void append(Node *node) { m_children.append(node); }
 
     private:
-        childrenType m_children;
+        ChildrenType m_children;
     };
 
     class TagNode :
@@ -517,7 +517,9 @@ public:
         Instance
     };
 
-    struct ReferenceTag {
+    class ReferenceTag
+    {
+    public:
         explicit ReferenceTag(ReferenceKind k = Nullpointer, const QString &string = QLatin1String("")) : kind(k), typeName(string) { }
 
         ReferenceKind kind;
@@ -568,7 +570,9 @@ public:
 
 private:
 
-    struct XmlTag {
+    class XmlTag
+    {
+    public:
         XmlTag() : m_endTag(false) { }
         QString m_tagName;
         bool m_endTag;
@@ -586,7 +590,7 @@ private:
                 return;
             } else {
                 bool foundTag = false;
-                for (Node::childrenType::const_iterator it = node->children().begin(); it != node->children().end(); ++it) {
+                for (Node::ChildrenType::const_iterator it = node->children().begin(); it != node->children().end(); ++it) {
                     if ((*it)->qualifiedName() == xmlTag.m_tagName) {
                         foundTag = true;
                         (*it)->accept(*this, xmlTag);
