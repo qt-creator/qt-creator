@@ -33,24 +33,24 @@ from dumper import *
 
 
 def qdump__QAtomicInt(d, value):
-    d.putValue(int(value["_q_value"]))
+    d.putValue(d.extractInt(value.address))
     d.putNumChild(0)
 
 
 def qdump__QBasicAtomicInt(d, value):
-    d.putValue(int(value["_q_value"]))
+    d.putValue(d.extractInt(value.address))
     d.putNumChild(0)
 
 
 def qdump__QAtomicPointer(d, value):
     d.putType(value.type)
-    q = value["_q_value"]
+    q = d.extractPointer(value.address)
     p = toInteger(q)
     d.putValue("@0x%x" % p)
     d.putNumChild(1 if p else 0)
     if d.isExpanded():
         with Children(d):
-           d.putSubItem("_q_value", q.dereference())
+           d.putSubItem("[pointee]", q.dereference())
 
 def qform__QByteArray():
     return [Latin1StringFormat, SeparateLatin1StringFormat,
@@ -1656,7 +1656,7 @@ def qdump__QSet(d, value):
 
 
 def qdump__QSharedData(d, value):
-    d.putValue("ref: %s" % value["ref"]["_q_value"])
+    d.putValue("ref: %s" % d.extractInt(value["ref"].address))
     d.putNumChild(0)
 
 
@@ -2213,8 +2213,8 @@ def qdump__QWeakPointer(d, value):
         d.putValue("<invalid>")
         d.putNumChild(0)
         return
-    weakref = int(d_ptr["weakref"]["_q_value"])
-    strongref = int(d_ptr["strongref"]["_q_value"])
+    weakref = d.extractInt(d_ptr["weakref"].address)
+    strongref = d.extractInt(d_ptr["strongref"].address)
     d.check(strongref >= -1)
     d.check(strongref <= weakref)
     d.check(weakref <= 10*1000*1000)

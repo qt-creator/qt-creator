@@ -2792,7 +2792,7 @@ void tst_Dumpers::dumper_data()
                     "QSharedPointer<QString> ptr20(new QString(\"hallo\"));\n"
                     "QSharedPointer<QString> ptr21 = ptr20;\n"
                     "QSharedPointer<QString> ptr22 = ptr20;\n"
-                    "unused(&ptr20, &ptr21, &ptr21);\n\n"
+                    "unused(&ptr20, &ptr21, &ptr22);\n\n"
 
                     "QSharedPointer<int> ptr30(new int(43));\n"
                     "QWeakPointer<int> ptr31(ptr30);\n"
