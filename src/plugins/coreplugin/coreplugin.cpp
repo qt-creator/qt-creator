@@ -105,7 +105,6 @@ void CorePlugin::parseArguments(const QStringList &arguments)
     Id themeId = settingsThemeId;
     QColor overrideColor;
     bool presentationMode = false;
-    bool userProvidedTheme = false;
 
     for (int i = 0; i < arguments.size(); ++i) {
         if (arguments.at(i) == QLatin1String("-color")) {
@@ -117,7 +116,6 @@ void CorePlugin::parseArguments(const QStringList &arguments)
             presentationMode = true;
         if (arguments.at(i) == QLatin1String("-theme")) {
             themeId = Id::fromString(arguments.at(i + 1));
-            userProvidedTheme = true;
             i++;
         }
     }
