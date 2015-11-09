@@ -1415,8 +1415,7 @@ class DumperBase:
             addr += 1
         return result
 
-    def listChildrenGenerator(self, addr, typeName):
-        innerType = self.lookupType(self.qtNamespace() + typeName)
+    def listChildrenGenerator(self, addr, innerType):
         base = self.extractPointer(addr)
         begin = self.extractInt(base + 8)
         end = self.extractInt(base + 12)
@@ -1434,6 +1433,14 @@ class DumperBase:
             else:
                 p = self.extractPointer(addr + i * stepSize)
                 yield self.createValue(p, innerType)
+
+    def vectorChildrenGenerator(self, addr, innerType):
+        base = self.extractPointer(addr)
+        size = self.extractInt(base + 4)
+        data = base + self.extractPointer(base + 8 + self.ptrSize())
+        innerSize = innerType.sizeof
+        for i in range(size):
+            yield self.createValue(data + i * innerSize, innerType)
 
 
     # This is called is when a QObject derived class is expanded
@@ -1459,6 +1466,7 @@ class DumperBase:
 
         with SubItem(self, "[properties]"):
             propertyCount = 0
+            usesVector = self.qtVersion() >= 0x50700
             if self.isExpanded():
                 propertyNames = self.staticQObjectPropertyNames(smo)
                 propertyCount = len(propertyNames) # Doesn't include dynamic properties.
@@ -1470,8 +1478,13 @@ class DumperBase:
 
                     # Dynamic properties.
                     if extraData:
-                        names = self.listChildrenGenerator(extraData + ptrSize, "QByteArray")
-                        values = self.listChildrenGenerator(extraData + 2 * ptrSize, "QVariant")
+                        byteArrayType = self.lookupQtType("QByteArray")
+                        variantType = self.lookupQtType("QVariant")
+                        names = self.listChildrenGenerator(extraData + ptrSize, byteArrayType)
+                        if usesVector:
+                            values = self.vectorChildrenGenerator(extraData + 2 * ptrSize, variantType)
+                        else:
+                            values = self.listChildrenGenerator(extraData + 2 * ptrSize, variantType)
                         for (k, v) in zip(names, values):
                             with SubItem(self, propertyCount):
                                 self.put('key="%s",' % self.encodeByteArray(k))
