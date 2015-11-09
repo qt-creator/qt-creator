@@ -33,6 +33,7 @@
 
 #include <json.h>
 
+#include <QFileInfo>
 #include <QTest>
 #include <QCryptographicHash>
 
