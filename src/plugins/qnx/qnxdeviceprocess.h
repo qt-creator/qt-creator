@@ -1,6 +1,6 @@
 /**************************************************************************
 **
-** Copyright (C) 2015 BlackBerry Limited. All rights reserved.
+** Copyright (C) 2012 - 2014 BlackBerry Limited. All rights reserved.
 **
 ** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
@@ -30,30 +30,35 @@
 **
 ****************************************************************************/
 
-#ifndef QNXDEVICEPROCESSSIGNALOPERATION_H
-#define QNXDEVICEPROCESSSIGNALOPERATION_H
+#ifndef QNXDEVICEPROCESS_H
+#define QNXDEVICEPROCESS_H
 
-#include <remotelinux/remotelinuxsignaloperation.h>
+#include "qnx_export.h"
+#include <remotelinux/linuxdevice.h>
+#include <projectexplorer/devicesupport/sshdeviceprocess.h>
 
 namespace Qnx {
-class QnxDeviceConfiguration;
-
 namespace Internal {
 
-class QnxDeviceProcessSignalOperation : public RemoteLinux::RemoteLinuxSignalOperation
+class QnxDeviceProcess : public ProjectExplorer::SshDeviceProcess
 {
-    Q_OBJECT
-protected:
-    explicit QnxDeviceProcessSignalOperation(const QSsh::SshConnectionParameters &sshParameters);
+public:
+    QnxDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device, QObject *parent);
+
+    void setWorkingDirectory(const QString &directory) { m_workingDir = directory; }
+
+    void interrupt() { doSignal(2); }
+    void terminate() { doSignal(15); }
+    void kill() { doSignal(9); }
+    QString fullCommandLine() const;
 
 private:
-    QString killProcessByNameCommandLine(const QString &filePath) const;
-    QString interruptProcessByNameCommandLine(const QString &filePath) const;
-
-    friend class Qnx::QnxDeviceConfiguration;
+    void doSignal(int sig);
+    QString m_pidFile;
+    QString m_workingDir;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNXDEVICEPROCESSSIGNALOPERATION_H
+#endif // QNXDEVICEPROCESS_H

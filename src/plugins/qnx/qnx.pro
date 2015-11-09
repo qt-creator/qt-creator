@@ -34,7 +34,8 @@ SOURCES += qnxplugin.cpp \
     qnxconfigurationmanager.cpp \
     qnxsettingspage.cpp \
     qnxversionnumber.cpp \
-    qnxdeployqtlibrariesdialog.cpp
+    qnxdeployqtlibrariesdialog.cpp \
+    qnxdeviceprocess.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -69,14 +70,16 @@ HEADERS += qnxplugin.h\
     qnxconfigurationmanager.h \
     qnxsettingspage.h \
     qnxversionnumber.h \
-    qnxdeployqtlibrariesdialog.h
+    qnxdeployqtlibrariesdialog.h \
+    qnx_export.h \
+    qnxdeviceprocess.h
 
 FORMS += \
     qnxsettingswidget.ui \
     qnxdeployqtlibrariesdialog.ui
 
 
-DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII
+DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII QNX_LIBRARY
 
 RESOURCES += \
     qnx.qrc

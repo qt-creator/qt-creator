@@ -1,9 +1,7 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (C) 2015 BlackBerry Limited. All rights reserved.
-**
-** Contact: BlackBerry (qt@blackberry.com)
-** Contact: KDAB (info@kdab.com)
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -30,30 +28,15 @@
 **
 ****************************************************************************/
 
-#ifndef QNXDEVICEPROCESSSIGNALOPERATION_H
-#define QNXDEVICEPROCESSSIGNALOPERATION_H
+#ifndef QNX_EXPORT_H
+#define QNX_EXPORT_H
 
-#include <remotelinux/remotelinuxsignaloperation.h>
+#include <qglobal.h>
 
-namespace Qnx {
-class QnxDeviceConfiguration;
+#if defined(QNX_LIBRARY)
+#  define QNX_EXPORT Q_DECL_EXPORT
+#else
+#  define QNX_EXPORT Q_DECL_IMPORT
+#endif
 
-namespace Internal {
-
-class QnxDeviceProcessSignalOperation : public RemoteLinux::RemoteLinuxSignalOperation
-{
-    Q_OBJECT
-protected:
-    explicit QnxDeviceProcessSignalOperation(const QSsh::SshConnectionParameters &sshParameters);
-
-private:
-    QString killProcessByNameCommandLine(const QString &filePath) const;
-    QString interruptProcessByNameCommandLine(const QString &filePath) const;
-
-    friend class Qnx::QnxDeviceConfiguration;
-};
-
-} // namespace Internal
-} // namespace Qnx
-
-#endif // QNXDEVICEPROCESSSIGNALOPERATION_H
+#endif // QNX_EXPORT_H

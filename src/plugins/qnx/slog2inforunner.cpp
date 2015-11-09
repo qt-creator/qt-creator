@@ -32,7 +32,7 @@
 
 #include "slog2inforunner.h"
 
-#include "qnxdeviceconfiguration.h"
+#include "qnxdeviceprocess.h"
 
 #include <utils/qtcassert.h>
 
