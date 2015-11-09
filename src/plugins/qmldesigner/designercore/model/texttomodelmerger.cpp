@@ -773,7 +773,6 @@ static bool isBlacklistImport(const ImportKey &importKey)
             || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Particles") //Unsupported
             || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Dialogs")   //Unsupported
             || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Controls.Styles")   //Unsupported
-            || importKey.libraryQualifiedPath().contains(QStringLiteral("Qt.labs"))    //No support for labs plugins
             || importKey.libraryQualifiedPath() == QStringLiteral("QtNfc") //Unsupported
             || importKey.libraryQualifiedPath() == QStringLiteral("QtMultimedia")
             || importKey.libraryQualifiedPath() == QStringLiteral("Qt.WebSockets")
