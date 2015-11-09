@@ -98,7 +98,7 @@ Item {
                 eventInfo.append({content : eventData[k]});
             }
         }
-        hasContents = true;
+        hasContents = eventInfo.count > 0;
 
         var location = timelineModel.location(selectedItem)
         if (location.hasOwnProperty("file")) { // not empty
