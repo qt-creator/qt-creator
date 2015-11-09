@@ -58,6 +58,8 @@ QtcPlugin {
         "qnxdeviceprocesslist.h",
         "qnxdeviceprocesssignaloperation.cpp",
         "qnxdeviceprocesssignaloperation.h",
+        "qnxdeviceprocess.cpp",
+        "qnxdeviceprocess.h",
         "qnxdevicetester.cpp",
         "qnxdevicetester.h",
         "qnxsettingswidget.cpp",
@@ -85,6 +87,7 @@ QtcPlugin {
         "qnxruncontrolfactory.h",
         "qnxutils.cpp",
         "qnxutils.h",
+        "qnx_export.h",
         "slog2inforunner.cpp",
         "slog2inforunner.h",
     ]
