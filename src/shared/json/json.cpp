@@ -225,6 +225,12 @@ static int compressedNumber(double d)
     return neg ? -res : res;
 }
 
+static void toInternal(char *addr, const char *data, int size)
+{
+    memcpy(addr, &size, 4);
+    memcpy(addr + 4, data, size);
+}
+
 class String
 {
 public:
@@ -583,8 +589,15 @@ private:
     bool parseArray();
     bool parseMember(int baseOffset);
     bool parseString();
+    bool parseEscapeSequence();
     bool parseValue(Value *val, int baseOffset);
     bool parseNumber(Value *val, int baseOffset);
+
+    void addChar(char c) {
+        const int pos = reserveSpace(1);
+        data[pos] = c;
+    }
+
     const char *head;
     const char *json;
     const char *end;
@@ -4456,31 +4469,27 @@ static bool addHexDigit(char digit, uint32_t *result)
     return true;
 }
 
-static bool scanEscapeSequence(const char *&json, const char *end, std::string *out)
+bool Parser::parseEscapeSequence()
 {
-    ++json;
-    if (json >= end)
-        return false;
-
     DEBUG << "scan escape" << (char)*json;
-    char escaped = *json++;
+    const char escaped = *json++;
     switch (escaped) {
     case '"':
-        out->push_back('"'); break;
+        addChar('"'); break;
     case '\\':
-        out->push_back('\\'); break;
+        addChar('\\'); break;
     case '/':
-        out->push_back('/'); break;
+        addChar('/'); break;
     case 'b':
-        out->push_back(0x8); break;
+        addChar(0x8); break;
     case 'f':
-        out->push_back(0xc); break;
+        addChar(0xc); break;
     case 'n':
-        out->push_back(0xa); break;
+        addChar(0xa); break;
     case 'r':
-        out->push_back(0xd); break;
+        addChar(0xd); break;
     case 't':
-        out->push_back(0x9); break;
+        addChar(0x9); break;
     case 'u': {
         uint32_t c = 0;
         if (json > end - 4)
@@ -4491,82 +4500,101 @@ static bool scanEscapeSequence(const char *&json, const char *end, std::string *
             ++json;
         }
         if (c < 0x80) {
-            out->push_back(c);
-            return true;
+            addChar(c);
+            break;
         }
         if (c < 0x800) {
-            out->push_back(192 + c / 64);
-            out->push_back(128 + c % 64);
-            return true;
+            addChar(192 + c / 64);
+            addChar(128 + c % 64);
+            break;
         }
         if (c - 0xd800u < 0x800) {
             return false;
         }
         if (c < 0x10000) {
-            out->push_back(224 + c / 4096);
-            out->push_back(128 + c / 64 % 64);
-            out->push_back(128 + c % 64);
-            return true;
+            addChar(224 + c / 4096);
+            addChar(128 + c / 64 % 64);
+            addChar(128 + c % 64);
+            break;
         }
         if (c < 0x110000) {
-            out->push_back(240 + c / 262144);
-            out->push_back(128 + c / 4096 % 64);
-            out->push_back(128 + c / 64 % 64);
-            out->push_back(128 + c % 64);
-            return true;
+            addChar(240 + c / 262144);
+            addChar(128 + c / 4096 % 64);
+            addChar(128 + c / 64 % 64);
+            addChar(128 + c % 64);
+            break;
         }
         return false;
     }
     default:
         // this is not as strict as one could be, but allows for more Json files
         // to be parsed correctly.
-        out->push_back(escaped);
-        return true;
+        addChar(escaped);
+        break;
     }
     return true;
 }
 
 bool Parser::parseString()
 {
-    const char *start = json;
-    const int outStart = current;
-    int stringPos = reserveSpace(2);
+    const char *inStart = json;
 
-    json = start;
-    current = outStart + sizeof(int);
+    // First try quick pass without escapes.
+    if (true) {
+        while (1) {
+            if (json >= end) {
+                ++json;
+                lastError = JsonParseError::UnterminatedString;
+                return false;
+            }
 
-//    const size_t insize = end - json;
-    std::string out;
-    out.reserve(100);
+            const char c = *json;
+            if (c == '"') {
+                // write string length and padding.
+                const int len = json - inStart;
+                const int pos = reserveSpace(4 + alignedSize(len));
+                toInternal(data + pos, inStart, len);
+                END;
 
-    while (json < end) {
-        if (*json == '"')
-            break;
-        else if (*json == '\\') {
-            if (!scanEscapeSequence(json, end, &out)) {
+                ++json;
+                return true;
+            }
+
+            if (c == '\\')
+                break;
+            ++json;
+        }
+    }
+
+    // Try again with escapes.
+    const int outStart = reserveSpace(4);
+    json = inStart;
+    while (1) {
+        if (json >= end) {
+            ++json;
+            lastError = JsonParseError::UnterminatedString;
+            return false;
+        }
+
+        if (*json == '"') {
+            ++json;
+            // write string length and padding.
+            *(int *)(data + outStart) = current - outStart - 4;
+            reserveSpace((4 - current) & 3);
+            END;
+            return true;
+        }
+
+        if (*json == '\\') {
+            ++json;
+            if (json >= end || !parseEscapeSequence()) {
                 lastError = JsonParseError::IllegalEscapeSequence;
                 return false;
             }
         } else {
-            out.push_back(*json++);
+            addChar(*json++);
         }
     }
-    ++json;
-
-    const int pos = reserveSpace(out.size());
-    memcpy(data + pos, out.data(), out.size());
-
-    if (json >= end) {
-        lastError = JsonParseError::UnterminatedString;
-        return false;
-    }
-
-    // write string length and padding.
-    *(int *)(data + stringPos) = out.size();
-    reserveSpace((4 - current) & 3);
-
-    END;
-    return true;
 }
 
 namespace Internal {
