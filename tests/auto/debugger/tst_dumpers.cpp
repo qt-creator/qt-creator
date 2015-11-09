@@ -246,12 +246,13 @@ static QString toHex(const QString &str)
 
 struct Context
 {
-    Context() : qtVersion(0), gccVersion(0), clangVersion(0) {}
+    Context() : qtVersion(0), gccVersion(0), clangVersion(0), boostVersion(0) {}
 
     QByteArray nameSpace;
     int qtVersion;
     int gccVersion;
     int clangVersion;
+    int boostVersion;
 };
 
 struct Name
@@ -482,6 +483,7 @@ struct CheckBase
     mutable VersionBase gccVersionForCheck;
     mutable VersionBase clangVersionForCheck;
     mutable QtVersion qtVersionForCheck;
+    mutable BoostVersion boostVersionForCheck;
     mutable bool optionallyPresent;
 };
 
@@ -546,6 +548,12 @@ struct Check : CheckBase
     {
         enginesForCheck = GdbEngine;
         clangVersionForCheck = version;
+        return *this;
+    }
+
+    const Check &operator%(BoostVersion version)
+    {
+        boostVersionForCheck = version;
         return *this;
     }
 
@@ -1188,6 +1196,11 @@ void tst_Dumpers::dumper()
             "\n#else"
             "\n    int clangversion = 0;"
             "\n#endif"
+            "\n#ifdef BOOST_VERSION"
+            "\n    int boostversion = BOOST_VERSION;"
+            "\n#else"
+            "\n    int boostversion = 0;"
+            "\n#endif"
             "\n" + (data.useQHash ?
                 "\n#if QT_VERSION >= 0x050000"
                 "\nqt_qhash_seed.store(0);"
@@ -1421,6 +1434,8 @@ void tst_Dumpers::dumper()
             context.gccVersion = child["value"].toInt();
         else if (dummy.iname == "local.clangversion")
             context.clangVersion = child["value"].toInt();
+        else if (dummy.iname == "local.boostversion")
+            context.boostVersion = child["value"].toInt();
         else
             parseWatchData(dummy, child, &list);
     }
@@ -5276,16 +5291,14 @@ void tst_Dumpers::dumper_data()
                     "s2.insert(\"def\");\n")
 
                + BoostProfile()
-               + BoostVersion(1 * 100000 + 54 * 100) // FIXME: Not checked
-               + GdbVersion(70600) // Crude replacement instead
 
-               + Check("s1", "<2 items>", "boost::unordered::unordered_set<int>")
-               + Check("s1.0", "[0]", "22", "int")
-               + Check("s1.1", "[1]", "11", "int")
+               + Check("s1", "<2 items>", "boost::unordered::unordered_set<int>") % BoostVersion(1 * 100000 + 54 * 100)
+               + Check("s1.0", "[0]", "22", "int") % BoostVersion(1 * 100000 + 54 * 100)
+               + Check("s1.1", "[1]", "11", "int") % BoostVersion(1 * 100000 + 54 * 100)
 
-               + Check("s2", "<2 items>", "boost::unordered::unordered_set<std::string>")
-               + Check("s2.0", "[0]", "\"def\"", "std::string")
-               + Check("s2.1", "[1]", "\"abc\"", "std::string");
+               + Check("s2", "<2 items>", "boost::unordered::unordered_set<std::string>") % BoostVersion(1 * 100000 + 54 * 100)
+               + Check("s2.0", "[0]", "\"def\"", "std::string") % BoostVersion(1 * 100000 + 54 * 100)
+               + Check("s2.1", "[1]", "\"abc\"", "std::string") % BoostVersion(1 * 100000 + 54 * 100);
 
 
 //    // This tests qdump__KRBase in share/qtcreator/debugger/qttypes.py which uses
