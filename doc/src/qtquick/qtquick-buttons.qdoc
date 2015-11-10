@@ -30,41 +30,51 @@
 
     \title Creating Buttons
 
-    To create a button component:
+    To create a button type:
 
     \list 1
 
-        \li Select \uicontrol {File > New File or Project > Qt > QML File > Choose}
-            to create a QML file called Button.qml (for example).
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Qt > \uicontrol {QML File (Qt Quick 2)} >
+            \uicontrol Choose to create a QML file called Button.qml (for
+            example).
 
-            \note Components are listed in the \uicontrol Library only if the
+            \note Types are listed in the \uicontrol Library only if the
             filename begins with a capital letter.
 
         \li Click \uicontrol {Design} to edit the file in the visual editor.
 
-        \li In the \uicontrol Navigator, click \uicontrol Rectangle to set properties
-            for it.
+        \li In the \uicontrol Navigator, select \uicontrol Item and set the
+            width (\uicontrol W) and height (\uicontrol H) of the button in the
+            \uicontrol Properties pane.
 
-        \li In the \uicontrol Properties pane, modify the appearance of the button.
+        \li Drag and drop a \uicontrol Rectangle from the \uicontrol Library to
+            the item in the navigator. This creates a nested item where the
+            item is the parent of the rectangle. Items are positioned relative
+            to their parents.
+
+        \li In the \uicontrol Properties pane, modify the appearance of the
+            rectangle:
 
         \list a
-
-            \li In the \uicontrol Size field, set the width (\uicontrol W) and height
-                (\uicontrol H) of the button.
 
             \li In the \uicontrol Color field, select the button color.
 
             \li In the \uicontrol Radius field, use the slider to set the radius of
                 the rectangle and produce rounded corners for the button.
 
+            \li Select \uicontrol {Layout}, and then select the
+                \inlineimage qmldesigner-anchor-fill-screen.png
+                (\uicontrol {Fill to Parent}) button to anchor the rectangle to
+                the item.
+
+
         \endlist
 
-        \li Drag and drop a \uicontrol {Text} item on top of the \uicontrol Rectangle. This
-            creates a nested item where \uicontrol Rectangle is the parent item
-            of \uicontrol Text. Items are positioned relative to their parents.
+        \li Drag and drop a \uicontrol {Text} type to the item in the navigator.
 
         \li In the \uicontrol Properties pane, edit the properties of the \uicontrol Text
-            item.
+            type.
 
         \list a
 
@@ -77,10 +87,8 @@
             \li In the \uicontrol Alignment field, select the center buttons to align
                 the text to the center of the button.
 
-            \li Click \uicontrol {Layout}, and then click the
-                \inlineimage qmldesigner-anchor-fill-screen.png
-                (\uicontrol {Fill to Parent}) button to anchor the text to the whole
-                button area.
+            \li Select \uicontrol Layout > \uicontrol {Fill to Parent}
+                to anchor the text to the whole button area.
 
         \endlist
 
@@ -110,13 +118,13 @@
     \l{BorderImage} type to display an image, such as a PNG file, as a border
     and a background.
 
-    Use two Border Image items and suitable graphics to make it look like the
-    button is pushed down when it is clicked. One of the Border Image items
+    Use two border images and suitable graphics to make it look like the
+    button is pushed down when it is clicked. One of the border images
     is visible by default. You can specify that it is hidden and the other one
     becomes visible when the mouse is clicked.
 
-    Add a Mouse Area that covers the whole area and emits the clicked signal
-    (\c {parent.clicked()}) when it detects a mouse click.
+    Add a \l MouseArea type that covers the whole area and emits the clicked
+    signal (\c {item.clicked()}) when it detects a mouse click.
 
     You can add text to the button and set it up as a property. The text can
     then be initialized from the outside, making the button a reusable UI
@@ -130,57 +138,54 @@
 
     \list 1
 
-        \li Select \uicontrol {File > New File or Project > Qt > QML File > Choose}
-            to create a QML file called Button.qml (for example).
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Qt > \uicontrol {QML File (Qt Quick 2)} >
+            \uicontrol Choose to create a QML file called Button.qml (for
+            example).
 
-        \li Double-click the file to open it in the code editor.
-
-        \li Replace the \uicontrol Rectangle with an \uicontrol Item, as illustrated by the
-            following code snippet:
-
-            \qml
-            Item {
-
-            }
-            \endqml
-
-        \li Specify properties and set expressions for the \uicontrol Item, as
-            illustrated by the following code snippet:
-
-            \qml
-            Item {
-                property string text: ""
-                property int fontSize: 10
-
-                signal clicked
-
-                width: 60
-                height: 40
-            }
-            \endqml
-
-            You will point to the properties and expression later.
+            \note Types are listed in the \uicontrol Library only if the
+            filename begins with a capital letter.
 
         \li Click \uicontrol {Design} to edit the file in the visual editor.
 
-        \li Drag and drop two \uicontrol {Border Image} items from the \uicontrol Library
-            to the canvas.
+        \li In the \uicontrol Navigator, select \uicontrol Item and set the
+            width (\uicontrol W) and height (\uicontrol H) of the button in the
+            \uicontrol Properties pane.
 
-        \li Drag and drop a \uicontrol Text item to the canvas.
+        \li Select \uicontrol Connections > \uicontrol {Dynamic Properties} >
+            \uicontrol Add to add properties for the item:
 
-        \li Drag and drop a \uicontrol {Mouse Area} to the canvas.
+            \image qmldesigner-borderimage-properties.png "Dynamic properties"
 
-        \li In the \uicontrol Navigator, select \uicontrol border_image1 to specify
-            settings for it in the \uicontrol Properties pane:
+            \list a
+
+                \li Double-click in the columns in the view to specify a \c text
+                     property with the type \c string and an empty value.
+
+                \li Specify another property, \c fontSize, with the type \c int
+                    and the value \c 10.
+
+            \endlist
+
+        \li Drag and drop two \uicontrol {Border Image} types from the
+            \uicontrol Library to the item in the \uicontrol Navigator.
+
+        \li Drag and drop a \uicontrol Text type to the item in the navigator.
+
+        \li Drag and drop a \uicontrol {Mouse Area} to the item in the
+            navigator.
+
+        \li In the navigator, select a border image to specify settings for it
+            in the \uicontrol Properties pane:
 
         \list a
 
-            \li Select \uicontrol {Set Binding} in the menu next to the
-                \uicontrol Visibility check box.
+            \li Select \uicontrol Connections > \uicontrol {Bindings}
+                > \uicontrol Add to hide the image when the mouse button is not
+                pressed down. Specify the \c visible property with the
+                \c !mouseArea source item and \c pressed source property.
 
-            \li Enter the following expression to specify that the image is
-                visible when the mouse is not pressed down:
-                \c {!mouse_area1.pressed}.
+                \image qmldesigner-borderimage-bindings.png "Border image bindings"
 
             \li In the \uicontrol Source field, select the image file for the button,
                 for example button_up.png.
@@ -192,41 +197,48 @@
 
         \endlist
 
-        \li Select \uicontrol border_image2 to specify similar settings for it:
+        \li Select the other border image to specify similar settings for it:
 
         \list a
 
-            \li Set the following epression for \uicontrol Visibility, to specify that
-                the image is visible when the mouse is pressed down:
-                \c {mouse_area1.pressed}.
+            \li In \uicontrol Bindings, specify the \c visible property
+                with the \c mouseArea source item and \c pressed source
+                property to show the image when the mouse button is pressed
+                down.
 
             \li In the \uicontrol Source field, select the image file for the button
                 when it is clicked, for example button_down.png.
 
-            \li Click \uicontrol {Layout}, and then click the
-                \uicontrol {Fill to Parent}
+            \li Select \uicontrol {Layout} > \uicontrol {Fill to Parent}
                 button to anchor the border image to the \uicontrol Item.
 
         \endlist
 
-        \li Select \uicontrol text1 to specify font size and color, and text
-            scaling and rendering:
+        \li Select the text to specify font size and color, and text scaling
+            and rendering:
 
         \list a
 
             \li In the \uicontrol Color field, use the color picker to select
                 the font color, or enter a value in the field.
 
-            \li In the \uicontrol Text field, select \uicontrol {Set Binding} and
-                enter a pointer to the \c {text} property that you specified
-                earlier: \c {parent.txt}.
+            \li In \uicontrol Bindings, create bindings to properties:
 
-            \li In the \uicontrol Size field, select \uicontrol {Pixels} to specify the font
-                size in pixels. By default, the size is specified in points.
+                \image qmldesigner-borderimage-bindings-text.png "Text bindings"
 
-            \li In the \uicontrol Size field, select \uicontrol {Set Expression} and enter a
-                pointer to the \c {fontSize} property that you specified
-                earlier.
+                \list
+
+                    \li Set the source property of the \c text property as
+                        \c text and the source item as \c parent.
+
+                    \li Set the source property of the \c font.pixelSize as
+                        \c fontSize and the source item as \c parent.
+
+                    \li Set the source property of \c scale as
+                        \c {if (!mouseArea} and the source item as
+                        \c {pressed) { 1 } else { 0.95 }}.
+
+                \endlist
 
             \li Click \uicontrol {Layout}, and then click the
                 \inlineimage qmldesigner-center-in.png "Anchor buttons"
@@ -234,20 +246,25 @@
                 buttons to inherit the vertical and horizontal centering from
                 the parent.
 
-            \li Click \uicontrol Advanced to specify scaling for the text in the
-                \uicontrol Scale field.
-
-            \li Select \uicontrol {Set Binding} and enter the following expression:
-                \c {if (!mousearea1.pressed) { 1 } else { 0.95 }}.
-
-                \note You can enter long and complicated expressions also in the
-                code editor.
-
         \endlist
 
-        \li In the code editor, add to the \c MouseArea a pointer to the
-            \c clicked expression that you added earlier:
-            \c {onClicked: parent.clicked()}.
+        \li Select \uicontrol mouseArea in the navigator and then select
+            \uicontrol Connections > \uicontrol Add to set \c item.clicked()
+            as the value of the \c onClicked signal handler.
+
+           \image qmldesigner-borderimage-connections.png "Item connections"
+
+        \li In the code editor, specify the \c clicked signal for the Item:
+
+            \qml
+            Item {
+                id: item
+                property string text: ""
+                property int fontSize: 10
+
+                signal clicked
+            }
+            \endqml
 
     \endlist
 
