@@ -71,7 +71,7 @@ QString FindInFiles::id() const
 
 QString FindInFiles::displayName() const
 {
-    return tr("Files on File System");
+    return tr("Files in File System");
 }
 
 void FindInFiles::findAll(const QString &txt, FindFlags findFlags)
