@@ -233,7 +233,8 @@ DependenciesWidget::DependenciesWidget(Project *project, QWidget *parent)
     layout->addItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed), 0, 1);
 
     m_cascadeSetActiveCheckBox = new QCheckBox;
-    m_cascadeSetActiveCheckBox->setText(tr("Synchronize active kit, build, and deploy configuration between projects."));
+    m_cascadeSetActiveCheckBox->setText(tr("Synchronize configuration"));
+    m_cascadeSetActiveCheckBox->setToolTip(tr("Synchronize active kit, build, and deploy configuration between projects."));
     m_cascadeSetActiveCheckBox->setChecked(SessionManager::isProjectConfigurationCascading());
     connect(m_cascadeSetActiveCheckBox, &QCheckBox::toggled,
             SessionManager::instance(), &SessionManager::setProjectConfigurationCascading);
