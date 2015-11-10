@@ -451,7 +451,6 @@ void QmlCppEngine::shutdownEngine()
 {
     EDEBUG("\nMASTER SHUTDOWN ENGINE");
     m_cppEngine->shutdownSlaveEngine();
-    debuggerConsole()->setScriptEvaluator(ScriptEvaluator());
 }
 
 void QmlCppEngine::quitDebugger()
