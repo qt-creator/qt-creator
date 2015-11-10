@@ -159,7 +159,7 @@ static inline int askMsgSendFailed()
                                  QMessageBox::Retry);
 }
 
-static const char* setHighDpiEnvirnonmentVariable()
+static const char *setHighDpiEnvironmentVariable()
 {
     const char* envVarName = 0;
     static const char ENV_VAR_QT_DEVICE_PIXEL_RATIO[] = "QT_DEVICE_PIXEL_RATIO";
@@ -170,14 +170,12 @@ static const char* setHighDpiEnvirnonmentVariable()
         qputenv(envVarName, "auto");
     }
 #else
-    static const char ENV_VAR_QT_AUTO_SCREEN_SCALE_FACTOR[] = "QT_AUTO_SCREEN_SCALE_FACTOR";
     if (Utils::HostOsInfo().isWindowsHost()
             && !qEnvironmentVariableIsSet(ENV_VAR_QT_DEVICE_PIXEL_RATIO) // legacy in 5.6, but still functional
-            && !qEnvironmentVariableIsSet(ENV_VAR_QT_AUTO_SCREEN_SCALE_FACTOR)
+            && !qEnvironmentVariableIsSet("QT_AUTO_SCREEN_SCALE_FACTOR")
             && !qEnvironmentVariableIsSet("QT_SCALE_FACTOR")
             && !qEnvironmentVariableIsSet("QT_SCREEN_SCALE_FACTORS")) {
-        envVarName = ENV_VAR_QT_AUTO_SCREEN_SCALE_FACTOR;
-        qputenv(envVarName, "true");
+        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     }
 #endif // < Qt 5.6
     return envVarName;
@@ -304,7 +302,7 @@ static const char *SHARE_PATH =
 
 int main(int argc, char **argv)
 {
-    const char *highDpiEnvironmentVariable = setHighDpiEnvirnonmentVariable();
+    const char *highDpiEnvironmentVariable = setHighDpiEnvironmentVariable();
 
     QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
 #ifdef Q_OS_MAC
