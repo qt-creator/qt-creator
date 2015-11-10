@@ -28,28 +28,25 @@
 **
 ****************************************************************************/
 
-#include "qmlconsoleedit.h"
-#include "qmlconsoleitemmodel.h"
-#include "qmlconsolemodel.h"
-
+#include "consoleedit.h"
+#include "consoleitemmodel.h"
+#include "console.h"
 #include <utils/qtcassert.h>
 
 #include <QUrl>
 #include <QMenu>
 #include <QKeyEvent>
 
-using namespace QmlJS;
-
-namespace QmlJSTools {
+namespace Debugger {
 namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// QmlConsoleEdit
+// ConsoleEdit
 //
 ///////////////////////////////////////////////////////////////////////
 
-QmlConsoleEdit::QmlConsoleEdit(const QModelIndex &index, QWidget *parent) :
+ConsoleEdit::ConsoleEdit(const QModelIndex &index, QWidget *parent) :
     QTextEdit(parent),
     m_historyIndex(index)
 {
@@ -60,7 +57,7 @@ QmlConsoleEdit::QmlConsoleEdit(const QModelIndex &index, QWidget *parent) :
     setTextInteractionFlags(Qt::TextEditorInteraction);
 }
 
-void QmlConsoleEdit::keyPressEvent(QKeyEvent *e)
+void ConsoleEdit::keyPressEvent(QKeyEvent *e)
 {
     bool keyConsumed = false;
 
@@ -68,10 +65,8 @@ void QmlConsoleEdit::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Return:
     case Qt::Key_Enter: {
         QString currentScript = getCurrentScript();
-        if (m_interpreter.canEvaluate(currentScript)) {
-            QmlConsoleModel::evaluate(currentScript);
-            emit editingFinished();
-        }
+        debuggerConsole()->evaluate(currentScript);
+        emit editingFinished();
         keyConsumed = true;
         break;
     }
@@ -94,12 +89,12 @@ void QmlConsoleEdit::keyPressEvent(QKeyEvent *e)
         QTextEdit::keyPressEvent(e);
 }
 
-void QmlConsoleEdit::focusOutEvent(QFocusEvent * /*e*/)
+void ConsoleEdit::focusOutEvent(QFocusEvent * /*e*/)
 {
     emit editingFinished();
 }
 
-void QmlConsoleEdit::handleUpKey()
+void ConsoleEdit::handleUpKey()
 {
     QTC_ASSERT(m_historyIndex.isValid(), return);
     int currentRow = m_historyIndex.row();
@@ -122,7 +117,7 @@ void QmlConsoleEdit::handleUpKey()
     }
 }
 
-void QmlConsoleEdit::handleDownKey()
+void ConsoleEdit::handleDownKey()
 {
     QTC_ASSERT(m_historyIndex.isValid(), return);
     int currentRow = m_historyIndex.row();
@@ -146,7 +141,7 @@ void QmlConsoleEdit::handleDownKey()
     }
 }
 
-QString QmlConsoleEdit::getCurrentScript() const
+QString ConsoleEdit::getCurrentScript() const
 {
     QTextCursor cursor = textCursor();
     cursor.setPosition(0);
@@ -154,7 +149,7 @@ QString QmlConsoleEdit::getCurrentScript() const
     return cursor.selectedText();
 }
 
-void QmlConsoleEdit::replaceCurrentScript(const QString &script)
+void ConsoleEdit::replaceCurrentScript(const QString &script)
 {
     QTextCursor cursor = textCursor();
     cursor.setPosition(0);
@@ -165,4 +160,4 @@ void QmlConsoleEdit::replaceCurrentScript(const QString &script)
 }
 
 } // Internal
-} // QmlJSTools
+} // Debugger

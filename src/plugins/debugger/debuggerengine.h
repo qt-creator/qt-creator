@@ -263,6 +263,7 @@ public:
 
     virtual bool acceptsDebuggerCommands() const { return true; }
     virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
+    virtual bool evaluateScript(const QString &expression);
 
     virtual void assignValueInDebugger(WatchItem *item,
         const QString &expr, const QVariant &value);

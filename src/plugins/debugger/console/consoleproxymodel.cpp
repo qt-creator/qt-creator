@@ -28,48 +28,46 @@
 **
 ****************************************************************************/
 
-#include "qmlconsoleproxymodel.h"
-#include "qmlconsoleitemmodel.h"
+#include "consoleproxymodel.h"
+#include "consoleitemmodel.h"
 
-using namespace QmlJS;
-
-namespace QmlJSTools {
+namespace Debugger {
 namespace Internal {
 
-QmlConsoleProxyModel::QmlConsoleProxyModel(QObject *parent) :
+ConsoleProxyModel::ConsoleProxyModel(QObject *parent) :
     QSortFilterProxyModel(parent),
     m_filter(ConsoleItem::AllTypes)
 {
 }
 
-void QmlConsoleProxyModel::setShowLogs(bool show)
+void ConsoleProxyModel::setShowLogs(bool show)
 {
     m_filter = show ? (m_filter | ConsoleItem::DebugType)
                     : (m_filter & ~ConsoleItem::DebugType);
     invalidateFilter();
 }
 
-void QmlConsoleProxyModel::setShowWarnings(bool show)
+void ConsoleProxyModel::setShowWarnings(bool show)
 {
     m_filter = show ? (m_filter | ConsoleItem::WarningType)
                     : (m_filter & ~ConsoleItem::WarningType);
     invalidateFilter();
 }
 
-void QmlConsoleProxyModel::setShowErrors(bool show)
+void ConsoleProxyModel::setShowErrors(bool show)
 {
     m_filter = show ? (m_filter | ConsoleItem::ErrorType)
                     : (m_filter & ~ConsoleItem::ErrorType);
     invalidateFilter();
 }
 
-void QmlConsoleProxyModel::selectEditableRow(const QModelIndex &index,
+void ConsoleProxyModel::selectEditableRow(const QModelIndex &index,
                            QItemSelectionModel::SelectionFlags command)
 {
     emit setCurrentIndex(mapFromSource(index), command);
 }
 
-bool QmlConsoleProxyModel::filterAcceptsRow(int sourceRow,
+bool ConsoleProxyModel::filterAcceptsRow(int sourceRow,
          const QModelIndex &sourceParent) const
  {
      QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
@@ -77,7 +75,7 @@ bool QmlConsoleProxyModel::filterAcceptsRow(int sourceRow,
                                   index, ConsoleItem::TypeRole).toInt());
  }
 
-void QmlConsoleProxyModel::onRowsInserted(const QModelIndex &index, int start, int end)
+void ConsoleProxyModel::onRowsInserted(const QModelIndex &index, int start, int end)
 {
     int rowIndex = end;
     do {
@@ -89,4 +87,4 @@ void QmlConsoleProxyModel::onRowsInserted(const QModelIndex &index, int start, i
 }
 
 } // Internal
-} // QmlJSTools
+} // Debugger

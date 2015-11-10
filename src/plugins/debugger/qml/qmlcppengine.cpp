@@ -38,11 +38,11 @@
 #include <debugger/stackhandler.h>
 #include <debugger/threaddata.h>
 #include <debugger/watchhandler.h>
+#include <debugger/console/console.h>
 
 #include <utils/qtcassert.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <qmljs/consolemanagerinterface.h>
 
 namespace Debugger {
 namespace Internal {
@@ -451,9 +451,7 @@ void QmlCppEngine::shutdownEngine()
 {
     EDEBUG("\nMASTER SHUTDOWN ENGINE");
     m_cppEngine->shutdownSlaveEngine();
-    QmlJS::ConsoleManagerInterface *consoleManager = QmlJS::ConsoleManagerInterface::instance();
-    if (consoleManager)
-        consoleManager->setScriptEvaluator(0);
+    debuggerConsole()->setScriptEvaluator(ScriptEvaluator());
 }
 
 void QmlCppEngine::quitDebugger()

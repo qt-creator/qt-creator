@@ -66,7 +66,8 @@
 #include "localsandexpressionswindow.h"
 #include "loadcoredialog.h"
 #include "sourceutils.h"
-#include <debugger/shared/hostutils.h>
+#include "shared/hostutils.h"
+#include "console/console.h"
 
 #include "snapshothandler.h"
 #include "threadshandler.h"
@@ -1239,8 +1240,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     if (!m_arguments.isEmpty())
         connect(KitManager::instance(), &KitManager::kitsLoaded,
                 this, &DebuggerPluginPrivate::parseCommandLineArguments);
-    // Cpp/Qml ui setup
+
     m_mainWindow = new DebuggerMainWindow;
+    m_plugin->addAutoReleasedObject(debuggerConsole());
 
     TaskHub::addCategory(TASK_CATEGORY_DEBUGGER_DEBUGINFO,
                          tr("Debug Information"));

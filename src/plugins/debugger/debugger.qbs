@@ -156,6 +156,20 @@ QtcPlugin {
         ]
     }
 
+     Group {
+        name: "Debugger Console"
+        prefix: "console/"
+        files: [
+            "consoleitem.cpp", "consoleitem.h",
+            "consoleedit.cpp", "consoleedit.h",
+            "consoleitemdelegate.cpp", "consoleitemdelegate.h",
+            "consoleitemmodel.cpp", "consoleitemmodel.h",
+            "console.cpp", "console.h",
+            "consoleproxymodel.cpp", "consoleproxymodel.h",
+            "consoleview.cpp" "consoleview.h"
+        ]
+    }
+
     Group {
         name: "shared"
         prefix: "shared/"

@@ -34,9 +34,6 @@ HEADERS += \
     $$PWD/qmljsutils.h \
     $$PWD/qmljsstaticanalysismessage.h \
     $$PWD/jsoncheck.h \
-    $$PWD/consolemanagerinterface.h \
-    $$PWD/consoleitem.h \
-    $$PWD/iscriptevaluator.h \
     $$PWD/qmljssimplereader.h \
     $$PWD/persistenttrie.h \
     $$PWD/qmljsqrcparser.h \
@@ -72,8 +69,6 @@ SOURCES += \
     $$PWD/qmljsutils.cpp \
     $$PWD/qmljsstaticanalysismessage.cpp \
     $$PWD/jsoncheck.cpp \
-    $$PWD/consolemanagerinterface.cpp \
-    $$PWD/consoleitem.cpp \
     $$PWD/qmljssimplereader.cpp \
     $$PWD/persistenttrie.cpp \
     $$PWD/qmljsqrcparser.cpp \

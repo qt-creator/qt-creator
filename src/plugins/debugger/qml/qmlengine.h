@@ -35,7 +35,6 @@
 
 #include <qmldebug/qdebugmessageclient.h>
 #include <qmldebug/qmloutputparser.h>
-#include <qmljs/iscriptevaluator.h>
 #include <qmljs/qmljsdocument.h>
 
 namespace Debugger {
@@ -46,7 +45,7 @@ class WatchItem;
 class QmlEnginePrivate;
 class QmlInspectorAgent;
 
-class QmlEngine : public DebuggerEngine, QmlJS::IScriptEvaluator
+class QmlEngine : public DebuggerEngine
 {
     Q_OBJECT
 

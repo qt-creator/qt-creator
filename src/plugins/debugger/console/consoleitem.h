@@ -28,28 +28,64 @@
 **
 ****************************************************************************/
 
-#include "consolemanagerinterface.h"
+#ifndef CONSOLEITEM_H
+#define CONSOLEITEM_H
 
-namespace QmlJS {
+#include <utils/treemodel.h>
 
-static ConsoleManagerInterface *g_instance = 0;
+#include <QString>
+#include <functional>
 
-ConsoleManagerInterface::ConsoleManagerInterface(QObject *parent)
-    : QObject(parent)
+namespace Debugger {
+namespace Internal {
+
+class ConsoleItem : public Utils::TreeItem
 {
-    Q_ASSERT(!g_instance);
-    g_instance = this;
-}
+public:
+    enum Roles {
+        TypeRole = Qt::UserRole,
+        FileRole,
+        LineRole,
+        ExpressionRole
+    };
 
-ConsoleManagerInterface::~ConsoleManagerInterface()
-{
-    Q_ASSERT(g_instance == this);
-    g_instance = 0;
-}
+    enum ItemType
+    {
+        DefaultType  = 0x01, // Can be used for unknown and for Return values
+        DebugType    = 0x02,
+        WarningType  = 0x04,
+        ErrorType    = 0x08,
+        InputType    = 0x10,
+        AllTypes     = DefaultType | DebugType | WarningType | ErrorType | InputType
+    };
+    Q_DECLARE_FLAGS(ItemTypes, ItemType)
 
-ConsoleManagerInterface *ConsoleManagerInterface::instance()
-{
-    return g_instance;
-}
+    ConsoleItem(ItemType itemType = ConsoleItem::DefaultType, const QString &expression = QString(),
+                const QString &file = QString(), int line = -1);
+    ConsoleItem(ItemType itemType, const QString &expression,
+                std::function<void(ConsoleItem *)> doFetch);
 
-} // QmlJS
+    ItemType itemType() const;
+    QString expression() const;
+    QString text() const;
+    QString file() const;
+    int line() const;
+    QVariant data(int column, int role) const;
+    bool setData(int column, const QVariant &data, int role);
+
+    bool canFetchMore() const;
+    void fetchMore();
+
+private:
+    ItemType m_itemType;
+    QString m_text;
+    QString m_file;
+    int m_line;
+
+    std::function<void(ConsoleItem *)> m_doFetch;
+};
+
+} // Internal
+} // Debugger
+
+#endif // CONSOLEITEM_H

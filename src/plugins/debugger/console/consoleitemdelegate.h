@@ -28,24 +28,24 @@
 **
 ****************************************************************************/
 
-#ifndef QMLCONSOLEITEMDELEGATE_H
-#define QMLCONSOLEITEMDELEGATE_H
+#ifndef DEBUGGER_CONSOLEITEMDELEGATE_H
+#define DEBUGGER_CONSOLEITEMDELEGATE_H
 
-#include "qmlconsoleitemmodel.h"
-#include "qmlconsolemodel.h"
+#include "consoleitemmodel.h"
+#include "console.h"
 
 #include <QStyledItemDelegate>
 
 QT_FORWARD_DECLARE_CLASS(QTextLayout)
 
-namespace QmlJSTools {
+namespace Debugger {
 namespace Internal {
 
-class QmlConsoleItemDelegate : public QStyledItemDelegate
+class ConsoleItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    QmlConsoleItemDelegate(QObject *parent);
+    ConsoleItemDelegate(ConsoleItemModel *model, QObject *parent);
 
     void emitSizeHintChanged(const QModelIndex &index);
     QColor drawBackground(QPainter *painter, const QRect &rect, const QModelIndex &index,
@@ -74,6 +74,7 @@ private:
     qreal layoutText(QTextLayout &tl, int width, bool *success = 0) const;
 
 private:
+    ConsoleItemModel *m_model;
     const QIcon m_logIcon;
     const QIcon m_warningIcon;
     const QIcon m_errorIcon;
@@ -99,8 +100,8 @@ private:
 class ConsoleItemPositions
 {
 public:
-    ConsoleItemPositions(const QRect &rect, const QFont &font, bool showTaskIconArea,
-                         bool showExpandableIconArea)
+    ConsoleItemPositions(ConsoleItemModel *model, const QRect &rect,
+            const QFont &font, bool showTaskIconArea, bool showExpandableIconArea)
         : m_x(rect.x()),
           m_width(rect.width()),
           m_top(rect.top()),
@@ -111,7 +112,6 @@ public:
           m_showExpandableIconArea(showExpandableIconArea)
     {
         m_fontHeight = QFontMetrics(font).height();
-        QmlConsoleItemModel *model = QmlConsoleModel::qmlConsoleItemModel();
         m_maxFileLength = model->sizeOfFile(font);
         m_maxLineLength = model->sizeOfLineNumber(font);
     }
@@ -174,10 +174,9 @@ public:
     static const int TASK_ICON_SIZE = 16;
     static const int ITEM_PADDING = 8;
     static const int ITEM_SPACING = 4;
-
 };
 
 } // namespace Internal
-} // namespace QmlJSTools
+} // namespace Debugger
 
-#endif // QMLCONSOLEITEMDELEGATE_H
+#endif // DEBUGGER_CONSOLEITEMDELEGATE_H

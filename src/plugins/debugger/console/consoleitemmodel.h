@@ -28,31 +28,31 @@
 **
 ****************************************************************************/
 
-#ifndef QMLCONSOLEITEMMODEL_H
-#define QMLCONSOLEITEMMODEL_H
+#ifndef DEBUGGER_CONSOLEITEMMODEL_H
+#define DEBUGGER_CONSOLEITEMMODEL_H
 
-#include <qmljs/consoleitem.h>
+#include "consoleitem.h"
 #include <utils/treemodel.h>
 
 #include <QItemSelectionModel>
 
-QT_FORWARD_DECLARE_CLASS(QFont)
+QT_BEGIN_NAMESPACE
+class QFont;
+QT_END_NAMESPACE
 
-namespace QmlJSTools {
+namespace Debugger {
 namespace Internal {
 
-class QmlConsoleItemModel : public Utils::TreeModel
+class ConsoleItemModel : public Utils::TreeModel
 {
     Q_OBJECT
 public:
 
-    explicit QmlConsoleItemModel(QObject *parent = 0);
+    explicit ConsoleItemModel(QObject *parent = 0);
 
     void shiftEditableRow();
 
-    void appendItem(QmlJS::ConsoleItem *item, int position = -1);
-    void appendMessage(QmlJS::ConsoleItem::ItemType itemType, const QString &message,
-                       int position = -1);
+    void appendItem(ConsoleItem *item, int position = -1);
 
     int sizeOfFile(const QFont &font);
     int sizeOfLineNumber(const QFont &font);
@@ -68,6 +68,6 @@ private:
 };
 
 } // Internal
-} // QmlJSTools
+} // Debugger
 
-#endif // QMLCONSOLEITEMMODEL_H
+#endif // DEBUGGER_CONSOLEITEMMODEL_H

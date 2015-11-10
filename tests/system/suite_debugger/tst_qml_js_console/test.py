@@ -30,15 +30,15 @@
 
 source("../../shared/qtcreator.py")
 
-def typeToQmlConsole(expression):
+def typeToDebuggerConsole(expression):
     editableIndex = getQModelIndexStr("text=''",
-                                      ":DebugModeWidget_QmlJSTools::Internal::QmlConsoleView")
+                                      ":DebugModeWidget_Debugger::Internal::ConsoleView")
     mouseClick(editableIndex, 5, 5, 0, Qt.LeftButton)
-    type(waitForObject(":QmlJSTools::Internal::QmlConsoleEdit"), expression)
-    type(waitForObject(":QmlJSTools::Internal::QmlConsoleEdit"), "<Return>")
+    type(waitForObject(":Debugger::Internal::ConsoleEdit"), expression)
+    type(waitForObject(":Debigger::Internal::ConsoleEdit"), "<Return>")
 
-def useQmlJSConsole(expression, expectedOutput, check=None, checkOutp=None):
-    typeToQmlConsole(expression)
+def useDebuggerConsole(expression, expectedOutput, check=None, checkOutp=None):
+    typeToDebuggerConsole(expression)
 
     if expectedOutput == None:
         result = getQmlJSConsoleOutput()[-1]
@@ -46,7 +46,7 @@ def useQmlJSConsole(expression, expectedOutput, check=None, checkOutp=None):
         return result
 
     expected = getQModelIndexStr("text='%s'" % expectedOutput,
-                                 ":DebugModeWidget_QmlJSTools::Internal::QmlConsoleView")
+                                 ":DebugModeWidget_Debugger::Internal::ConsoleView")
     try:
         obj = waitForObject(expected, 3000)
         test.compare(obj.text, expectedOutput, "Verifying whether expected output appeared.")
@@ -74,7 +74,7 @@ def debuggerHasStopped():
 def getQmlJSConsoleOutput():
     try:
         result = []
-        consoleView = waitForObject(":DebugModeWidget_QmlJSTools::Internal::QmlConsoleView")
+        consoleView = waitForObject(":DebugModeWidget_Debugger::Internal::ConsoleView")
         model = consoleView.model()
         return dumpItems(model)[:-1]
     except:
@@ -98,7 +98,7 @@ def testLoggingFeatures():
                       )
 
     for expression, expect, tooltip in zip(expressions, expected, filterToolTips):
-        typeToQmlConsole(expression)
+        typeToDebuggerConsole(expression)
         output = getQmlJSConsoleOutput()[1:]
         test.compare(output, expect, "Verifying expected output.")
         filterButton = waitForObject("{container=':Qt Creator.DebugModeWidget_QSplitter' "
@@ -143,8 +143,8 @@ def main():
                                       ":Locals and Expressions_Debugger::Internal::WatchTreeView")
         # make sure the items inside the root item are visible
         doubleClick(waitForObject(rootIndex))
-        if not object.exists(":DebugModeWidget_QmlJSTools::Internal::QmlConsoleView"):
-            invokeMenuItem("Window", "Output Panes", "QML/JS Console")
+        if not object.exists(":DebugModeWidget_Debugger::Internal::ConsoleView"):
+            invokeMenuItem("Window", "Output Panes", "Debugger Console")
         progressBarWait()
         # color and float values have additional ZERO WIDTH SPACE (\u200b), different usage of
         # whitespaces inside expressions is part of the test

@@ -84,7 +84,7 @@
             \image qtquick-example-setting-breakpoint3.png
 
         \li To execute JavaScript commands in the current context, open the
-            \uicontrol {QML/JS Console} output pane.
+            \uicontrol {Debugger Console} output pane.
 
         \li To change the score to 1000, enter \c{gameCanvas.score = 1000}
             in the console.
@@ -108,7 +108,7 @@
             \inlineimage qml-inspector-select-button.png
             (\uicontrol Select) to activate selection mode and then click the
             \uicontrol {Quit} button to move into the \uicontrol ButtonLabel component
-            in the \uicontrol {QML/JS Console} and the code editor.
+            in the \uicontrol {Locals and Expressions} and the code editor.
 
         \li In the \uicontrol {Locals and Expressions} view, double-click the value of
             the \c text property to change it temporarily from \uicontrol {Quit} to

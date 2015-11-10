@@ -32,7 +32,7 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmljs/consolemanagerinterface.h>
+#include <debugger/console/console.h>
 
 #include <coreplugin/editormanager/documentmodel.h>
 
@@ -228,9 +228,7 @@ void appendDebugOutput(QtMsgType type, const QString &message, const QDebugConte
         return;
     }
 
-    if (auto consoleManager = ConsoleManagerInterface::instance())
-        consoleManager->printToConsolePane(new ConsoleItem(itemType, message, info.file,
-                                                           info.line));
+    debuggerConsole()->printItem(new ConsoleItem(itemType, message, info.file, info.line));
 }
 
 void clearExceptionSelection()

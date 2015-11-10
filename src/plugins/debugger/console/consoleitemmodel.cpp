@@ -28,37 +28,35 @@
 **
 ****************************************************************************/
 
-#include "qmlconsoleitemmodel.h"
+#include "consoleitemmodel.h"
 
 #include <QFontMetrics>
 #include <QFont>
 
-using namespace QmlJS;
-
-namespace QmlJSTools {
+namespace Debugger {
 namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// QmlConsoleItemModel
+// ConsoleItemModel
 //
 ///////////////////////////////////////////////////////////////////////
 
-QmlConsoleItemModel::QmlConsoleItemModel(QObject *parent) :
+ConsoleItemModel::ConsoleItemModel(QObject *parent) :
     Utils::TreeModel(new ConsoleItem, parent),
     m_maxSizeOfFileName(0)
 {
     clear();
 }
 
-void QmlConsoleItemModel::clear()
+void ConsoleItemModel::clear()
 {
     Utils::TreeModel::clear();
     appendItem(new ConsoleItem(ConsoleItem::InputType));
     emit selectEditableRow(index(0, 0, QModelIndex()), QItemSelectionModel::ClearAndSelect);
 }
 
-void QmlConsoleItemModel::appendItem(ConsoleItem *item, int position)
+void ConsoleItemModel::appendItem(ConsoleItem *item, int position)
 {
     if (position < 0)
         position = rootItem()->childCount() - 1; // append before editable row
@@ -69,13 +67,7 @@ void QmlConsoleItemModel::appendItem(ConsoleItem *item, int position)
     rootItem()->insertChild(position, item);
 }
 
-void QmlConsoleItemModel::appendMessage(ConsoleItem::ItemType itemType,
-                                        const QString &message, int position)
-{
-    appendItem(new ConsoleItem(itemType, message), position);
-}
-
-void QmlConsoleItemModel::shiftEditableRow()
+void ConsoleItemModel::shiftEditableRow()
 {
     int position = rootItem()->childCount();
     Q_ASSERT(position > 0);
@@ -87,7 +79,7 @@ void QmlConsoleItemModel::shiftEditableRow()
     emit selectEditableRow(index(position, 0, QModelIndex()), QItemSelectionModel::ClearAndSelect);
 }
 
-int QmlConsoleItemModel::sizeOfFile(const QFont &font)
+int ConsoleItemModel::sizeOfFile(const QFont &font)
 {
     int lastReadOnlyRow = rootItem()->childCount();
     lastReadOnlyRow -= 2; // skip editable row
@@ -104,11 +96,11 @@ int QmlConsoleItemModel::sizeOfFile(const QFont &font)
     return m_maxSizeOfFileName;
 }
 
-int QmlConsoleItemModel::sizeOfLineNumber(const QFont &font)
+int ConsoleItemModel::sizeOfLineNumber(const QFont &font)
 {
     QFontMetrics fm(font);
     return fm.width(QLatin1String("88888"));
 }
 
 } // Internal
-} // QmlJSTools
+} // Debugger

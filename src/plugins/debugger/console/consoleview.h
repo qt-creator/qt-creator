@@ -28,19 +28,22 @@
 **
 ****************************************************************************/
 
-#ifndef QMLCONSOLEVIEW_H
-#define QMLCONSOLEVIEW_H
+#ifndef DEBUGGER_CONSOLEVIEW_H
+#define DEBUGGER_CONSOLEVIEW_H
 
 #include <utils/itemviews.h>
 
-namespace QmlJSTools {
+namespace Debugger {
 namespace Internal {
 
-class QmlConsoleView : public Utils::TreeView
+class ConsoleItemModel;
+
+class ConsoleView : public Utils::TreeView
 {
     Q_OBJECT
+
 public:
-    QmlConsoleView(QWidget *parent);
+    ConsoleView(ConsoleItemModel *model, QWidget *parent);
 
 public slots:
     void onScrollToBottom();
@@ -53,15 +56,15 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event);
     void focusInEvent(QFocusEvent *event);
 
-private slots:
-    void onRowActivated(const QModelIndex &index);
-
 private:
+    void onRowActivated(const QModelIndex &index);
     void copyToClipboard(const QModelIndex &index);
     bool canShowItemInTextEditor(const QModelIndex &index);
+
+    ConsoleItemModel *m_model;
 };
 
 } // Internal
-} // QmlJSTools
+} // Debugger
 
-#endif // QMLCONSOLEVIEW_H
+#endif // DEBUGGER_CONSOLEVIEW_H

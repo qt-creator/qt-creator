@@ -47,6 +47,7 @@
 #include <debugger/threaddata.h>
 #include <debugger/watchhandler.h>
 #include <debugger/watchwindow.h>
+#include <debugger/console/console.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
@@ -56,7 +57,6 @@
 
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmljs/consolemanagerinterface.h>
 #include <qmldebug/qpacketprotocol.h>
 
 #include <texteditor/textdocument.h>
@@ -282,9 +282,9 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
         d->automaticConnect = true;
     }
 
-    if (auto consoleManager = ConsoleManagerInterface::instance())
-        consoleManager->setScriptEvaluator(this);
-
+    debuggerConsole()->setScriptEvaluator([this](const QString &expr) -> bool {
+        return evaluateScript(expr);
+    });
 
     d->connectionTimer.setInterval(4000);
     d->connectionTimer.setSingleShot(true);
@@ -442,7 +442,7 @@ void QmlEngine::appStartupFailed(const QString &errorMessage)
                 this, &QmlEngine::errorMessageBoxFinished);
         infoBox->show();
     } else {
-        ConsoleManagerInterface::instance()->printToConsolePane(ConsoleItem::WarningType, error);
+        debuggerConsole()->printItem(ConsoleItem::WarningType, error);
     }
 
     notifyEngineRunFailed();
@@ -622,8 +622,7 @@ void QmlEngine::shutdownEngine()
 {
     clearExceptionSelection();
 
-    if (auto consoleManager = ConsoleManagerInterface::instance())
-        consoleManager->setScriptEvaluator(0);
+    debuggerConsole()->setScriptEvaluator(ScriptEvaluator());
     d->noDebugOutputTimer.stop();
 
    // double check (ill engine?):
@@ -1048,10 +1047,8 @@ void QmlEngine::expressionEvaluated(quint32 queryId, const QVariant &result)
 {
     if (d->queryIds.contains(queryId)) {
         d->queryIds.removeOne(queryId);
-        if (auto consoleManager = ConsoleManagerInterface::instance()) {
-            if (ConsoleItem *item = constructLogItemTree(result))
-                consoleManager->printToConsolePane(item);
-        }
+        if (ConsoleItem *item = constructLogItemTree(result))
+            debuggerConsole()->printItem(item);
     }
 }
 
@@ -1105,8 +1102,7 @@ void QmlEngine::updateCurrentContext()
             context = grandParentData->name;
     }
 
-    if (auto consoleManager = ConsoleManagerInterface::instance())
-        consoleManager->setContext(tr("Context:") + QLatin1Char(' ') + context);
+    debuggerConsole()->setContext(tr("Context:") + QLatin1Char(' ') + context);
 }
 
 void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
@@ -1137,10 +1133,7 @@ bool QmlEngine::evaluateScript(const QString &expression)
             d->queryIds.append(queryId);
         } else {
             didEvaluate = false;
-            if (auto consoleManager = ConsoleManagerInterface::instance()) {
-                consoleManager->printToConsolePane(ConsoleItem::ErrorType,
-                                                   _("Error evaluating expression."));
-            }
+            debuggerConsole()->printItem(ConsoleItem::ErrorType, _("Error evaluating expression."));
         }
     } else {
         executeDebuggerCommand(expression, QmlLanguage);
@@ -2014,10 +2007,9 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                 //This is most probably due to a wrong eval expression.
                 //Redirect output to console.
                 if (eventType.isEmpty()) {
-                    if (auto consoleManager = ConsoleManagerInterface::instance())
-                        consoleManager->printToConsolePane(new ConsoleItem(
-                                                               ConsoleItem::ErrorType,
-                                                               resp.value(_(MESSAGE)).toString()));
+                    debuggerConsole()->printItem(new ConsoleItem(
+                                                     ConsoleItem::ErrorType,
+                                                     resp.value(_(MESSAGE)).toString()));
                 }
 
             } //EVENT
@@ -2435,21 +2427,16 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
 
 void QmlEnginePrivate::handleExecuteDebuggerCommand(const QVariantMap &response)
 {
-    auto consoleManager = ConsoleManagerInterface::instance();
-    if (!consoleManager)
-        return;
-
     auto it = response.constFind(_(SUCCESS));
     if (it != response.constEnd() && it.value().toBool()) {
-        consoleManager->printToConsolePane(constructLogItemTree(
-                                               extractData(response.value(_(BODY)))));
+        debuggerConsole()->printItem(constructLogItemTree(extractData(response.value(_(BODY)))));
 
         // Update the locals
         foreach (int index, currentFrameScopes)
             scope(index);
     } else {
-        consoleManager->printToConsolePane(new ConsoleItem(ConsoleItem::ErrorType,
-                                                           response.value(_(MESSAGE)).toString()));
+        debuggerConsole()->printItem(new ConsoleItem(ConsoleItem::ErrorType,
+                                                     response.value(_(MESSAGE)).toString()));
     }
 }
 

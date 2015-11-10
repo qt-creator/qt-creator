@@ -51,7 +51,8 @@
 #include "terminal.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
-#include <debugger/shared/peutils.h>
+#include "debugger/shared/peutils.h"
+#include "console/console.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -70,8 +71,6 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
-
-#include <qmljs/consolemanagerinterface.h>
 
 #include <QDebug>
 #include <QTimer>
@@ -526,9 +525,8 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
     }
     //if (msg.size() && msg.at(0).isUpper() && msg.at(1).isUpper())
     //    qDebug() << qPrintable(msg) << "IN STATE" << state();
-    QmlJS::ConsoleManagerInterface *consoleManager = QmlJS::ConsoleManagerInterface::instance();
-    if (channel == ConsoleOutput && consoleManager)
-        consoleManager->printToConsolePane(QmlJS::ConsoleItem::DefaultType, msg);
+    if (channel == ConsoleOutput)
+        debuggerConsole()->printItem(ConsoleItem::DefaultType, msg);
 
     Internal::showMessage(msg, channel, timeout);
     if (d->m_runControl) {
@@ -1742,6 +1740,12 @@ void DebuggerEngine::executeJumpToLine(const ContextData &)
 void DebuggerEngine::executeDebuggerCommand(const QString &, DebuggerLanguages)
 {
     showStatusMessage(tr("This debugger cannot handle user input."));
+}
+
+bool DebuggerEngine::evaluateScript(const QString &)
+{
+    showStatusMessage(tr("This debugger cannot handle user scripts."));
+    return false;
 }
 
 BreakHandler *DebuggerEngine::breakHandler() const

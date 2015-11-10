@@ -335,7 +335,7 @@
 
        \li \uicontrol{Compile Output}
 
-       \li \uicontrol {QML/JS Console}
+       \li \uicontrol {Debugger Console}
 
        \li \uicontrol {To-Do Entries}
 
@@ -460,14 +460,14 @@
 
     Select the \uicontrol {Cancel Build} button to cancel the build.
 
-    \section2 QML/JS Console
+    \section2 Debugger Console
 
-    In the \uicontrol {QML/JS Console}, you can type JavaScript expressions and use them to get
+    In the \uicontrol {Debugger Console}, you can type JavaScript expressions and use them to get
     information about the state of your application during debugging. You can change property
     values temporarily, without editing the source, and view the results in the running
     application.
 
-    \image qml-script-console.png "QML/JS Console"
+    \image qml-script-console.png "Debugger Console"
 
     You can change the property values permanently in the code editor.
 

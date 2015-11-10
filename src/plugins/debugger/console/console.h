@@ -28,10 +28,16 @@
 **
 ****************************************************************************/
 
-#ifndef QMLCONSOLEPANE_H
-#define QMLCONSOLEPANE_H
+#ifndef DEBUGGER_CONSOLE_H
+#define DEBUGGER_CONSOLE_H
+
+#include "consoleitem.h"
 
 #include <coreplugin/ioutputpane.h>
+
+#include <functional>
+
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QToolButton;
@@ -40,25 +46,25 @@ QT_END_NAMESPACE
 
 namespace Utils { class SavedAction; }
 
-namespace QmlJSTools {
-
+namespace Debugger {
 namespace Internal {
 
-class QmlConsoleView;
-class QmlConsoleItemDelegate;
-class QmlConsoleProxyModel;
-class QmlConsoleItemModel;
+typedef std::function<bool(QString)> ScriptEvaluator;
 
-class QmlConsolePane : public Core::IOutputPane
+class ConsoleItemModel;
+class ConsoleView;
+
+class Console : public Core::IOutputPane
 {
     Q_OBJECT
+
 public:
-    QmlConsolePane(QObject *parent);
-    ~QmlConsolePane();
+    Console();
+    ~Console();
 
     QWidget *outputWidget(QWidget *);
     QList<QWidget *> toolBarWidgets() const;
-    QString displayName() const { return tr("QML/JS Console"); }
+    QString displayName() const { return tr("Debugger Console"); }
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool visible);
@@ -75,7 +81,12 @@ public:
     void readSettings();
     void setContext(const QString &context);
 
-public slots:
+    void setScriptEvaluator(const ScriptEvaluator &evaluator);
+
+    void evaluate(const QString &expression);
+    void printItem(ConsoleItem *item);
+    void printItem(ConsoleItem::ItemType itemType, const QString &text);
+
     void writeSettings() const;
 
 private:
@@ -87,13 +98,15 @@ private:
     Utils::SavedAction *m_showErrorButtonAction;
     QWidget *m_spacer;
     QLabel *m_statusLabel;
-    QmlConsoleView *m_consoleView;
-    QmlConsoleItemDelegate *m_itemDelegate;
-    QmlConsoleProxyModel *m_proxyModel;
+    ConsoleItemModel *m_consoleItemModel;
+    ConsoleView *m_consoleView;
     QWidget *m_consoleWidget;
+    ScriptEvaluator m_scriptEvaluator;
 };
 
-} // namespace Internal
-} // namespace QmlJSTools
+Console *debuggerConsole();
 
-#endif // QMLCONSOLEPANE_H
+} // namespace Internal
+} // namespace Debugger
+
+#endif // DEBUGGER_CONSOLE_H

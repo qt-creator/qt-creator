@@ -28,9 +28,9 @@
 **
 ****************************************************************************/
 
-#include "qmlconsoleview.h"
-#include "qmlconsoleitemdelegate.h"
-#include "qmlconsoleitemmodel.h"
+#include "consoleview.h"
+#include "consoleitemdelegate.h"
+#include "consoleitemmodel.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
@@ -49,15 +49,13 @@
 #include <QString>
 #include <QUrl>
 
-using namespace QmlJS;
-
-namespace QmlJSTools {
+namespace Debugger {
 namespace Internal {
 
-class QmlConsoleViewStyle : public ManhattanStyle
+class ConsoleViewStyle : public ManhattanStyle
 {
 public:
-    QmlConsoleViewStyle(const QString &baseStyleName) : ManhattanStyle(baseStyleName) {}
+    ConsoleViewStyle(const QString &baseStyleName) : ManhattanStyle(baseStyleName) {}
 
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter,
                        const QWidget *widget = 0) const
@@ -77,12 +75,12 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 //
-// QmlConsoleView
+// ConsoleView
 //
 ///////////////////////////////////////////////////////////////////////
 
-QmlConsoleView::QmlConsoleView(QWidget *parent) :
-    Utils::TreeView(parent)
+ConsoleView::ConsoleView(ConsoleItemModel *model, QWidget *parent) :
+    Utils::TreeView(parent), m_model(model)
 {
     setFrameStyle(QFrame::NoFrame);
     setHeaderHidden(true);
@@ -122,7 +120,7 @@ QmlConsoleView::QmlConsoleView(QWidget *parent) :
                 baseName = QLatin1String("cleanlooks");
         }
     }
-    QmlConsoleViewStyle *style = new QmlConsoleViewStyle(baseName);
+    ConsoleViewStyle *style = new ConsoleViewStyle(baseName);
     setStyle(style);
     style->setParent(this);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -131,17 +129,17 @@ QmlConsoleView::QmlConsoleView(QWidget *parent) :
     horizontalScrollBar()->setSingleStep(20);
     verticalScrollBar()->setSingleStep(20);
 
-    connect(this, &QmlConsoleView::activated, this, &QmlConsoleView::onRowActivated);
+    connect(this, &ConsoleView::activated, this, &ConsoleView::onRowActivated);
 }
 
-void QmlConsoleView::onScrollToBottom()
+void ConsoleView::onScrollToBottom()
 {
     // Keep scrolling to bottom if scroll bar is not at maximum()
     if (verticalScrollBar()->value() != verticalScrollBar()->maximum())
         scrollToBottom();
 }
 
-void QmlConsoleView::mousePressEvent(QMouseEvent *event)
+void ConsoleView::mousePressEvent(QMouseEvent *event)
 {
     QPoint pos = event->pos();
     QModelIndex index = indexAt(pos);
@@ -151,7 +149,7 @@ void QmlConsoleView::mousePressEvent(QMouseEvent *event)
         bool handled = false;
         if (type == ConsoleItem::DefaultType) {
             bool showTypeIcon = index.parent() == QModelIndex();
-            ConsoleItemPositions positions(visualRect(index), viewOptions().font, showTypeIcon,
+            ConsoleItemPositions positions(m_model, visualRect(index), viewOptions().font, showTypeIcon,
                                            true);
 
             if (positions.expandCollapseIcon().contains(pos)) {
@@ -167,22 +165,22 @@ void QmlConsoleView::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void QmlConsoleView::resizeEvent(QResizeEvent *e)
+void ConsoleView::resizeEvent(QResizeEvent *e)
 {
-    static_cast<QmlConsoleItemDelegate *>(itemDelegate())->emitSizeHintChanged(
+    static_cast<ConsoleItemDelegate *>(itemDelegate())->emitSizeHintChanged(
                 selectionModel()->currentIndex());
     Utils::TreeView::resizeEvent(e);
 }
 
-void QmlConsoleView::drawBranches(QPainter *painter, const QRect &rect,
+void ConsoleView::drawBranches(QPainter *painter, const QRect &rect,
                                   const QModelIndex &index) const
 {
-    static_cast<QmlConsoleItemDelegate *>(itemDelegate())->drawBackground(painter, rect, index,
+    static_cast<ConsoleItemDelegate *>(itemDelegate())->drawBackground(painter, rect, index,
                                                                             false);
     Utils::TreeView::drawBranches(painter, rect, index);
 }
 
-void QmlConsoleView::contextMenuEvent(QContextMenuEvent *event)
+void ConsoleView::contextMenuEvent(QContextMenuEvent *event)
 {
     QModelIndex itemIndex = indexAt(event->pos());
     QMenu menu;
@@ -207,20 +205,20 @@ void QmlConsoleView::contextMenuEvent(QContextMenuEvent *event)
         onRowActivated(itemIndex);
     } else if (a == clear) {
         QAbstractProxyModel *proxyModel = qobject_cast<QAbstractProxyModel *>(model());
-        QmlConsoleItemModel *handler = qobject_cast<QmlConsoleItemModel *>(
+        ConsoleItemModel *handler = qobject_cast<ConsoleItemModel *>(
                     proxyModel->sourceModel());
         handler->clear();
     }
 }
 
-void QmlConsoleView::focusInEvent(QFocusEvent *event)
+void ConsoleView::focusInEvent(QFocusEvent *event)
 {
     Q_UNUSED(event);
     selectionModel()->setCurrentIndex(model()->index(model()->rowCount() - 1, 0),
                                       QItemSelectionModel::ClearAndSelect);
 }
 
-void QmlConsoleView::onRowActivated(const QModelIndex &index)
+void ConsoleView::onRowActivated(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
@@ -239,7 +237,7 @@ void QmlConsoleView::onRowActivated(const QModelIndex &index)
     }
 }
 
-void QmlConsoleView::copyToClipboard(const QModelIndex &index)
+void ConsoleView::copyToClipboard(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
@@ -258,7 +256,7 @@ void QmlConsoleView::copyToClipboard(const QModelIndex &index)
     cb->setText(contents);
 }
 
-bool QmlConsoleView::canShowItemInTextEditor(const QModelIndex &index)
+bool ConsoleView::canShowItemInTextEditor(const QModelIndex &index)
 {
     if (!index.isValid())
         return false;
@@ -277,4 +275,4 @@ bool QmlConsoleView::canShowItemInTextEditor(const QModelIndex &index)
 }
 
 } // Internal
-} // QmlJSTools
+} // Debugger

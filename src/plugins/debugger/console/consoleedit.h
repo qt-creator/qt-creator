@@ -28,36 +28,42 @@
 **
 ****************************************************************************/
 
-#ifndef CONSOLEMANAGERINTERFACE_H
-#define CONSOLEMANAGERINTERFACE_H
+#ifndef DEBUGGER_CONSOLEEDIT_H
+#define DEBUGGER_CONSOLEEDIT_H
 
-#include "qmljs_global.h"
-#include "consoleitem.h"
+#include <QModelIndex>
+#include <QString>
+#include <QTextEdit>
 
-#include <QObject>
+namespace Debugger {
+namespace Internal {
 
-namespace QmlJS {
-
-class IScriptEvaluator;
-class QMLJS_EXPORT ConsoleManagerInterface : public QObject
+class ConsoleEdit : public QTextEdit
 {
     Q_OBJECT
+
 public:
-    ConsoleManagerInterface(QObject *parent = 0);
-    ~ConsoleManagerInterface();
+    ConsoleEdit(const QModelIndex &index, QWidget *parent);
+    QString getCurrentScript() const;
 
-    static ConsoleManagerInterface *instance();
+protected:
+    void keyPressEvent(QKeyEvent *e);
+    void focusOutEvent(QFocusEvent *e);
 
-    virtual void showConsolePane() = 0;
+signals:
+    void editingFinished();
 
-    virtual void setScriptEvaluator(IScriptEvaluator *scriptEvaluator) = 0;
-    virtual void setContext(const QString &context) = 0;
+protected:
+    void handleUpKey();
+    void handleDownKey();
+    void replaceCurrentScript(const QString &script);
 
-    virtual void printToConsolePane(ConsoleItem::ItemType itemType, const QString &text,
-                            bool bringToForeground = false) = 0;
-    virtual void printToConsolePane(ConsoleItem *item, bool bringToForeground = false) = 0;
+private:
+    QModelIndex m_historyIndex;
+    QString m_cachedScript;
 };
 
-} // QmlJS
+} // Debugger
+} // Internal
 
-#endif // CONSOLEMANAGERINTERFACE_H
+#endif // DEBUGGER_CONSOLEEDIT_H

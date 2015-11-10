@@ -28,40 +28,42 @@
 **
 ****************************************************************************/
 
-#include "qmlconsolepane.h"
-#include "qmlconsoleview.h"
-#include "qmlconsoleproxymodel.h"
-#include "qmlconsoleitemdelegate.h"
+#include "console.h"
+#include "consoleview.h"
+#include "consoleproxymodel.h"
+#include "consoleitemdelegate.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/icore.h>
 #include <utils/savedaction.h>
 #include <aggregation/aggregate.h>
 #include <coreplugin/find/itemviewfind.h>
 
+#include <QCoreApplication>
 #include <QToolButton>
 #include <QLabel>
 #include <QVBoxLayout>
 
-static const char CONSOLE[] = "Console";
-static const char SHOW_LOG[] = "showLog";
-static const char SHOW_WARNING[] = "showWarning";
-static const char SHOW_ERROR[] = "showError";
+const char CONSOLE[] = "Console";
+const char SHOW_LOG[] = "showLog";
+const char SHOW_WARNING[] = "showWarning";
+const char SHOW_ERROR[] = "showError";
 
-namespace QmlJSTools {
+namespace Debugger {
 namespace Internal {
 
 /////////////////////////////////////////////////////////////////////
 //
-// QmlConsolePane
+// Console
 //
 /////////////////////////////////////////////////////////////////////
 
-QmlConsolePane::QmlConsolePane(QObject *parent)
-    : Core::IOutputPane(parent)
+Console::Console()
 {
+    m_consoleItemModel = new ConsoleItemModel;
+
     m_consoleWidget = new QWidget;
     m_consoleWidget->setWindowTitle(displayName());
     m_consoleWidget->setEnabled(true);
@@ -70,32 +72,30 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     vbox->setMargin(0);
     vbox->setSpacing(0);
 
-    m_consoleView = new QmlConsoleView(m_consoleWidget);
-    m_proxyModel = new QmlConsoleProxyModel(this);
-    m_proxyModel->setSourceModel(QmlConsoleModel::qmlConsoleItemModel());
-    connect(QmlConsoleModel::qmlConsoleItemModel(),
-            &QmlConsoleItemModel::selectEditableRow,
-            m_proxyModel,
-            &QmlConsoleProxyModel::selectEditableRow);
+    m_consoleView = new ConsoleView(m_consoleItemModel, m_consoleWidget);
+    auto proxyModel = new ConsoleProxyModel(this);
+    proxyModel->setSourceModel(m_consoleItemModel);
+    connect(m_consoleItemModel,
+            &ConsoleItemModel::selectEditableRow,
+            proxyModel,
+            &ConsoleProxyModel::selectEditableRow);
 
     //Scroll to bottom when rows matching current filter settings are inserted
     //Not connecting rowsRemoved as the only way to remove rows is to clear the
     //model which will automatically reset the view.
-    connect(QmlConsoleModel::qmlConsoleItemModel(), &QAbstractItemModel::rowsInserted,
-            m_proxyModel, &QmlConsoleProxyModel::onRowsInserted);
-    m_consoleView->setModel(m_proxyModel);
+    connect(m_consoleItemModel, &QAbstractItemModel::rowsInserted,
+            proxyModel, &ConsoleProxyModel::onRowsInserted);
+    m_consoleView->setModel(proxyModel);
 
-    connect(m_proxyModel,
-            SIGNAL(setCurrentIndex(QModelIndex,QItemSelectionModel::SelectionFlags)),
-            m_consoleView->selectionModel(),
-            SLOT(setCurrentIndex(QModelIndex,QItemSelectionModel::SelectionFlags)));
-    connect(m_proxyModel, &QmlConsoleProxyModel::scrollToBottom,
-            m_consoleView, &QmlConsoleView::onScrollToBottom);
+    connect(proxyModel, &ConsoleProxyModel::setCurrentIndex,
+            m_consoleView->selectionModel(), &QItemSelectionModel::setCurrentIndex);
+    connect(proxyModel, &ConsoleProxyModel::scrollToBottom,
+            m_consoleView, &ConsoleView::onScrollToBottom);
 
-    m_itemDelegate = new QmlConsoleItemDelegate(this);
-    connect(m_consoleView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            m_itemDelegate, SLOT(currentChanged(QModelIndex,QModelIndex)));
-    m_consoleView->setItemDelegate(m_itemDelegate);
+    auto itemDelegate = new ConsoleItemDelegate(m_consoleItemModel, this);
+    connect(m_consoleView->selectionModel(), &QItemSelectionModel::currentChanged,
+            itemDelegate, &ConsoleItemDelegate::currentChanged);
+    m_consoleView->setItemDelegate(itemDelegate);
 
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate();
     aggregate->add(m_consoleView);
@@ -115,7 +115,7 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showDebugButtonAction->setChecked(true);
     m_showDebugButtonAction->setIcon(Core::Icons::INFO_TOOLBAR.icon());
     connect(m_showDebugButtonAction, &Utils::SavedAction::toggled,
-            m_proxyModel, &QmlConsoleProxyModel::setShowLogs);
+            proxyModel, &ConsoleProxyModel::setShowLogs);
     m_showDebugButton->setDefaultAction(m_showDebugButtonAction);
 
     m_showWarningButton = new QToolButton(m_consoleWidget);
@@ -129,7 +129,7 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showWarningButtonAction->setChecked(true);
     m_showWarningButtonAction->setIcon(Core::Icons::WARNING_TOOLBAR.icon());
     connect(m_showWarningButtonAction, &Utils::SavedAction::toggled,
-            m_proxyModel, &QmlConsoleProxyModel::setShowWarnings);
+            proxyModel, &ConsoleProxyModel::setShowWarnings);
     m_showWarningButton->setDefaultAction(m_showWarningButtonAction);
 
     m_showErrorButton = new QToolButton(m_consoleWidget);
@@ -142,7 +142,8 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showErrorButtonAction->setCheckable(true);
     m_showErrorButtonAction->setChecked(true);
     m_showErrorButtonAction->setIcon(Core::Icons::ERROR_TOOLBAR.icon());
-    connect(m_showErrorButtonAction, &Utils::SavedAction::toggled, m_proxyModel, &QmlConsoleProxyModel::setShowErrors);
+    connect(m_showErrorButtonAction, &Utils::SavedAction::toggled,
+            proxyModel, &ConsoleProxyModel::setShowErrors);
     m_showErrorButton->setDefaultAction(m_showErrorButtonAction);
 
     m_spacer = new QWidget(m_consoleWidget);
@@ -151,46 +152,47 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_statusLabel = new QLabel(m_consoleWidget);
 
     readSettings();
-    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), SLOT(writeSettings()));
+    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+            this, &Console::writeSettings);
 }
 
-QmlConsolePane::~QmlConsolePane()
+Console::~Console()
 {
     writeSettings();
     delete m_consoleWidget;
 }
 
-QWidget *QmlConsolePane::outputWidget(QWidget *)
+QWidget *Console::outputWidget(QWidget *)
 {
     return m_consoleWidget;
 }
 
-QList<QWidget *> QmlConsolePane::toolBarWidgets() const
+QList<QWidget *> Console::toolBarWidgets() const
 {
-     return QList<QWidget *>() << m_showDebugButton << m_showWarningButton << m_showErrorButton
-                               << m_spacer << m_statusLabel;
+     return { m_showDebugButton, m_showWarningButton, m_showErrorButton,
+              m_spacer, m_statusLabel };
 }
 
-int QmlConsolePane::priorityInStatusBar() const
+int Console::priorityInStatusBar() const
 {
     return 20;
 }
 
-void QmlConsolePane::clearContents()
+void Console::clearContents()
 {
-    QmlConsoleModel::qmlConsoleItemModel()->clear();
+    m_consoleItemModel->clear();
 }
 
-void QmlConsolePane::visibilityChanged(bool /*visible*/)
+void Console::visibilityChanged(bool /*visible*/)
 {
 }
 
-bool QmlConsolePane::canFocus() const
+bool Console::canFocus() const
 {
     return true;
 }
 
-bool QmlConsolePane::hasFocus() const
+bool Console::hasFocus() const
 {
     for (QWidget *widget = m_consoleWidget->window()->focusWidget(); widget != 0;
          widget = widget->parentWidget()) {
@@ -200,35 +202,35 @@ bool QmlConsolePane::hasFocus() const
     return false;
 }
 
-void QmlConsolePane::setFocus()
+void Console::setFocus()
 {
     m_consoleView->setFocus();
 }
 
-bool QmlConsolePane::canNext() const
+bool Console::canNext() const
 {
     return false;
 }
 
-bool QmlConsolePane::canPrevious() const
+bool Console::canPrevious() const
 {
     return false;
 }
 
-void QmlConsolePane::goToNext()
+void Console::goToNext()
 {
 }
 
-void QmlConsolePane::goToPrev()
+void Console::goToPrev()
 {
 }
 
-bool QmlConsolePane::canNavigate() const
+bool Console::canNavigate() const
 {
     return false;
 }
 
-void QmlConsolePane::readSettings()
+void Console::readSettings()
 {
     QSettings *settings = Core::ICore::settings();
     m_showDebugButtonAction->readSettings(settings);
@@ -236,12 +238,12 @@ void QmlConsolePane::readSettings()
     m_showErrorButtonAction->readSettings(settings);
 }
 
-void QmlConsolePane::setContext(const QString &context)
+void Console::setContext(const QString &context)
 {
     m_statusLabel->setText(context);
 }
 
-void QmlConsolePane::writeSettings() const
+void Console::writeSettings() const
 {
     QSettings *settings = Core::ICore::settings();
     m_showDebugButtonAction->writeSettings(settings);
@@ -249,5 +251,47 @@ void QmlConsolePane::writeSettings() const
     m_showErrorButtonAction->writeSettings(settings);
 }
 
+void Console::setScriptEvaluator(const ScriptEvaluator &evaluator)
+{
+    m_scriptEvaluator = evaluator;
+    if (!m_scriptEvaluator)
+        setContext(QString());
+}
+
+void Console::printItem(ConsoleItem::ItemType itemType, const QString &text)
+{
+    printItem(new ConsoleItem(itemType, text));
+}
+
+void Console::printItem(ConsoleItem *item)
+{
+    m_consoleItemModel->appendItem(item);
+    if (item->itemType() == ConsoleItem::ErrorType)
+        popup(Core::IOutputPane::ModeSwitch);
+    else if (item->itemType() == ConsoleItem::WarningType)
+        flash();
+}
+
+void Console::evaluate(const QString &expression)
+{
+    if (m_scriptEvaluator) {
+        m_consoleItemModel->shiftEditableRow();
+        m_scriptEvaluator(expression);
+    } else {
+        auto item = new ConsoleItem(ConsoleItem::ErrorType,
+               QCoreApplication::translate(
+                        "Debugger::Internal::Console",
+                        "Can only evaluate during a debug session."));
+        m_consoleItemModel->shiftEditableRow();
+        printItem(item);
+    }
+}
+
+Console *debuggerConsole()
+{
+    static Console *theConsole = new Console;
+    return theConsole;
+}
+
 } // Internal
-} // QmlJSTools
+} // Debugger

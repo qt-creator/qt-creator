@@ -20,16 +20,7 @@ HEADERS += \
     $$PWD/qmljsindenter.h \
     $$PWD/qmljscodestylesettingspage.h \
     $$PWD/qmljssemanticinfo.h \
-    $$PWD/qmljstools_global.h \
-    $$PWD/qmlconsolemanager.h \
-    $$PWD/qmlconsoleitemmodel.h \
-    $$PWD/qmlconsolemodel.h \
-    $$PWD/qmlconsolepane.h \
-    $$PWD/qmlconsoleview.h \
-    $$PWD/qmlconsoleitemdelegate.h \
-    $$PWD/qmlconsoleedit.h \
-    $$PWD/qmljsinterpreter.h \
-    $$PWD/qmlconsoleproxymodel.h
+    $$PWD/qmljstools_global.h
 
 SOURCES += \
     $$PWD/qmljsbundleprovider.cpp \
@@ -43,15 +34,7 @@ SOURCES += \
     $$PWD/qmljslocatordata.cpp \
     $$PWD/qmljsindenter.cpp \
     $$PWD/qmljscodestylesettingspage.cpp \
-    $$PWD/qmljssemanticinfo.cpp \
-    $$PWD/qmlconsolemanager.cpp \
-    $$PWD/qmlconsoleitemmodel.cpp \
-    $$PWD/qmlconsolepane.cpp \
-    $$PWD/qmlconsoleview.cpp \
-    $$PWD/qmlconsoleitemdelegate.cpp \
-    $$PWD/qmlconsoleedit.cpp \
-    $$PWD/qmljsinterpreter.cpp \
-    $$PWD/qmlconsoleproxymodel.cpp
+    $$PWD/qmljssemanticinfo.cpp
 
 RESOURCES += \
     qmljstools.qrc

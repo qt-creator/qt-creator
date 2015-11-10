@@ -30,15 +30,10 @@
 
 #include "consoleitem.h"
 
-namespace QmlJS {
+namespace Debugger {
+namespace Internal {
 
-///////////////////////////////////////////////////////////////////////
-//
-// ConsoleItem
-//
-///////////////////////////////////////////////////////////////////////
-
-QString addZeroWidthSpace(QString text)
+static QString addZeroWidthSpace(QString text)
 {
     for (int i = 0; i < text.length(); ++i) {
         if (text.at(i).isPunct())
@@ -164,4 +159,5 @@ QString ConsoleItem::expression() const
     return text().remove(QChar(0x200b));  // ZERO WIDTH SPACE
 }
 
-} // QmlJS
+} // Internal
+} // Debugger

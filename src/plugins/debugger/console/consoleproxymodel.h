@@ -28,63 +28,44 @@
 **
 ****************************************************************************/
 
-#ifndef CONSOLEITEM_H
-#define CONSOLEITEM_H
+#ifndef DEBUGGER_CONSOLEPROXYMODEL_H
+#define DEBUGGER_CONSOLEPROXYMODEL_H
 
-#include "qmljs_global.h"
-#include <utils/treemodel.h>
+#include "consoleitem.h"
 
-#include <QString>
-#include <functional>
+#include <QSortFilterProxyModel>
+#include <QItemSelectionModel>
 
-namespace QmlJS {
+namespace Debugger {
+namespace Internal {
 
-class QMLJS_EXPORT ConsoleItem : public Utils::TreeItem
+class ConsoleProxyModel : public QSortFilterProxyModel
 {
+    Q_OBJECT
 public:
-    enum Roles {
-        TypeRole = Qt::UserRole,
-        FileRole,
-        LineRole,
-        ExpressionRole
-    };
+    explicit ConsoleProxyModel(QObject *parent);
 
-    enum ItemType
-    {
-        DefaultType  = 0x01, // Can be used for unknown and for Return values
-        DebugType    = 0x02,
-        WarningType  = 0x04,
-        ErrorType    = 0x08,
-        InputType    = 0x10,
-        AllTypes     = DefaultType | DebugType | WarningType | ErrorType | InputType
-    };
-    Q_DECLARE_FLAGS(ItemTypes, ItemType)
+public slots:
+    void setShowLogs(bool show);
+    void setShowWarnings(bool show);
+    void setShowErrors(bool show);
+    void selectEditableRow(const QModelIndex &index,
+                               QItemSelectionModel::SelectionFlags command);
+    void onRowsInserted(const QModelIndex &index, int start, int end);
 
-    ConsoleItem(ItemType itemType = ConsoleItem::DefaultType, const QString &expression = QString(),
-                const QString &file = QString(), int line = -1);
-    ConsoleItem(ItemType itemType, const QString &expression,
-                std::function<void(ConsoleItem *)> doFetch);
+signals:
+    void scrollToBottom();
+    void setCurrentIndex(const QModelIndex &index,
+                         QItemSelectionModel::SelectionFlags command);
 
-    ItemType itemType() const;
-    QString expression() const;
-    QString text() const;
-    QString file() const;
-    int line() const;
-    QVariant data(int column, int role) const;
-    bool setData(int column, const QVariant &data, int role);
-
-    bool canFetchMore() const;
-    void fetchMore();
+protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 
 private:
-    ItemType m_itemType;
-    QString m_text;
-    QString m_file;
-    int m_line;
-
-    std::function<void(ConsoleItem *)> m_doFetch;
+    QFlags<ConsoleItem::ItemType> m_filter;
 };
 
-} // QmlJS
+} // Internal
+} // Debugger
 
-#endif // CONSOLEITEM_H
+#endif // DEBUGGER_CONSOLEPROXYMODEL_H

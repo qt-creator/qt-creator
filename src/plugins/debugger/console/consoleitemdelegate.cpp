@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#include "qmlconsoleitemdelegate.h"
-#include "qmlconsoleedit.h"
+#include "consoleitemdelegate.h"
+#include "consoleedit.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
@@ -59,19 +59,18 @@ const char CONSOLE_BORDER_COLOR[] = "#C9C9C9";
 
 const int ELLIPSIS_GRADIENT_WIDTH = 16;
 
-using namespace QmlJS;
-
-namespace QmlJSTools {
+namespace Debugger {
 namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// QmlConsoleItemDelegate
+// ConsoleItemDelegate
 //
 ///////////////////////////////////////////////////////////////////////
 
-QmlConsoleItemDelegate::QmlConsoleItemDelegate(QObject *parent) :
+ConsoleItemDelegate::ConsoleItemDelegate(ConsoleItemModel *model, QObject *parent) :
     QStyledItemDelegate(parent),
+    m_model(model),
     m_logIcon(Core::Icons::INFO.icon()),
     m_warningIcon(Core::Icons::WARNING.icon()),
     m_errorIcon(Core::Icons::ERROR.icon()),
@@ -82,12 +81,12 @@ QmlConsoleItemDelegate::QmlConsoleItemDelegate(QObject *parent) :
 {
 }
 
-void QmlConsoleItemDelegate::emitSizeHintChanged(const QModelIndex &index)
+void ConsoleItemDelegate::emitSizeHintChanged(const QModelIndex &index)
 {
     emit sizeHintChanged(index);
 }
 
-QColor QmlConsoleItemDelegate::drawBackground(QPainter *painter, const QRect &rect,
+QColor ConsoleItemDelegate::drawBackground(QPainter *painter, const QRect &rect,
                                               const QModelIndex &index,
                                               bool selected) const
 {
@@ -128,7 +127,7 @@ QColor QmlConsoleItemDelegate::drawBackground(QPainter *painter, const QRect &re
     return backgroundColor;
 }
 
-void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                    const QModelIndex &index) const
 {
     QStyleOptionViewItemV4 opt = option;
@@ -179,7 +178,7 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     bool showExpandableIcon = type == ConsoleItem::DefaultType;
 
     QRect rect(opt.rect.x(), opt.rect.top(), width, opt.rect.height());
-    ConsoleItemPositions positions(rect, opt.font, showTypeIcon, showExpandableIcon);
+    ConsoleItemPositions positions(m_model, rect, opt.font, showTypeIcon, showExpandableIcon);
 
     // Paint TaskIconArea:
     if (showTypeIcon)
@@ -256,7 +255,7 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     painter->restore();
 }
 
-QSize QmlConsoleItemDelegate::sizeHint(const QStyleOptionViewItem &option,
+QSize ConsoleItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                                        const QModelIndex &index) const
 {
     QStyleOptionViewItemV4 opt = option;
@@ -281,7 +280,7 @@ QSize QmlConsoleItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     bool showExpandableIcon = type == ConsoleItem::DefaultType;
 
     QRect rect(level * view->indentation(), 0, width, 0);
-    ConsoleItemPositions positions(rect, opt.font, showTypeIcon, showExpandableIcon);
+    ConsoleItemPositions positions(m_model, rect, opt.font, showTypeIcon, showExpandableIcon);
 
     QFontMetrics fm(option.font);
     qreal height = fm.height();
@@ -306,12 +305,12 @@ QSize QmlConsoleItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     return QSize(width, height);
 }
 
-QWidget *QmlConsoleItemDelegate::createEditor(QWidget *parent,
+QWidget *ConsoleItemDelegate::createEditor(QWidget *parent,
                                               const QStyleOptionViewItem &/*option*/,
                                               const QModelIndex &index) const
 
 {
-    QmlConsoleEdit *editor = new QmlConsoleEdit(index, parent);
+    ConsoleEdit *editor = new ConsoleEdit(index, parent);
     // Fiddle the prompt into the margin so that we don't have to put it into the text.
     // Apparently you can have both background-image and background-color, which conveniently
     // prevents the painted text from shining through.
@@ -324,28 +323,28 @@ QWidget *QmlConsoleItemDelegate::createEditor(QWidget *parent,
                                         "background-origin: margin;"
                                         "background-repeat: none;"
                                         "}"));
-    connect(editor, &QmlConsoleEdit::editingFinished,
-            this, &QmlConsoleItemDelegate::commitAndCloseEditor);
+    connect(editor, &ConsoleEdit::editingFinished,
+            this, &ConsoleItemDelegate::commitAndCloseEditor);
     return editor;
 }
 
-void QmlConsoleItemDelegate::setEditorData(QWidget *editor,
+void ConsoleItemDelegate::setEditorData(QWidget *editor,
                                            const QModelIndex &index) const
 {
-    QmlConsoleEdit *edtr = qobject_cast<QmlConsoleEdit *>(editor);
+    ConsoleEdit *edtr = qobject_cast<ConsoleEdit *>(editor);
     edtr->insertPlainText(index.data(ConsoleItem::ExpressionRole).toString());
 }
 
-void QmlConsoleItemDelegate::setModelData(QWidget *editor,
+void ConsoleItemDelegate::setModelData(QWidget *editor,
                                           QAbstractItemModel *model,
                                           const QModelIndex &index) const
 {
-    QmlConsoleEdit *edtr = qobject_cast<QmlConsoleEdit *>(editor);
+    ConsoleEdit *edtr = qobject_cast<ConsoleEdit *>(editor);
     model->setData(index, edtr->getCurrentScript(), ConsoleItem::ExpressionRole);
     model->setData(index, ConsoleItem::InputType, ConsoleItem::TypeRole);
 }
 
-void QmlConsoleItemDelegate::updateEditorGeometry(QWidget *editor,
+void ConsoleItemDelegate::updateEditorGeometry(QWidget *editor,
                                                   const QStyleOptionViewItem &option,
                                                   const QModelIndex &/*index*/) const
 {
@@ -353,21 +352,21 @@ void QmlConsoleItemDelegate::updateEditorGeometry(QWidget *editor,
     editor->setGeometry(QRect(opt.rect.x(), opt.rect.top(), opt.rect.width(), opt.rect.bottom()));
 }
 
-void QmlConsoleItemDelegate::currentChanged(const QModelIndex &current,
+void ConsoleItemDelegate::currentChanged(const QModelIndex &current,
                                             const QModelIndex &previous)
 {
     emit sizeHintChanged(current);
     emit sizeHintChanged(previous);
 }
 
-void QmlConsoleItemDelegate::commitAndCloseEditor()
+void ConsoleItemDelegate::commitAndCloseEditor()
 {
-    QmlConsoleEdit *editor = qobject_cast<QmlConsoleEdit *>(sender());
+    ConsoleEdit *editor = qobject_cast<ConsoleEdit *>(sender());
     emit commitData(editor);
     emit closeEditor(editor);
 }
 
-qreal QmlConsoleItemDelegate::layoutText(QTextLayout &tl, int width,
+qreal ConsoleItemDelegate::layoutText(QTextLayout &tl, int width,
                                          bool *showFileLineInfo) const
 {
     qreal height = 0;
@@ -389,4 +388,4 @@ qreal QmlConsoleItemDelegate::layoutText(QTextLayout &tl, int width,
 }
 
 } // Internal
-} // QmlJSTools
+} // Debugger

@@ -17,9 +17,6 @@ QtcLibrary {
     Group {
         name: "General"
         files: [
-            "consoleitem.cpp", "consoleitem.h",
-            "consolemanagerinterface.cpp", "consolemanagerinterface.h",
-            "iscriptevaluator.h",
             "jsoncheck.cpp", "jsoncheck.h",
             "persistenttrie.cpp", "persistenttrie.h",
             "qmljs.qrc",
