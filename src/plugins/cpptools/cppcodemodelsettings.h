@@ -73,6 +73,10 @@ public:
     void setDefaultId(const QString &defaultId)
     { m_defaultId = defaultId; }
 
+    static QStringList defaultExtraClangOptions();
+    QStringList extraClangOptions() const;
+    void setExtraClangOptions(const QStringList &extraClangOptions);
+
     PCHUsage pchUsage() const { return m_pchUsage; }
     void setPCHUsage(PCHUsage pchUsage) { m_pchUsage = pchUsage; }
 
@@ -90,6 +94,7 @@ private:
 private:
     QHash<QString, QString> m_modelManagerSupportByMimeType;
     QHash<QString, QString> m_modelManagerSupportsByName;
+    QStringList m_extraClangOptions;
     QString m_defaultId;
     PCHUsage m_pchUsage;
 };

@@ -46,7 +46,11 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(QWidget *parent)
 {
     m_ui->setupUi(this);
 
-    m_ui->theGroupBox->setVisible(true);
+    m_ui->clangSettingsGroupBox->setVisible(true);
+    connect(m_ui->clangOptionsResetButton, &QPushButton::clicked, [this]() {
+        const QString options = m_settings->defaultExtraClangOptions().join(QLatin1Char('\n'));
+        m_ui->clangOptionsToAppendTextEdit->document()->setPlainText(options);
+    });
 }
 
 CppCodeModelSettingsWidget::~CppCodeModelSettingsWidget()
@@ -96,8 +100,11 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets() const
         isClangActive = isClangCodeModelActive(*m_settings.data());
 
     m_ui->activateClangCodeModelPluginHint->setVisible(!isClangAvailable);
-    m_ui->useClangCheckBox->setEnabled(isClangAvailable);
-    m_ui->useClangCheckBox->setChecked(isClangActive);
+    m_ui->clangSettingsGroupBox->setEnabled(isClangAvailable);
+    m_ui->clangSettingsGroupBox->setChecked(isClangActive);
+
+    const QString extraClangOptions = m_settings->extraClangOptions().join(QLatin1Char('\n'));
+    m_ui->clangOptionsToAppendTextEdit->document()->setPlainText(extraClangOptions);
 }
 
 bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
@@ -106,12 +113,17 @@ bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
     // Until then, ensure that the settings are set uniformly for all the mime types
     // to avoid surprises.
 
-    const QString activeCodeModelId = m_ui->useClangCheckBox->isChecked()
+    const QString activeCodeModelId = m_ui->clangSettingsGroupBox->isChecked()
             ? QLatin1String("ClangCodeMode.ClangCodeMode")
             : QLatin1String("CppTools.BuiltinCodeModel");
 
     foreach (const QString &mimeType, m_settings->supportedMimeTypes())
         m_settings->setModelManagerSupportIdForMimeType(mimeType, activeCodeModelId);
+
+    const QString clangOptionsText = m_ui->clangOptionsToAppendTextEdit->document()->toPlainText();
+    const QStringList extraClangOptions = clangOptionsText.split(QLatin1Char('\n'),
+                                                                 QString::SkipEmptyParts);
+    m_settings->setExtraClangOptions(extraClangOptions);
 
     return true;
 }

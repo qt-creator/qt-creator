@@ -55,6 +55,7 @@ enum { lowerCaseFilesDefault = 1 };
 const char CPPTOOLS_SORT_EDITOR_DOCUMENT_OUTLINE[] = "SortedMethodOverview";
 const char CPPTOOLS_MODEL_MANAGER_SUPPORTERS_KEY[] = "ModelManagerSupporters";
 const char CPPTOOLS_MODEL_MANAGER_PCH_USAGE[] = "PCHUsage";
+const char CPPTOOLS_EXTRA_CLANG_OPTIONS[] = "ExtraClangOptions";
 
 const char CPP_CODE_STYLE_SETTINGS_ID[] = "A.Cpp.Code Style";
 const char CPP_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "Code Style");
