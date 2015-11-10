@@ -1300,7 +1300,8 @@ void tst_Dumpers::dumper()
                 "python from gdbbridge import *\n"
                 "python theDumper.setupDumpers()\n"
                 "run " + nograb + "\n"
-                "python theDumper.fetchVariables({'fancy':1,'forcens':1,"
+                "python theDumper.fetchVariables({"
+                    "'token':2,'fancy':1,'forcens':1,'sortstructs':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
                     "'expanded':[" + expandedq + "]})\n";
 
@@ -1331,7 +1332,9 @@ void tst_Dumpers::dumper()
                "sc sys.path.insert(1, '" + dumperDir + "')\n"
                "sc from lldbbridge import *\n"
               // "sc print(dir())\n"
-               "sc Tester('" + t->buildPath.toLatin1() + "/doit', [" + expandedq + "])\n"
+               "sc Tester('" + t->buildPath.toLatin1() + "/doit', {'fancy':1,'forcens':1,"
+                    "'autoderef':1,'dyntype':1,'passexceptions':1,"
+                    "'expanded':[" + expandedq + "]})\n"
                "quit\n";
 
         fullLldb.write(cmds);

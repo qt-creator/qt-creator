@@ -1767,14 +1767,9 @@ class Dumper(DumperBase):
 
 # Used in dumper auto test.
 class Tester(Dumper):
-    def __init__(self, binary, expandedINames):
+    def __init__(self, binary, args):
         Dumper.__init__(self)
         lldb.theDumper = self
-
-        self.expandedINames = set(expandedINames)
-        self.passExceptions = True
-        self.sortStructMembers = True
-
         self.loadDumpers({'token': 1})
         error = lldb.SBError()
         self.target = self.debugger.CreateTarget(binary, None, None, True, error)
@@ -1783,14 +1778,14 @@ class Tester(Dumper):
             warn("ERROR: %s" % error)
             return
 
-        s = threading.Thread(target=self.testLoop, args=[])
+        s = threading.Thread(target=self.testLoop, args=(args,))
         s.start()
         s.join(30)
 
     def reportDumpers(self, msg):
         pass
 
-    def testLoop(self):
+    def testLoop(self, args):
         # Disable intermediate reporting.
         savedReport = self.report
         self.report = lambda stuff: 0
@@ -1833,7 +1828,7 @@ class Tester(Dumper):
                         if line != 0:
                             self.report = savedReport
                             self.process.SetSelectedThread(stoppedThread)
-                            self.fetchVariables({'token':2, 'fancy':1})
+                            self.fetchVariables(args)
                             #self.describeLocation(frame)
                             self.report("@NS@%s@" % self.qtNamespace())
                             #self.report("ENV=%s" % os.environ.items())
