@@ -217,7 +217,7 @@ public:
 };
 
 static QToolButton *createFilterButton(QIcon icon, const QString &toolTip,
-                                       QObject *receiver, const char *slot)
+                                       QObject *receiver, std::function<void(bool)> lambda)
 {
     QToolButton *button = new QToolButton;
     button->setIcon(icon);
@@ -226,7 +226,7 @@ static QToolButton *createFilterButton(QIcon icon, const QString &toolTip,
     button->setChecked(true);
     button->setAutoRaise(true);
     button->setEnabled(true);
-    QObject::connect(button, SIGNAL(toggled(bool)), receiver, slot);
+    QObject::connect(button, &QToolButton::toggled, receiver, lambda);
     return button;
 }
 
@@ -266,7 +266,7 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
 
     d->m_filterWarningsButton = createFilterButton(
                 Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_WARNING)),
-                tr("Show Warnings"), this, SLOT(setShowWarnings(bool)));
+                tr("Show Warnings"), this, [this](bool show) { setShowWarnings(show); });
 
     d->m_categoriesButton = new QToolButton;
     d->m_categoriesButton->setIcon(
@@ -277,31 +277,21 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
     d->m_categoriesButton->setPopupMode(QToolButton::InstantPopup);
 
     d->m_categoriesMenu = new QMenu(d->m_categoriesButton);
-    connect(d->m_categoriesMenu, SIGNAL(aboutToShow()), this, SLOT(updateCategoriesMenu()));
+    connect(d->m_categoriesMenu, &QMenu::aboutToShow, this, &TaskWindow::updateCategoriesMenu);
 
     d->m_categoriesButton->setMenu(d->m_categoriesMenu);
 
-    QObject *hub = TaskHub::instance();
-    connect(hub, SIGNAL(categoryAdded(Core::Id,QString,bool)),
-            this, SLOT(addCategory(Core::Id,QString,bool)));
-    connect(hub, SIGNAL(taskAdded(ProjectExplorer::Task)),
-            this, SLOT(addTask(ProjectExplorer::Task)));
-    connect(hub, SIGNAL(taskRemoved(ProjectExplorer::Task)),
-            this, SLOT(removeTask(ProjectExplorer::Task)));
-    connect(hub, SIGNAL(taskLineNumberUpdated(uint,int)),
-            this, SLOT(updatedTaskLineNumber(uint,int)));
-    connect(hub, SIGNAL(taskFileNameUpdated(uint,QString)),
-            this, SLOT(updatedTaskFileName(uint,QString)));
-    connect(hub, SIGNAL(tasksCleared(Core::Id)),
-            this, SLOT(clearTasks(Core::Id)));
-    connect(hub, SIGNAL(categoryVisibilityChanged(Core::Id,bool)),
-            this, SLOT(setCategoryVisibility(Core::Id,bool)));
-    connect(hub, SIGNAL(popupRequested(int)),
-            this, SLOT(popup(int)));
-    connect(hub, SIGNAL(showTask(uint)),
-            this, SLOT(showTask(uint)));
-    connect(hub, SIGNAL(openTask(uint)),
-            this, SLOT(openTask(uint)));
+    TaskHub *hub = TaskHub::instance();
+    connect(hub, &TaskHub::categoryAdded, this, &TaskWindow::addCategory);
+    connect(hub, &TaskHub::taskAdded, this, &TaskWindow::addTask);
+    connect(hub, &TaskHub::taskRemoved, this, &TaskWindow::removeTask);
+    connect(hub, &TaskHub::taskLineNumberUpdated, this, &TaskWindow::updatedTaskLineNumber);
+    connect(hub, &TaskHub::taskFileNameUpdated, this, &TaskWindow::updatedTaskFileName);
+    connect(hub, &TaskHub::tasksCleared, this, &TaskWindow::clearTasks);
+    connect(hub, &TaskHub::categoryVisibilityChanged, this, &TaskWindow::setCategoryVisibility);
+    connect(hub, &TaskHub::popupRequested, this, &TaskWindow::popup);
+    connect(hub, &TaskHub::showTask, this, &TaskWindow::showTask);
+    connect(hub, &TaskHub::openTask, this, &TaskWindow::openTask);
 
     connect(d->m_filter, &TaskFilterModel::rowsRemoved,
             [this]() { emit setBadgeNumber(d->m_filter->rowCount()); });
@@ -349,7 +339,7 @@ void TaskWindow::delayedInitialization()
         QAction *action = h->createAction(this);
         QTC_ASSERT(action, continue);
         action->setProperty("ITaskHandler", qVariantFromValue(qobject_cast<QObject*>(h)));
-        connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+        connect(action, &QAction::triggered, this, &TaskWindow::actionTriggered);
         d->m_actions << action;
 
         Core::Id id = h->actionManagerId();
