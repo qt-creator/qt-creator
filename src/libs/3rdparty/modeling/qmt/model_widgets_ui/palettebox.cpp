@@ -102,7 +102,7 @@ void PaletteBox::paintEvent(QPaintEvent *event)
     Q_UNUSED(event);
 
     QPainter painter(this);
-    qreal w = (qreal) width() / (qreal) m_brushes.size();
+    qreal w = static_cast<qreal>(width()) / static_cast<qreal>(m_brushes.size());
     qreal h = height();
     for (int i = 0; i < m_brushes.size(); ++i) {
         QBrush brush = m_brushes.at(i);
@@ -128,9 +128,9 @@ void PaletteBox::paintEvent(QPaintEvent *event)
 
 void PaletteBox::mousePressEvent(QMouseEvent *event)
 {
-    qreal w = (qreal) width() / (qreal) m_brushes.size();
+    qreal w = static_cast<qreal>(width()) / static_cast<qreal>(m_brushes.size());
 
-    int i = (int) (event->x() / w);
+    int i = static_cast<int>((event->x() / w));
     QMT_CHECK(i >= 0 && i < m_brushes.size());
     setCurrentIndex(i);
     if (m_currentIndex >= 0 && m_currentIndex < m_brushes.size()) {

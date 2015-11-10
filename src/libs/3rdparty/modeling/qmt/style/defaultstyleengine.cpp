@@ -505,7 +505,7 @@ QColor DefaultStyleEngine::baseColor(ElementType elementType, ObjectVisuals obje
             QColor("#FFE14B")               // ROLE_CUSTOM5,
         };
 
-        int index = (int) objectVisuals.visualPrimaryRole() - (int) DObject::PrimaryRoleCustom1;
+        int index = static_cast<int>(objectVisuals.visualPrimaryRole()) - static_cast<int>(DObject::PrimaryRoleCustom1);
         QMT_CHECK(index >= 0 && index <= 4);
         baseColor = customColors[index];
     }

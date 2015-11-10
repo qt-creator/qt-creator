@@ -93,8 +93,8 @@ bool operator==(const ObjectVisuals &lhs, const ObjectVisuals &rhs)
 
 uint qHash(const ObjectVisuals &objectVisuals)
 {
-    return ::qHash((int) objectVisuals.visualPrimaryRole())
-            ^ ::qHash((int) objectVisuals.visualSecondaryRole())
+    return ::qHash(static_cast<int>(objectVisuals.visualPrimaryRole()))
+            ^ ::qHash(static_cast<int>(objectVisuals.visualSecondaryRole()))
             ^ ::qHash(objectVisuals.isEmphasized())
             ^ ::qHash(objectVisuals.baseColor().rgb())
             ^ ::qHash(objectVisuals.depth());

@@ -42,7 +42,7 @@ namespace qark {
 template<class Archive, typename T>
 inline typename std::enable_if<std::is_enum<T>::value, void>::type save(Archive &archive, const T &value, const Parameters &)
 {
-    archive.write((int) value);
+    archive.write(static_cast<int>(value));
 }
 
 template<class Archive, typename T>
@@ -59,7 +59,7 @@ inline typename std::enable_if<std::is_enum<T>::value, void>::type load(Archive 
     template<class Archive> \
     inline void save(Archive &archive, const ENUM &e, const Parameters &) \
     { \
-        archive.write((int) e); \
+        archive.write(static_cast<int>(e)); \
     } \
     template<class Archive> \
     inline void load(Archive &archive, ENUM &e, const Parameters &) \
