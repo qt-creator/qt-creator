@@ -569,6 +569,8 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
         info->displayName = tr("Release");
         //: Non-ASCII characters in directory suffix may cause build issues.
         suffix = tr("Release", "Shadow build directory suffix");
+        if (version && version->isQtQuickCompilerSupported())
+            info->config.useQtQuickCompiler = true;
     } else {
         if (type == BuildConfiguration::Debug) {
             //: The name of the debug build configuration created by default for a qmake project.
@@ -581,8 +583,10 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
             //: Non-ASCII characters in directory suffix may cause build issues.
             suffix = tr("Profile", "Shadow build directory suffix");
             info->config.separateDebugInfo = true;
+            if (version && version->isQtQuickCompilerSupported())
+                info->config.useQtQuickCompiler = true;
         }
-        if (version && version->qtVersion().majorVersion >= 5)
+        if (version && version->isQmlDebuggingSupported())
             info->config.linkQmlDebuggingQQ2 = true;
     }
     info->typeName = info->displayName;
