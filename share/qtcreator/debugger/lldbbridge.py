@@ -1115,21 +1115,41 @@ class Dumper(DumperBase):
                     self.putItem(child)
             return
 
-        n = value.GetNumChildren()
-        m = value.GetType().GetNumberOfDirectBaseClasses()
-        if n > 10000:
-            n = 10000
-        # seems to happen in the 'inheritance' autotest
-        if m > n:
-            m = n
-        for i in xrange(m):
-            child = value.GetChildAtIndex(i)
-            with UnnamedSubItem(self, "@%d" % (i + 1)):
-                self.put('iname="%s",' % self.currentIName)
-                self.put('name="[%s]",' % child.name)
-                self.putItem(child)
+        memberBase = 0  # Start of members.
 
-        children = [value.GetChildAtIndex(i) for i in xrange(m, n)]
+        class ChildItem:
+            def __init__(self, name, value):
+                self.name = name
+                self.value = value
+
+        baseObjects = []
+        for i in xrange(value.GetType().GetNumberOfDirectBaseClasses()):
+            baseClass = value.GetType().GetDirectBaseClassAtIndex(i).GetType()
+            baseChildCount = baseClass.GetNumberOfFields() \
+                + baseClass.GetNumberOfDirectBaseClasses() \
+                + baseClass.GetNumberOfVirtualBaseClasses()
+            if baseChildCount:
+                memberBase += 1
+                baseObjects.append(ChildItem(baseClass.GetName(), value.GetChildAtIndex(i)))
+            else:
+                # This base object is empty, but exists and will *not* be reported
+                # by value.GetChildCount(). So manually report the empty base class.
+                baseObject = value.Cast(baseClass)
+                baseObjects.append(ChildItem(baseClass.GetName(), baseObject))
+
+        if self.sortStructMembers:
+            baseObjects.sort(key = lambda baseObject: str(baseObject.name))
+        for i in xrange(len(baseObjects)):
+            baseObject = baseObjects[i]
+            with UnnamedSubItem(self, "@%d" % (i + 1)):
+               self.put('iname="%s",' % self.currentIName)
+               self.put('name="[%s]",' % baseObject.name)
+               self.putItem(baseObject.value)
+
+        memberCount = value.GetNumChildren()
+        if memberCount > 10000:
+            memberCount = 10000
+        children = [value.GetChildAtIndex(memberBase + i) for i in xrange(memberCount)]
         if self.sortStructMembers:
             children.sort(key = lambda child: str(child.GetName()))
         for child in children:
