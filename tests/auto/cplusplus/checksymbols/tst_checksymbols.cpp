@@ -112,11 +112,11 @@ class BaseTestCase
 public:
     BaseTestCase(const QByteArray &source, const UseList &expectedUsesMacros = UseList())
     {
-        // Write source to temprorary file
+        // Write source to temporary file
         const QString filePath = QDir::tempPath() + QLatin1String("/file.h");
         Tests::TestCase::writeFile(filePath, source);
 
-        // Processs source
+        // Process source
         const Document::Ptr document = createDocument(filePath, source);
         QVERIFY(document);
         Snapshot snapshot;
