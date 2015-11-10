@@ -102,9 +102,12 @@ TimelineRenderPass::State *TimelineSelectionRenderPass::update(
             top = TimelineModel::defaultRowHeight() * (row + 1) - height;
         }
 
-        qint64 startTime = model->startTime(selectedItem);
-        qint64 left = qMax(startTime - parentState->start(), (qint64)0);
-        qint64 width = qMin(parentState->end() - startTime, model->duration(selectedItem));
+        qint64 startTime = qBound(parentState->start(), model->startTime(selectedItem),
+                                  parentState->end());
+        qint64 endTime = qBound(parentState->start(), model->endTime(selectedItem),
+                                parentState->end());
+        qint64 left = startTime - parentState->start();
+        qint64 width = endTime - startTime;
 
         // Construct from upper left and lower right for better precision. When constructing from
         // left and width the error on the left border is inherited by the right border. Like this
