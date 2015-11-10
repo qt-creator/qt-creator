@@ -44,6 +44,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
+#include <QtDebug>
 #include <QDir>
 #include <QStyle>
 
@@ -141,7 +142,7 @@ public:
         return new FileTreeNode(n, this, isFile);
     }
 
-    bool isFile() { return m_isFile; }
+    bool isFile() const { return m_isFile; }
 
     static FileTreeNode *moveChildrenUp(FileTreeNode *node)
     {
@@ -228,7 +229,7 @@ public:
         }
     }
 
-    QString path()
+    QString path() const
     {
         QString p = name;
         FileTreeNode *node = parent;
@@ -485,7 +486,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::Gro
 
     foreach (FileTreeNode *c, fileTree->children) {
         Utils::FileName path = Utils::FileName::fromString(c->path());
-        const ProjectExplorer::FileType newFileType = fileType(group, c->path());
+        const ProjectExplorer::FileType newFileType = fileType(group, *c);
         const bool isQrcFile = newFileType == ProjectExplorer::ResourceType;
 
         // Handle files:
@@ -546,13 +547,17 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::Gro
 }
 
 ProjectExplorer::FileType QbsGroupNode::fileType(const qbs::GroupData &group,
-                                                 const QString &filePath)
+                                                 const FileTreeNode &fileNode)
 {
     if (!group.isValid())
         return ProjectExplorer::UnknownFileType;
     const qbs::SourceArtifact artifact = Utils::findOrDefault(group.allSourceArtifacts(),
-            [filePath](const qbs::SourceArtifact &sa) { return sa.filePath() == filePath; });
-    QTC_ASSERT(artifact.isValid(), return ProjectExplorer::UnknownFileType);
+            [&fileNode](const qbs::SourceArtifact &sa) { return sa.filePath() == fileNode.path(); });
+    QTC_ASSERT(artifact.isValid() || !fileNode.isFile(),
+               qDebug() << fileNode.path() << group.name(); return ProjectExplorer::UnknownFileType);
+    if (!artifact.isValid())
+        return ProjectExplorer::UnknownFileType;
+
     if (artifact.fileTags().contains(QLatin1String("c"))
             || artifact.fileTags().contains(QLatin1String("cpp"))
             || artifact.fileTags().contains(QLatin1String("objc"))
