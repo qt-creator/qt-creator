@@ -1535,7 +1535,8 @@ QString GitClient::synchronousShortDescription(const QString &workingDirectory, 
     arguments << QLatin1String("log") << QLatin1String(noColorOption)
               << (QLatin1String("--pretty=format:") + format)
               << QLatin1String("--max-count=1") << revision;
-    const bool rc = vcsFullySynchronousExec(workingDirectory, arguments, &outputTextData, &errorText);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, arguments, &outputTextData, &errorText,
+                                            silentFlags);
     if (!rc) {
         VcsOutputWindow::appendSilently(tr("Cannot describe revision \"%1\" in \"%2\": %3")
                                      .arg(revision, workingDirectory, commandOutputFromLocal8Bit(errorText)));
