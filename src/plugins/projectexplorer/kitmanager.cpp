@@ -171,6 +171,8 @@ void KitManager::restoreKits()
     Kit *toStore = 0;
     foreach (Kit *current, kitsToValidate) {
         toStore = current;
+        toStore->setup(); // Make sure all kitinformation are properly set up before merging them
+                          // with the information from the user settings file
 
         // Check whether we had this kit stored and prefer the stored one:
         for (int i = 0; i < kitsToCheck.count(); ++i) {
@@ -191,8 +193,6 @@ void KitManager::restoreKits()
                 break;
             }
         }
-        if (toStore == current)
-            toStore->setup();
         addKit(toStore);
         sdkKits << toStore;
     }
