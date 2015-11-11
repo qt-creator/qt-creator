@@ -73,7 +73,7 @@ def is_debug(fpath):
     if coredebug.search(fpath):
         return True
     output = subprocess.check_output(['dumpbin', '/imports', fpath])
-    return coredebug.search(output)
+    return coredebug.search(output) != None
 
 def is_debug_build(install_dir):
     return is_debug(os.path.join(install_dir, 'bin', 'qtcreator.exe'))
