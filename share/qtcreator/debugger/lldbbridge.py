@@ -1123,14 +1123,15 @@ class Dumper(DumperBase):
                 self.value = value
 
         baseObjects = []
+        # GetNumberOfDirectBaseClasses() includes(!) GetNumberOfVirtualBaseClasses()
+        # so iterating over .GetNumberOfDirectBaseClasses() is correct.
         for i in xrange(value.GetType().GetNumberOfDirectBaseClasses()):
             baseClass = value.GetType().GetDirectBaseClassAtIndex(i).GetType()
             baseChildCount = baseClass.GetNumberOfFields() \
-                + baseClass.GetNumberOfDirectBaseClasses() \
-                + baseClass.GetNumberOfVirtualBaseClasses()
+                + baseClass.GetNumberOfDirectBaseClasses()
             if baseChildCount:
+                baseObjects.append(ChildItem(baseClass.GetName(), value.GetChildAtIndex(memberBase)))
                 memberBase += 1
-                baseObjects.append(ChildItem(baseClass.GetName(), value.GetChildAtIndex(i)))
             else:
                 # This base object is empty, but exists and will *not* be reported
                 # by value.GetChildCount(). So manually report the empty base class.

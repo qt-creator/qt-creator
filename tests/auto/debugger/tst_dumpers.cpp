@@ -5670,11 +5670,18 @@ void tst_Dumpers::dumper_data()
         "struct Data { Data() : a(42) {} int a; };\n"
         "struct VEmpty {};\n"
         "struct VData { VData() : v(42) {} int v; };\n"
+
         "struct S1 : Empty, Data, virtual VEmpty, virtual VData\n"
         "    { S1() : i1(1) {} int i1; };\n"
         "struct S2 : Empty, Data, virtual VEmpty, virtual VData\n"
         "    { S2() : i2(1) {} int i2; };\n"
-        "struct Combined : S1, S2 { Combined() : c(1) {} int c; };\n";
+        "struct Combined : S1, S2 { Combined() : c(1) {} int c; };\n"
+
+        "struct T1 : virtual VEmpty, virtual VData\n"
+        "    { T1() : i1(1) {} int i1; };\n"
+        "struct T2 : virtual VEmpty, virtual VData\n"
+        "    { T2() : i2(1) {} int i2; };\n"
+        "struct TT : T1, T2 { TT() : c(1) {} int c; };\n";
 
     QTest::newRow("Inheritance")
             << Data(inheritanceData,
@@ -5683,30 +5690,19 @@ void tst_Dumpers::dumper_data()
                     "c.S2::a = 43;\n"
                     "c.S1::v = 44;\n"
                     "c.S2::v = 45;\n"
-                    "unused(&c.S2::v);\n")
-                + NoLldbEngine
+                    "unused(&c.S2::v);\n"
+                    "TT tt;\n"
+                    "tt.T1::v = 44;\n"
+                    "tt.T2::v = 45;\n"
+                    "unused(&tt.T2::v);\n")
                 + Check("c.c", "1", "int")
                 + Check("c.@1.@1.a", "42", "int")
                 + Check("c.@1.@3.v", "45", "int")
                 + Check("c.@2.@1.a", "43", "int")
-                + Check("c.@2.@3.v", "45", "int");
-
-    // FIXME: Virtual inheritance doesn't work with LLDB 300
-    QTest::newRow("InheritanceLldb")
-            << Data(inheritanceData,
-                    "Combined c;\n"
-                    "c.S1::a = 42;\n"
-                    "c.S2::a = 43;\n"
-                    "c.S1::v = 44;\n"
-                    "c.S2::v = 45;\n"
-                    "unused(&c.S2::v);\n")
-                + LldbEngine
-                + Check("c.c", "1", "int")
-                + Check("c.@1.@1.a", "42", "int")
-                //+ Check("c.@1.@4.v", "45", "int")
-                + Check("c.@2.@1.a", "43", "int");
-                //+ Check("c.@2.@4.v", "45", "int");
-
+                + Check("c.@2.@3.v", "45", "int")
+                + Check("tt.c", "1", "int")
+                + Check("tt.@1.@1.v", "45", "int")
+                + Check("tt.@2.@1.v", "45", "int");
 
     QTest::newRow("Gdb13393")
             << Data(
