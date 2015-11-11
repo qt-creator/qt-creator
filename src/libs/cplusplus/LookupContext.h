@@ -209,6 +209,7 @@ private:
     LookupScope *_globalNamespace;
     LookupScope *_currentLookupScope;
     bool _expandTemplates;
+    int _depth;
 };
 
 class CPLUSPLUS_EXPORT LookupContext

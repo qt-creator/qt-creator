@@ -225,6 +225,8 @@ private slots:
     void test_checksymbols_infiniteLoop_data();
     void test_checksymbols_infiniteLoop();
 
+    void test_checksymbols_infiniteLoop_BUG15141();
+
     void test_parentOfBlock();
 
     void findField();
@@ -1120,6 +1122,25 @@ void tst_CheckSymbols::test_checksymbols_infiniteLoop()
     snapshot.insert(TestCase::createDocument(filePath2, source2));
 
     TestCase::runCheckSymbols(document1, snapshot);
+}
+
+void tst_CheckSymbols::test_checksymbols_infiniteLoop_BUG15141()
+{
+    QByteArray source =
+            "template <class R1>\n"
+            "struct Base\n"
+            "{\n"
+            "};\n"
+            "\n"
+            "template<typename R>\n"
+            "struct Derived :\n"
+            "  Base<\n"
+            "    typename Derived<typename Base<R>::type>::type,\n"
+            "    typename Derived<typename Base<R>::type>::type\n"
+            "  >::type\n"
+            "{};\n";
+
+    BaseTestCase tc(source);
 }
 
 void tst_CheckSymbols::test_parentOfBlock()
