@@ -51,6 +51,7 @@
 #include <QMenu>
 
 #include <utils/qtcassert.h>
+#include <functional>
 
 using namespace QmlDebug;
 
@@ -179,6 +180,16 @@ static QString displayHeader(Fields header)
     }
 }
 
+static void getSourceLocation(QStandardItem *infoItem,
+                              std::function<void (const QString &, int, int)> receiver)
+{
+    int line = infoItem->data(LineRole).toInt();
+    int column = infoItem->data(ColumnRole).toInt();
+    QString fileName = infoItem->data(FilenameRole).toString();
+    if (line != -1 && !fileName.isEmpty())
+        receiver(fileName, line, column);
+}
+
 QmlProfilerEventsWidget::QmlProfilerEventsWidget(QWidget *parent,
                                                  QmlProfilerTool *profilerTool,
                                                  QmlProfilerViewManager *container,
@@ -210,6 +221,10 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QWidget *parent,
             d->m_eventTree, &QmlProfilerEventsMainView::selectType);
     connect(d->m_eventParents, &QmlProfilerEventRelativesView::typeClicked,
             d->m_eventTree, &QmlProfilerEventsMainView::selectType);
+    connect(d->m_eventChildren, &QmlProfilerEventRelativesView::gotoSourceLocation,
+            this, &QmlProfilerEventsWidget::gotoSourceLocation);
+    connect(d->m_eventParents, &QmlProfilerEventRelativesView::gotoSourceLocation,
+            this, &QmlProfilerEventsWidget::gotoSourceLocation);
 
     // widget arrangement
     QVBoxLayout *groupLayout = new QVBoxLayout;
@@ -389,7 +404,6 @@ public:
     QHash<int, int> m_columnIndex; // maps field enum to column index
     bool m_showExtendedStatistics;
     int m_firstNumericColumn;
-    bool m_preventSelectBounce;
 };
 
 QmlProfilerEventsMainView::QmlProfilerEventsMainView(QWidget *parent,
@@ -412,7 +426,6 @@ QmlProfilerEventsMainView::QmlProfilerEventsMainView(QWidget *parent,
     connect(d->modelProxy, &QmlProfilerEventsModelProxy::notesAvailable,
             this, &QmlProfilerEventsMainView::updateNotes);
     d->m_firstNumericColumn = 0;
-    d->m_preventSelectBounce = false;
     d->m_showExtendedStatistics = false;
 
     setFieldViewable(Name, true);
@@ -700,6 +713,16 @@ void QmlProfilerEventsMainView::parseModelProxy()
     }
 }
 
+QStandardItem *QmlProfilerEventsMainView::itemFromIndex(const QModelIndex &index) const
+{
+    QStandardItem *indexItem = d->m_model->itemFromIndex(index);
+    if (indexItem->parent())
+        return indexItem->parent()->child(indexItem->row(), 0);
+    else
+        return d->m_model->item(index.row(), 0);
+
+}
+
 QString QmlProfilerEventsMainView::nameForType(RangeType typeNumber)
 {
     switch (typeNumber) {
@@ -727,31 +750,17 @@ int QmlProfilerEventsMainView::selectedTypeId() const
     return item->data(TypeIdRole).toInt();
 }
 
-
 void QmlProfilerEventsMainView::jumpToItem(const QModelIndex &index)
 {
-    if (d->m_preventSelectBounce)
-        return;
-
-    d->m_preventSelectBounce = true;
-    QStandardItem *clickedItem = d->m_model->itemFromIndex(index);
-    QStandardItem *infoItem;
-    if (clickedItem->parent())
-        infoItem = clickedItem->parent()->child(clickedItem->row(), 0);
-    else
-        infoItem = d->m_model->item(index.row(), 0);
+    QStandardItem *infoItem = itemFromIndex(index);
 
     // show in editor
-    int line = infoItem->data(LineRole).toInt();
-    int column = infoItem->data(ColumnRole).toInt();
-    QString fileName = infoItem->data(FilenameRole).toString();
-    if (line!=-1 && !fileName.isEmpty())
+    getSourceLocation(infoItem, [this](const QString &fileName, int line, int column) {
         emit gotoSourceLocation(fileName, line, column);
+    });
 
     // show in callers/callees subwindow
     emit typeSelected(infoItem->data(TypeIdRole).toInt());
-
-    d->m_preventSelectBounce = false;
 }
 
 void QmlProfilerEventsMainView::selectItem(const QStandardItem *item)
@@ -760,7 +769,9 @@ void QmlProfilerEventsMainView::selectItem(const QStandardItem *item)
     QModelIndex index = d->m_model->indexFromItem(item);
     if (index != currentIndex()) {
         setCurrentIndex(index);
-        jumpToItem(index);
+
+        // show in callers/callees subwindow
+        emit typeSelected(itemFromIndex(index)->data(TypeIdRole).toInt());
     }
 }
 
@@ -987,6 +998,11 @@ void QmlProfilerEventRelativesView::jumpToItem(const QModelIndex &index)
 {
     if (treeModel()) {
         QStandardItem *infoItem = treeModel()->item(index.row(), 0);
+        // show in editor
+        getSourceLocation(infoItem, [this](const QString &fileName, int line, int column) {
+            emit gotoSourceLocation(fileName, line, column);
+        });
+
         emit typeClicked(infoItem->data(TypeIdRole).toInt());
     }
 }

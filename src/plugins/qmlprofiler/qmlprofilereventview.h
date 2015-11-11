@@ -156,6 +156,7 @@ private:
     void selectItem(const QStandardItem *item);
     void setHeaderLabels();
     void parseModelProxy();
+    QStandardItem *itemFromIndex(const QModelIndex &index) const;
 
 private:
     class QmlProfilerEventsMainViewPrivate;
@@ -173,6 +174,7 @@ public:
 
 signals:
     void typeClicked(int typeIndex);
+    void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
 
 public slots:
     void displayType(int typeIndex);
