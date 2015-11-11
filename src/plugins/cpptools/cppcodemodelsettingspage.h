@@ -59,7 +59,10 @@ public:
 
 private:
     void setupClangCodeModelWidgets() const;
+    void setupPchCheckBox() const;
+
     bool applyClangCodeModelWidgetsToSettings() const;
+    bool applyPchCheckBoxToSettings() const;
 
 private:
     Ui::CppCodeModelSettingsPage *m_ui;
