@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "cppcodemodelsettingspage.h"
+#include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
 #include "ui_cppcodemodelsettingspage.h"
 
@@ -85,19 +86,12 @@ void CppCodeModelSettingsWidget::applyToSettings() const
         m_settings->toSettings(Core::ICore::settings());
 }
 
-static bool isClangCodeModelActive(const CppCodeModelSettings &settings)
-{
-    const QString currentCodeModelId
-        = settings.modelManagerSupportIdForMimeType(QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
-    return currentCodeModelId != settings.defaultId();
-}
-
 void CppCodeModelSettingsWidget::setupClangCodeModelWidgets() const
 {
     bool isClangActive = false;
-    const bool isClangAvailable = m_settings->availableModelManagerSupportProvidersByName().size() > 1;
+    const bool isClangAvailable = CppModelManager::instance()->isClangCodeModelAvailable();
     if (isClangAvailable)
-        isClangActive = isClangCodeModelActive(*m_settings.data());
+        isClangActive = m_settings->useClangCodeModel();
 
     m_ui->activateClangCodeModelPluginHint->setVisible(!isClangAvailable);
     m_ui->clangSettingsGroupBox->setEnabled(isClangAvailable);
@@ -109,23 +103,25 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets() const
 
 bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
 {
-    // Once the underlying settings are not mime type based anymore, simplify here.
-    // Until then, ensure that the settings are set uniformly for all the mime types
-    // to avoid surprises.
+    bool settingsChanged = false;
 
-    const QString activeCodeModelId = m_ui->clangSettingsGroupBox->isChecked()
-            ? QLatin1String("ClangCodeMode.ClangCodeMode")
-            : QLatin1String("CppTools.BuiltinCodeModel");
+    const bool previouslyClangWasActive = m_settings->useClangCodeModel();
+    const bool nowClangIsActive = m_ui->clangSettingsGroupBox->isChecked();
+    if (nowClangIsActive != previouslyClangWasActive) {
+        m_settings->setUseClangCodeModel(nowClangIsActive);
+        settingsChanged = true;
+    }
 
-    foreach (const QString &mimeType, m_settings->supportedMimeTypes())
-        m_settings->setModelManagerSupportIdForMimeType(mimeType, activeCodeModelId);
+    const QStringList previousOptions = m_settings->extraClangOptions();
+    const QString newOptionsAsString = m_ui->clangOptionsToAppendTextEdit->document()->toPlainText();
+    const QStringList newOptions = newOptionsAsString.split(QLatin1Char('\n'),
+                                                            QString::SkipEmptyParts);
+    if (newOptions != previousOptions) {
+        m_settings->setExtraClangOptions(newOptions);
+        settingsChanged = true;
+    }
 
-    const QString clangOptionsText = m_ui->clangOptionsToAppendTextEdit->document()->toPlainText();
-    const QStringList extraClangOptions = clangOptionsText.split(QLatin1Char('\n'),
-                                                                 QString::SkipEmptyParts);
-    m_settings->setExtraClangOptions(extraClangOptions);
-
-    return true;
+    return settingsChanged;
 }
 
 CppCodeModelSettingsPage::CppCodeModelSettingsPage(QSharedPointer<CppCodeModelSettings> &settings,

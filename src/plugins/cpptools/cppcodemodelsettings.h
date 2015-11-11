@@ -33,14 +33,14 @@
 
 #include "cpptools_global.h"
 
-#include <QHash>
-#include <QList>
-#include <QSettings>
-#include <QString>
+#include <QObject>
+#include <QStringList>
+
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
 
 namespace CppTools {
-
-class ModelManagerSupportProvider;
 
 class CPPTOOLS_EXPORT CppCodeModelSettings : public QObject
 {
@@ -53,34 +53,19 @@ public:
     };
 
 public:
-    CppCodeModelSettings(): m_pchUsage(PchUse_None) {}
-
     void fromSettings(QSettings *s);
     void toSettings(QSettings *s);
 
-    void setModelManagerSupportProviders(const QList<ModelManagerSupportProvider *> &supporters);
-
-    QString modelManagerSupportIdForMimeType(const QString &mimeType) const;
-    void setModelManagerSupportIdForMimeType(const QString &mimeType, const QString &id);
-    bool hasModelManagerSupportIdForMimeType(const QString &mimeType, const QString &id) const;
-
-    const QHash<QString, QString> &availableModelManagerSupportProvidersByName() const
-    { return m_modelManagerSupportsByName; }
-
-    QString defaultId() const
-    { return m_defaultId; }
-
-    void setDefaultId(const QString &defaultId)
-    { m_defaultId = defaultId; }
+public:
+    bool useClangCodeModel() const;
+    void setUseClangCodeModel(bool useClangCodeModel);
 
     static QStringList defaultExtraClangOptions();
     QStringList extraClangOptions() const;
     void setExtraClangOptions(const QStringList &extraClangOptions);
 
-    PCHUsage pchUsage() const { return m_pchUsage; }
-    void setPCHUsage(PCHUsage pchUsage) { m_pchUsage = pchUsage; }
-
-    static QStringList supportedMimeTypes();
+    PCHUsage pchUsage() const;
+    void setPCHUsage(PCHUsage pchUsage);
 
 public: // for tests
     void emitChanged();
@@ -89,14 +74,10 @@ signals:
     void changed();
 
 private:
-    void setIdForMimeType(const QVariant &var, const QString &mimeType);
-
-private:
-    QHash<QString, QString> m_modelManagerSupportByMimeType;
-    QHash<QString, QString> m_modelManagerSupportsByName;
+    bool m_isClangCodeModelAvailable = false;
+    bool m_useClangCodeModel = false;
     QStringList m_extraClangOptions;
-    QString m_defaultId;
-    PCHUsage m_pchUsage;
+    PCHUsage m_pchUsage = PchUse_None;
 };
 
 } // namespace CppTools

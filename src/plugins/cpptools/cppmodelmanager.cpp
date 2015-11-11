@@ -151,11 +151,10 @@ public:
     QMap<QString, CppEditorDocumentHandle *> m_cppEditorDocuments;
     QSet<AbstractEditorSupport *> m_extraEditorSupports;
 
-    // Completion & highlighting
-    ModelManagerSupportProviderInternal m_modelManagerSupportInternalProvider;
-    ModelManagerSupport::Ptr m_modelManagerSupportInternal;
-    QHash<QString, ModelManagerSupportProvider *> m_availableModelManagerSupports;
-    QHash<QString, ModelManagerSupport::Ptr> m_activeModelManagerSupports;
+    // Model Manager Supports for e.g. completion and highlighting
+    ModelManagerSupportProvider *m_clangModelManagerSupportProvider;
+    ModelManagerSupport::Ptr m_builtinModelManagerSupport;
+    ModelManagerSupport::Ptr m_activeModelManagerSupport;
 
     // Indexing
     CppIndexingSupport *m_indexingSupporter;
@@ -293,6 +292,14 @@ CppModelManager *CppModelManager::instance()
     return m_instance;
 }
 
+void CppModelManager::initializeModelManagerSupports()
+{
+    d->m_clangModelManagerSupportProvider = nullptr;
+    d->m_builtinModelManagerSupport
+            = ModelManagerSupportProviderInternal().createModelManagerSupport();
+    d->m_activeModelManagerSupport = d->m_builtinModelManagerSupport;
+}
+
 CppModelManager::CppModelManager(QObject *parent)
     : CppModelManagerBase(parent), d(new CppModelManagerPrivate)
 {
@@ -337,15 +344,10 @@ CppModelManager::CppModelManager(QObject *parent)
 
     QSharedPointer<CppCodeModelSettings> codeModelSettings
             = CppToolsPlugin::instance()->codeModelSettings();
-    codeModelSettings->setDefaultId(d->m_modelManagerSupportInternalProvider.id());
     connect(codeModelSettings.data(), &CppCodeModelSettings::changed,
             this, &CppModelManager::onCodeModelSettingsChanged);
 
-    d->m_modelManagerSupportInternal
-            = d->m_modelManagerSupportInternalProvider.createModelManagerSupport();
-    d->m_activeModelManagerSupports.insert(d->m_modelManagerSupportInternalProvider.id(),
-                                           d->m_modelManagerSupportInternal);
-    addModelManagerSupportProvider(&d->m_modelManagerSupportInternalProvider);
+    initializeModelManagerSupports();
 
     d->m_internalIndexingSupport = new BuiltinIndexingSupport;
 }
@@ -665,31 +667,6 @@ void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const Projec
     }
 }
 
-void CppModelManager::handleAddedModelManagerSupports(const QSet<QString> &supportIds)
-{
-    foreach (const QString &id, supportIds) {
-        ModelManagerSupportProvider * const provider = d->m_availableModelManagerSupports.value(id);
-        if (provider) {
-            QTC_CHECK(!d->m_activeModelManagerSupports.contains(id));
-            d->m_activeModelManagerSupports.insert(id, provider->createModelManagerSupport());
-        }
-    }
-}
-
-QList<ModelManagerSupport::Ptr> CppModelManager::handleRemovedModelManagerSupports(
-        const QSet<QString> &supportIds)
-{
-    QList<ModelManagerSupport::Ptr> removed;
-
-    foreach (const QString &id, supportIds) {
-        const ModelManagerSupport::Ptr support = d->m_activeModelManagerSupports.value(id);
-        d->m_activeModelManagerSupports.remove(id);
-        removed << support;
-    }
-
-    return removed;
-}
-
 void CppModelManager::closeCppEditorDocuments()
 {
     QList<Core::IDocument *> cppDocumentsToClose;
@@ -964,12 +941,15 @@ bool CppModelManager::isCppEditor(Core::IEditor *editor) const
     return editor->context().contains(ProjectExplorer::Constants::LANG_CXX);
 }
 
-bool CppModelManager::isManagedByModelManagerSupport(Core::IDocument *document, const QString &id) const
+bool CppModelManager::isClangCodeModelAvailable() const
 {
-    auto documentMimeTupe = document->mimeType();
-    auto codeModelSettings = CppToolsPlugin::instance()->codeModelSettings();
+    return d->m_clangModelManagerSupportProvider != nullptr;
+}
 
-    return codeModelSettings->hasModelManagerSupportIdForMimeType(documentMimeTupe, id);
+bool CppModelManager::isClangCodeModelActive() const
+{
+    return isClangCodeModelAvailable()
+        && d->m_activeModelManagerSupport != d->m_builtinModelManagerSupport;
 }
 
 void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
@@ -1053,43 +1033,25 @@ void CppModelManager::onCurrentEditorChanged(Core::IEditor *editor)
     }
 }
 
-static const QSet<QString> activeModelManagerSupportsFromSettings()
-{
-    QSet<QString> result;
-    QSharedPointer<CppCodeModelSettings> codeModelSettings
-            = CppToolsPlugin::instance()->codeModelSettings();
-
-    const QStringList mimeTypes = codeModelSettings->supportedMimeTypes();
-    foreach (const QString &mimeType, mimeTypes) {
-        const QString id = codeModelSettings->modelManagerSupportIdForMimeType(mimeType);
-        if (!id.isEmpty())
-            result << id;
-    }
-
-    return result;
-}
-
 void CppModelManager::onCodeModelSettingsChanged()
 {
-    const QSet<QString> currentCodeModelSupporters = d->m_activeModelManagerSupports.keys().toSet();
-    const QSet<QString> newCodeModelSupporters = activeModelManagerSupportsFromSettings();
+    const bool isClangActive = isClangCodeModelActive();
+    const QSharedPointer<CppCodeModelSettings> settings
+            = CppToolsPlugin::instance()->codeModelSettings();
 
-    QSet<QString> added = newCodeModelSupporters;
-    added.subtract(currentCodeModelSupporters);
-    added.remove(d->m_modelManagerSupportInternalProvider.id());
-    handleAddedModelManagerSupports(added);
+    ModelManagerSupport::Ptr newCodeModelSupport;
 
-    QSet<QString> removed = currentCodeModelSupporters;
-    removed.subtract(newCodeModelSupporters);
-    removed.remove(d->m_modelManagerSupportInternalProvider.id());
-    const QList<ModelManagerSupport::Ptr> supportsToDelete
-            = handleRemovedModelManagerSupports(removed);
-    QTC_CHECK(removed.size() == supportsToDelete.size());
+    if (isClangCodeModelAvailable()) {
+        if (!isClangActive && settings->useClangCodeModel())
+            newCodeModelSupport = d->m_clangModelManagerSupportProvider->createModelManagerSupport();
+        else if (isClangActive && !settings->useClangCodeModel())
+            newCodeModelSupport = d->m_builtinModelManagerSupport;
+    }
 
-    if (!added.isEmpty() || !removed.isEmpty())
+    if (newCodeModelSupport) {
         closeCppEditorDocuments();
-
-    // supportsToDelete goes out of scope and deletes the supports
+        d->m_activeModelManagerSupport = newCodeModelSupport;
+    }
 }
 
 void CppModelManager::onAboutToLoadSession()
@@ -1201,44 +1163,26 @@ void CppModelManager::finishedRefreshingSourceFiles(const QSet<QString> &files)
     emit sourceFilesRefreshed(files);
 }
 
-void CppModelManager::addModelManagerSupportProvider(
+void CppModelManager::setClangModelManagerSupportProvider(
         ModelManagerSupportProvider *modelManagerSupportProvider)
 {
     QTC_ASSERT(modelManagerSupportProvider, return);
-    d->m_availableModelManagerSupports[modelManagerSupportProvider->id()]
-            = modelManagerSupportProvider;
-    QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
-    cms->setModelManagerSupportProviders(d->m_availableModelManagerSupports.values());
+    QTC_CHECK(d->m_clangModelManagerSupportProvider == nullptr);
+
+    d->m_clangModelManagerSupportProvider = modelManagerSupportProvider;
 
     onCodeModelSettingsChanged();
 }
 
-ModelManagerSupport::Ptr CppModelManager::modelManagerSupportForMimeType(
-        const QString &mimeType) const
+CppCompletionAssistProvider *CppModelManager::completionAssistProvider() const
 {
-    QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
-    const QString &id = cms->modelManagerSupportIdForMimeType(mimeType);
-    return d->m_activeModelManagerSupports.value(id, d->m_modelManagerSupportInternal);
-}
-
-CppCompletionAssistProvider *CppModelManager::completionAssistProvider(
-        const QString &mimeType) const
-{
-    if (mimeType.isEmpty())
-        return 0;
-
-    ModelManagerSupport::Ptr cms = modelManagerSupportForMimeType(mimeType);
-    QTC_ASSERT(cms, return 0);
-    return cms->completionAssistProvider();
+    return d->m_activeModelManagerSupport->completionAssistProvider();
 }
 
 BaseEditorDocumentProcessor *CppModelManager::editorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument) const
 {
-    QTC_ASSERT(baseTextDocument, return 0);
-    ModelManagerSupport::Ptr cms = modelManagerSupportForMimeType(baseTextDocument->mimeType());
-    QTC_ASSERT(cms, return 0);
-    return cms->editorDocumentProcessor(baseTextDocument);
+    return d->m_activeModelManagerSupport->editorDocumentProcessor(baseTextDocument);
 }
 
 void CppModelManager::setIndexingSupport(CppIndexingSupport *indexingSupport)

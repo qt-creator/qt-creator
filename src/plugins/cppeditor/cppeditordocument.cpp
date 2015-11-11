@@ -181,7 +181,7 @@ void CppEditorDocument::onMimeTypeChanged()
     const QString &mt = mimeType();
     m_isObjCEnabled = (mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
                        || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
-    m_completionAssistProvider = mm()->completionAssistProvider(mt);
+    m_completionAssistProvider = mm()->completionAssistProvider();
 
     initializeTimer();
 }
@@ -292,7 +292,7 @@ void CppEditorDocument::releaseResources()
 void CppEditorDocument::initializeTimer()
 {
     m_processorTimer.setSingleShot(true);
-    if (mm()->isManagedByModelManagerSupport(this, QLatin1String(Constants::CLANG_MODELMANAGERSUPPORT_ID)))
+    if (mm()->isClangCodeModelActive())
         m_processorTimer.setInterval(clangProcessDocumentIntervalInMs);
     else
         m_processorTimer.setInterval(processDocumentIntervalInMs);
