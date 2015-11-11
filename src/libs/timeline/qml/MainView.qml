@@ -228,21 +228,16 @@ Rectangle {
                 // update in other views
                 var model = timelineModelAggregator.models[selectedModel];
                 var eventLocation = model.location(selectedItem);
-                gotoSourceLocation(eventLocation.file, eventLocation.line,
-                                   eventLocation.column);
+                if (eventLocation.file !== undefined) {
+                    root.fileName = eventLocation.file;
+                    root.lineNumber = eventLocation.line;
+                    root.columnNumber = eventLocation.column;
+                }
                 typeId = model.typeId(selectedItem);
             } else {
                 rangeDetails.hide();
             }
             lockItemSelection = false;
-        }
-
-        onGotoSourceLocation: {
-            if (file !== undefined) {
-                root.fileName = file;
-                root.lineNumber = line;
-                root.columnNumber = column;
-            }
         }
     }
 
@@ -351,7 +346,6 @@ Rectangle {
         notes: timelineModelAggregator.notes
         hasContents: false
         onRecenterOnItem: {
-            content.gotoSourceLocation(file, line, column);
             content.select(selectedModel, selectedItem)
         }
         onToggleSelectionLocked: {

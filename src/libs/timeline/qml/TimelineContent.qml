@@ -47,7 +47,6 @@ ScrollView {
     property int typeId
 
     signal propagateSelection(int newModel, int newItem)
-    signal gotoSourceLocation(string file, int line, int column)
 
     function clearChildren()
     {
