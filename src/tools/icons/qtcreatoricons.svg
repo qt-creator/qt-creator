@@ -3584,4 +3584,394 @@
          height="600" />
     </g>
   </g>
+  <g
+     inkscape:groupmode="layer"
+     id="g4718"
+     inkscape:label="Side Bar Icons">
+    <g
+       transform="translate(-34,308)"
+       style="display:inline"
+       id="src/plugins/welcome/images/mode_welcome_mask">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="34"
+         y="42"
+         width="48"
+         height="32"
+         id="rect5694-0" />
+      <path
+         id="rect5692-9"
+         style="fill:#000000"
+         d="m 62,62 4,0 0,4 -4,0 z m -6,0 4,0 0,4 -4,0 z m -6,0 4,0 0,4 -4,0 z m 12,-6 4,0 0,4 -4,0 z m -6,0 4,0 0,4 -4,0 z m -6,0 4,0 0,4 -4,0 z m 12,-6 4,0 0,4 -4,0 z m -6,0 4,0 0,4 -4,0 z m -6,0 4,0 0,4 -4,0 z"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       transform="translate(-36,308)"
+       style="display:inline;fill:#000000"
+       id="src/plugins/coreplugin/images/mode_edit_mask">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1"
+         x="84"
+         y="42"
+         width="48"
+         height="32"
+         id="rect5706-3-8" />
+      <g
+         style="fill:#000000"
+         id="g5697-7">
+        <path
+           style="fill:#000000"
+           inkscape:connector-curvature="0"
+           d="m 100,50 0,16 16,0 0,-16 -16,0 z m 3,6 8,0 0,1 -8,0 0,-1 z m 8,5 -8,0 0,-1 8,0 0,1 z m 2,-2 -10,0 0,-1 10,0 0,1 z m 0,-4 -10,0 0,-1 10,0 0,1 z"
+           id="path5699-3" />
+      </g>
+    </g>
+    <g
+       transform="translate(-38,308)"
+       style="display:inline"
+       id="src/plugins/coreplugin/images/mode_design_mask">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="134"
+         y="42"
+         width="48"
+         height="32"
+         id="rect5706-2" />
+      <rect
+         style="fill:#000000"
+         x="161.58099"
+         y="50.402"
+         transform="matrix(-0.707,0.7072,-0.7072,-0.707,315.6181,-25.4514)"
+         width="3"
+         height="4.5"
+         id="rect5702-4" />
+      <polygon
+         style="fill:#000000"
+         points="159.511,53.04 150.884,61.667 150,65.732 154.065,64.85 162.692,56.222 "
+         id="polygon5704-0" />
+    </g>
+    <g
+       transform="translate(-40,308)"
+       style="display:inline"
+       id="src/plugins/debugger/images/mode_debug_mask">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none"
+         x="184"
+         y="42"
+         width="48"
+         height="32"
+         id="rect5706-4-6" />
+      <g
+         style="fill:#000000"
+         id="g5709-8"
+         transform="translate(0.5,0)">
+        <path
+           style="fill:#000000"
+           inkscape:connector-curvature="0"
+           d="m 208,50 c -1.016,0 -2.634,0.93 -3.106,2.18 l 3.106,1.746 3.105,-1.747 C 210.635,50.93 209.016,50 208,50 Z"
+           id="path5711-2" />
+        <path
+           style="fill:#000000"
+           inkscape:connector-curvature="0"
+           d="m 215.5,58.011 -1.125,0 -0.636,-2.543 1.407,-1.407 c 0.194,-0.194 0.194,-0.513 0,-0.707 -0.195,-0.194 -0.514,-0.194 -0.708,0 l -1.054,1.054 -1.629,-1.447 -3.256,1.832 0,2.458 0,7.749 1.75,-0.489 2.707,-1.806 0.963,0.963 c 0.193,0.193 0.512,0.193 0.707,0 0.193,-0.195 0.193,-0.514 0,-0.707 l -1.156,-1.156 0.873,-2.794 1.156,0 c 0.275,0 0.5,-0.226 0.5,-0.5 0,-0.274 -0.224,-0.5 -0.499,-0.5 z"
+           id="path5713-0" />
+        <path
+           style="fill:#000000"
+           inkscape:connector-curvature="0"
+           d="m 202.615,54.408 -1.055,-1.055 c -0.194,-0.194 -0.513,-0.194 -0.707,0 l 0,0 c -0.194,0.194 -0.194,0.513 0,0.707 l 1.407,1.407 -0.636,2.543 -1.124,0 c -0.275,0 -0.5,0.226 -0.5,0.5 0,0.274 0.225,0.5 0.5,0.5 l 1.156,0 0.873,2.794 -1.156,1.156 c -0.194,0.193 -0.194,0.512 0,0.707 0.194,0.193 0.513,0.193 0.707,0 l 0.962,-0.963 2.708,1.806 1.75,0.49 0,-7.75 0,-2.458 -3.256,-1.832 -1.629,1.448 z"
+           id="path5715-4" />
+      </g>
+    </g>
+    <g
+       transform="translate(-42,308)"
+       style="display:inline"
+       id="src/plugins/projectexplorer/images/mode_project_mask">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="234"
+         y="42"
+         width="48"
+         height="32"
+         id="rect5722-4" />
+      <path
+         style="fill:#000000"
+         inkscape:connector-curvature="0"
+         d="m 264.652,57.667 c 1.247,-1.246 1.592,-3.038 1.069,-4.604 l -2.483,2.483 c -0.389,0.389 -1.025,0.389 -1.414,0 l -1.414,-1.415 c -0.389,-0.389 -0.389,-1.025 0,-1.414 l 2.482,-2.483 c -1.565,-0.521 -3.357,-0.177 -4.604,1.069 -1.318,1.318 -1.646,3.251 -0.988,4.876 l -6.79,6.791 c -0.681,0.681 -0.681,1.794 0,2.475 0.681,0.681 1.794,0.681 2.475,0 l 6.79,-6.791 c 1.627,0.66 3.559,0.331 4.877,-0.987 z"
+         id="path5720-8" />
+    </g>
+    <g
+       transform="translate(-44,308)"
+       style="display:inline"
+       id="src/plugins/analyzerbase/images/mode_analyze_mask">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1"
+         x="284"
+         y="42"
+         width="48"
+         height="32"
+         id="rect5706-6-2" />
+      <rect
+         style="fill:#000000"
+         x="300"
+         y="50"
+         width="1"
+         height="16"
+         id="rect5725-8" />
+      <rect
+         style="fill:#000000"
+         x="300"
+         y="65"
+         width="16"
+         height="1"
+         id="rect5727-6" />
+      <rect
+         style="fill:#000000"
+         x="303"
+         y="50"
+         width="13"
+         height="3"
+         id="rect5729-7" />
+      <rect
+         style="fill:#000000"
+         x="303"
+         y="55"
+         width="9"
+         height="3"
+         id="rect5731-4" />
+      <rect
+         style="fill:#000000"
+         x="303"
+         y="60"
+         width="5"
+         height="3"
+         id="rect5733-9" />
+    </g>
+    <g
+       transform="translate(-46,308)"
+       style="display:inline"
+       id="src/plugins/help/images/mode_help_mask">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1"
+         x="334"
+         y="42"
+         width="48"
+         height="32"
+         id="rect5706-9-7" />
+      <path
+         d="m 358,50 c -4.418,0 -8,3.582 -8,8 0,4.418 3.582,8 8,8 4.418,0 8,-3.582 8,-8 0,-4.418 -3.582,-8 -8,-8 z m 0.91,12.846 c -0.22,0.215 -0.483,0.322 -0.791,0.322 -0.15,0 -0.292,-0.028 -0.428,-0.084 -0.135,-0.056 -0.254,-0.13 -0.356,-0.224 -0.103,-0.093 -0.185,-0.205 -0.245,-0.336 -0.061,-0.13 -0.091,-0.271 -0.091,-0.42 0,-0.299 0.109,-0.555 0.329,-0.77 0.219,-0.214 0.482,-0.322 0.791,-0.322 0.299,0 0.56,0.103 0.783,0.308 0.225,0.206 0.336,0.458 0.336,0.756 0,0.298 -0.109,0.555 -0.328,0.77 z m 2.192,-6.384 c -0.084,0.233 -0.197,0.448 -0.337,0.644 -0.14,0.196 -0.301,0.383 -0.483,0.56 -0.182,0.177 -0.375,0.364 -0.58,0.56 -0.131,0.121 -0.243,0.229 -0.336,0.322 -0.094,0.094 -0.171,0.189 -0.231,0.287 -0.06,0.098 -0.104,0.21 -0.133,0.336 -0.029,0.126 -0.042,0.278 -0.042,0.455 l 0,0.532 -1.68,0 0,-0.77 c 0,-0.206 0.012,-0.38 0.035,-0.525 0.022,-0.145 0.064,-0.275 0.125,-0.392 0.061,-0.117 0.141,-0.229 0.238,-0.336 0.098,-0.107 0.217,-0.235 0.357,-0.385 l 1.078,-1.092 c 0.232,-0.233 0.35,-0.537 0.35,-0.91 0,-0.364 -0.119,-0.66 -0.357,-0.889 -0.238,-0.229 -0.539,-0.343 -0.902,-0.343 -0.393,0 -0.715,0.133 -0.967,0.399 -0.252,0.266 -0.396,0.59 -0.434,0.973 l -1.792,-0.14 c 0.056,-0.448 0.173,-0.847 0.35,-1.197 0.177,-0.35 0.408,-0.646 0.693,-0.889 0.284,-0.243 0.614,-0.427 0.987,-0.553 0.373,-0.126 0.783,-0.189 1.232,-0.189 0.42,0 0.809,0.061 1.168,0.182 0.359,0.122 0.672,0.296 0.938,0.525 0.267,0.229 0.474,0.514 0.623,0.854 0.149,0.341 0.224,0.73 0.224,1.169 10e-4,0.308 -0.04,0.579 -0.124,0.812 z"
+         id="mode_x5F_help-2"
+         inkscape:connector-curvature="0"
+         style="fill:#000000"
+         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
+    </g>
+    <g
+       transform="translate(-262,305)"
+       style="display:inline"
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       id="src/plugins/projectexplorer/images/run_mask">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="600"
+         y="50"
+         width="24"
+         height="24"
+         id="rect5751-4" />
+      <polygon
+         style="fill:#000000"
+         points="621,61 603,72 603,50 "
+         id="polygon5749-6" />
+    </g>
+    <g
+       transform="translate(-388,305)"
+       style="display:inline"
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+       id="src/plugins/projectexplorer/images/debugger_beetle_mask">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1"
+         x="750"
+         y="50"
+         width="24"
+         height="24"
+         id="rect5759-4-1" />
+      <path
+         style="fill:#000000;fill-opacity:1"
+         inkscape:connector-curvature="0"
+         d="m 758.5,52 c -1.016,0 -2.635,0.93 -3.105,2.18 l 3.105,1.746 3.105,-1.747 C 761.135,52.93 759.516,52 758.5,52 Z"
+         id="path6121-0" />
+      <path
+         style="fill:#000000;fill-opacity:1"
+         inkscape:connector-curvature="0"
+         d="m 753.115,56.408 -1.055,-1.055 c -0.194,-0.194 -0.513,-0.194 -0.707,0 l 0,0 c -0.194,0.194 -0.194,0.513 0,0.707 l 1.407,1.407 -0.636,2.543 -1.124,0 c -0.275,0 -0.5,0.226 -0.5,0.5 0,0.274 0.225,0.5 0.5,0.5 l 1.156,0 0.873,2.794 -1.156,1.156 c -0.193,0.193 -0.193,0.512 0,0.707 0.195,0.193 0.514,0.193 0.707,0 l 0.963,-0.963 2.707,1.806 1.75,0.49 0,-7.75 0,-2.458 -3.256,-1.832 -1.629,1.448 z"
+         id="path6123-6" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#path6123-6"
+         id="use4775"
+         transform="matrix(-1,0,0,1,1516.9862,0)"
+         width="100%"
+         height="100%" />
+    </g>
+    <g
+       style="display:inline"
+       transform="translate(-364,305)"
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+       id="src/plugins/projectexplorer/images/debugger_run_mask">
+      <rect
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+         id="rect6723-8"
+         height="24"
+         width="24"
+         y="50"
+         x="750"
+         style="display:inline;fill:#ffffff;fill-opacity:1" />
+      <polygon
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+         id="polygon6717-3"
+         points="763,74 774,67 763,60 "
+         style="fill:#000000;fill-opacity:1"
+         transform="translate(-1,-1)" />
+    </g>
+    <g
+       id="src/plugins/debugger/images/debugger_interrupt_mask"
+       inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(-340,305)"
+       style="display:inline">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1"
+         x="750"
+         y="50"
+         width="24"
+         height="24"
+         id="rect4791"
+         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
+      <rect
+         style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect4608-0"
+         width="4"
+         height="12"
+         x="763"
+         y="61" />
+      <rect
+         style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect4610-6"
+         width="4"
+         height="12"
+         x="769"
+         y="61" />
+    </g>
+    <g
+       style="display:inline"
+       transform="translate(-316,305)"
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+       id="src/plugins/debugger/images/debugger_continue_mask">
+      <rect
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+         id="rect4797"
+         height="24"
+         width="24"
+         y="50"
+         x="750"
+         style="display:inline;fill:#ffffff;fill-opacity:1" />
+      <path
+         style="display:inline;fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 758.5,73 6.5,-6 0,6 z"
+         id="path5681-4"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccc" />
+      <path
+         style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path4867"
+         sodipodi:type="arc"
+         sodipodi:cx="766"
+         sodipodi:cy="66.99987"
+         sodipodi:rx="5.5"
+         sodipodi:ry="5.5"
+         sodipodi:start="2.1642083"
+         sodipodi:end="0"
+         sodipodi:open="true"
+         d="m 762.92444,71.559577 a 5.5,5.5 0 0 1 -1.99963,-6.679238 5.5,5.5 0 0 1 6.15603,-3.273221 5.5,5.5 0 0 1 4.41916,5.392752" />
+    </g>
+    <g
+       transform="translate(-392,305)"
+       style="display:inline"
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+       id="src/plugins/projectexplorer/images/build_hammerhandle_mask">
+      <rect
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+         style="fill:#ffffff;fill-opacity:1"
+         x="850"
+         y="50"
+         width="24"
+         height="24"
+         id="rect5759-5" />
+      <g
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+         style="fill:#030303;fill-opacity:1"
+         id="build-5">
+        <rect
+           style="fill:#030303;fill-opacity:1"
+           x="856.98199"
+           y="53.081001"
+           transform="matrix(0.7071,0.7071,-0.7071,0.7071,296.0486,-588.562)"
+           width="3"
+           height="20"
+           id="rect5755-4" />
+      </g>
+    </g>
+    <g
+       transform="translate(-368,305)"
+       style="display:inline"
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+       id="src/plugins/projectexplorer/images/build_hammerhead_mask">
+      <rect
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+         style="fill:#ffffff;fill-opacity:1"
+         x="850"
+         y="50"
+         width="24"
+         height="24"
+         id="rect5759-5-9" />
+      <g
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+         style="fill:#030303;fill-opacity:1"
+         id="build-5-2">
+        <polygon
+           style="fill:#030303;fill-opacity:1"
+           points="866.613,50 873.684,57.071 870.148,60.606 859.542,50 "
+           id="polygon5757-3-4" />
+      </g>
+    </g>
+  </g>
 </svg>

@@ -4,5 +4,9 @@
         <file>images/mode_Edit@2x.png</file>
         <file>images/mode_Design.png</file>
         <file>images/mode_Design@2x.png</file>
+        <file>images/mode_edit_mask.png</file>
+        <file>images/mode_edit_mask@2x.png</file>
+        <file>images/mode_design_mask.png</file>
+        <file>images/mode_design_mask@2x.png</file>
     </qresource>
 </RCC>

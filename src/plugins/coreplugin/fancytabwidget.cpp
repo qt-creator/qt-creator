@@ -342,7 +342,9 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     if (drawIcon) {
         int textHeight = painter->fontMetrics().boundingRect(QRect(0, 0, width(), height()), Qt::TextWordWrap, tabText).height();
         tabIconRect.adjust(0, 4, 0, -textHeight);
-        StyleHelper::drawIconWithShadow(tabIcon(tabIndex), tabIconRect, painter, enabled ? QIcon::Normal : QIcon::Disabled);
+        const QIcon::Mode iconMode = enabled ? (selected ? QIcon::Active : QIcon::Normal)
+                                             : QIcon::Disabled;
+        StyleHelper::drawIconWithShadow(tabIcon(tabIndex), tabIconRect, painter, iconMode);
     }
 
     painter->setOpacity(1.0); //FIXME: was 0.7 before?

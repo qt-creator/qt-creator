@@ -39,6 +39,7 @@
 #include <QMetaEnum>
 #include <QPainter>
 #include <QPaintEngine>
+#include <QWidget>
 
 namespace Utils {
 
@@ -211,11 +212,40 @@ QString Icon::imageFileName() const
     return first().first;
 }
 
-Icon& Icon::operator=(const Icon &other)
+QIcon Icon::sideBarIcon(const Icon &classic, const Icon &flat)
 {
-    QVector::operator =(other);
-    m_style = other.m_style;
-    return *this;
+    QIcon result;
+    if (creatorTheme()->flag(Theme::FlatSideBarIcons)) {
+        result = flat.icon();
+    } else {
+        const QPixmap pixmap = classic.pixmap();
+        result.addPixmap(pixmap);
+        // Ensure that the icon contains a disabled state of that size, since
+        // Since we have icons with mixed sizes (e.g. DEBUG_START), and want to
+        // avoid that QIcon creates scaled versions of missing QIcon::Disabled
+        // sizes.
+        result.addPixmap(StyleHelper::disabledSideBarIcon(pixmap), QIcon::Disabled);
+    }
+    return result;
+}
+
+QIcon Icon::modeIcon(const Icon &classic, const Icon &flat, const Icon &flatActive)
+{
+    QIcon result = sideBarIcon(classic, flat);
+    if (creatorTheme()->flag(Theme::FlatSideBarIcons))
+        result.addPixmap(flatActive.pixmap(), QIcon::Active);
+    return result;
+}
+
+QIcon Icon::combinedIcon(const QList<QIcon> &icons)
+{
+    QIcon result;
+    QWindow *window = QApplication::allWidgets().first()->windowHandle();
+    for (const QIcon &icon: icons)
+        for (const QIcon::Mode mode: {QIcon::Disabled, QIcon::Normal})
+            for (const QSize &size: icon.availableSizes(mode))
+                result.addPixmap(icon.pixmap(window, size, mode), mode);
+    return result;
 }
 
 } // namespace Utils

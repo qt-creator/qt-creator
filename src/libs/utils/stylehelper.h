@@ -85,6 +85,7 @@ public:
     static void menuGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect);
     static bool usePixmapCache() { return true; }
 
+    static QPixmap disabledSideBarIcon(const QPixmap &enabledicon);
     static void drawIconWithShadow(const QIcon &icon, const QRect &rect, QPainter *p, QIcon::Mode iconMode,
                                    int dipRadius = 3, const QColor &color = QColor(0, 0, 0, 130),
                                    const QPoint &dipOffset = QPoint(1, -2));

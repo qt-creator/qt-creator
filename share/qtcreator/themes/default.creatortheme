@@ -3,8 +3,9 @@ ThemeName=default
 PreferredStyles=
 
 [Palette]
-brightText = ffffffff
-darkText   = ff000000
+brightText=ffffffff
+darkText=ff000000
+textDisabled=99a0a0a0
 
 [Colors]
 BackgroundColorAlternate=ff3d3d3d
@@ -35,14 +36,15 @@ DoubleTabWidget2ndTabBackgroundColor=ffff0000
 DoubleTabWidget2ndTabInactiveTextColor=ff000000
 EditorPlaceholderColor=ffe0dcd8
 FancyTabBarBackgroundColor=ffff0000
-FancyTabWidgetDisabledSelectedTextColor=ffffffff
-FancyTabWidgetDisabledUnselectedTextColor=78ffffff
+FancyTabWidgetDisabledSelectedTextColor=textDisabled
+FancyTabWidgetDisabledUnselectedTextColor=textDisabled
 FancyTabWidgetEnabledSelectedTextColor=ff3c3c3c
 FancyTabWidgetEnabledUnselectedTextColor=ffffffff
 FancyToolButtonHoverColor=28ffffff
 FancyToolButtonSelectedColor=32000000
 FutureProgressBackgroundColor=ffff0000
 IconsBaseColor=ffdcdcdc
+IconsDisabledColor=textDisabled
 IconsInfoColor=ff43aced
 IconsWarningColor=fff9ce1f
 IconsErrorColor=ffe8555a
@@ -51,6 +53,15 @@ IconsStopColor=ffe7353b
 IconsDebugColor=ffb8c6ff
 IconsInterruptColor=ff7488db
 IconsNavigationArrowsColor=ffebc322
+IconsBuildHammerHandleColor=ffdd7710
+IconsBuildHammerHeadColor=ff989898
+IconsModeWelcomeActiveColor=ff5caa15
+IconsModeEditActiveColor=ff6a6add
+IconsModeDesignActiveColor=ffbb6000
+IconsModeDebugActiveColor=ff6a6add
+IconsModeProjetcsActiveColor=ff5caa15
+IconsModeAnalyzeActiveColor=ff43adee
+IconsModeHelpActiveColor=fffaa836
 InfoBarBackground=ffffffe1
 InfoBarText=ff000000
 MenuBarEmptyAreaBackgroundColor=ffff0000
@@ -151,6 +162,7 @@ DrawProgressBarSunken=true
 DrawSearchResultWidgetFrame=true
 DrawTargetSelectorBottom=true
 ApplyThemePaletteGlobally=false
+FlatSideBarIcons=false
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=ffffff

@@ -148,6 +148,19 @@ const Utils::Icon ZOOM({
 const Utils::Icon TOOLBAR_EXTENSION({
         {QLatin1String(":/core/images/extension.png"), Utils::Theme::IconsBaseColor}});
 
+const Utils::Icon MODE_EDIT_CLASSIC(
+        QLatin1String(":/fancyactionbar/images/mode_Edit.png"));
+const Utils::Icon MODE_EDIT_FLAT({
+        {QLatin1String(":/fancyactionbar/images/mode_edit_mask.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon MODE_EDIT_FLAT_ACTIVE({
+        {QLatin1String(":/fancyactionbar/images/mode_edit_mask.png"), Utils::Theme::IconsModeEditActiveColor}});
+const Utils::Icon MODE_DESIGN_CLASSIC(
+        QLatin1String(":/fancyactionbar/images/mode_Design.png"));
+const Utils::Icon MODE_DESIGN_FLAT({
+        {QLatin1String(":/fancyactionbar/images/mode_design_mask.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon MODE_DESIGN_FLAT_ACTIVE({
+        {QLatin1String(":/fancyactionbar/images/mode_design_mask.png"), Utils::Theme::IconsModeDesignActiveColor}});
+
 } // namespace Icons
 } // namespace Core
 

@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "coreconstants.h"
+#include "coreicons.h"
 #include "editmode.h"
 #include "icore.h"
 #include "modemanager.h"
@@ -53,7 +54,8 @@ EditMode::EditMode() :
 {
     setObjectName(QLatin1String("EditMode"));
     setDisplayName(tr("Edit"));
-    setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Edit.png")));
+    setIcon(Utils::Icon::modeIcon(Icons::MODE_EDIT_CLASSIC,
+                                  Icons::MODE_EDIT_FLAT, Icons::MODE_EDIT_FLAT_ACTIVE));
     setPriority(Constants::P_MODE_EDIT);
     setId(Constants::MODE_EDIT);
 

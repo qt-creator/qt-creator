@@ -133,6 +133,7 @@ public:
         /* Icons */
 
         IconsBaseColor,
+        IconsDisabledColor,
         IconsInfoColor,
         IconsWarningColor,
         IconsErrorColor,
@@ -141,6 +142,15 @@ public:
         IconsInterruptColor,
         IconsDebugColor,
         IconsNavigationArrowsColor,
+        IconsBuildHammerHandleColor,
+        IconsBuildHammerHeadColor,
+        IconsModeWelcomeActiveColor,
+        IconsModeEditActiveColor,
+        IconsModeDesignActiveColor,
+        IconsModeDebugActiveColor,
+        IconsModeProjetcsActiveColor,
+        IconsModeAnalyzeActiveColor,
+        IconsModeHelpActiveColor,
 
         /* Output panes */
 
@@ -249,7 +259,8 @@ public:
         DrawIndicatorBranch,
         ComboBoxDrawTextShadow,
         DerivePaletteFromTheme,
-        ApplyThemePaletteGlobally
+        ApplyThemePaletteGlobally,
+        FlatSideBarIcons
     };
 
     enum WidgetStyle {

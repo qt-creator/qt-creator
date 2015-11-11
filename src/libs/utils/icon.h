@@ -60,6 +60,7 @@ public:
     Icon();
     Icon(std::initializer_list<IconMaskAndColor> args, Style style = Style::TintedWithShadow);
     Icon(const QString &imageFileName);
+    Icon(const Icon &other) = default;
 
     QIcon icon() const;
     // Same as icon() but without disabled state.
@@ -69,7 +70,14 @@ public:
     // where icons are still defined as filename.
     QString imageFileName() const;
 
-    Icon &operator=(const Icon &other);
+    // Returns either the classic or a themed icon depending on
+    // the current Theme::FlatModeIcons flag.
+    static QIcon sideBarIcon(const Icon &classic, const Icon &flat);
+    // Like sideBarIcon plus added action mode for the flat icon
+    static QIcon modeIcon(const Icon &classic, const Icon &flat, const Icon &flatActive);
+
+    // Combined icon pixmaps in Normal and Disabled states from several QIcons
+    static QIcon combinedIcon(const QList<QIcon> &icons);
 
 private:
     Style m_style = Style::Plain;

@@ -3,8 +3,14 @@
         <file>images/category_debug.png</file>
         <file>images/debugger_breakpoints.png</file>
         <file>images/debugger_continue.png</file>
+        <file>images/debugger_continue@2x.png</file>
+        <file>images/debugger_continue_mask.png</file>
+        <file>images/debugger_continue_mask@2x.png</file>
         <file>images/debugger_empty_14.png</file>
         <file>images/debugger_interrupt.png</file>
+        <file>images/debugger_interrupt@2x.png</file>
+        <file>images/debugger_interrupt_mask.png</file>
+        <file>images/debugger_interrupt_mask@2x.png</file>
         <file>images/debugger_reversemode_16.png</file>
         <file>images/debugger_singleinstructionmode.png</file>
         <file>images/debugger_singleinstructionmode@2x.png</file>
@@ -30,6 +36,8 @@
         <file>images/location_24.png</file>
         <file>images/mode_debug.png</file>
         <file>images/mode_debug@2x.png</file>
+        <file>images/mode_debug_mask.png</file>
+        <file>images/mode_debug_mask@2x.png</file>
         <file>images/pin.xpm</file>
         <file>images/qml/select.png</file>
         <file>images/qml/app-on-top.png</file>

@@ -39,6 +39,12 @@ namespace Icons {
 const Utils::Icon ANALYZER_CONTROL_START({
         {QLatin1String(":/images/analyzer_overlay_small.png"), Utils::Theme::IconsBaseColor},
         {QLatin1String(":/core/images/run_overlay_small.png"), Utils::Theme::IconsRunColor}});
+const Utils::Icon MODE_ANALYZE_CLASSIC(
+        QLatin1String(":/images/mode_analyze.png"));
+const Utils::Icon MODE_ANALYZE_FLAT({
+        {QLatin1String(":/images/mode_analyze_mask.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon MODE_ANALYZE_FLAT_ACTIVE({
+        {QLatin1String(":/images/mode_analyze_mask.png"), Utils::Theme::IconsModeAnalyzeActiveColor}});
 
 } // namespace Icons
 } // namespace Analyzer

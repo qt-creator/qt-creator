@@ -496,7 +496,8 @@ public:
         setObjectName(QLatin1String("DebugMode"));
         setContext(Context(C_DEBUGMODE, CC::C_NAVIGATION_PANE));
         setDisplayName(DebuggerPlugin::tr("Debug"));
-        setIcon(QIcon(QLatin1String(":/debugger/images/mode_debug.png")));
+        setIcon(Utils::Icon::modeIcon(Icons::MODE_DEBUGGER_CLASSIC,
+                                      Icons::MODE_DEBUGGER_FLAT, Icons::MODE_DEBUGGER_FLAT_ACTIVE));
         setPriority(85);
         setId(MODE_DEBUG);
     }
@@ -2349,10 +2350,12 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     m_startIcon = Core::Icons::DEBUG_START_SMALL.icon();
     m_exitIcon = Core::Icons::DEBUG_EXIT_SMALL.icon();
-    m_continueIcon = Core::Icons::DEBUG_CONTINUE_SMALL.icon();
-    m_continueIcon.addPixmap(Icons::CONTINUE.pixmap());
-    m_interruptIcon = Core::Icons::DEBUG_INTERRUPT_SMALL.icon();
-    m_interruptIcon.addPixmap(Icons::INTERRUPT.pixmap());
+    const QIcon continueSideBarIcon =
+            Icon::sideBarIcon(Icons::CONTINUE, Icons::CONTINUE_FLAT);
+    m_continueIcon = Icon::combinedIcon({Core::Icons::DEBUG_CONTINUE_SMALL.icon(), continueSideBarIcon});
+    const QIcon interruptSideBarIcon =
+            Icon::sideBarIcon(Icons::INTERRUPT, Icons::INTERRUPT_FLAT);
+    m_interruptIcon = Icon::combinedIcon({Core::Icons::DEBUG_INTERRUPT_SMALL.icon(), interruptSideBarIcon});
     m_locationMarkIcon = Icons::LOCATION.icon();
     m_resetIcon = Icons::RESTART.icon();
 
@@ -2536,8 +2539,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     // The main "Start Debugging" action.
     act = m_startAction = new QAction(this);
-    QIcon debuggerIcon(Core::Icons::DEBUG_START_SMALL.icon());
-    debuggerIcon.addPixmap(ProjectExplorer::Icons::DEBUG_START.pixmap());
+    const QIcon sideBarIcon =
+            Icon::sideBarIcon(ProjectExplorer::Icons::DEBUG_START, ProjectExplorer::Icons::DEBUG_START_FLAT);
+    const QIcon debuggerIcon = Icon::combinedIcon({Core::Icons::DEBUG_START_SMALL.icon(), sideBarIcon});
     act->setIcon(debuggerIcon);
     act->setText(tr("Start Debugging"));
     connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE); });

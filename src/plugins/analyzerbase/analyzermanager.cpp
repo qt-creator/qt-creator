@@ -36,7 +36,7 @@
 #include "analyzerstartparameters.h"
 #include "ianalyzertool.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
@@ -106,7 +106,8 @@ public:
     {
         setContext(Context(C_ANALYZEMODE, C_NAVIGATION_PANE));
         setDisplayName(AnalyzerManager::tr("Analyze"));
-        setIcon(QIcon(QLatin1String(":/images/mode_analyze.png")));
+        setIcon(Utils::Icon::modeIcon(Icons::MODE_ANALYZE_CLASSIC,
+                                      Icons::MODE_ANALYZE_FLAT, Icons::MODE_ANALYZE_FLAT_ACTIVE));
         setPriority(P_MODE_ANALYZE);
         setId(MODE_ANALYZE);
     }

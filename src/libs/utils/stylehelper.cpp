@@ -350,6 +350,21 @@ void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const Q
     }
 }
 
+QPixmap StyleHelper::disabledSideBarIcon(const QPixmap &enabledicon)
+{
+    QImage im = enabledicon.toImage().convertToFormat(QImage::Format_ARGB32);
+    for (int y=0; y<im.height(); ++y) {
+        QRgb *scanLine = reinterpret_cast<QRgb*>(im.scanLine(y));
+        for (int x=0; x<im.width(); ++x) {
+            QRgb pixel = *scanLine;
+            char intensity = char(qGray(pixel));
+            *scanLine = qRgba(intensity, intensity, intensity, qAlpha(pixel));
+            ++scanLine;
+        }
+    }
+    return QPixmap::fromImage(im);
+}
+
 // Draws a cached pixmap with shadow
 void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
                                      QPainter *p, QIcon::Mode iconMode, int dipRadius, const QColor &color, const QPoint &dipOffset)
@@ -363,7 +378,8 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
         // return a high-dpi pixmap, which will in that case have a devicePixelRatio
         // different than 1. The shadow drawing caluculations are done in device
         // pixels.
-        QPixmap px = icon.pixmap(rect.size());
+        QWindow *window = QApplication::allWidgets().first()->windowHandle();
+        QPixmap px = icon.pixmap(window, rect.size(), iconMode);
         int devicePixelRatio = qCeil(px.devicePixelRatio());
         int radius = dipRadius * devicePixelRatio;
         QPoint offset = dipOffset * devicePixelRatio;
@@ -372,50 +388,42 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
 
         QPainter cachePainter(&cache);
         if (iconMode == QIcon::Disabled) {
-            QImage im = px.toImage().convertToFormat(QImage::Format_ARGB32);
-            for (int y=0; y<im.height(); ++y) {
-                QRgb *scanLine = (QRgb*)im.scanLine(y);
-                for (int x=0; x<im.width(); ++x) {
-                    QRgb pixel = *scanLine;
-                    char intensity = qGray(pixel);
-                    *scanLine = qRgba(intensity, intensity, intensity, qAlpha(pixel));
-                    ++scanLine;
-                }
-            }
-            px = QPixmap::fromImage(im);
+            const bool hasDisabledState = icon.availableSizes(QIcon::Disabled).contains(px.size());
+            if (!hasDisabledState)
+                px = disabledSideBarIcon(icon.pixmap(window, rect.size()));
+        } else {
+            // Draw shadow
+            QImage tmp(px.size() + QSize(radius * 2, radius * 2 + 1), QImage::Format_ARGB32_Premultiplied);
+            tmp.fill(Qt::transparent);
+
+            QPainter tmpPainter(&tmp);
+            tmpPainter.setCompositionMode(QPainter::CompositionMode_Source);
+            tmpPainter.drawPixmap(QRect(radius, radius, px.width(), px.height()), px);
+            tmpPainter.end();
+
+            // blur the alpha channel
+            QImage blurred(tmp.size(), QImage::Format_ARGB32_Premultiplied);
+            blurred.fill(Qt::transparent);
+            QPainter blurPainter(&blurred);
+            qt_blurImage(&blurPainter, tmp, radius, false, true);
+            blurPainter.end();
+
+            tmp = blurred;
+
+            // blacken the image...
+            tmpPainter.begin(&tmp);
+            tmpPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+            tmpPainter.fillRect(tmp.rect(), color);
+            tmpPainter.end();
+
+            tmpPainter.begin(&tmp);
+            tmpPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+            tmpPainter.fillRect(tmp.rect(), color);
+            tmpPainter.end();
+
+            // draw the blurred drop shadow...
+            cachePainter.drawImage(QRect(0, 0, cache.rect().width(), cache.rect().height()), tmp);
         }
-
-        // Draw shadow
-        QImage tmp(px.size() + QSize(radius * 2, radius * 2 + 1), QImage::Format_ARGB32_Premultiplied);
-        tmp.fill(Qt::transparent);
-
-        QPainter tmpPainter(&tmp);
-        tmpPainter.setCompositionMode(QPainter::CompositionMode_Source);
-        tmpPainter.drawPixmap(QRect(radius, radius, px.width(), px.height()), px);
-        tmpPainter.end();
-
-        // blur the alpha channel
-        QImage blurred(tmp.size(), QImage::Format_ARGB32_Premultiplied);
-        blurred.fill(Qt::transparent);
-        QPainter blurPainter(&blurred);
-        qt_blurImage(&blurPainter, tmp, radius, false, true);
-        blurPainter.end();
-
-        tmp = blurred;
-
-        // blacken the image...
-        tmpPainter.begin(&tmp);
-        tmpPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-        tmpPainter.fillRect(tmp.rect(), color);
-        tmpPainter.end();
-
-        tmpPainter.begin(&tmp);
-        tmpPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-        tmpPainter.fillRect(tmp.rect(), color);
-        tmpPainter.end();
-
-        // draw the blurred drop shadow...
-        cachePainter.drawImage(QRect(0, 0, cache.rect().width(), cache.rect().height()), tmp);
 
         // Draw the actual pixmap...
         cachePainter.drawPixmap(QRect(QPoint(radius, radius) + offset, QSize(px.width(), px.height())), px);

@@ -182,6 +182,8 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         painter.restore();
     }
 
+    const QIcon::Mode iconMode = isEnabled() ? ((isDown() || isChecked()) ? QIcon::Active : QIcon::Normal)
+                                             : QIcon::Disabled;
     QRect iconRect(0, 0, Constants::TARGET_ICON_SIZE, Constants::TARGET_ICON_SIZE);
     // draw popup texts
     if (isTitledAction) {
@@ -203,7 +205,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         centerRect.adjust(0, 0, 0, -lineHeight*2 - 4);
 
         iconRect.moveCenter(centerRect.center());
-        StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, isEnabled() ? QIcon::Normal : QIcon::Disabled);
+        StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, iconMode);
         painter.setFont(normalFont);
 
         QPoint textOffset = centerRect.center() - QPoint(iconRect.width()/2, iconRect.height()/2);
@@ -264,7 +266,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         }
     } else {
         iconRect.moveCenter(rect().center());
-        StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, isEnabled() ? QIcon::Normal : QIcon::Disabled);
+        StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, iconMode);
     }
 }
 

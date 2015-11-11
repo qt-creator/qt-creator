@@ -7,13 +7,21 @@
         <file>images/closetab.png</file>
         <file>images/debugger_start.png</file>
         <file>images/debugger_start@2x.png</file>
+        <file>images/debugger_beetle_mask.png</file>
+        <file>images/debugger_beetle_mask@2x.png</file>
+        <file>images/debugger_run_mask.png</file>
+        <file>images/debugger_run_mask@2x.png</file>
         <file>images/mode_project.png</file>
         <file>images/mode_project@2x.png</file>
+        <file>images/mode_project_mask.png</file>
+        <file>images/mode_project_mask@2x.png</file>
         <file>images/projectexplorer.png</file>
         <file>images/rebuild.png</file>
         <file>images/rebuild_small.png</file>
         <file>images/run.png</file>
         <file>images/run@2x.png</file>
+        <file>images/run_mask.png</file>
+        <file>images/run_mask@2x.png</file>
         <file>images/run_small.png</file>
         <file>images/run_small@2x.png</file>
         <file>images/session.png</file>
@@ -35,6 +43,10 @@
         <file>images/DeviceReadyToUse.png</file>
         <file>images/build.png</file>
         <file>images/build@2x.png</file>
+        <file>images/build_hammerhandle_mask.png</file>
+        <file>images/build_hammerhandle_mask@2x.png</file>
+        <file>images/build_hammerhead_mask.png</file>
+        <file>images/build_hammerhead_mask@2x.png</file>
         <file>images/targetpanel_bottom.png</file>
         <file>images/targetpanel_gradient.png</file>
         <file>images/window.png</file>

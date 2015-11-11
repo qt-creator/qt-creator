@@ -35,6 +35,8 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
+
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QPointer>
@@ -90,7 +92,8 @@ DesignMode::DesignMode()
     setContext(Context(Constants::C_DESIGN_MODE));
     setWidget(d->m_stackWidget);
     setDisplayName(tr("Design"));
-    setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Design.png")));
+    setIcon(Utils::Icon::modeIcon(Icons::MODE_DESIGN_CLASSIC,
+                                  Icons::MODE_DESIGN_FLAT, Icons::MODE_DESIGN_FLAT_ACTIVE));
     setPriority(Constants::P_MODE_DESIGN);
     setId(Constants::MODE_DESIGN);
 

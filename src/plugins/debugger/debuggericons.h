@@ -50,8 +50,14 @@ const Utils::Icon TRACEPOINT(
         QLatin1String(":/debugger/images/tracepoint.png"));
 const Utils::Icon CONTINUE(
         QLatin1String(":/debugger/images/debugger_continue.png"));
+const Utils::Icon CONTINUE_FLAT({
+        {QLatin1String(":/projectexplorer/images/debugger_beetle_mask.png"), Utils::Theme::IconsDebugColor},
+        {QLatin1String(":/debugger/images/debugger_continue_mask.png"), Utils::Theme::IconsRunColor}});
 const Utils::Icon INTERRUPT(
         QLatin1String(":/debugger/images/debugger_interrupt.png"));
+const Utils::Icon INTERRUPT_FLAT({
+        {QLatin1String(":/projectexplorer/images/debugger_beetle_mask.png"), Utils::Theme::IconsDebugColor},
+        {QLatin1String(":/debugger/images/debugger_interrupt_mask.png"), Utils::Theme::IconsInterruptColor}});
 const Utils::Icon LOCATION(
         QLatin1String(":/debugger/images/location_16.png"));
 const Utils::Icon SNAPSHOT(
@@ -79,6 +85,13 @@ const Utils::Icon RESTART({
         {QLatin1String(":/debugger/images/debugger_restart_small.png"), Utils::Theme::IconsRunColor}});
 const Utils::Icon SINGLE_INSTRUCTION_MODE({
         {QLatin1String(":/debugger/images/debugger_singleinstructionmode.png"), Utils::Theme::IconsBaseColor}});
+
+const Utils::Icon MODE_DEBUGGER_CLASSIC(
+        QLatin1String(":/debugger/images/mode_debug.png"));
+const Utils::Icon MODE_DEBUGGER_FLAT({
+        {QLatin1String(":/debugger/images/mode_debug_mask.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon MODE_DEBUGGER_FLAT_ACTIVE({
+        {QLatin1String(":/debugger/images/mode_debug_mask.png"), Utils::Theme::IconsModeDebugActiveColor}});
 
 } // namespace Icons
 } // namespace Debugger

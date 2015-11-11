@@ -38,6 +38,9 @@ namespace Icons {
 
 const Utils::Icon BUILD(
         QLatin1String(":/projectexplorer/images/build.png"));
+const Utils::Icon BUILD_FLAT({
+        {QLatin1String(":/projectexplorer/images/build_hammerhandle_mask.png"), Utils::Theme::IconsBuildHammerHandleColor},
+        {QLatin1String(":/projectexplorer/images/build_hammerhead_mask.png"), Utils::Theme::IconsBuildHammerHeadColor}});
 const Utils::Icon BUILD_SMALL(
         QLatin1String(":/projectexplorer/images/build_small.png"));
 const Utils::Icon CLEAN(
@@ -50,15 +53,26 @@ const Utils::Icon REBUILD_SMALL(
         QLatin1String(":/projectexplorer/images/rebuild_small.png"));
 const Utils::Icon RUN(
         QLatin1String(":/projectexplorer/images/run.png"));
+const Utils::Icon RUN_FLAT({
+        {QLatin1String(":/projectexplorer/images/run_mask.png"), Utils::Theme::IconsRunColor}});
 const Utils::Icon WINDOW(
         QLatin1String(":/projectexplorer/images/window.png"));
 const Utils::Icon DEBUG_START(
         QLatin1String(":/projectexplorer/images/debugger_start.png"));
 
+const Utils::Icon DEBUG_START_FLAT({
+        {QLatin1String(":/projectexplorer/images/debugger_beetle_mask.png"), Utils::Theme::IconsDebugColor},
+        {QLatin1String(":/projectexplorer/images/debugger_run_mask.png"), Utils::Theme::IconsRunColor}});
 const Utils::Icon RUN_SMALL({
         {QLatin1String(":/projectexplorer/images/run_small.png"), Utils::Theme::IconsRunColor}});
 const Utils::Icon STOP_SMALL({
         {QLatin1String(":/projectexplorer/images/stop_small.png"), Utils::Theme::IconsStopColor}});
+const Utils::Icon MODE_PROJECT_CLASSIC(
+        QLatin1String(":/projectexplorer/images/mode_project.png"));
+const Utils::Icon MODE_PROJECT_FLAT({
+        {QLatin1String(":/projectexplorer/images/mode_project_mask.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon MODE_PROJECT_FLAT_ACTIVE({
+        {QLatin1String(":/projectexplorer/images/mode_project_mask.png"), Utils::Theme::IconsModeProjetcsActiveColor}});
 
 } // namespace Icons
 } // namespace ProjectExplorer

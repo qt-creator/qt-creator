@@ -7,6 +7,8 @@
         <file>images/category_help.png</file>
         <file>images/mode_help.png</file>
         <file>images/mode_help@2x.png</file>
+        <file>images/mode_help_mask.png</file>
+        <file>images/mode_help_mask@2x.png</file>
     </qresource>
     <qresource prefix="/trolltech/assistant" >
         <file>images/mac/addtab.png</file>

@@ -40,6 +40,7 @@
 #include <coreplugin/modemanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/icon.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -130,7 +131,16 @@ WelcomeMode::WelcomeMode()
     : m_activePlugin(0)
 {
     setDisplayName(tr("Welcome"));
-    setIcon(QIcon(QLatin1String(":/welcome/images/mode_welcome.png")));
+
+    const Utils::Icon MODE_WELCOME_CLASSIC(
+            QLatin1String(":/welcome/images/mode_welcome.png"));
+    const Utils::Icon MODE_WELCOME_FLAT({
+            {QLatin1String(":/welcome/images/mode_welcome_mask.png"), Utils::Theme::IconsBaseColor}});
+    const Utils::Icon MODE_WELCOME_FLAT_ACTIVE({
+            {QLatin1String(":/welcome/images/mode_welcome_mask.png"), Utils::Theme::IconsModeWelcomeActiveColor}});
+
+    setIcon(Utils::Icon::modeIcon(MODE_WELCOME_CLASSIC,
+                                  MODE_WELCOME_FLAT, MODE_WELCOME_FLAT_ACTIVE));
     setPriority(Constants::P_MODE_WELCOME);
     setId(Constants::MODE_WELCOME);
     setContextHelpId(QLatin1String("Qt Creator Manual"));

@@ -396,7 +396,8 @@ public:
         setWidget(proWindow);
         setContext(Context(Constants::C_PROJECTEXPLORER));
         setDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectsMode", "Projects"));
-        setIcon(QIcon(QLatin1String(":/projectexplorer/images/mode_project.png")));
+        setIcon(Utils::Icon::modeIcon(Icons::MODE_PROJECT_CLASSIC,
+                                      Icons::MODE_PROJECT_FLAT, Icons::MODE_PROJECT_FLAT_ACTIVE));
         setPriority(Constants::P_MODE_SESSION);
         setId(Constants::MODE_SESSION);
         setContextHelpId(QLatin1String("Managing Projects"));
@@ -704,7 +705,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     ActionContainer *runMenu = ActionManager::createMenu(Constants::RUNMENUCONTEXTMENU);
     runMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
-    QIcon runIcon = Icons::RUN.icon();
+    QIcon runIcon = Utils::Icon::sideBarIcon(Icons::RUN, Icons::RUN_FLAT);
     runIcon.addPixmap(Icons::RUN_SMALL.pixmap());
     runMenu->menu()->setIcon(runIcon);
     runMenu->menu()->setTitle(tr("Run"));
@@ -839,8 +840,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
     // build session action
-    QIcon buildIcon = Icons::BUILD.icon();
-    buildIcon.addPixmap(Icons::BUILD_SMALL.pixmap());
+    const QIcon sideBarIcon = Utils::Icon::sideBarIcon(Icons::BUILD, Icons::BUILD_FLAT);
+    const QIcon buildIcon = Utils::Icon::combinedIcon({Icons::BUILD_SMALL.icon(), sideBarIcon});
     dd->m_buildSessionAction = new QAction(buildIcon, tr("Build All"), this);
     cmd = ActionManager::registerAction(dd->m_buildSessionAction, Constants::BUILDSESSION);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+B")));
