@@ -218,7 +218,7 @@ static int compressedNumber(double d)
     if (non_int)
         return INT_MAX;
 
-    bool neg = (val >> 63);
+    bool neg = (val >> 63) != 0;
     val &= fraction_mask;
     val |= ((uint64_t)1 << 52);
     int res = (int)(val >> (52 - exp));
@@ -319,7 +319,7 @@ public:
     offset tableOffset;
     // content follows here
 
-    bool isObject() const { return is_object; }
+    bool isObject() const { return !!is_object; }
     bool isArray() const { return !isObject(); }
 
     offset *table() const { return (offset *) (((char *) this) + tableOffset); }
@@ -753,7 +753,7 @@ JsonValue::JsonValue(int n)
 JsonValue::JsonValue(int64_t n)
     : d(0), t(Double)
 {
-    this->dbl = n;
+    this->dbl = double(n);
 }
 
 /*!
@@ -950,7 +950,7 @@ bool JsonValue::toBool(bool defaultValue) const
 int JsonValue::toInt(int defaultValue) const
 {
     if (t == Double && int(dbl) == dbl)
-        return dbl;
+        return int(dbl);
     return defaultValue;
 }
 
@@ -4405,7 +4405,7 @@ bool Parser::parseNumber(Value *val, int baseOffset)
         char *endptr = const_cast<char *>(json);
         long long int n = strtoll(start, &endptr, 0);
         if (endptr != start && n < (1<<25) && n > -(1<<25)) {
-            val->int_value = n;
+            val->int_value = int(n);
             val->intValue = true;
             END;
             return true;
