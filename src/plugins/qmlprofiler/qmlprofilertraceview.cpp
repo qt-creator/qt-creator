@@ -414,6 +414,7 @@ bool TraceViewFindSupport::findOne(const QString &txt, Core::FindFlags findFlags
             m_currentPosition = current;
             m_view->selectByEventIndex(model->timelineModel(m_currentPosition),
                                        model->timelineIndex(m_currentPosition));
+            m_view->updateCursorPosition(); // open file/line that belongs to event
             return true;
         }
         current += increment;

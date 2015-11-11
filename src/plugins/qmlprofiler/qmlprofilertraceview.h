@@ -68,8 +68,6 @@ public slots:
     void selectByTypeId(int typeId);
     void selectBySourceLocation(const QString &filename, int line, int column);
     void selectByEventIndex(int modelId, int eventIndex);
-
-private slots:
     void updateCursorPosition();
 
 protected:
