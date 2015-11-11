@@ -34,6 +34,7 @@
 #ifndef JSONVALUE_H
 #define JSONVALUE_H
 
+#include <cstdint>
 #include <initializer_list>
 #include <string>
 #include <vector>
@@ -390,8 +391,8 @@ public:
         typedef JsonValue value_type;
         typedef JsonValueRef reference;
 
-        constexpr iterator() : o(nullptr), i(0) {}
-        constexpr iterator(JsonObject *obj, int index) : o(obj), i(index) {}
+        iterator() : o(nullptr), i(0) {}
+        iterator(JsonObject *obj, int index) : o(obj), i(index) {}
 
         std::string key() const { return o->keyAt(i); }
         JsonValueRef value() const { return JsonValueRef(o, i); }
@@ -428,8 +429,8 @@ public:
         typedef JsonValue value_type;
         typedef JsonValue reference;
 
-        constexpr const_iterator() : o(nullptr), i(0) {}
-        constexpr const_iterator(const JsonObject *obj, int index)
+        const_iterator() : o(nullptr), i(0) {}
+        const_iterator(const JsonObject *obj, int index)
             : o(obj), i(index) {}
         const_iterator(const iterator &other)
             : o(other.o), i(other.i) {}
