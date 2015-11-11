@@ -345,11 +345,6 @@ void QmlProfilerEventsWidget::selectByTypeId(int typeIndex) const
         d->m_eventTree->selectType(typeIndex);
 }
 
-void QmlProfilerEventsWidget::selectBySourceLocation(const QString &filename, int line, int column)
-{
-    d->m_eventTree->selectByLocation(filename, line, column);
-}
-
 void QmlProfilerEventsWidget::onVisibleFeaturesChanged(quint64 features)
 {
     for (int i = 0; i < MaximumRangeType; ++i) {
@@ -774,23 +769,6 @@ void QmlProfilerEventsMainView::selectType(int typeIndex)
     for (int i=0; i<d->m_model->rowCount(); i++) {
         QStandardItem *infoItem = d->m_model->item(i, 0);
         if (infoItem->data(TypeIdRole).toInt() == typeIndex) {
-            selectItem(infoItem);
-            return;
-        }
-    }
-}
-
-void QmlProfilerEventsMainView::selectByLocation(const QString &filename, int line, int column)
-{
-    if (d->m_preventSelectBounce)
-        return;
-
-    for (int i=0; i<d->m_model->rowCount(); i++) {
-        QStandardItem *infoItem = d->m_model->item(i, 0);
-        if (infoItem->data(FilenameRole).toString() == filename &&
-                infoItem->data(LineRole).toInt() == line &&
-                (column == -1 ||
-                infoItem->data(ColumnRole).toInt() == column)) {
             selectItem(infoItem);
             return;
         }

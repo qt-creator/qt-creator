@@ -106,7 +106,6 @@ signals:
 
 public slots:
     void selectByTypeId(int typeIndex) const;
-    void selectBySourceLocation(const QString &filename, int line, int column);
     void onVisibleFeaturesChanged(quint64 features);
 
 protected:
@@ -150,7 +149,6 @@ public slots:
     void clear();
     void jumpToItem(const QModelIndex &index);
     void selectType(int typeIndex);
-    void selectByLocation(const QString &filename, int line, int column);
     void buildModel();
     void updateNotes(int typeIndex);
 
