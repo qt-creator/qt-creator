@@ -309,8 +309,7 @@ QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision)
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
     // Get the SHA1's of the file.
-    if (!client->synchronousParentRevisions(workingDirectory, QStringList(fi.fileName()),
-                                            revision, &revisions, &errorMessage)) {
+    if (!client->synchronousParentRevisions(workingDirectory, revision, &revisions, &errorMessage)) {
         VcsOutputWindow::appendSilently(errorMessage);
         return QStringList();
     }

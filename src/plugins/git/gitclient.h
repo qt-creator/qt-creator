@@ -237,7 +237,6 @@ public:
                                QString *output, QString *errorMessage = 0) const;
 
     bool synchronousParentRevisions(const QString &workingDirectory,
-                                    const QStringList &files /* = QStringList() */,
                                     const QString &revision,
                                     QStringList *parents,
                                     QString *errorMessage) const;
