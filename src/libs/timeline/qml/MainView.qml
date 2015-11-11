@@ -50,8 +50,6 @@ Rectangle {
     property bool selectionRangeReady: selectionRange.ready
     property int typeId: content.typeId
 
-    onTypeIdChanged: updateCursorPosition()
-
     color: "#dcdcdc"
 
     // ***** connections with external objects
@@ -93,6 +91,7 @@ Rectangle {
         zoomSlider.value = zoomSlider.minimumValue;
     }
 
+    // This is called from outside to synchronize the timeline to other views
     function selectByTypeId(typeId)
     {
         if (lockItemSelection || typeId === -1)
@@ -130,13 +129,22 @@ Rectangle {
         if (modelIndex !== -1 && modelIndex < timelineModelAggregator.models.length &&
                 itemIndex !== -1) {
             // select an item, lock to it, and recenter if necessary
+
+            // set this here, so that propagateSelection doesn't trigger updateCursorPosition()
+            content.typeId = typeId;
             content.select(modelIndex, itemIndex);
             content.selectionLocked = true;
         }
     }
 
+    // This is called from outside to synchronize the timeline to other views
     function selectByIndices(modelIndex, eventIndex)
     {
+        if (modelIndex >= 0 && modelIndex < timelineModelAggregator.models.length &&
+                selectedItem !== -1) {
+            // set this here, so that propagateSelection doesn't trigger updateCursorPosition()
+            content.typeId = timelineModelAggregator.models[modelIndex].typeId(eventIndex);
+        }
         content.select(modelIndex, eventIndex);
     }
 
@@ -233,7 +241,12 @@ Rectangle {
                     root.lineNumber = eventLocation.line;
                     root.columnNumber = eventLocation.column;
                 }
-                typeId = model.typeId(selectedItem);
+                var newTypeId = model.typeId(selectedItem);
+                if (newTypeId !== typeId) {
+                    typeId = newTypeId;
+                    if (eventLocation.file !== undefined)
+                        root.updateCursorPosition();
+                }
             } else {
                 rangeDetails.hide();
             }
