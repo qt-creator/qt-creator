@@ -169,6 +169,7 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
         return Qt::ItemIsEnabled;
     case TestTreeItem::TEST_DATAFUNCTION:
     case TestTreeItem::TEST_SPECIALFUNCTION:
+    case TestTreeItem::TEST_DATATAG:
     default:
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }

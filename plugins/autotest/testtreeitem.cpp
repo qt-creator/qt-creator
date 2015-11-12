@@ -101,6 +101,7 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
         case ROOT:
         case TEST_DATAFUNCTION:
         case TEST_SPECIALFUNCTION:
+        case TEST_DATATAG:
             return QVariant();
         case TEST_CLASS:
             return m_name.isEmpty() ? QVariant() : checked();
