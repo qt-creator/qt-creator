@@ -129,7 +129,7 @@ void ObjectItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, IR
     double vertDelta = rect.height() - qRound(rect.height() / rasterHeight) * rasterHeight;
 
     // make sure the new size is at least the minimum size
-    QSizeF minimumSize = ObjectItem::minimumSize();
+    QSizeF minimumSize = this->minimumSize();
     while (rect.width() + horizDelta < minimumSize.width()) {
         horizDelta += rasterWidth;
     }
