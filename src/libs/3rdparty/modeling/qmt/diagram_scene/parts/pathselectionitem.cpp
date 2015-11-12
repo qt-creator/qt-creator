@@ -282,8 +282,6 @@ void PathSelectionItem::update()
 
 void PathSelectionItem::moveHandle(int pointIndex, const QPointF &deltaMove, HandleStatus handleStatus, HandleQualifier handleQualifier)
 {
-    Q_UNUSED(handleStatus);
-
     switch (handleQualifier) {
     case None:
     {

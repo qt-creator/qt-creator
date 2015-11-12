@@ -454,7 +454,6 @@ bool DiagramController::hasDelegate(const MElement *modelElement, const MDiagram
 
 DElement *DiagramController::findDelegate(const MElement *modelElement, const MDiagram *diagram) const
 {
-    Q_UNUSED(diagram);
     // PERFORM use map to increase performance
     foreach (DElement *diagramElement, diagram->diagramElements()) {
         if (diagramElement->modelUid().isValid() && diagramElement->modelUid() == modelElement->uid()) {

@@ -77,7 +77,7 @@ public:
 
     void mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
-        Q_UNUSED(event;)
+        Q_UNUSED(event);
     }
 
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)

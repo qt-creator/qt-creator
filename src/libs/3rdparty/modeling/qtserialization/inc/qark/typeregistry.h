@@ -279,7 +279,7 @@ QString typeUid()
 template<class T>
 QString typeUid(const T &t)
 {
-    Q_UNUSED(t);
+    Q_UNUSED(t); // avoid warning in some compilers
 #if !defined(QT_NO_DEBUG) // avoid warning about unused function ::hasNameToUidMap in Qt >= 5.5
     QMT_CHECK_X((registry::TypeNameRegistry<T>::hasNameToUidMap()), "typeUid<T>()", "type maps are not correctly initialized");
     QMT_CHECK_X((registry::TypeNameRegistry<T>::nameToUidMap().contains(QLatin1String(typeid(t).name()))), "typeUid<T>()",
@@ -291,7 +291,7 @@ QString typeUid(const T &t)
 template<class Archive, class T>
 typename registry::TypeRegistry<Archive, T>::TypeInfo typeInfo(const T &t)
 {
-    Q_UNUSED(t);
+    Q_UNUSED(t); // avoid warning in some compilers
 #if !defined(QT_NO_DEBUG) // avoid warning about unused function ::hasNameToUidMap in Qt >= 5.5
     QMT_CHECK_X((registry::TypeRegistry<Archive,T>::hasMap()),
                 qPrintable(QString(QLatin1String("TypeRegistry<Archive, %1>::typeInfo(const T&)")).arg(typeUid<T>())),

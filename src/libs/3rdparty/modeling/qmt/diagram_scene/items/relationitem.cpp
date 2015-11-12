@@ -73,8 +73,6 @@ public:
 
     void visitDInheritance(const DInheritance *inheritance)
     {
-        Q_UNUSED(inheritance);
-
         DObject *baseObject = m_diagramSceneModel->diagramController()->findElement<DObject>(inheritance->base(), m_diagramSceneModel->diagram());
         QMT_CHECK(baseObject);
         bool baseIsInterface = baseObject->stereotypes().contains(QStringLiteral("interface"));
@@ -103,8 +101,6 @@ public:
 
     void visitDDependency(const DDependency *dependency)
     {
-        Q_UNUSED(dependency);
-
         ArrowItem::Head endAHead = ArrowItem::HeadNone;
         ArrowItem::Head endBHead = ArrowItem::HeadNone;
         bool isRealization = dependency->stereotypes().contains(QStringLiteral("realize"));
@@ -132,8 +128,6 @@ public:
 
     void visitDAssociation(const DAssociation *association)
     {
-        Q_UNUSED(association);
-
         m_arrow->setShaft(ArrowItem::ShaftSolid);
         m_arrow->setArrowSize(12.0);
         m_arrow->setDiamondSize(12.0);
