@@ -112,7 +112,7 @@ DiagramSceneModel::DiagramSceneModel(QObject *parent)
       m_diagram(0),
       m_graphicsScene(new DiagramGraphicsScene(this)),
       m_latchController(new LatchController(this)),
-      m_busy(NotBusy),
+      m_busyState(NotBusy),
       m_originItem(new OriginItem()),
       m_focusItem(0)
 {
@@ -128,7 +128,7 @@ DiagramSceneModel::DiagramSceneModel(QObject *parent)
 
 DiagramSceneModel::~DiagramSceneModel()
 {
-    QMT_CHECK(m_busy == NotBusy);
+    QMT_CHECK(m_busyState == NotBusy);
     m_latchController->removeFromGraphicsScene(m_graphicsScene);
     disconnect();
     if (m_diagramController) {
@@ -653,8 +653,8 @@ void DiagramSceneModel::onEndResetAllDiagrams()
 
 void DiagramSceneModel::onBeginResetDiagram(const MDiagram *diagram)
 {
-    QMT_CHECK(m_busy == NotBusy);
-    m_busy = ResetDiagram;
+    QMT_CHECK(m_busyState == NotBusy);
+    m_busyState = ResetDiagram;
     if (diagram == m_diagram) {
         clearGraphicsScene();
     }
@@ -662,7 +662,7 @@ void DiagramSceneModel::onBeginResetDiagram(const MDiagram *diagram)
 
 void DiagramSceneModel::onEndResetDiagram(const MDiagram *diagram)
 {
-    QMT_CHECK(m_busy == ResetDiagram);
+    QMT_CHECK(m_busyState == ResetDiagram);
     if (diagram == m_diagram) {
         QMT_CHECK(m_graphicsItems.size() == 0);
         // create all items and update graphics item from element initially
@@ -678,39 +678,39 @@ void DiagramSceneModel::onEndResetDiagram(const MDiagram *diagram)
             updateGraphicsItem(m_elementToItemMap.value(element), element);
         }
     }
-    m_busy = NotBusy;
+    m_busyState = NotBusy;
 }
 
 void DiagramSceneModel::onBeginUpdateElement(int row, const MDiagram *diagram)
 {
     Q_UNUSED(row);
     Q_UNUSED(diagram);
-    QMT_CHECK(m_busy == NotBusy);
-    m_busy = UpdateElement;
+    QMT_CHECK(m_busyState == NotBusy);
+    m_busyState = UpdateElement;
 
 }
 
 void DiagramSceneModel::onEndUpdateElement(int row, const MDiagram *diagram)
 {
-    QMT_CHECK(m_busy == UpdateElement);
+    QMT_CHECK(m_busyState == UpdateElement);
     if (diagram == m_diagram) {
         QGraphicsItem *item = m_graphicsItems.at(row);
         updateGraphicsItem(item, diagram->diagramElements().at(row));
     }
-    m_busy = NotBusy;
+    m_busyState = NotBusy;
 }
 
 void DiagramSceneModel::onBeginInsertElement(int row, const MDiagram *diagram)
 {
     Q_UNUSED(row);
     Q_UNUSED(diagram);
-    QMT_CHECK(m_busy == NotBusy);
-    m_busy = InsertElement;
+    QMT_CHECK(m_busyState == NotBusy);
+    m_busyState = InsertElement;
 }
 
 void DiagramSceneModel::onEndInsertElement(int row, const MDiagram *diagram)
 {
-    QMT_CHECK(m_busy == InsertElement);
+    QMT_CHECK(m_busyState == InsertElement);
     QGraphicsItem *item = 0;
     if (diagram == m_diagram) {
         DElement *element = diagram->diagramElements().at(row);
@@ -720,25 +720,25 @@ void DiagramSceneModel::onEndInsertElement(int row, const MDiagram *diagram)
         m_graphicsScene->invalidate();
         updateGraphicsItem(item, element);
     }
-    m_busy = NotBusy;
+    m_busyState = NotBusy;
 }
 
 void DiagramSceneModel::onBeginRemoveElement(int row, const MDiagram *diagram)
 {
-    QMT_CHECK(m_busy == NotBusy);
+    QMT_CHECK(m_busyState == NotBusy);
     if (diagram == m_diagram) {
         QGraphicsItem *item = m_graphicsItems.takeAt(row);
         deleteGraphicsItem(item, diagram->diagramElements().at(row));
     }
-    m_busy = RemoveElement;
+    m_busyState = RemoveElement;
 }
 
 void DiagramSceneModel::onEndRemoveElement(int row, const MDiagram *diagram)
 {
     Q_UNUSED(row);
     Q_UNUSED(diagram);
-    QMT_CHECK(m_busy == RemoveElement);
-    m_busy = NotBusy;
+    QMT_CHECK(m_busyState == RemoveElement);
+    m_busyState = NotBusy;
 }
 
 void DiagramSceneModel::onSelectionChanged()

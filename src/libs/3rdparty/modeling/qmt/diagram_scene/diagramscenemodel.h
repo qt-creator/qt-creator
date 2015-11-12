@@ -270,7 +270,7 @@ private:
 
     QSet<QGraphicsItem *> m_secondarySelectedItems;
 
-    Busy m_busy;
+    Busy m_busyState;
 
     OriginItem *m_originItem;
 

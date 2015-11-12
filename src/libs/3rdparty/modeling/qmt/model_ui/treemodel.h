@@ -199,7 +199,7 @@ private:
 
     QHash<ModelItem *, const MObject *> m_itemToObjectMap;
 
-    Busy m_busy;
+    Busy m_busyState;
 };
 
 }
