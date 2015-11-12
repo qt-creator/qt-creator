@@ -2346,7 +2346,7 @@
             \li Activation
 
         \row
-            \li Move Component into \c filename.qml
+            \li Move Component into Separate File
             \li Moves a QML type into a separate file
             \li QML type name
         \row
@@ -2370,7 +2370,7 @@
 
             \li QML type property
         \row
-            \li Wrap in Loader
+            \li Wrap Component in Loader
             \li Wraps the type in a Component type and loads it dynamically in a
                 Loader type. This is usually done to improve startup time.
             \li QML type name
