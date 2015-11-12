@@ -43,6 +43,7 @@
 
 namespace Utils { class QtcProcess; }
 namespace ProjectExplorer { class RunControl; }
+namespace Debugger { class DebuggerRunControl; }
 
 namespace WinRt {
 namespace Internal {
@@ -62,7 +63,7 @@ public:
     void stop();
 
     bool waitForStarted(int msecs = 10000);
-    void setRunControl(ProjectExplorer::RunControl *runControl);
+    void setDebugRunControl(Debugger::DebuggerRunControl *runControl);
 
 signals:
     void started();
@@ -79,8 +80,10 @@ private:
     enum RunConf { Start, Stop, Debug };
     void startWinRtRunner(const RunConf &conf);
     bool init(WinRtRunConfiguration *runConfiguration, QString *errorMessage);
+    void appendMessage(const QString &message, Utils::OutputFormat format);
 
     ProjectExplorer::RunControl *m_messenger;
+    Debugger::DebuggerRunControl *m_debugMessenger;
     WinRtRunConfiguration *m_runConfiguration;
     WinRtDevice::ConstPtr m_device;
     Utils::Environment m_environment;
