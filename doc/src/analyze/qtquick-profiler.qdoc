@@ -533,11 +533,6 @@
     Click on an event to move to it in the source code
     in the code editor.
 
-    JavaScript events often duplicate bindings or signals, so you can show and
-    hide them by selecting \uicontrol {Show JavaScript Events} in the context
-    menu. To show and hide QML events (\uicontrol Create, \uicontrol Compile,
-    and \uicontrol Signal), select \uicontrol {Show QML Events}.
-
     \image qtcreator-analyzer-bindings.png "Events view"
 
     The \uicontrol Callers and \uicontrol Callees panes show dependencies between events.
