@@ -1062,6 +1062,8 @@ bool SessionManager::loadSession(const QString &session)
 
         // retrieve all values before the following code could change them again
         Id modeId = Id::fromSetting(value(QLatin1String("ActiveMode")));
+        if (!modeId.isValid())
+            modeId = Id(Core::Constants::MODE_EDIT);
 
         QColor c = QColor(reader.restoreValue(QLatin1String("Color")).toString());
         if (c.isValid())
@@ -1083,9 +1085,10 @@ bool SessionManager::loadSession(const QString &session)
         d->m_future.reportFinished();
         d->m_future = QFutureInterface<void>();
 
-        // restore the active mode
-        if (!modeId.isValid())
-            modeId = Id(Core::Constants::MODE_EDIT);
+        // Fall back to Project mode if the startup project is unconfigured and
+        // use the mode saved in the session otherwise
+        if (d->m_startupProject && d->m_startupProject->needsConfiguration())
+            modeId = Id(Constants::MODE_SESSION);
 
         ModeManager::activateMode(modeId);
         ModeManager::setFocusToCurrentMode();
