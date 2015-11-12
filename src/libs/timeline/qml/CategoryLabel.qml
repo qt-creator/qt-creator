@@ -63,6 +63,7 @@ Item {
         cursorShape: dragging ? Qt.ClosedHandCursor : Qt.OpenHandCursor
         drag.minimumY: dragging ? 0 : -dragOffset // Account for parent change below
         drag.maximumY: draggerParent.height - (dragging ? 0 : dragOffset)
+        drag.axis: Drag.YAxis
     }
 
     DropArea {
