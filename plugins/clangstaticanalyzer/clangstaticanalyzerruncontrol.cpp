@@ -131,7 +131,7 @@ static QString createLanguageOptionMsvc(ProjectFile::Kind fileKind)
 class ClangStaticAnalyzerOptionsBuilder : public CompilerOptionsBuilder
 {
 public:
-    static QStringList build(const CppTools::ProjectPart::Ptr &projectPart,
+    static QStringList build(const CppTools::ProjectPart &projectPart,
                              CppTools::ProjectFile::Kind fileKind,
                              unsigned char wordWidth)
     {
@@ -143,7 +143,7 @@ public:
         // Therefore, prevent the inclusion of the header that references them. Of course, this
         // will break if code actually requires stuff from there, but that should be the less common
         // case.
-        const Core::Id type = projectPart->toolchainType;
+        const Core::Id type = projectPart.toolchainType;
         if (type == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
                 || type == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID)
             optionsBuilder.addDefine("#define _X86INTRIN_H_INCLUDED\n");
@@ -162,9 +162,9 @@ public:
     }
 
 private:
-    ClangStaticAnalyzerOptionsBuilder(const CppTools::ProjectPart::Ptr &projectPart)
+    ClangStaticAnalyzerOptionsBuilder(const CppTools::ProjectPart &projectPart)
         : CompilerOptionsBuilder(projectPart)
-        , m_isMsvcToolchain(m_projectPart->toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        , m_isMsvcToolchain(m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
     {
     }
 
@@ -240,7 +240,9 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr>
             QTC_CHECK(file.kind != ProjectFile::Unclassified);
             if (ProjectFile::isSource(file.kind)) {
                 const QStringList arguments
-                    = ClangStaticAnalyzerOptionsBuilder::build(projectPart, file.kind, wordWidth);
+                    = ClangStaticAnalyzerOptionsBuilder::build(*projectPart.data(),
+                                                               file.kind,
+                                                               wordWidth);
                 unitsToAnalyze << AnalyzeUnit(file.path, arguments);
             }
         }
