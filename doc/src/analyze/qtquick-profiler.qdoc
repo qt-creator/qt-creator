@@ -114,6 +114,30 @@
     data, select \uicontrol {Load QML Trace}. You can also deliver the saved data to
     other developers for examination or load data saved by them.
 
+    \section1 Specifying Flushing Settings
+
+    You can specify flushing settings for the QML Profiler either globally for
+    all projects or separately for each project. To specify global settings,
+    select \uicontrol Tools > \uicontrol Options > \uicontrol Analyzer.
+
+    To specify custom QML Profiler settings for a particular project, select
+    \uicontrol Projects and then select \uicontrol Custom in \uicontrol
+    {QML Profiler Settings}. To restore the global settings for the project,
+    select \uicontrol {Restore Global}.
+
+    \image qml-profiler-settings.png "QML Profiler Settings"
+
+    Select the \uicontrol {Flush data while profiling} check box to flush the
+    data periodically instead of flushing all data when profiling stops. This
+    saves memory on the target device and shortens the wait between the
+    profiling being stopped and the data being displayed.
+
+    In the \uicontrol {Flush interval} field, set the flush interval in
+    milliseconds. The shorter the interval, the more often the data is flushed.
+    The longer the interval, the more data has to be buffered in the target
+    application, potentially wasting memory. However, the flushing itself takes
+    time, which can distort the profiling results.
+
     \section1 Attaching to Running Qt Quick Applications
 
     To profile Qt Quick applications that are not launched by \QC, select
