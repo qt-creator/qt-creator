@@ -199,7 +199,7 @@ void BoundaryItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, 
     double vertDelta = rect.height() - qRound(rect.height() / rasterHeight) * rasterHeight;
 
     // make sure the new size is at least the minimum size
-    QSizeF minimumSize = BoundaryItem::minimumSize();
+    QSizeF minimumSize = this->minimumSize();
     while (rect.width() + horizDelta < minimumSize.width()) {
         horizDelta += rasterWidth;
     }

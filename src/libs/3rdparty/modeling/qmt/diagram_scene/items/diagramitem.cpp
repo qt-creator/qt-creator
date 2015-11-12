@@ -172,13 +172,13 @@ QSizeF DiagramItem::calcMinimumGeometry() const
     }
 
     height += BODY_VERT_BORDER;
-    if (CustomIconItem *stereotypeIconItem = ObjectItem::stereotypeIconItem()) {
+    if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
         width = std::max(width, stereotypeIconItem->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
         height += std::max(FOLD_HEIGHT, stereotypeIconItem->boundingRect().height());
     } else {
         height += FOLD_HEIGHT;
     }
-    if (StereotypesItem *stereotypesItem = ObjectItem::stereotypesItem()) {
+    if (StereotypesItem *stereotypesItem = this->stereotypesItem()) {
         width = std::max(width, stereotypesItem->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
         height += stereotypesItem->boundingRect().height();
     }
@@ -265,14 +265,14 @@ void DiagramItem::updateGeometry()
 
     y += BODY_VERT_BORDER;
     if (!m_customIcon) {
-        if (CustomIconItem *stereotypeIconItem = ObjectItem::stereotypeIconItem()) {
+        if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
             stereotypeIconItem->setPos(left + BODY_HORIZ_BORDER, y);
             y += std::max(FOLD_HEIGHT, stereotypeIconItem->boundingRect().height());
         } else {
             y += FOLD_HEIGHT;
         }
     }
-    if (StereotypesItem *stereotypesItem = ObjectItem::stereotypesItem()) {
+    if (StereotypesItem *stereotypesItem = this->stereotypesItem()) {
         stereotypesItem->setPos(-stereotypesItem->boundingRect().width() / 2.0, y);
         y += stereotypesItem->boundingRect().height();
     }

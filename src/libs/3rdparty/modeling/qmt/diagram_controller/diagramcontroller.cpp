@@ -166,8 +166,8 @@ public:
 private:
     void swap()
     {
-        DiagramController *diagramController = DiagramUndoCommand::diagramController();
-        MDiagram *diagram = DiagramUndoCommand::diagram();
+        DiagramController *diagramController = this->diagramController();
+        MDiagram *diagram = this->diagram();
         foreach (DElement *clonedElement, m_clonedElements) {
             DElement *activeElement = diagramController->findElement(clonedElement->uid(), diagram);
             QMT_CHECK(activeElement);
@@ -215,8 +215,8 @@ protected:
 
     void remove()
     {
-        DiagramController *diagramController = DiagramUndoCommand::diagramController();
-        MDiagram *diagram = DiagramUndoCommand::diagram();
+        DiagramController *diagramController = this->diagramController();
+        MDiagram *diagram = this->diagram();
         bool removed = false;
         for (int i = 0; i < m_clonedElements.count(); ++i) {
             Clone &clone = m_clonedElements[i];
@@ -240,8 +240,8 @@ protected:
 
     void insert()
     {
-        DiagramController *diagramController = DiagramUndoCommand::diagramController();
-        MDiagram *diagram = DiagramUndoCommand::diagram();
+        DiagramController *diagramController = this->diagramController();
+        MDiagram *diagram = this->diagram();
         bool inserted = false;
         for (int i = m_clonedElements.count() - 1; i >= 0; --i) {
             Clone &clone = m_clonedElements[i];
@@ -310,7 +310,7 @@ public:
     {
         Clone clone;
 
-        MDiagram *diagram = DiagramUndoCommand::diagram();
+        MDiagram *diagram = this->diagram();
         clone.m_elementKey = element->uid();
         clone.m_indexOfElement = diagram->diagramElements().indexOf(element);
         QMT_CHECK(clone.m_indexOfElement >= 0);

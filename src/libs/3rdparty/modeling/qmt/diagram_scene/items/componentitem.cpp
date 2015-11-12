@@ -294,11 +294,11 @@ QSizeF ComponentItem::calcMinimumGeometry() const
     }
 
     height += BODY_VERT_BORDER;
-    if (CustomIconItem *stereotypeIconItem = ObjectItem::stereotypeIconItem()) {
+    if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
         width = std::max(width, stereotypeIconItem->boundingRect().width());
         height += stereotypeIconItem->boundingRect().height();
     }
-    if (StereotypesItem *stereotypesItem = ObjectItem::stereotypesItem()) {
+    if (StereotypesItem *stereotypesItem = this->stereotypesItem()) {
         width = std::max(width, stereotypesItem->boundingRect().width());
         height += stereotypesItem->boundingRect().height();
     }
@@ -387,11 +387,11 @@ void ComponentItem::updateGeometry()
     }
 
     y += BODY_VERT_BORDER;
-    if (CustomIconItem *stereotypeIconItem = ObjectItem::stereotypeIconItem()) {
+    if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
         stereotypeIconItem->setPos(right - stereotypeIconItem->boundingRect().width() - BODY_HORIZ_BORDER, y);
         y += stereotypeIconItem->boundingRect().height();
     }
-    if (StereotypesItem *stereotypesItem = ObjectItem::stereotypesItem()) {
+    if (StereotypesItem *stereotypesItem = this->stereotypesItem()) {
         stereotypesItem->setPos(-stereotypesItem->boundingRect().width() / 2.0, y);
         y += stereotypesItem->boundingRect().height();
     }

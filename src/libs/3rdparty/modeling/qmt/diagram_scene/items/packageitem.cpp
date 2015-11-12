@@ -262,7 +262,7 @@ PackageItem::ShapeGeometry PackageItem::calcMinimumGeometry() const
     double bodyWidth = 0.0;
 
     tabHeight += TAB_VERT_BORDER;
-    if (StereotypesItem *stereotypesItem = ObjectItem::stereotypesItem()) {
+    if (StereotypesItem *stereotypesItem = this->stereotypesItem()) {
         tabWidth = std::max(tabWidth, stereotypesItem->boundingRect().width() + 2 * TAB_HORIZ_BORDER);
         tabHeight += stereotypesItem->boundingRect().height();
     }
@@ -275,7 +275,7 @@ PackageItem::ShapeGeometry PackageItem::calcMinimumGeometry() const
     height += tabHeight;
 
     bodyHeight = BODY_VERT_BORDER;
-    if (CustomIconItem *stereotypeIconItem = ObjectItem::stereotypeIconItem()) {
+    if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
         bodyWidth = std::max(bodyWidth, stereotypeIconItem->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
         bodyHeight += stereotypeIconItem->boundingRect().height();
     }
@@ -342,7 +342,7 @@ void PackageItem::updateGeometry()
         y += height;
 
         y += BODY_VERT_BORDER;
-        if (StereotypesItem *stereotypesItem = ObjectItem::stereotypesItem()) {
+        if (StereotypesItem *stereotypesItem = this->stereotypesItem()) {
             stereotypesItem->setPos(-stereotypesItem->boundingRect().width() / 2.0, y);
             y += stereotypesItem->boundingRect().height();
         }
@@ -366,7 +366,7 @@ void PackageItem::updateGeometry()
         m_shape->setPolygon(polygon);
 
         y += TAB_VERT_BORDER;
-        if (StereotypesItem *stereotypesItem = ObjectItem::stereotypesItem()) {
+        if (StereotypesItem *stereotypesItem = this->stereotypesItem()) {
             stereotypesItem->setPos(left + TAB_HORIZ_BORDER, y);
             y += stereotypesItem->boundingRect().height();
         }
@@ -376,7 +376,7 @@ void PackageItem::updateGeometry()
         }
         y += TAB_VERT_BORDER;
         y += BODY_VERT_BORDER;
-        if (CustomIconItem *stereotypeIconItem = ObjectItem::stereotypeIconItem()) {
+        if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
             stereotypeIconItem->setPos(right - stereotypeIconItem->boundingRect().width() - BODY_HORIZ_BORDER, y);
             y += stereotypeIconItem->boundingRect().height();
         }
