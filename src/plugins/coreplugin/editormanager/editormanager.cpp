@@ -490,10 +490,6 @@ void EditorManagerPrivate::init()
     connect(m_autoSaveTimer, SIGNAL(timeout()), SLOT(autoSave()));
     updateAutoSave();
 
-    // Do not ask for files to save.
-    // MainWindow::closeEvent has already done that.
-    ICore::addPreCloseListener([]() -> bool { return EditorManager::closeAllEditors(false); });
-
     d->m_openEditorsFactory = new OpenEditorsViewFactory();
     ExtensionSystem::PluginManager::addObject(d->m_openEditorsFactory);
 
@@ -515,7 +511,14 @@ void EditorManagerPrivate::init()
         []() -> int {
             IEditor *editor = EditorManager::currentEditor();
             return editor ? editor->widget()->mapToGlobal(QPoint(0, 0)).y() : 0;
-        });
+                                               });
+}
+
+void EditorManagerPrivate::extensionsInitialized()
+{
+    // Do not ask for files to save.
+    // MainWindow::closeEvent has already done that.
+    ICore::addPreCloseListener([]() -> bool { return EditorManager::closeAllEditors(false); });
 }
 
 EditorManagerPrivate *EditorManagerPrivate::instance()
@@ -2487,7 +2490,9 @@ static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
     //         * application/octet-stream
     //     * text/plain
     QList<Utils::MimeType> queue;
+    QSet<QString> seen;
     queue.append(mimeType);
+    seen.insert(mimeType.name());
     while (!queue.isEmpty()) {
         Utils::MimeType mt = queue.takeFirst();
         // check for matching factories
@@ -2507,8 +2512,14 @@ static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
         QStringList parentNames = mt.parentMimeTypes();
         foreach (const QString &parentName, parentNames) {
             const Utils::MimeType parent = mdb.mimeTypeForName(parentName);
-            if (parent.isValid())
-                queue.append(parent);
+            if (parent.isValid()) {
+                int seenSize = seen.size();
+                seen.insert(parent.name());
+                if (seen.size() != seenSize) // not seen before, so add
+                    queue.append(parent);
+                else
+                    qWarning("MimeTypes: Parent hierarchy loop detected for '%s'!", qPrintable(parent.name()));
+            }
         }
     }
 }

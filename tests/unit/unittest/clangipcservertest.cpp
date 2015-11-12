@@ -259,7 +259,8 @@ TEST_F(ClangIpcServer, GetCodeCompletionForUnsavedFile)
 
 TEST_F(ClangIpcServer, GetNoCodeCompletionAfterRemovingUnsavedFile)
 {
-    clangServer.updateTranslationUnitsForEditor(UpdateTranslationUnitsForEditorMessage({FileContainer(functionTestFilePath, projectPartId, 74)}));
+    clangServer.updateTranslationUnitsForEditor(UpdateTranslationUnitsForEditorMessage(
+        {FileContainer(functionTestFilePath, projectPartId, Utf8StringVector(), 74)}));
     CompleteCodeMessage completeCodeMessage(functionTestFilePath,
                                             20,
                                             1,

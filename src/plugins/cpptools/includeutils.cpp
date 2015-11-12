@@ -391,7 +391,7 @@ QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByIncludeType(const QList<I
 {
     // Create sub groups
     QList<IncludeGroup> result;
-    Client::IncludeType lastIncludeType;
+    Client::IncludeType lastIncludeType = Client::IncludeLocal;
     QList<Include> currentIncludes;
     bool isFirst = true;
     foreach (const Include &include, includes) {

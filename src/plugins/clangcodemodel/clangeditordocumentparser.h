@@ -50,6 +50,9 @@ public:
     QList<SemanticMarker::Range> ifdefedOutBlocks() const;
     SemanticMarker::Ptr semanticMarker() const;
 
+signals:
+    void projectPartDetermined(CppTools::ProjectPart::Ptr projectPart);
+
 private:
     void updateHelper(const BaseEditorDocumentParser::InMemoryInfo &info) override;
 

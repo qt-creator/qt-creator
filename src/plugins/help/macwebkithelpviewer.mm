@@ -34,7 +34,6 @@
 #include "openpagesmanager.h"
 
 #include <coreplugin/icore.h>
-#include <utils/autoreleasepool.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -437,18 +436,19 @@ MacWebKitHelpWidget::MacWebKitHelpWidget(MacWebKitHelpViewer *parent)
 {
     d->m_toolTipTimer.setSingleShot(true);
     connect(&d->m_toolTipTimer, &QTimer::timeout, this, &MacWebKitHelpWidget::showToolTip);
-    AutoreleasePool pool; Q_UNUSED(pool)
-    d->m_webView = [[MyWebView alloc] init];
-    // Turn layered rendering on.
-    // Otherwise the WebView will render empty after any QQuickWidget was shown.
-    d->m_webView.wantsLayer = YES;
-    d->m_frameLoadDelegate = [[FrameLoadDelegate alloc] initWithMainFrame:d->m_webView.mainFrame
-                                                                   viewer:parent];
-    [d->m_webView setFrameLoadDelegate:d->m_frameLoadDelegate];
-    d->m_uiDelegate = [[UIDelegate alloc] initWithWidget:this];
-    [d->m_webView setUIDelegate:d->m_uiDelegate];
+    @autoreleasepool {
+        d->m_webView = [[MyWebView alloc] init];
+        // Turn layered rendering on.
+        // Otherwise the WebView will render empty after any QQuickWidget was shown.
+        d->m_webView.wantsLayer = YES;
+        d->m_frameLoadDelegate = [[FrameLoadDelegate alloc] initWithMainFrame:d->m_webView.mainFrame
+                                                                       viewer:parent];
+        [d->m_webView setFrameLoadDelegate:d->m_frameLoadDelegate];
+        d->m_uiDelegate = [[UIDelegate alloc] initWithWidget:this];
+        [d->m_webView setUIDelegate:d->m_uiDelegate];
 
-    setCocoaView(d->m_webView);
+        setCocoaView(d->m_webView);
+    }
 }
 
 MacWebKitHelpWidget::~MacWebKitHelpWidget()
@@ -507,11 +507,12 @@ MacWebKitHelpViewer::MacWebKitHelpViewer(QWidget *parent)
         new MacResponderHack(qApp);
     }
 
-    AutoreleasePool pool; Q_UNUSED(pool)
-    QVBoxLayout *layout = new QVBoxLayout;
-    setLayout(layout);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(m_widget, 10);
+    @autoreleasepool {
+        QVBoxLayout *layout = new QVBoxLayout;
+        setLayout(layout);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(m_widget, 10);
+    }
 }
 
 MacWebKitHelpViewer::~MacWebKitHelpViewer()
@@ -521,43 +522,49 @@ MacWebKitHelpViewer::~MacWebKitHelpViewer()
 
 QFont MacWebKitHelpViewer::viewerFont() const
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    WebPreferences *preferences = m_widget->webView().preferences;
-    QString family = QString::fromNSString([preferences standardFontFamily]);
-    int size = [preferences defaultFontSize];
-    return QFont(family, size);
+    @autoreleasepool {
+        WebPreferences *preferences = m_widget->webView().preferences;
+        QString family = QString::fromNSString([preferences standardFontFamily]);
+        int size = [preferences defaultFontSize];
+        return QFont(family, size);
+    }
 }
 
 void MacWebKitHelpViewer::setViewerFont(const QFont &font)
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    WebPreferences *preferences = m_widget->webView().preferences;
-    [preferences setStandardFontFamily:font.family().toNSString()];
-    [preferences setDefaultFontSize:font.pointSize()];
+    @autoreleasepool {
+        WebPreferences *preferences = m_widget->webView().preferences;
+        [preferences setStandardFontFamily:font.family().toNSString()];
+        [preferences setDefaultFontSize:font.pointSize()];
+    }
 }
 
 void MacWebKitHelpViewer::scaleUp()
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    m_widget->webView().textSizeMultiplier += 0.1;
+    @autoreleasepool {
+        m_widget->webView().textSizeMultiplier += 0.1;
+    }
 }
 
 void MacWebKitHelpViewer::scaleDown()
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    m_widget->webView().textSizeMultiplier = qMax(0.1, m_widget->webView().textSizeMultiplier - 0.1);
+    @autoreleasepool {
+        m_widget->webView().textSizeMultiplier = qMax(0.1, m_widget->webView().textSizeMultiplier - 0.1);
+    }
 }
 
 void MacWebKitHelpViewer::resetScale()
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    m_widget->webView().textSizeMultiplier = 1.0;
+    @autoreleasepool {
+        m_widget->webView().textSizeMultiplier = 1.0;
+    }
 }
 
 qreal MacWebKitHelpViewer::scale() const
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-            return m_widget->webView().textSizeMultiplier;
+    @autoreleasepool {
+        return m_widget->webView().textSizeMultiplier;
+    }
 }
 
 void MacWebKitHelpViewer::setScale(qreal scale)
@@ -567,24 +574,27 @@ void MacWebKitHelpViewer::setScale(qreal scale)
 
 QString MacWebKitHelpViewer::title() const
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    return QString::fromNSString(m_widget->webView().mainFrameTitle);
+    @autoreleasepool {
+        return QString::fromNSString(m_widget->webView().mainFrameTitle);
+    }
 }
 
 QUrl MacWebKitHelpViewer::source() const
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    WebDataSource *dataSource = m_widget->webView().mainFrame.dataSource;
-    if (!dataSource)
-        dataSource = m_widget->webView().mainFrame.provisionalDataSource;
-    return QUrl::fromNSURL(dataSource.request.URL);
+    @autoreleasepool {
+        WebDataSource *dataSource = m_widget->webView().mainFrame.dataSource;
+        if (!dataSource)
+            dataSource = m_widget->webView().mainFrame.provisionalDataSource;
+        return QUrl::fromNSURL(dataSource.request.URL);
+    }
 }
 
 void MacWebKitHelpViewer::setSource(const QUrl &url)
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    ensureProtocolHandler();
-    [m_widget->webView().mainFrame loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
+    @autoreleasepool {
+        ensureProtocolHandler();
+        [m_widget->webView().mainFrame loadRequest:[NSURLRequest requestWithURL:url.toNSURL()]];
+    }
 }
 
 void MacWebKitHelpViewer::scrollToAnchor(const QString &anchor)
@@ -596,57 +606,63 @@ void MacWebKitHelpViewer::scrollToAnchor(const QString &anchor)
 
 void MacWebKitHelpViewer::setHtml(const QString &html)
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    [m_widget->webView().mainFrame
-            loadHTMLString:html.toNSString()
-                   baseURL:[NSURL fileURLWithPath:Core::ICore::resourcePath().toNSString()]];
+    @autoreleasepool {
+        [m_widget->webView().mainFrame
+                loadHTMLString:html.toNSString()
+                       baseURL:[NSURL fileURLWithPath:Core::ICore::resourcePath().toNSString()]];
+    }
 }
 
 QString MacWebKitHelpViewer::selectedText() const
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    return QString::fromNSString(m_widget->webView().selectedDOMRange.text);
+    @autoreleasepool {
+        return QString::fromNSString(m_widget->webView().selectedDOMRange.text);
+    }
 }
 
 bool MacWebKitHelpViewer::isForwardAvailable() const
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    return m_widget->webView().canGoForward;
+    @autoreleasepool {
+        return m_widget->webView().canGoForward;
+    }
 }
 
 bool MacWebKitHelpViewer::isBackwardAvailable() const
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    return m_widget->webView().canGoBack;
+    @autoreleasepool {
+        return m_widget->webView().canGoBack;
+    }
 }
 
 void MacWebKitHelpViewer::addBackHistoryItems(QMenu *backMenu)
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    WebBackForwardList *list = m_widget->webView().backForwardList;
-    int backListCount = list.backListCount;
-    for (int i = 0; i < backListCount; ++i) {
-        int historyIndex = -(i+1);
-        QAction *action = new QAction(backMenu);
-        action->setText(QString::fromNSString([list itemAtIndex:historyIndex].title));
-        action->setData(historyIndex);
-        connect(action, SIGNAL(triggered()), this, SLOT(goToHistoryItem()));
-        backMenu->addAction(action);
+    @autoreleasepool {
+        WebBackForwardList *list = m_widget->webView().backForwardList;
+        int backListCount = list.backListCount;
+        for (int i = 0; i < backListCount; ++i) {
+            int historyIndex = -(i+1);
+            QAction *action = new QAction(backMenu);
+            action->setText(QString::fromNSString([list itemAtIndex:historyIndex].title));
+            action->setData(historyIndex);
+            connect(action, SIGNAL(triggered()), this, SLOT(goToHistoryItem()));
+            backMenu->addAction(action);
+        }
     }
 }
 
 void MacWebKitHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    WebBackForwardList *list = m_widget->webView().backForwardList;
-    int forwardListCount = list.forwardListCount;
-    for (int i = 0; i < forwardListCount; ++i) {
-        int historyIndex = i + 1;
-        QAction *action = new QAction(forwardMenu);
-        action->setText(QString::fromNSString([list itemAtIndex:historyIndex].title));
-        action->setData(historyIndex);
-        connect(action, SIGNAL(triggered()), this, SLOT(goToHistoryItem()));
-        forwardMenu->addAction(action);
+    @autoreleasepool {
+        WebBackForwardList *list = m_widget->webView().backForwardList;
+        int forwardListCount = list.forwardListCount;
+        for (int i = 0; i < forwardListCount; ++i) {
+            int historyIndex = i + 1;
+            QAction *action = new QAction(forwardMenu);
+            action->setText(QString::fromNSString([list itemAtIndex:historyIndex].title));
+            action->setData(historyIndex);
+            connect(action, SIGNAL(triggered()), this, SLOT(goToHistoryItem()));
+            forwardMenu->addAction(action);
+        }
     }
 }
 
@@ -728,55 +744,56 @@ bool MacWebKitHelpViewer::findText(const QString &text, Core::FindFlags flags, b
 {
     Q_UNUSED(incremental);
     Q_UNUSED(fromSearch);
-    AutoreleasePool pool; Q_UNUSED(pool)
-    if (wrapped)
-        *wrapped = false;
-    bool forward = !(flags & Core::FindBackward);
-    bool caseSensitive = (flags & Core::FindCaseSensitively);
-    WebView *webView = m_widget->webView();
+    @autoreleasepool {
+        if (wrapped)
+            *wrapped = false;
+        bool forward = !(flags & Core::FindBackward);
+        bool caseSensitive = (flags & Core::FindCaseSensitively);
+        WebView *webView = m_widget->webView();
 
-    // WebView searchFor:.... grabs first responder, and when losing first responder afterwards,
-    // it removes the selection and forgets the search state, making it pretty useless for us
+        // WebView searchFor:.... grabs first responder, and when losing first responder afterwards,
+        // it removes the selection and forgets the search state, making it pretty useless for us
 
-    // define the start node and offset for the search
-    DOMNode *start = nil; // default is search whole body
-    int startOffset = -1;
-    DOMRange *selection = webView.selectedDOMRange;
-    if (selection) {
-        if (QString::fromNSString(selection.text).compare(
-                    text, caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive) != 0) {
-            // for incremental search we want to search from the beginning of the selection
-            start = selection.startContainer;
-            startOffset = selection.startOffset;
-        } else {
-            // search for next occurrence
-            if (forward) {
-                start = selection.endContainer;
-                startOffset = selection.endOffset;
-            } else {
+        // define the start node and offset for the search
+        DOMNode *start = nil; // default is search whole body
+        int startOffset = -1;
+        DOMRange *selection = webView.selectedDOMRange;
+        if (selection) {
+            if (QString::fromNSString(selection.text).compare(
+                        text, caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive) != 0) {
+                // for incremental search we want to search from the beginning of the selection
                 start = selection.startContainer;
                 startOffset = selection.startOffset;
+            } else {
+                // search for next occurrence
+                if (forward) {
+                    start = selection.endContainer;
+                    startOffset = selection.endOffset;
+                } else {
+                    start = selection.startContainer;
+                    startOffset = selection.startOffset;
+                }
             }
         }
-    }
-    DOMRange *newSelection = findText(text.toNSString(), forward, caseSensitive,
-                                      start, startOffset);
-    if (!newSelection && start != nil) { // wrap
-        start = nil;
-        startOffset = -1;
-        newSelection = findText(text.toNSString(), forward, caseSensitive,
-                                              start, startOffset);
-        if (newSelection && wrapped)
-            *wrapped = true;
-    }
-    if (newSelection) {
-        // found, select and scroll there
-        [webView setSelectedDOMRange:newSelection affinity:NSSelectionAffinityDownstream];
-        if (forward)
-            [newSelection.endContainer.parentElement scrollIntoViewIfNeeded:YES];
-        else
-            [newSelection.startContainer.parentElement scrollIntoViewIfNeeded:YES];
-        return true;
+        DOMRange *newSelection = findText(text.toNSString(), forward, caseSensitive,
+                                          start, startOffset);
+        if (!newSelection && start != nil) { // wrap
+            start = nil;
+            startOffset = -1;
+            newSelection = findText(text.toNSString(), forward, caseSensitive,
+                                                  start, startOffset);
+            if (newSelection && wrapped)
+                *wrapped = true;
+        }
+        if (newSelection) {
+            // found, select and scroll there
+            [webView setSelectedDOMRange:newSelection affinity:NSSelectionAffinityDownstream];
+            if (forward)
+                [newSelection.endContainer.parentElement scrollIntoViewIfNeeded:YES];
+            else
+                [newSelection.startContainer.parentElement scrollIntoViewIfNeeded:YES];
+            return true;
+        }
     }
     return false;
 }
@@ -793,18 +810,20 @@ void MacWebKitHelpViewer::stop()
 
 void MacWebKitHelpViewer::forward()
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    [m_widget->webView() goForward];
-    emit forwardAvailable(isForwardAvailable());
-    emit backwardAvailable(isBackwardAvailable());
+    @autoreleasepool {
+        [m_widget->webView() goForward];
+        emit forwardAvailable(isForwardAvailable());
+        emit backwardAvailable(isBackwardAvailable());
+    }
 }
 
 void MacWebKitHelpViewer::backward()
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    [m_widget->webView() goBack];
-    emit forwardAvailable(isForwardAvailable());
-    emit backwardAvailable(isBackwardAvailable());
+    @autoreleasepool {
+        [m_widget->webView() goBack];
+        emit forwardAvailable(isForwardAvailable());
+        emit backwardAvailable(isBackwardAvailable());
+    }
 }
 
 void MacWebKitHelpViewer::print(QPrinter *printer)
@@ -826,18 +845,19 @@ void MacWebKitHelpViewer::slotLoadFinished()
 
 void MacWebKitHelpViewer::goToHistoryItem()
 {
-    AutoreleasePool pool; Q_UNUSED(pool)
-    QAction *action = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(action, return);
-    bool ok = false;
-    int index = action->data().toInt(&ok);
-    QTC_ASSERT(ok, return);
-    WebBackForwardList *list = m_widget->webView().backForwardList;
-    WebHistoryItem *item = [list itemAtIndex:index];
-    QTC_ASSERT(item, return);
-    [m_widget->webView() goToBackForwardItem:item];
-    emit forwardAvailable(isForwardAvailable());
-    emit backwardAvailable(isBackwardAvailable());
+    @autoreleasepool {
+        QAction *action = qobject_cast<QAction *>(sender());
+        QTC_ASSERT(action, return);
+        bool ok = false;
+        int index = action->data().toInt(&ok);
+        QTC_ASSERT(ok, return);
+        WebBackForwardList *list = m_widget->webView().backForwardList;
+        WebHistoryItem *item = [list itemAtIndex:index];
+        QTC_ASSERT(item, return);
+        [m_widget->webView() goToBackForwardItem:item];
+        emit forwardAvailable(isForwardAvailable());
+        emit backwardAvailable(isBackwardAvailable());
+    }
 }
 
 // #pragma mark -- MacResponderHack
@@ -858,13 +878,14 @@ void MacResponderHack::responderHack(QWidget *old, QWidget *now)
     Q_UNUSED(old)
     if (!now)
         return;
-    AutoreleasePool pool; Q_UNUSED(pool)
-    NSView *view;
-    if (QMacCocoaViewContainer *viewContainer = qobject_cast<QMacCocoaViewContainer *>(now))
-        view = viewContainer->cocoaView();
-    else
-        view = (NSView *)now->effectiveWinId();
-    [view.window makeFirstResponder:view];
+    @autoreleasepool {
+        NSView *view;
+        if (QMacCocoaViewContainer *viewContainer = qobject_cast<QMacCocoaViewContainer *>(now))
+            view = viewContainer->cocoaView();
+        else
+            view = (NSView *)now->effectiveWinId();
+        [view.window makeFirstResponder:view];
+    }
 }
 
 } // Internal

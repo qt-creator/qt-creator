@@ -33,31 +33,13 @@
 #ifndef QNX_INTERNAL_QNXDEVICECONFIGURATION_H
 #define QNX_INTERNAL_QNXDEVICECONFIGURATION_H
 
+#include "qnx_export.h"
+
 #include <remotelinux/linuxdevice.h>
-#include <projectexplorer/devicesupport/sshdeviceprocess.h>
 
 namespace Qnx {
-namespace Internal {
 
-class QnxDeviceProcess : public ProjectExplorer::SshDeviceProcess
-{
-public:
-    QnxDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device, QObject *parent);
-
-    void setWorkingDirectory(const QString &directory) { m_workingDir = directory; }
-
-    void interrupt() { doSignal(2); }
-    void terminate() { doSignal(15); }
-    void kill() { doSignal(9); }
-    QString fullCommandLine() const;
-
-private:
-    void doSignal(int sig);
-    QString m_pidFile;
-    QString m_workingDir;
-};
-
-class QnxDeviceConfiguration : public RemoteLinux::LinuxDevice
+class QNX_EXPORT QnxDeviceConfiguration : public RemoteLinux::LinuxDevice
 {
     Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxDeviceConfiguration)
 
@@ -103,7 +85,6 @@ private:
     mutable int m_versionNumber;
 };
 
-} // namespace Internal
 } // namespace Qnx
 
 #endif // QNX_INTERNAL_QNXDEVICECONFIGURATION_H

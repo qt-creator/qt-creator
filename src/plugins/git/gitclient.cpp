@@ -1282,7 +1282,6 @@ bool GitClient::synchronousRevListCmd(const QString &workingDirectory, const QSt
 // Find out the immediate parent revisions of a revision of the repository.
 // Might be several in case of merges.
 bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
-                                           const QStringList &files /* = QStringList() */,
                                            const QString &revision,
                                            QStringList *parents,
                                            QString *errorMessage) const
@@ -1295,10 +1294,6 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
         return true;
     }
     arguments << QLatin1String("--parents") << QLatin1String("--max-count=1") << revision;
-    if (!files.isEmpty()) {
-        arguments.append(QLatin1String("--"));
-        arguments.append(files);
-    }
 
     if (!synchronousRevListCmd(workingDirectory, arguments, &outputText, &errorText)) {
         *errorMessage = msgParentRevisionFailed(workingDirectory, revision, errorText);
@@ -1474,7 +1469,7 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
 
     QStringList parents;
     QString errorMessage;
-    synchronousParentRevisions(workingDirectory, QStringList(), revision, &parents, &errorMessage);
+    synchronousParentRevisions(workingDirectory, revision, &parents, &errorMessage);
     foreach (const QString &p, parents) {
         QByteArray pf;
         arguments.clear();
@@ -1534,7 +1529,8 @@ QString GitClient::synchronousShortDescription(const QString &workingDirectory, 
     arguments << QLatin1String("log") << QLatin1String(noColorOption)
               << (QLatin1String("--pretty=format:") + format)
               << QLatin1String("--max-count=1") << revision;
-    const bool rc = vcsFullySynchronousExec(workingDirectory, arguments, &outputTextData, &errorText);
+    const bool rc = vcsFullySynchronousExec(workingDirectory, arguments, &outputTextData, &errorText,
+                                            silentFlags);
     if (!rc) {
         VcsOutputWindow::appendSilently(tr("Cannot describe revision \"%1\" in \"%2\": %3")
                                      .arg(revision, workingDirectory, commandOutputFromLocal8Bit(errorText)));

@@ -46,6 +46,7 @@ namespace Internal {
 
 class WaitForStopDialog : public QDialog
 {
+    Q_OBJECT
 public:
     WaitForStopDialog(QList<ProjectExplorer::RunControl *> runControls);
 

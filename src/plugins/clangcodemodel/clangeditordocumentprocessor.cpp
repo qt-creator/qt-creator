@@ -41,7 +41,9 @@
 #include <diagnosticcontainer.h>
 #include <sourcelocationcontainer.h>
 
-#include <cpptools/cpptoolsplugin.h>
+#include <cpptools/cppcodemodelsettings.h>
+#include <cpptools/cppprojects.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppworkingcopy.h>
 
 #include <texteditor/convenience.h>
@@ -87,6 +89,9 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
     , m_semanticHighlighter(document)
     , m_builtinProcessor(document, /*enableSemanticHighlighter=*/ false)
 {
+    connect(m_parser.data(), &ClangEditorDocumentParser::projectPartDetermined,
+            this, &ClangEditorDocumentProcessor::onParserDeterminedProjectPart);
+
     // Forwarding the semantic info from the builtin processor enables us to provide all
     // editor (widget) related features that are not yet implemented by the clang plugin.
     connect(&m_builtinProcessor, &CppTools::BuiltinEditorDocumentProcessor::cppDocumentUpdated,
@@ -230,9 +235,10 @@ static bool isProjectPartLoadedOrIsFallback(CppTools::ProjectPart::Ptr projectPa
         && (projectPart->id().isEmpty() || ClangCodeModel::Utils::isProjectPartLoaded(projectPart));
 }
 
-void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor()
+void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor(
+        CppTools::ProjectPart::Ptr projectPart)
 {
-    const CppTools::ProjectPart::Ptr projectPart = m_parser->projectPart();
+    QTC_ASSERT(projectPart, return);
 
     if (isProjectPartLoadedOrIsFallback(projectPart)) {
         updateTranslationUnitForEditor(projectPart.data());
@@ -240,6 +246,12 @@ void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor(
 
         m_projectPart = projectPart;
     }
+}
+
+void ClangEditorDocumentProcessor::onParserDeterminedProjectPart(
+        CppTools::ProjectPart::Ptr projectPart)
+{
+    updateProjectPartAndTranslationUnitForEditor(projectPart);
 }
 
 void ClangEditorDocumentProcessor::onParserFinished()
@@ -253,8 +265,6 @@ void ClangEditorDocumentProcessor::onParserFinished()
 
     // Run semantic highlighter
     m_semanticHighlighter.run();
-
-    updateProjectPartAndTranslationUnitForEditor();
 }
 
 void ClangEditorDocumentProcessor::updateTranslationUnitForEditor(CppTools::ProjectPart *projectPart)
@@ -294,13 +304,37 @@ void ClangEditorDocumentProcessor::requestDiagnostics()
     }
 }
 
+static CppTools::ProjectPart projectPartForLanguageOption(CppTools::ProjectPart *projectPart)
+{
+    if (projectPart)
+        return *projectPart;
+    return *CppTools::CppModelManager::instance()->fallbackProjectPart().data();
+}
+
+static QStringList languageOptions(const QString &filePath, CppTools::ProjectPart *projectPart)
+{
+    const auto theProjectPart = projectPartForLanguageOption(projectPart);
+    CppTools::CompilerOptionsBuilder builder(theProjectPart);
+    builder.addLanguageOption(CppTools::ProjectFile::classify(filePath));
+
+    return builder.options();
+}
+
+static QStringList fileArguments(const QString &filePath, CppTools::ProjectPart *projectPart)
+{
+    return QStringList(languageOptions(filePath, projectPart))
+         + CppTools::codeModelSettings()->extraClangOptions();
+}
+
 ClangBackEnd::FileContainer
 ClangEditorDocumentProcessor::fileContainer(CppTools::ProjectPart *projectPart) const
 {
-    if (projectPart)
-        return {filePath(), projectPart->id(), revision()};
+    const auto projectPartId = projectPart
+            ? Utf8String::fromString(projectPart->id())
+            : Utf8String();
+    const QStringList theFileArguments = fileArguments(filePath(), projectPart);
 
-    return {filePath(), Utf8String(), revision()};
+    return {filePath(), projectPartId, Utf8StringVector(theFileArguments), revision()};
 }
 
 } // namespace Internal

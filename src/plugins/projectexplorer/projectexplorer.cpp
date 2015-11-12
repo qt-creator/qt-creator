@@ -1161,10 +1161,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         dd->m_projectExplorerSettings.environmentId = QUuid::createUuid();
     int tmp = s->value(QLatin1String("ProjectExplorer/Settings/StopBeforeBuild"),
                             Utils::HostOsInfo::isWindowsHost() ? 1 : 0).toInt();
-    dd->m_projectExplorerSettings.stopBeforeBuild = ProjectExplorerSettings::StopBeforeBuild(tmp);
     if (tmp < 0 || tmp > ProjectExplorerSettings::StopAll)
         tmp = Utils::HostOsInfo::isWindowsHost() ? 1 : 0;
-
     dd->m_projectExplorerSettings.stopBeforeBuild = ProjectExplorerSettings::StopBeforeBuild(tmp);
 
     connect(dd->m_sessionManagerAction, &QAction::triggered,
@@ -2294,14 +2292,13 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
     if (!m_instance->saveModifiedFiles())
         return -1;
 
-    if (m_projectExplorerSettings.stopBeforeBuild != ProjectExplorerSettings::StopNone) {
-        QList<RunControl *> toStop;
-        foreach (RunControl *rc, m_outputPane->allRunControls()) {
-            if (rc->isRunning()
-                    && (m_projectExplorerSettings.stopBeforeBuild == ProjectExplorerSettings::StopAll
-                        || projects.contains(rc->project())))
-                toStop << rc;
-        }
+    if (m_projectExplorerSettings.stopBeforeBuild != ProjectExplorerSettings::StopNone
+            && stepIds.contains(Constants::BUILDSTEPS_BUILD)) {
+        bool stopAll = (m_projectExplorerSettings.stopBeforeBuild == ProjectExplorerSettings::StopAll);
+        const QList<RunControl *> toStop
+                = Utils::filtered(m_outputPane->allRunControls(), [&projects, stopAll](RunControl *rc) {
+                                      return rc->isRunning() && (stopAll || projects.contains(rc->project()));
+                                  });
 
         if (!toStop.isEmpty()) {
             bool stopThem = true;

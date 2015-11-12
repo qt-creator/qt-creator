@@ -102,10 +102,6 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     checkBoxUseToolTipsInMainEditor = new QCheckBox(behaviorBox);
     checkBoxUseToolTipsInMainEditor->setText(tr("Use tooltips in main editor while debugging"));
 
-    checkBoxListSourceFiles = new QCheckBox(behaviorBox);
-    checkBoxListSourceFiles->setToolTip(tr("Populates the source file view automatically. This might slow down debugger startup considerably."));
-    checkBoxListSourceFiles->setText(tr("Populate source file view automatically"));
-
     QString t = tr("Stopping and stepping in the debugger "
         "will automatically open views associated with the current location.") + QLatin1Char('\n');
     checkBoxCloseSourceBuffersOnExit = new QCheckBox(behaviorBox);
@@ -174,11 +170,10 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     gridLayout->addLayout(horizontalLayout, 7, 0, 1, 2);
 
     gridLayout->addWidget(checkBoxFontSizeFollowsEditor, 0, 1, 1, 1);
-    gridLayout->addWidget(checkBoxListSourceFiles, 1, 1, 1, 1);
-    gridLayout->addWidget(checkBoxSwitchModeOnExit, 2, 1, 1, 1);
-    gridLayout->addWidget(checkBoxShowQmlObjectTree, 3, 1, 1, 1);
-    gridLayout->addWidget(checkBoxKeepEditorStationaryWhileStepping, 4, 1, 1, 1);
-    gridLayout->addWidget(checkBoxRegisterForPostMortem, 5, 1, 1, 1);
+    gridLayout->addWidget(checkBoxSwitchModeOnExit, 1, 1, 1, 1);
+    gridLayout->addWidget(checkBoxShowQmlObjectTree, 2, 1, 1, 1);
+    gridLayout->addWidget(checkBoxKeepEditorStationaryWhileStepping, 3, 1, 1, 1);
+    gridLayout->addWidget(checkBoxRegisterForPostMortem, 4, 1, 1, 1);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
     verticalLayout->addWidget(behaviorBox);
@@ -187,8 +182,6 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
 
     m_group->clear();
 
-    m_group->insert(action(ListSourceFiles),
-        checkBoxListSourceFiles);
     m_group->insert(action(UseAlternatingRowColors),
         checkBoxUseAlternatingRowColors);
     m_group->insert(action(UseToolTipsInMainEditor),

@@ -1510,7 +1510,7 @@
                     defined file pattern only in the project you are currently
                     editing.
 
-                \li \uicontrol {Files on File System} recursively searches files
+                \li \uicontrol {Files in File System} recursively searches files
                     matching the defined file pattern in the selected directory.
 
                 \li \uicontrol {Current File} searches only the current file.

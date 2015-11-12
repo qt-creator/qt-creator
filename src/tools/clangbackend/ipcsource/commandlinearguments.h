@@ -28,24 +28,33 @@
 **
 ****************************************************************************/
 
+#ifndef CLANGBACKEND_COMMANDLINEARGUMENTS_H
+#define CLANGBACKEND_COMMANDLINEARGUMENTS_H
 
-#ifndef AUTORELEASEPOOL_H
-#define AUTORELEASEPOOL_H
+#include <utf8stringvector.h>
 
-#import <Foundation/NSAutoreleasePool.h>
+#include <vector>
 
-namespace Utils {
+namespace ClangBackEnd {
 
-class AutoreleasePool
+class CommandLineArguments
 {
 public:
-    AutoreleasePool() { pool = [[NSAutoreleasePool alloc] init]; }
-    ~AutoreleasePool() { [pool release]; }
+    CommandLineArguments(const char *filePath,
+                         const std::vector<const char *> &projectPartArguments,
+                         const Utf8StringVector &fileArguments,
+                         bool addVerboseOption);
+
+    const char * const *data() const;
+    int count() const;
+    const char * at(int position) const;
+
+    void print() const;
+
 private:
-    NSAutoreleasePool *pool;
+    std::vector<const char *> m_arguments;
 };
 
-} // Utils
+} // namespace ClangBackEnd
 
-#endif // AUTORELEASEPOOL_H
-
+#endif // CLANGBACKEND_COMMANDLINEARGUMENTS_H

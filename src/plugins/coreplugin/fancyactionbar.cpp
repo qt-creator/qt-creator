@@ -53,9 +53,13 @@ using namespace Utils;
 namespace Core {
 namespace Internal {
 
-FancyToolButton::FancyToolButton(QWidget *parent)
+FancyToolButton::FancyToolButton(QAction *action, QWidget *parent)
     : QToolButton(parent), m_fader(0)
 {
+    setDefaultAction(action);
+    connect(action, &QAction::changed, this, &FancyToolButton::actionChanged);
+    actionChanged();
+
     setAttribute(Qt::WA_Hover, true);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
@@ -364,18 +368,12 @@ FancyActionBar::FancyActionBar(QWidget *parent)
 
 void FancyActionBar::addProjectSelector(QAction *action)
 {
-    FancyToolButton* toolButton = new FancyToolButton(this);
-    toolButton->setDefaultAction(action);
-    connect(action, SIGNAL(changed()), toolButton, SLOT(actionChanged()));
-    m_actionsLayout->insertWidget(0, toolButton);
+    m_actionsLayout->insertWidget(0, new FancyToolButton(action, this));
 
 }
 void FancyActionBar::insertAction(int index, QAction *action)
 {
-    FancyToolButton *toolButton = new FancyToolButton(this);
-    toolButton->setDefaultAction(action);
-    connect(action, SIGNAL(changed()), toolButton, SLOT(actionChanged()));
-    m_actionsLayout->insertWidget(index, toolButton);
+    m_actionsLayout->insertWidget(index, new FancyToolButton(action, this));
 }
 
 QLayout *FancyActionBar::actionsLayout() const

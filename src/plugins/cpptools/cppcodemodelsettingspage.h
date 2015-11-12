@@ -58,8 +58,8 @@ public:
     void applyToSettings() const;
 
 private:
-    bool applyToSettings(QComboBox *chooser, const QString &mimeType) const;
-    void applyToWidget(QComboBox *chooser, const QString &mimeType) const;
+    void setupClangCodeModelWidgets() const;
+    bool applyClangCodeModelWidgetsToSettings() const;
 
 private:
     Ui::CppCodeModelSettingsPage *m_ui;

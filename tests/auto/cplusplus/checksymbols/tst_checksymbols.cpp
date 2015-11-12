@@ -47,6 +47,10 @@
     Tests CheckSymbols, the "data provider" of the semantic highlighter.
  */
 
+// When adding tests, you may want to set this enum
+// in order to print out all found uses.
+enum { enableListing = 0 };
+
 using namespace CPlusPlus;
 using namespace CppTools;
 
@@ -57,34 +61,27 @@ typedef SemanticHighlighter Highlighting;
 typedef QList<Use> UseList;
 Q_DECLARE_METATYPE(UseList)
 
+#define CASE_STR(val) case Highlighting::val: return "Highlighting::" # val
 static QString useKindToString(UseKind useKind)
 {
     switch (useKind) {
-    case Highlighting::Unknown:
-        return QLatin1String("SemanticHighlighter::Unknown");
-    case Highlighting::TypeUse:
-        return QLatin1String("SemanticHighlighter::TypeUse");
-    case Highlighting::LocalUse:
-        return QLatin1String("SemanticHighlighter::LocalUse");
-    case Highlighting::FieldUse:
-        return QLatin1String("SemanticHighlighter::FieldUse");
-    case Highlighting::EnumerationUse:
-        return QLatin1String("SemanticHighlighter::EnumerationUse");
-    case Highlighting::VirtualMethodUse:
-        return QLatin1String("SemanticHighlighter::VirtualMethodUse");
-    case Highlighting::LabelUse:
-        return QLatin1String("SemanticHighlighter::LabelUse");
-    case Highlighting::MacroUse:
-        return QLatin1String("SemanticHighlighter::MacroUse");
-    case Highlighting::FunctionUse:
-        return QLatin1String("SemanticHighlighter::FunctionUse");
-    case Highlighting::PseudoKeywordUse:
-        return QLatin1String("SemanticHighlighter::PseudoKeywordUse");
+    CASE_STR(Unknown);
+    CASE_STR(TypeUse);
+    CASE_STR(LocalUse);
+    CASE_STR(FieldUse);
+    CASE_STR(EnumerationUse);
+    CASE_STR(VirtualMethodUse);
+    CASE_STR(LabelUse);
+    CASE_STR(MacroUse);
+    CASE_STR(FunctionUse);
+    CASE_STR(PseudoKeywordUse);
+    CASE_STR(StringUse);
     default:
         QTest::qFail("Unknown UseKind", __FILE__, __LINE__);
         return QLatin1String("Unknown UseKind");
     }
 }
+#undef CASE_STR
 
 // The following two functions are "enhancements" for QCOMPARE().
 QT_BEGIN_NAMESPACE
@@ -112,11 +109,11 @@ class BaseTestCase
 public:
     BaseTestCase(const QByteArray &source, const UseList &expectedUsesMacros = UseList())
     {
-        // Write source to temprorary file
+        // Write source to temporary file
         const QString filePath = QDir::tempPath() + QLatin1String("/file.h");
         Tests::TestCase::writeFile(filePath, source);
 
-        // Processs source
+        // Process source
         const Document::Ptr document = createDocument(filePath, source);
         QVERIFY(document);
         Snapshot snapshot;
@@ -182,14 +179,21 @@ public:
     {
         const int resultCount = future.resultCount();
         UseList actualUses;
+        QByteArray expectedInput;
+        if (enableListing)
+            expectedInput = _("\n") + _(8, ' ') + "<< (UseList()\n";
         for (int i = 0; i < resultCount; ++i) {
             const Use use = future.resultAt(i);
-            // When adding tests, you may want to uncomment the
-            // following line in order to print out all found uses.
-            // qDebug() << QTest::toString(use);
+            if (enableListing)
+                expectedInput += _(12, ' ') + "<< " + _(QTest::toString(use)) + "\n";
             actualUses.append(use);
         }
 
+        if (enableListing) {
+            expectedInput.chop(1);
+            expectedInput += ')';
+            qDebug() << expectedInput;
+        }
         // Checks
         QVERIFY(resultCount > 0);
         QCOMPARE(resultCount, expectedUsesAll.count());
@@ -220,6 +224,8 @@ private slots:
 
     void test_checksymbols_infiniteLoop_data();
     void test_checksymbols_infiniteLoop();
+
+    void test_checksymbols_infiniteLoop_BUG15141();
 
     void test_parentOfBlock();
 
@@ -1116,6 +1122,25 @@ void tst_CheckSymbols::test_checksymbols_infiniteLoop()
     snapshot.insert(TestCase::createDocument(filePath2, source2));
 
     TestCase::runCheckSymbols(document1, snapshot);
+}
+
+void tst_CheckSymbols::test_checksymbols_infiniteLoop_BUG15141()
+{
+    QByteArray source =
+            "template <class R1>\n"
+            "struct Base\n"
+            "{\n"
+            "};\n"
+            "\n"
+            "template<typename R>\n"
+            "struct Derived :\n"
+            "  Base<\n"
+            "    typename Derived<typename Base<R>::type>::type,\n"
+            "    typename Derived<typename Base<R>::type>::type\n"
+            "  >::type\n"
+            "{};\n";
+
+    BaseTestCase tc(source);
 }
 
 void tst_CheckSymbols::test_parentOfBlock()

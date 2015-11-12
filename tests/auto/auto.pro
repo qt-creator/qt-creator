@@ -13,6 +13,7 @@ SUBDIRS += \
     profilewriter \
     treeviewfind \
     qtcprocess \
+    json \
     utils \
     filesearch \
     sdktool \

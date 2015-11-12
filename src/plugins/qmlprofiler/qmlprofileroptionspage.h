@@ -39,6 +39,7 @@ namespace Internal {
 
 class QmlProfilerOptionsPage : public Core::IOptionsPage
 {
+    Q_OBJECT
 public:
     QmlProfilerOptionsPage();
 

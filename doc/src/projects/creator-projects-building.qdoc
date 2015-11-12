@@ -72,6 +72,12 @@
     \uicontrol {Clean Project}. To clean the build directory and then build the
     project, select \uicontrol Build > \uicontrol {Rebuild All} or \uicontrol {Rebuild Project}.
 
+    To build and clean projects without dependencies, select the
+    \uicontrol {Build Without Dependencies},
+    \uicontrol {Rebuild Without Dependencies}, and
+    \uicontrol {Clean Without Dependencies} options in the context menu in the
+    \uicontrol Projects view.
+
     To run qmake to generate new Makefiles, select \uicontrol Build > \uicontrol qmake.
 
 */

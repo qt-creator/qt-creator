@@ -612,7 +612,7 @@ void QmlEngine::shutdownInferior()
     //      "type"    : "request",
     //      "command" : "disconnect",
     //    }
-    d->runCommand(DISCONNECT);
+    d->runCommand({DISCONNECT});
 
     if (isSlaveEngine())
         resetLocation();
@@ -2504,7 +2504,7 @@ void QmlEnginePrivate::stateChanged(State state)
         /// Start session.
         flushSendBuffer();
         runDirectCommand(CONNECT);
-        runCommand(VERSION); // Only used for logging.
+        runCommand({VERSION}); // Only used for logging.
     }
 }
 

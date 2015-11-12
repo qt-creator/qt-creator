@@ -28,6 +28,7 @@
 **
 ****************************************************************************/
 
+#include <commandlinearguments.h>
 #include <diagnosticset.h>
 #include <filecontainer.h>
 #include <projectpart.h>
@@ -61,6 +62,7 @@ using ClangBackEnd::TranslationUnits;
 
 using testing::IsNull;
 using testing::NotNull;
+using testing::Eq;
 using testing::Gt;
 using testing::Contains;
 using testing::EndsWith;
@@ -82,6 +84,7 @@ protected:
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
     ::TranslationUnit translationUnit{translationUnitFilePath,
                                       projectPart,
+                                      Utf8StringVector(),
                                       translationUnits};
 };
 
@@ -94,13 +97,13 @@ TEST_F(TranslationUnit, DefaultTranslationUnitIsInvalid)
 
 TEST_F(TranslationUnit, ThrowExceptionForNonExistingFilePath)
 {
-    ASSERT_THROW(::TranslationUnit(Utf8StringLiteral("file.cpp"), projectPart, translationUnits),
+    ASSERT_THROW(::TranslationUnit(Utf8StringLiteral("file.cpp"), projectPart, Utf8StringVector(), translationUnits),
                  ClangBackEnd::TranslationUnitFileNotExitsException);
 }
 
 TEST_F(TranslationUnit, ThrowNoExceptionForNonExistingFilePathIfDoNotCheckIfFileExistsIsSet)
 {
-    ASSERT_NO_THROW(::TranslationUnit(Utf8StringLiteral("file.cpp"), projectPart, translationUnits, ::TranslationUnit::DoNotCheckIfFileExists));
+    ASSERT_NO_THROW(::TranslationUnit(Utf8StringLiteral("file.cpp"), projectPart, Utf8StringVector(), translationUnits, ::TranslationUnit::DoNotCheckIfFileExists));
 }
 
 TEST_F(TranslationUnit, TranslationUnitIsValid)
@@ -145,6 +148,13 @@ TEST_F(TranslationUnit, ResetedTranslationUnitIsNull)
     translationUnit.reset();
 
     ASSERT_TRUE(translationUnit.isNull());
+}
+
+TEST_F(TranslationUnit, LastCommandLineArgumentIsFilePath)
+{
+    const auto arguments = translationUnit.commandLineArguments();
+
+    ASSERT_THAT(arguments.at(arguments.count() - 1), Eq(translationUnitFilePath));
 }
 
 TEST_F(TranslationUnit, TimeStampForProjectPartChangeIsUpdatedAsNewCxTranslationUnitIsGenerated)
@@ -274,6 +284,7 @@ TEST_F(TranslationUnit, DeletedFileShouldBeNotSetDirty)
     EXPECT_TRUE(temporaryFile.write(readContentFromTranslationUnitFile()));
     ::TranslationUnit translationUnit(temporaryFile.fileName(),
                                       projectPart,
+                                      Utf8StringVector(),
                                       translationUnits);
 
 return translationUnit;

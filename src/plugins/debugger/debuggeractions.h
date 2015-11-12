@@ -162,9 +162,6 @@ enum DebuggerActionCode
     MaximalStringLength,
     DisplayStringLimit,
 
-    // Source List
-    ListSourceFiles,
-
     // Running
     SkipKnownFrames,
     EnableReverseDebugging,

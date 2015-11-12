@@ -1549,6 +1549,7 @@ CreateBindings::CreateBindings(Document::Ptr thisDocument, const Snapshot &snaps
     : _snapshot(snapshot)
     , _control(QSharedPointer<Control>(new Control))
     , _expandTemplates(false)
+    , _depth(0)
 {
     _globalNamespace = allocLookupScope(/*parent = */ 0, /*name = */ 0);
     _currentLookupScope = _globalNamespace;
@@ -1978,8 +1979,13 @@ void CreateBindings::initializeSubst(Clone &cloner,
 {
     const unsigned argumentCountOfSpecialization = specialization->templateParameterCount();
 
+    if (_depth > 15)
+        return;
+
+    ++_depth;
     for (unsigned i = 0; i < argumentCountOfSpecialization; ++i)
         resolveTemplateArgument(cloner, subst, origin, specialization, instantiation, i);
+    --_depth;
 }
 
 } // namespace CPlusPlus

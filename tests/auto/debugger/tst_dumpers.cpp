@@ -246,12 +246,13 @@ static QString toHex(const QString &str)
 
 struct Context
 {
-    Context() : qtVersion(0), gccVersion(0), clangVersion(0) {}
+    Context() : qtVersion(0), gccVersion(0), clangVersion(0), boostVersion(0) {}
 
     QByteArray nameSpace;
     int qtVersion;
     int gccVersion;
     int clangVersion;
+    int boostVersion;
 };
 
 struct Name
@@ -482,6 +483,7 @@ struct CheckBase
     mutable VersionBase gccVersionForCheck;
     mutable VersionBase clangVersionForCheck;
     mutable QtVersion qtVersionForCheck;
+    mutable BoostVersion boostVersionForCheck;
     mutable bool optionallyPresent;
 };
 
@@ -549,6 +551,12 @@ struct Check : CheckBase
         return *this;
     }
 
+    const Check &operator%(BoostVersion version)
+    {
+        boostVersionForCheck = version;
+        return *this;
+    }
+
     QByteArray iname;
     Name expectedName;
     Value expectedValue;
@@ -608,8 +616,14 @@ struct Cxx11Profile : public Profile
 struct BoostProfile : public Profile
 {
     BoostProfile()
-      : Profile("macx:INCLUDEPATH += /usr/local/include")
-    {}
+      : Profile(QByteArray())
+    {
+        const QByteArray &boostIncPath = qgetenv("QTC_BOOST_INCLUDE_PATH_FOR_TEST");
+        if (!boostIncPath.isEmpty())
+            contents = QByteArray("INCLUDEPATH += ") + boostIncPath.constData();
+        else
+            contents = "macx:INCLUDEPATH += /usr/local/include";
+    }
 };
 
 struct MacLibCppProfile : public Profile
@@ -1182,6 +1196,11 @@ void tst_Dumpers::dumper()
             "\n#else"
             "\n    int clangversion = 0;"
             "\n#endif"
+            "\n#ifdef BOOST_VERSION"
+            "\n    int boostversion = BOOST_VERSION;"
+            "\n#else"
+            "\n    int boostversion = 0;"
+            "\n#endif"
             "\n" + (data.useQHash ?
                 "\n#if QT_VERSION >= 0x050000"
                 "\nqt_qhash_seed.store(0);"
@@ -1281,7 +1300,8 @@ void tst_Dumpers::dumper()
                 "python from gdbbridge import *\n"
                 "python theDumper.setupDumpers()\n"
                 "run " + nograb + "\n"
-                "python theDumper.fetchVariables({'fancy':1,'forcens':1,"
+                "python theDumper.fetchVariables({"
+                    "'token':2,'fancy':1,'forcens':1,'sortstructs':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
                     "'expanded':[" + expandedq + "]})\n";
 
@@ -1312,7 +1332,9 @@ void tst_Dumpers::dumper()
                "sc sys.path.insert(1, '" + dumperDir + "')\n"
                "sc from lldbbridge import *\n"
               // "sc print(dir())\n"
-               "sc Tester('" + t->buildPath.toLatin1() + "/doit', [" + expandedq + "])\n"
+               "sc Tester('" + t->buildPath.toLatin1() + "/doit', {'fancy':1,'forcens':1,"
+                    "'autoderef':1,'dyntype':1,'passexceptions':1,"
+                    "'expanded':[" + expandedq + "]})\n"
                "quit\n";
 
         fullLldb.write(cmds);
@@ -1415,6 +1437,8 @@ void tst_Dumpers::dumper()
             context.gccVersion = child["value"].toInt();
         else if (dummy.iname == "local.clangversion")
             context.clangVersion = child["value"].toInt();
+        else if (dummy.iname == "local.boostversion")
+            context.boostVersion = child["value"].toInt();
         else
             parseWatchData(dummy, child, &list);
     }
@@ -2771,7 +2795,7 @@ void tst_Dumpers::dumper_data()
                     "QSharedPointer<QString> ptr20(new QString(\"hallo\"));\n"
                     "QSharedPointer<QString> ptr21 = ptr20;\n"
                     "QSharedPointer<QString> ptr22 = ptr20;\n"
-                    "unused(&ptr20, &ptr21, &ptr21);\n\n"
+                    "unused(&ptr20, &ptr21, &ptr22);\n\n"
 
                     "QSharedPointer<int> ptr30(new int(43));\n"
                     "QWeakPointer<int> ptr31(ptr30);\n"
@@ -4113,6 +4137,7 @@ void tst_Dumpers::dumper_data()
             << Data("#include <set>\n",
 
                     "std::set<double> s0;\n"
+                    "unused(&s0);\n\n"
 
                     "std::set<int> s1;\n"
                     "s1.insert(11);\n"
@@ -5251,7 +5276,7 @@ void tst_Dumpers::dumper_data()
                     "l.push_back(p(15, 65));\n"
                     "l.push_back(p(16, 66));\n")
              + BoostProfile()
-             + Check("l", "<4 items>", "boost::container::list<std::pair<int,double>>")
+             + Check("l", "<4 items>", Pattern("boost::container::list<std::pair<int,double>.*>"))
              + Check("l.2.second", "65", "double");
 
 
@@ -5269,16 +5294,14 @@ void tst_Dumpers::dumper_data()
                     "s2.insert(\"def\");\n")
 
                + BoostProfile()
-               + BoostVersion(1 * 100000 + 54 * 100) // FIXME: Not checked
-               + GdbVersion(70600) // Crude replacement instead
 
-               + Check("s1", "<2 items>", "boost::unordered::unordered_set<int>")
-               + Check("s1.0", "[0]", "22", "int")
-               + Check("s1.1", "[1]", "11", "int")
+               + Check("s1", "<2 items>", "boost::unordered::unordered_set<int>") % BoostVersion(1 * 100000 + 54 * 100)
+               + Check("s1.0", "[0]", "22", "int") % BoostVersion(1 * 100000 + 54 * 100)
+               + Check("s1.1", "[1]", "11", "int") % BoostVersion(1 * 100000 + 54 * 100)
 
-               + Check("s2", "<2 items>", "boost::unordered::unordered_set<std::string>")
-               + Check("s2.0", "[0]", "\"def\"", "std::string")
-               + Check("s2.1", "[1]", "\"abc\"", "std::string");
+               + Check("s2", "<2 items>", "boost::unordered::unordered_set<std::string>") % BoostVersion(1 * 100000 + 54 * 100)
+               + Check("s2.0", "[0]", "\"def\"", "std::string") % BoostVersion(1 * 100000 + 54 * 100)
+               + Check("s2.1", "[1]", "\"abc\"", "std::string") % BoostVersion(1 * 100000 + 54 * 100);
 
 
 //    // This tests qdump__KRBase in share/qtcreator/debugger/qttypes.py which uses

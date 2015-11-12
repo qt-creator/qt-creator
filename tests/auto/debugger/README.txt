@@ -16,8 +16,11 @@ conditions by using environment variables as follows:
       "normal" standard library, and the "debug" version
       (this will add DEFINES += _GLIBCXX_DEBUG) to the .pro
 
-  (QTC_MSVC_ENV_BAT - to set up MSVC)
+   QTC_BOOST_INCLUDE_PATH_FOR_TEST - include path for boost libraries
+      only necessary if you have more than one version in different
+      paths installed or if a non-standard path has been used
 
+  (QTC_MSVC_ENV_BAT - to set up MSVC)
 
 The tests should be used for automated testing, but can also
 be used for dumper development and fixing.

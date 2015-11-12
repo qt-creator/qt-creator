@@ -1037,6 +1037,7 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeInGeneratedUiFile(
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo.isValid());
+    QVERIFY(monitorGeneratedUiFile.waitUntilGenerated());
 
     // Open file with ui object
     const QString completionFile = testDir.absolutePath("mainwindow.cpp");
@@ -1046,7 +1047,6 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeInGeneratedUiFile(
     QVERIFY(openSource.succeeded());
 
     // ...and check comletions
-    QVERIFY(monitorGeneratedUiFile.waitUntilGenerated());
     ProposalModel proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "menuBar"));
     QVERIFY(hasItem(proposal, "statusBar"));

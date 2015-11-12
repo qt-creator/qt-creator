@@ -172,6 +172,9 @@ def qdump__std__list__QNX(d, value):
 def qdump__std____debug__list(d, value):
     qdump__std__list(d, value)
 
+def qdump__std____cxx11__list(d, value):
+    qdump__std__list(d, value)
+
 def qform__std__map():
     return mapForms()
 
@@ -289,7 +292,12 @@ def stdTreeIteratorHelper(d, value):
             nodeTypeName = str(value.type).replace("_Rb_tree_iterator", "_Rb_tree_node", 1)
             nodeTypeName = nodeTypeName.replace("_Rb_tree_const_iterator", "_Rb_tree_node", 1)
             nodeType = d.lookupType(nodeTypeName + '*')
-            data = node.cast(nodeType).dereference()["_M_value_field"]
+            nnode = node.cast(nodeType).dereference()
+            try:
+                data = nnode["_M_value_field"]
+            except: # GCC 5.x, C++11.
+                data = nnode["_M_storage"] # __gnu_cxx::__aligned_membuf<T>
+                data = data.cast(d.templateArgument(data.type, 0))
             first = d.childWithName(data, "first")
             if first:
                 d.putSubItem("first", first)
@@ -463,7 +471,7 @@ def qdump__std____1__wstring(d, value):
         size = firstByte / 2
         data = base + 4
     d.putCharArrayHelper(data, size, 4)
-    d.putType("std::xxwstring")
+    d.putType("std::wstring")
 
 
 def qdump__std__shared_ptr(d, value):
@@ -796,12 +804,28 @@ def qform__std__wstring():
 
 def qdump__std__wstring(d, value):
     charSize = d.lookupType('wchar_t').sizeof
-    # HACK: Shift format by 4 to account for latin1 and utf8
     qdump__std__stringHelper1(d, value, charSize, d.currentItemFormat())
 
 def qdump__std__basic_string(d, value):
     innerType = d.templateArgument(value.type, 0)
     qdump__std__stringHelper1(d, value, innerType.sizeof, d.currentItemFormat())
+
+def qdump__std____cxx11__basic_string(d, value):
+    innerType = d.templateArgument(value.type, 0)
+    data = value["_M_dataplus"]["_M_p"]
+    size = int(value["_M_string_length"])
+    d.check(0 <= size) #and size <= alloc and alloc <= 100*1000*1000)
+    d.putCharArrayHelper(data, size, innerType.sizeof, d.currentItemFormat())
+
+def qform__std____cxx11__string(d, value):
+    qdump__std____cxx11__basic_string(d, value)
+
+# Needed only to trigger the form report above.
+def qform__std____cxx11__string():
+    return qform__std__string()
+
+def qform__std____cxx11__wstring():
+    return qform__std__wstring()
 
 def qdump__std____1__basic_string(d, value):
     innerType = str(d.templateArgument(value.type, 0))

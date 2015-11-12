@@ -76,7 +76,7 @@ public:
     void initFrom(Utils::Theme *theme);
     void toTheme(Utils::Theme *theme) const;
 
-    QString m_name;
+    QString m_displayName;
     QStringList m_preferredStyles;
 
 public:

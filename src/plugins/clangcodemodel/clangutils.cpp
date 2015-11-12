@@ -104,16 +104,6 @@ static QString getResourceDir()
     return dir.canonicalPath();
 }
 
-static bool maybeIncludeBorlandExtensions()
-{
-    return
-#if defined(CINDEX_VERSION) // clang 3.2 or higher
-        true;
-#else
-        false;
-#endif
-}
-
 class LibClangOptionsBuilder : public CompilerOptionsBuilder
 {
 public:
@@ -122,13 +112,13 @@ public:
         if (projectPart.isNull())
             return QStringList();
 
-        LibClangOptionsBuilder optionsBuilder(projectPart);
+        LibClangOptionsBuilder optionsBuilder(*projectPart.data());
 
         if (verboseRunLog().isDebugEnabled())
             optionsBuilder.add(QLatin1String("-v"));
 
         optionsBuilder.addLanguageOption(fileKind);
-        optionsBuilder.addOptionsForLanguage(maybeIncludeBorlandExtensions());
+        optionsBuilder.addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
 
         optionsBuilder.addToolchainAndProjectDefines();
 
@@ -137,15 +127,13 @@ public:
         optionsBuilder.addHeaderPathOptions();
         optionsBuilder.addProjectConfigFileInclude();
 
-        optionsBuilder.addDiagnosticOptions();
-
         optionsBuilder.addExtraOptions();
 
         return optionsBuilder.options();
     }
 
 private:
-    LibClangOptionsBuilder(const CppTools::ProjectPart::Ptr &projectPart)
+    LibClangOptionsBuilder(const CppTools::ProjectPart &projectPart)
         : CompilerOptionsBuilder(projectPart)
     {
     }
@@ -181,7 +169,7 @@ private:
         static const QString wrappedQtHeaders = ICore::instance()->resourcePath()
                 + QLatin1String("/cplusplus/wrappedQtHeaders");
 
-        if (m_projectPart->qtVersion != ProjectPart::NoQt) {
+        if (m_projectPart.qtVersion != ProjectPart::NoQt) {
             add(QLatin1String("-I") + wrappedQtHeaders);
             add(QLatin1String("-I") + wrappedQtHeaders + QLatin1String("/QtCore"));
         }
@@ -189,9 +177,9 @@ private:
 
     void addProjectConfigFileInclude()
     {
-        if (!m_projectPart->projectConfigFile.isEmpty()) {
+        if (!m_projectPart.projectConfigFile.isEmpty()) {
             add(QLatin1String("-include"));
-            add(m_projectPart->projectConfigFile);
+            add(m_projectPart.projectConfigFile);
         }
     }
 
@@ -201,30 +189,7 @@ private:
         add(QLatin1String("-fdiagnostics-show-note-include-stack"));
         add(QLatin1String("-fmacro-backtrace-limit=0"));
         add(QLatin1String("-fretain-comments-from-system-headers"));
-        // TODO: -Xclang -ferror-limit -Xclang 0 ?
-    }
-
-    void addDiagnosticOptions()
-    {
-        add(QStringLiteral("-fmessage-length=0"));
-        add(QStringLiteral("-fdiagnostics-show-note-include-stack"));
-        add(QStringLiteral("-fmacro-backtrace-limit=0"));
-        add(QStringLiteral("-fretain-comments-from-system-headers"));
-        add(QStringLiteral("-ferror-limit=1000"));
-
-        add(QStringLiteral("-Weverything"));
-        add(QStringLiteral("-Wno-c++98-compat"));
-        add(QStringLiteral("-Wno-c++98-compat-pedantic"));
-        add(QStringLiteral("-Wno-unused-macros"));
-        add(QStringLiteral("-Wno-newline-eof"));
-        add(QStringLiteral("-Wno-exit-time-destructors"));
-        add(QStringLiteral("-Wno-global-constructors"));
-        add(QStringLiteral("-Wno-gnu-zero-variadic-macro-arguments"));
-        add(QStringLiteral("-Wno-documentation"));
-        add(QStringLiteral("-Wno-shadow"));
-
-        if (m_projectPart->languageVersion >= ProjectPart::CXX98)
-            add(QStringLiteral("-Wno-missing-prototypes"));
+        add(QLatin1String("-ferror-limit=1000"));
     }
 };
 

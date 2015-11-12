@@ -142,7 +142,7 @@
 
         \li Select \uicontrol Tools > \uicontrol Options >
             \uicontrol {C++} > \uicontrol {Code Model},
-            and select the parser to use for files of each type.
+            and select \uicontrol {Use Clang Code Model}.
 
         \li To process pre-compiled headers before processing any project files,
             deselect the \uicontrol {Ignore pre-compiled headers} check box.

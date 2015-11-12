@@ -52,6 +52,7 @@ class ProjectPart;
 class DiagnosticSet;
 class FileContainer;
 class TranslationUnits;
+class CommandLineArguments;
 
 using time_point = std::chrono::steady_clock::time_point;
 
@@ -66,6 +67,7 @@ public:
     TranslationUnit() = default;
     TranslationUnit(const Utf8String &filePath,
                     const ProjectPart &projectPart,
+                    const Utf8StringVector &fileArguments,
                     TranslationUnits &translationUnits,
                     FileExistsCheck fileExistsCheck = CheckIfFileExists);
     ~TranslationUnit();
@@ -104,6 +106,8 @@ public:
     const QSet<Utf8String> &dependedFilePaths() const;
 
     void setDirtyIfDependencyIsMet(const Utf8String &filePath);
+
+    CommandLineArguments commandLineArguments() const;
 
 private:
     void checkIfNull() const;

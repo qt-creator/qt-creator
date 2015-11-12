@@ -103,4 +103,8 @@
 
     You can also assign properties or define behavior or transitions.
 
+    To move from the \uicontrol Design mode directly to the implementation of a
+    type in the .qml file, right-click the type in the \uicontrol Navigator and
+    select \uicontrol {Go to Implementation} in the context menu.
+
 */

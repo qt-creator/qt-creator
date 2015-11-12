@@ -33,24 +33,24 @@ from dumper import *
 
 
 def qdump__QAtomicInt(d, value):
-    d.putValue(int(value["_q_value"]))
+    d.putValue(d.extractInt(value.address))
     d.putNumChild(0)
 
 
 def qdump__QBasicAtomicInt(d, value):
-    d.putValue(int(value["_q_value"]))
+    d.putValue(d.extractInt(value.address))
     d.putNumChild(0)
 
 
 def qdump__QAtomicPointer(d, value):
     d.putType(value.type)
-    q = value["_q_value"]
+    q = d.extractPointer(value.address)
     p = toInteger(q)
     d.putValue("@0x%x" % p)
     d.putNumChild(1 if p else 0)
     if d.isExpanded():
         with Children(d):
-           d.putSubItem("_q_value", q.dereference())
+           d.putSubItem("[pointee]", q.dereference())
 
 def qform__QByteArray():
     return [Latin1StringFormat, SeparateLatin1StringFormat,
@@ -422,7 +422,12 @@ def qdump__QFile(d, value):
     # 9fc0965 and a373ffcd change the layout of the private structure
     qtVersion = d.qtVersion()
     is32bit = d.is32bit()
-    if qtVersion >= 0x050500:
+    if qtVersion >= 0x050600:
+        if d.isWindowsTarget():
+            offset = 164 if is32bit else 248
+        else:
+            offset = 168 if is32bit else 248
+    elif qtVersion >= 0x050500:
         if d.isWindowsTarget():
             offset = 164 if is32bit else 248
         else:
@@ -697,38 +702,71 @@ def qdump__QHostAddress(d, value):
     #   bool isParsed    (2*ptrSize + 24)
 
     privAddress = d.extractPointer(value)
-    isQt5 = d.qtVersion() >= 0x050000
-    sizeofQString = d.ptrSize()
-    ipStringAddress = privAddress + (0 if isQt5 else 24)
-    isParsedAddress = privAddress + 24 + 2 * sizeofQString
-    # value.d.d->ipString
-    ipString = d.encodeString(ipStringAddress, limit=100)
-    if d.extractByte(isParsedAddress) and len(ipString) > 0:
-        d.putValue(ipString, Hex4EncodedLittleEndian)
-    else:
-        # value.d.d->protocol:
-        #  QAbstractSocket::IPv4Protocol = 0
-        #  QAbstractSocket::IPv6Protocol = 1
-        protoAddress = privAddress + 20 + (2 * sizeofQString if isQt5 else 0);
-        proto = d.extractInt(protoAddress)
-        if proto == 1:
-            # value.d.d->a6
-            a6Offset = 4 + (2 * sizeofQString if isQt5 else 0)
-            data = d.readMemory(privAddress + a6Offset, 16)
-            address = ':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4))
-            scopeId = privAddress + sizeofQString + (0 if isQt5 else 24)
-            scopeId = d.encodeString(scopeId, limit=100)
-            d.putValue("%s%%%s" % (address, scopeId), IPv6AddressAndHexScopeId)
-        elif proto == 0:
-            # value.d.d->a
-            a = d.extractInt(privAddress + (2 * sizeofQString if isQt5 else 0))
-            a, n4 = divmod(a, 256)
-            a, n3 = divmod(a, 256)
-            a, n2 = divmod(a, 256)
-            a, n1 = divmod(a, 256)
-            d.putValue("%d.%d.%d.%d" % (n1, n2, n3, n4));
+    if d.qtVersion() >= 0x050700:
+        sizeofQString = d.ptrSize()
+        ipStringAddress = privAddress
+        a6Address = privAddress + 2 * sizeofQString + d.ptrSize() # Include padding
+        protoAddress = a6Address + 16
+        isParsedAddress = protoAddress + 4
+        # value.d.d->ipString
+        ipString = d.encodeString(ipStringAddress, limit=100)
+        if d.extractByte(isParsedAddress) and len(ipString) > 0:
+            d.putValue(ipString, Hex4EncodedLittleEndian)
         else:
-            d.putValue("<unspecified>")
+            # value.d.d->protocol:
+            #  QAbstractSocket::IPv4Protocol = 0
+            #  QAbstractSocket::IPv6Protocol = 1
+            proto = d.extractInt(protoAddress)
+            if proto == 1:
+                # value.d.d->a6
+                data = d.readMemory(a6Address, 16)
+                address = ':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4))
+                scopeIdAddress = ipStringAddress + sizeofQString
+                scopeId = d.encodeString(scopeIdAddress, limit=100)
+                d.putValue("%s%%%s" % (address, scopeId), IPv6AddressAndHexScopeId)
+            elif proto == 0:
+                # value.d.d->a
+                a = d.extractInt(privAddress + 2 * sizeofQString)
+                a, n4 = divmod(a, 256)
+                a, n3 = divmod(a, 256)
+                a, n2 = divmod(a, 256)
+                a, n1 = divmod(a, 256)
+                d.putValue("%d.%d.%d.%d" % (n1, n2, n3, n4));
+            else:
+                d.putValue("<unspecified>")
+    else:
+        isQt5 = d.qtVersion() >= 0x050000
+        sizeofQString = d.ptrSize()
+        ipStringAddress = privAddress + (0 if isQt5 else 24)
+        isParsedAddress = privAddress + 24 + 2 * sizeofQString
+        # value.d.d->ipString
+        ipString = d.encodeString(ipStringAddress, limit=100)
+        if d.extractByte(isParsedAddress) and len(ipString) > 0:
+            d.putValue(ipString, Hex4EncodedLittleEndian)
+        else:
+            # value.d.d->protocol:
+            #  QAbstractSocket::IPv4Protocol = 0
+            #  QAbstractSocket::IPv6Protocol = 1
+            protoAddress = privAddress + 20 + (2 * sizeofQString if isQt5 else 0);
+            proto = d.extractInt(protoAddress)
+            if proto == 1:
+                # value.d.d->a6
+                a6Offset = 4 + (2 * sizeofQString if isQt5 else 0)
+                data = d.readMemory(privAddress + a6Offset, 16)
+                address = ':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4))
+                scopeId = privAddress + sizeofQString + (0 if isQt5 else 24)
+                scopeId = d.encodeString(scopeId, limit=100)
+                d.putValue("%s%%%s" % (address, scopeId), IPv6AddressAndHexScopeId)
+            elif proto == 0:
+                # value.d.d->a
+                a = d.extractInt(privAddress + (2 * sizeofQString if isQt5 else 0))
+                a, n4 = divmod(a, 256)
+                a, n3 = divmod(a, 256)
+                a, n2 = divmod(a, 256)
+                a, n1 = divmod(a, 256)
+                d.putValue("%d.%d.%d.%d" % (n1, n2, n3, n4));
+            else:
+                d.putValue("<unspecified>")
 
     d.putPlainChildren(value["d"]["d"].dereference())
 
@@ -1656,7 +1694,7 @@ def qdump__QSet(d, value):
 
 
 def qdump__QSharedData(d, value):
-    d.putValue("ref: %s" % value["ref"]["_q_value"])
+    d.putValue("ref: %s" % d.extractInt(value["ref"].address))
     d.putNumChild(0)
 
 
@@ -2213,8 +2251,8 @@ def qdump__QWeakPointer(d, value):
         d.putValue("<invalid>")
         d.putNumChild(0)
         return
-    weakref = int(d_ptr["weakref"]["_q_value"])
-    strongref = int(d_ptr["strongref"]["_q_value"])
+    weakref = d.extractInt(d_ptr["weakref"].address)
+    strongref = d.extractInt(d_ptr["strongref"].address)
     d.check(strongref >= -1)
     d.check(strongref <= weakref)
     d.check(weakref <= 10*1000*1000)

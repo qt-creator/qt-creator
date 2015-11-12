@@ -47,7 +47,7 @@ class FancyToolButton : public QToolButton
     Q_PROPERTY(float fader READ fader WRITE setFader)
 
 public:
-    FancyToolButton(QWidget *parent = 0);
+    FancyToolButton(QAction *action, QWidget *parent = 0);
 
     void paintEvent(QPaintEvent *event);
     bool event(QEvent *e);

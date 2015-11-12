@@ -147,7 +147,7 @@ private:
 
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
 
-    void runCommand(const DebuggerCommand &cmd);
+    void runCommand(const DebuggerCommand &cmd) override;
     void debugLastCommand() override;
 
 private:

@@ -8,7 +8,9 @@ QtcTool {
     Depends { name: "app_version_header" }
 
     cpp.defines: base.concat([qbs.targetOS.contains("osx")
-            ? 'DATA_PATH="."' : 'DATA_PATH="../share/qtcreator"'])
+            ? 'DATA_PATH="."'
+            : qbs.targetOS.contains("windows") ? 'DATA_PATH="../share/qtcreator"'
+                                               : 'DATA_PATH="../../share/qtcreator"'])
 
     files: [
         "adddebuggeroperation.cpp", "adddebuggeroperation.h",

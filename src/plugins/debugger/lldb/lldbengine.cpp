@@ -130,17 +130,17 @@ void LldbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguage
     runCommand(cmd);
 }
 
-void LldbEngine::runCommand(const DebuggerCommand &command_)
+void LldbEngine::runCommand(const DebuggerCommand &cmd)
 {
     QTC_ASSERT(m_lldbProc.state() == QProcess::Running, notifyEngineIll());
     const int tok = ++currentToken();
-    DebuggerCommand command = command_;
+    DebuggerCommand command = cmd;
     command.arg("token", tok);
     QByteArray token = QByteArray::number(tok);
-    QByteArray cmd  = command.function + "(" + command.argsToPython() + ")";
-    showMessage(_(token + cmd + '\n'), LogInput);
+    QByteArray function = command.function + "(" + command.argsToPython() + ")";
+    showMessage(_(token + function + '\n'), LogInput);
     m_commandForToken[currentToken()] = command;
-    m_lldbProc.write("script theDumper." + cmd + "\n");
+    m_lldbProc.write("script theDumper." + function + "\n");
 }
 
 void LldbEngine::debugLastCommand()
@@ -151,7 +151,7 @@ void LldbEngine::debugLastCommand()
 void LldbEngine::shutdownInferior()
 {
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
-    runCommand(DebuggerCommand("shutdownInferior"));
+    runCommand({"shutdownInferior"});
 }
 
 void LldbEngine::shutdownEngine()
@@ -405,37 +405,37 @@ void LldbEngine::runEngine()
 void LldbEngine::interruptInferior()
 {
     showStatusMessage(tr("Interrupt requested..."), 5000);
-    runCommand("interruptInferior");
+    runCommand({"interruptInferior"});
 }
 
 void LldbEngine::executeStep()
 {
     notifyInferiorRunRequested();
-    runCommand("executeStep");
+    runCommand({"executeStep"});
 }
 
 void LldbEngine::executeStepI()
 {
     notifyInferiorRunRequested();
-    runCommand("executeStepI");
+    runCommand({"executeStepI"});
 }
 
 void LldbEngine::executeStepOut()
 {
     notifyInferiorRunRequested();
-    runCommand("executeStepOut");
+    runCommand({"executeStepOut"});
 }
 
 void LldbEngine::executeNext()
 {
     notifyInferiorRunRequested();
-    runCommand("executeNext");
+    runCommand({"executeNext"});
 }
 
 void LldbEngine::executeNextI()
 {
     notifyInferiorRunRequested();
-    runCommand("executeNextI");
+    runCommand({"executeNextI"});
 }
 
 void LldbEngine::continueInferior()
@@ -984,7 +984,7 @@ void LldbEngine::reloadRegisters()
 
 void LldbEngine::reloadDebuggingHelpers()
 {
-    runCommand("reloadDumpers");
+    runCommand({"reloadDumpers"});
     updateAll();
 }
 
@@ -1037,7 +1037,7 @@ void LldbEngine::fetchFullBacktrace()
         Internal::openTextEditor(_("Backtrace $"),
            QString::fromUtf8(QByteArray::fromHex(response.data.data())));
     };
-    runCommand("fetchFullBacktrace");
+    runCommand(cmd);
 }
 
 void LldbEngine::fetchMemory(MemoryAgent *agent, QObject *editorToken,

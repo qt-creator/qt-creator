@@ -127,7 +127,7 @@ private slots:
     void readyReadStandardError();
     void processError();
     void processFinished();
-    void runCommand(const DebuggerCommand &cmd, int flags = 0);
+    void runCommand(const DebuggerCommand &cmd) override;
     void operateByInstructionTriggered(bool);
     void verboseLogTriggered(bool);
 
@@ -164,7 +164,7 @@ private:
         ParseStackWow64 = 3 // Hit on a frame with 32bit emulation, switch debugger to 32 bit mode
     };
     enum CommandFlags {
-        NoCallBack = 0,
+        NoFlags = 0,
         BuiltinCommand,
         ExtensionCommand,
     };

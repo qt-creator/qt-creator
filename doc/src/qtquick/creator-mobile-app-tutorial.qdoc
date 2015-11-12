@@ -57,113 +57,122 @@
     Program certificate that you receive from Apple. For more information, see
     \l{Connecting iOS Devices}.
 
-    \section1 Creating the Project
+    \include creator-tutorial-create-qq-project.qdocinc
 
-    \list 1
+    \section1 Creating the Accelbubble Main View
 
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol Application > \uicontrol {Qt Quick Controls Application}
-            > \uicontrol Choose.
-
-        \li In the \uicontrol Name field, type \e {accelbubble}.
-
-        \li In the \uicontrol {Create in} field, enter the path for the project
-            files, and then click \uicontrol Next (or \uicontrol Continue on
-            OS X).
-
-        \li In the \uicontrol {Minimal required Qt version} field, select the Qt
-            version to develop with.
-
-            \note This page determines the set of files that the wizard
-            generates and their contents. The instructions in this tutorial
-            might not apply if you select the \uicontrol {With .ui.qml file}
-            check box.
-
-        \li Select \l{glossary-buildandrun-kit}{kits} for Android ARM and iPhone
-            OS, and click \uicontrol{Next}.
-
-            \note Kits are listed if they have been specified in \uicontrol Tools >
-            \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Kits (on Windows and Linux)
-            or in \uicontrol {Qt Creator} > \uicontrol Preferences \uicontrol {Build & Run} >
-            \uicontrol Kits (on OS X).
-
-        \li Select \uicontrol Next in the following dialogs to use the default
-            settings.
-
-        \li Review the project settings, and click \uicontrol{Finish} (or \uicontrol Done on
-            OS X).
-
-    \endlist
-
-    \QC generates a default QML file that you can modify to create the main view
-    of the application.
-
-    \section1 Creating the Main View
-
-    The main view of the application displays an SVG bubble image at the center
-    of the main window.
+    The main view of the application displays an SVG bubble image that moves
+    around the screen when you tilt the device.
 
     To use \l{accelbubble/Bluebubble.svg}{Bluebubble.svg} in your project,
     copy it to the project directory (same subdirectory as the QML file).
     The image appears in \uicontrol Resources. You can also use any other
     image or a QML type, instead.
 
+    To create the UI in the \uicontrol Design mode:
+
     \list 1
 
-        \li In the \uicontrol Projects view, double-click the main.qml file
-            to open it in the code editor.
+        \li In the \uicontrol Projects view, double-click the MainForm.ui.qml
+            file to open it in \QMLD.
 
-        \li Click \uicontrol Design to open the file in \QMLD.
-
-        \li In the \uicontrol Navigator, select \uicontrol Label and press
+        \li In the \uicontrol Navigator, select \uicontrol RowLayout and press
             \key Delete to delete it.
 
-        \li Select \uicontrol ApplicationWindow to edit its properties.
+        \li In \uicontrol Library > \uicontrol {QML Types}, select
+            \uicontrol Rectangle and drag and drop it to the \uicontrol Item in
+            the navigator.
 
-        \list a
+        \li Select the rectangle in the navigator to edit its properties:
 
-            \li In the \uicontrol Id field, enter \e mainWindow, to be able to
-                reference the window from other places.
+            \list a
 
-            \li In the \uicontrol Title field, type \e {Accelerate Bubble}.
+                \li In the \uicontrol Id field enter \e mainWindow, to be able
+                    to reference the rectangle from other places.
 
-        \endlist
+                \li Select the \uicontrol Layout tab, and then click
+                    the \inlineimage qmldesigner-anchor-fill-screen.png
+                    (\uicontrol {Fill to Parent}) button to anchor the rectangle
+                    to the item.
+
+            \endlist
 
         \li In \uicontrol Library > \uicontrol Resources, select Bluebubble.svg
-            and drag and drop it to the canvas.
+            and drag and drop it to \e mainWindow in the navigator.
 
-        \li In the \uicontrol Properties pane, \uicontrol Id field, enter \e bubble to be
-            able to reference the image from other places.
+        \li In the \uicontrol Properties pane, \uicontrol Id field, enter
+            \e bubble to be able to reference the image from other places.
 
-        \li In the code editor, add the following new properties to the image to
-            position the image at the center of the application window when the
-            application starts:
-
-            \quotefromfile accelbubble/main.qml
-            \skipto Image
-            \printuntil bubble.width
-
-         \li Set the x and y position of the image based on the new properties:
-
-            \dots
-            \printuntil centerY
-            \skipto /^\}/
-            \printuntil }
+        \li Select the \inlineimage qmldesigner-export-item-button.png
+            (\uicontrol Export) button in the navigator to export the
+            \e mainWindow and \e bubble as properties.
 
     \endlist
 
-    For an example, see \l{accelbubble/main.qml}{main.qml}.
+    We want to modify the properties of the bubble in ways that are not
+    supported by \QMLD, and therefore we create a custom QML type for it:
+
+    \list 1
+
+        \li Select \uicontrol Edit to open MainForm.ui.qml in the code editor.
+
+        \li Right-click \uicontrol Image and select \uicontrol Refactoring >
+            \uicontrol {Move Component into Separate File}.
+
+        \li In the \uicontrol {Component name} field, enter \e Bubble and
+            select \uicontrol OK to create \e Bubble.qml.
+
+    \endlist
+
+    \QC creates a reference to Bubble.qml in MainForm.ui.qml.
+
+    To check your code, you can compare MainForm.ui.qml with the
+    \l{accelbubble/MainForm.ui.qml}{MainForm.ui.qml} example file and Bubble.qml
+    with the \l{accelbubble/Bubble.qml}{Bubble.qml} example file.
+
+    The UI is now ready and you can switch to editing the main.qml and
+    Bubble.qml files in the \uicontrol Edit mode, as described in the
+    following section.
 
     \section1 Moving the Bubble
 
-    Now that the visual elements are in place, let us move the bubble based on
-    Accelerometer sensor values.
+    The new project wizard adds boilerplate code to the main.qml file to create
+    menu items and push buttons. Modify the boilerplate code by removing
+    obsolete code and by adding new code. You removed the push buttons from the
+    UI Form, so you also need to remove the corresponding code from main.qml (or
+    the application cannot be built).
+
+    In the code editor, edit Bubble.qml to add properties that we will use to
+    position the image:
+
+    \quotefromfile accelbubble/Bubble.qml
+    \skipto Image
+    \printuntil }
+
+    In the code editor, edit the main.qml to specify the application title, as
+    illustrated by the following code snippet:
+
+    \quotefromfile accelbubble/main.qml
+    \skipto ApplicationWindow
+    \printuntil title
+
+    Use the bubble properties to position the image:
+
+    \printuntil bubbleCenter
+
+    Then set the x and y position of the image based on the new properties:
+
+    \printuntil centerY
+    \skipto /^\}/
+    \printuntil }
+
+    Then add code to move the bubble based on Accelerometer sensor values:
 
     \list 1
         \li Add the following import statement to main.qml:
 
             \code
-            import QtSensors 5.0
+            import QtSensors 5.5
             \endcode
 
         \li Add the \l{Accelerometer} type with the necessary properties:
@@ -183,7 +192,7 @@
             \printuntil Math.atan(x
             \printuntil }
 
-        \li Add the following JavaScript code for \a onReadingChanged signal of
+        \li Add the following JavaScript code for \c onReadingChanged signal of
             Accelerometer type to make the bubble move when the Accelerometer
             values change:
 
@@ -194,7 +203,7 @@
             We want to ensure that the position of the bubble is always within
             the bounds of the screen. If the Accelerometer returns not a number
             (NaN), the value is ignored and the bubble position is not updated.
-        \li Add SmoothedAnimation behavior on the \a x and \a y properties of
+        \li Add SmoothedAnimation behavior on the \c x and \c y properties of
             the bubble to make its movement look smoother.
 
             \quotefromfile accelbubble/main.qml

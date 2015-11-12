@@ -569,7 +569,9 @@ class DumperBase:
         elided, shown = self.computeLimit(size, limit)
         return elided, self.readMemory(data, shown)
 
-    def putCharArrayHelper(self, data, size, charSize, displayFormat = AutomaticFormat):
+    def putCharArrayHelper(self, data, size, charSize,
+                           displayFormat = AutomaticFormat,
+                           makeExpandable = True):
         bytelen = size * charSize
         elided, shown = self.computeLimit(bytelen, self.displayStringLimit)
         mem = self.readMemory(data, shown)
@@ -594,6 +596,13 @@ class DumperBase:
             self.putField("editformat", displayType)
             elided, shown = self.computeLimit(bytelen, 100000)
             self.putField("editvalue", self.readMemory(data, shown))
+
+        if makeExpandable:
+            self.putNumChild(size)
+            if self.isExpanded():
+                with Children(self):
+                    for i in range(size):
+                        self.putSubItem(size, data[i])
 
     def readMemory(self, addr, size):
         data = self.extractBlob(addr, size).toBytes()
@@ -795,14 +804,9 @@ class DumperBase:
             raise RuntimeError("Check failed")
 
     def checkRef(self, ref):
-        try:
-            count = int(ref["atomic"]["_q_value"]) # Qt 5.
-            minimum = -1
-        except:
-            count = int(ref["_q_value"]) # Qt 4.
-            minimum = 0
+        count = self.extractInt(ref.address)
         # Assume there aren't a million references to any object.
-        self.check(count >= minimum)
+        self.check(count >= -1)
         self.check(count < 1000000)
 
     def readToFirstZero(self, p, tsize, maximum):
@@ -1010,7 +1014,8 @@ class DumperBase:
         n = int(arrayByteSize / ts)
         if displayFormat != RawFormat and p:
             if innerTypeName == "char" or innerTypeName == "wchar_t":
-                self.putCharArrayHelper(p, n, ts, self.currentItemFormat())
+                self.putCharArrayHelper(p, n, ts, self.currentItemFormat(),
+                                        makeExpandable = False)
             else:
                 self.tryPutSimpleFormattedPointer(p, arrayType, innerTypeName,
                     displayFormat, arrayByteSize)
@@ -1410,8 +1415,7 @@ class DumperBase:
             addr += 1
         return result
 
-    def listChildrenGenerator(self, addr, typeName):
-        innerType = self.lookupType(self.qtNamespace() + typeName)
+    def listChildrenGenerator(self, addr, innerType):
         base = self.extractPointer(addr)
         begin = self.extractInt(base + 8)
         end = self.extractInt(base + 12)
@@ -1429,6 +1433,14 @@ class DumperBase:
             else:
                 p = self.extractPointer(addr + i * stepSize)
                 yield self.createValue(p, innerType)
+
+    def vectorChildrenGenerator(self, addr, innerType):
+        base = self.extractPointer(addr)
+        size = self.extractInt(base + 4)
+        data = base + self.extractPointer(base + 8 + self.ptrSize())
+        innerSize = innerType.sizeof
+        for i in range(size):
+            yield self.createValue(data + i * innerSize, innerType)
 
 
     # This is called is when a QObject derived class is expanded
@@ -1454,6 +1466,7 @@ class DumperBase:
 
         with SubItem(self, "[properties]"):
             propertyCount = 0
+            usesVector = self.qtVersion() >= 0x50700
             if self.isExpanded():
                 propertyNames = self.staticQObjectPropertyNames(smo)
                 propertyCount = len(propertyNames) # Doesn't include dynamic properties.
@@ -1465,8 +1478,13 @@ class DumperBase:
 
                     # Dynamic properties.
                     if extraData:
-                        names = self.listChildrenGenerator(extraData + ptrSize, "QByteArray")
-                        values = self.listChildrenGenerator(extraData + 2 * ptrSize, "QVariant")
+                        byteArrayType = self.lookupQtType("QByteArray")
+                        variantType = self.lookupQtType("QVariant")
+                        names = self.listChildrenGenerator(extraData + ptrSize, byteArrayType)
+                        if usesVector:
+                            values = self.vectorChildrenGenerator(extraData + 2 * ptrSize, variantType)
+                        else:
+                            values = self.listChildrenGenerator(extraData + 2 * ptrSize, variantType)
                         for (k, v) in zip(names, values):
                             with SubItem(self, propertyCount):
                                 self.put('key="%s",' % self.encodeByteArray(k))

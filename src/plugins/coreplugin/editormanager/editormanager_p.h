@@ -69,6 +69,8 @@ class EditorManagerPrivate : public QObject
 public:
     static EditorManagerPrivate *instance();
 
+    static void extensionsInitialized(); // only use from MainWindow
+
     static EditorArea *mainEditorArea();
     static EditorView *currentEditorView();
     static void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);

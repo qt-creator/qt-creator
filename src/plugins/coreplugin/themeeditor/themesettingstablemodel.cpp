@@ -222,7 +222,7 @@ void ThemeSettingsTableModel::initFrom(Theme *theme)
     }
 
     m_widgetStyle = theme->widgetStyle();
-    m_name = theme->d->name;
+    m_displayName = theme->d->displayName;
     m_preferredStyles = theme->d->preferredStyles;
 }
 
@@ -252,7 +252,7 @@ void ThemeSettingsTableModel::toTheme(Theme *t) const
     }
 
     theme->widgetStyle = m_widgetStyle;
-    theme->name = m_name;
+    theme->displayName = m_displayName;
     theme->preferredStyles = m_preferredStyles;
 }
 

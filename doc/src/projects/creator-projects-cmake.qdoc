@@ -93,20 +93,39 @@
     Normally, there is no need to pass any command line arguments for projects
     that are already built, as CMake caches that information.
 
+    \section1 Editing CMake Configuration Files
+
+    You can open CMake configuration files in \QC for editing. The following
+    features are supported:
+
+    \list
+
+        \li Pressing \key F2 when the cursor is on a filename to open the file
+
+        \li Keyword completion
+
+        \li Auto-indentation
+
+        \li Matching parentheses and quotes
+
+    \endlist
+
     \section1 Building CMake Projects
 
     \QC builds CMake projects by running \c make, \c mingw32-make,
     \c nmake, or \c ninja depending on your platform. The build errors and
     warnings are parsed and displayed in the \uicontrol Issues output pane.
 
-    By default, \QC builds the \b{all} target. You can specify which
-    targets to build in \uicontrol Projects mode, under
-    \uicontrol {Build Settings}.
+    By default, \QC uses the \uicontrol All \l{glossary-build-config}
+    {build configuration}. You can select another build configuration in
+    \uicontrol Projects > \uicontrol {Edit build configuration}. In addition to
+    debug and release build configurations, you can create a release build that
+    contains debug information or a release build with the smallest possible
+    size.
 
     \image qtcreator-cmake-build-settings.png
 
-    \QC supports multiple build configurations. You can change the build
-    directory after the initial import.
+    You can change the build directory after the initial import.
 
     The build and run kit that you select determines which CMake tool is used
     for building. For more information, see \l {Adding Kits}.

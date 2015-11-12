@@ -1115,21 +1115,41 @@ class Dumper(DumperBase):
                     self.putItem(child)
             return
 
-        n = value.GetNumChildren()
-        m = value.GetType().GetNumberOfDirectBaseClasses()
-        if n > 10000:
-            n = 10000
-        # seems to happen in the 'inheritance' autotest
-        if m > n:
-            m = n
-        for i in xrange(m):
-            child = value.GetChildAtIndex(i)
-            with UnnamedSubItem(self, "@%d" % (i + 1)):
-                self.put('iname="%s",' % self.currentIName)
-                self.put('name="[%s]",' % child.name)
-                self.putItem(child)
+        memberBase = 0  # Start of members.
 
-        children = [value.GetChildAtIndex(i) for i in xrange(m, n)]
+        class ChildItem:
+            def __init__(self, name, value):
+                self.name = name
+                self.value = value
+
+        baseObjects = []
+        for i in xrange(value.GetType().GetNumberOfDirectBaseClasses()):
+            baseClass = value.GetType().GetDirectBaseClassAtIndex(i).GetType()
+            baseChildCount = baseClass.GetNumberOfFields() \
+                + baseClass.GetNumberOfDirectBaseClasses() \
+                + baseClass.GetNumberOfVirtualBaseClasses()
+            if baseChildCount:
+                memberBase += 1
+                baseObjects.append(ChildItem(baseClass.GetName(), value.GetChildAtIndex(i)))
+            else:
+                # This base object is empty, but exists and will *not* be reported
+                # by value.GetChildCount(). So manually report the empty base class.
+                baseObject = value.Cast(baseClass)
+                baseObjects.append(ChildItem(baseClass.GetName(), baseObject))
+
+        if self.sortStructMembers:
+            baseObjects.sort(key = lambda baseObject: str(baseObject.name))
+        for i in xrange(len(baseObjects)):
+            baseObject = baseObjects[i]
+            with UnnamedSubItem(self, "@%d" % (i + 1)):
+               self.put('iname="%s",' % self.currentIName)
+               self.put('name="[%s]",' % baseObject.name)
+               self.putItem(baseObject.value)
+
+        memberCount = value.GetNumChildren()
+        if memberCount > 10000:
+            memberCount = 10000
+        children = [value.GetChildAtIndex(memberBase + i) for i in xrange(memberCount)]
         if self.sortStructMembers:
             children.sort(key = lambda child: str(child.GetName()))
         for child in children:
@@ -1747,14 +1767,9 @@ class Dumper(DumperBase):
 
 # Used in dumper auto test.
 class Tester(Dumper):
-    def __init__(self, binary, expandedINames):
+    def __init__(self, binary, args):
         Dumper.__init__(self)
         lldb.theDumper = self
-
-        self.expandedINames = set(expandedINames)
-        self.passExceptions = True
-        self.sortStructMembers = True
-
         self.loadDumpers({'token': 1})
         error = lldb.SBError()
         self.target = self.debugger.CreateTarget(binary, None, None, True, error)
@@ -1763,14 +1778,14 @@ class Tester(Dumper):
             warn("ERROR: %s" % error)
             return
 
-        s = threading.Thread(target=self.testLoop, args=[])
+        s = threading.Thread(target=self.testLoop, args=(args,))
         s.start()
         s.join(30)
 
     def reportDumpers(self, msg):
         pass
 
-    def testLoop(self):
+    def testLoop(self, args):
         # Disable intermediate reporting.
         savedReport = self.report
         self.report = lambda stuff: 0
@@ -1813,7 +1828,7 @@ class Tester(Dumper):
                         if line != 0:
                             self.report = savedReport
                             self.process.SetSelectedThread(stoppedThread)
-                            self.fetchVariables({'token':2, 'fancy':1})
+                            self.fetchVariables(args)
                             #self.describeLocation(frame)
                             self.report("@NS@%s@" % self.qtNamespace())
                             #self.report("ENV=%s" % os.environ.items())

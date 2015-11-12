@@ -47,4 +47,5 @@ HEADERS += \
     settings.h \
 
 macx:DEFINES += "DATA_PATH=\"\\\".\\\"\""
-else:DEFINES += "DATA_PATH=\"\\\"../share/qtcreator\\\"\""
+else:win32:DEFINES += "DATA_PATH=\"\\\"../share/qtcreator\\\"\""
+else:DEFINES += "DATA_PATH=\"\\\"../../share/qtcreator\\\"\""

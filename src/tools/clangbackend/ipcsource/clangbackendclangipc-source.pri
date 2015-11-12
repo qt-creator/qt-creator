@@ -24,7 +24,8 @@ HEADERS += $$PWD/clangipcserver.h \
     $$PWD/fixit.h \
     $$PWD/diagnosticsetiterator.h \
     $$PWD/clangfilesystemwatcher.h \
-    $$PWD/translationunitalreadyexistsexception.h
+    $$PWD/translationunitalreadyexistsexception.h \
+    $$PWD/commandlinearguments.h
 
 SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/codecompleter.cpp \
@@ -49,4 +50,5 @@ SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/sourcerange.cpp \
     $$PWD/fixit.cpp \
     $$PWD/clangfilesystemwatcher.cpp \
-    $$PWD/translationunitalreadyexistsexception.cpp
+    $$PWD/translationunitalreadyexistsexception.cpp \
+    $$PWD/commandlinearguments.cpp

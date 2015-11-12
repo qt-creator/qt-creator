@@ -54,7 +54,7 @@ class QTCREATOR_UTILS_EXPORT Theme : public QObject
     Q_ENUMS(WidgetStyle)
 
 public:
-    Theme(const QString &name, QObject *parent = 0);
+    Theme(const QString &id, QObject *parent = 0);
     ~Theme();
 
     enum Color {
@@ -265,9 +265,10 @@ public:
     QPalette palette() const;
     QStringList preferredStyles() const;
 
+    QString id() const;
     QString filePath() const;
-    QString name() const;
-    void setName(const QString &name);
+    QString displayName() const;
+    void setDisplayName(const QString &displayName);
 
     QVariantHash values() const;
 

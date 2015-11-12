@@ -31,12 +31,32 @@
 #ifndef THEMESETTINGS_H
 #define THEMESETTINGS_H
 
+#include "id.h"
+
 #include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Core {
 namespace Internal {
 
 class ThemeSettingsWidget;
+
+class ThemeEntry
+{
+public:
+    ThemeEntry() = default;
+    ThemeEntry(Id id, const QString &filePath, bool readOnly);
+
+    Id id() const;
+    QString displayName() const;
+    QString filePath() const;
+    bool readOnly() const;
+
+private:
+    Id m_id;
+    QString m_filePath;
+    mutable QString m_displayName;
+    bool m_readOnly = true;
+};
 
 class ThemeSettings : public IOptionsPage
 {
@@ -50,7 +70,9 @@ public:
     void apply();
     void finish();
 
-    ThemeSettingsWidget *m_widget;
+    static QList<ThemeEntry> availableThemes();
+private:
+    ThemeSettingsWidget *m_widget = 0;
 };
 
 } // namespace Internal

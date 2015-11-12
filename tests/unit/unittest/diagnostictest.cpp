@@ -83,6 +83,7 @@ protected:
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
     TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnostic.cpp"),
                                     projectPart,
+                                    Utf8StringVector(),
                                     translationUnits};
     DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
     ::Diagnostic diagnostic{diagnosticSet.back()};

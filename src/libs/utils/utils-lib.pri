@@ -210,7 +210,7 @@ FORMS += $$PWD/filewizardpage.ui \
 RESOURCES += $$PWD/utils.qrc
 
 osx {
-    HEADERS += $$PWD/autoreleasepool.h \
+    HEADERS += \
         $$PWD/fileutils_mac.h
     OBJECTIVE_SOURCES += \
         $$PWD/fileutils_mac.mm

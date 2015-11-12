@@ -373,12 +373,15 @@ bool ShortcutSettingsWidget::filterColumn(const QString &filterString, QTreeWidg
                                           int column) const
 {
     QString text;
-    if (column == item->columnCount() - 1) {
+    if (column == item->columnCount() - 1) { // shortcut
         // filter on the shortcut edit text
         if (!item->data(0, Qt::UserRole).isValid())
             return true;
         ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(item->data(0, Qt::UserRole));
         text = keySequenceToEditString(scitem->m_key);
+    } else if (column == 0 && item->data(0, Qt::UserRole).isValid()) { // command id
+        ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(item->data(0, Qt::UserRole));
+        text = scitem->m_cmd->id().toString();
     } else {
         text = item->text(column);
     }

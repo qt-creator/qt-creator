@@ -44,6 +44,10 @@ class SourceRange
 
 public:
     SourceRange();
+
+    bool isNull() const;
+    bool isValid() const;
+
     SourceLocation start() const;
     SourceLocation end() const;
 

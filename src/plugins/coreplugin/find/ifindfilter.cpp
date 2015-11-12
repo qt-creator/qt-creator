@@ -44,7 +44,7 @@
     a text based search term (potentially with find flags like
     searching case sensitively or using regular expressions). Existing
     scopes are \gui {All Projects} that searches from all files in all projects
-    and \gui {Files on File System} where the user provides a directory and file
+    and \gui {Files in File System} where the user provides a directory and file
     patterns to search.
 
     To make your find scope available to the user, you need to implement this

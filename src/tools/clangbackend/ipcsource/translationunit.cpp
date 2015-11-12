@@ -32,6 +32,7 @@
 
 #include "clangstring.h"
 #include "codecompleter.h"
+#include "commandlinearguments.h"
 #include "diagnosticset.h"
 #include "projectpart.h"
 #include "translationunitfilenotexitexception.h"
@@ -50,6 +51,11 @@
 
 static Q_LOGGING_CATEGORY(verboseLibLog, "qtc.clangbackend.verboselib");
 
+static bool isVerboseModeEnabled()
+{
+    return verboseLibLog().isDebugEnabled();
+}
+
 namespace ClangBackEnd {
 
 class TranslationUnitData
@@ -57,6 +63,7 @@ class TranslationUnitData
 public:
     TranslationUnitData(const Utf8String &filePath,
                         const ProjectPart &projectPart,
+                        const Utf8StringVector &fileArguments,
                         TranslationUnits &translationUnits);
     ~TranslationUnitData();
 
@@ -65,6 +72,7 @@ public:
     time_point lastProjectPartChangeTimePoint;
     QSet<Utf8String> dependedFilePaths;
     ProjectPart projectPart;
+    Utf8StringVector fileArguments;
     Utf8String filePath;
     CXTranslationUnit translationUnit = nullptr;
     CXIndex index = nullptr;
@@ -75,10 +83,12 @@ public:
 
 TranslationUnitData::TranslationUnitData(const Utf8String &filePath,
                                          const ProjectPart &projectPart,
+                                         const Utf8StringVector &fileArguments,
                                          TranslationUnits &translationUnits)
     : translationUnits(translationUnits),
       lastProjectPartChangeTimePoint(std::chrono::steady_clock::now()),
       projectPart(projectPart),
+      fileArguments(fileArguments),
       filePath(filePath)
 {
     dependedFilePaths.insert(filePath);
@@ -92,9 +102,13 @@ TranslationUnitData::~TranslationUnitData()
 
 TranslationUnit::TranslationUnit(const Utf8String &filePath,
                                  const ProjectPart &projectPart,
+                                 const Utf8StringVector &fileArguments,
                                  TranslationUnits &translationUnits,
                                  FileExistsCheck fileExistsCheck)
-    : d(std::make_shared<TranslationUnitData>(filePath, projectPart, translationUnits))
+    : d(std::make_shared<TranslationUnitData>(filePath,
+                                              projectPart,
+                                              fileArguments,
+                                              translationUnits))
 {
     if (fileExistsCheck == CheckIfFileExists)
         checkIfFileExists();
@@ -122,7 +136,7 @@ CXIndex TranslationUnit::index() const
     checkIfNull();
 
     if (!d->index) {
-        const bool displayDiagnostics = verboseLibLog().isDebugEnabled();
+        const bool displayDiagnostics = isVerboseModeEnabled();
         d->index = clang_createIndex(1, displayDiagnostics);
     }
 
@@ -261,10 +275,15 @@ void TranslationUnit::createTranslationUnitIfNeeded() const
 {
     if (!d->translationUnit) {
         d->translationUnit = CXTranslationUnit();
+
+        const auto args = commandLineArguments();
+        if (isVerboseModeEnabled())
+            args.print();
+
         CXErrorCode errorCode = clang_parseTranslationUnit2(index(),
-                                                            d->filePath.constData(),
-                                                            d->projectPart.cxArguments(),
-                                                            d->projectPart.argumentCount(),
+                                                            NULL,
+                                                            args.data(),
+                                                            args.count(),
                                                             unsavedFiles().cxUnsavedFiles(),
                                                             unsavedFiles().count(),
                                                             defaultOptions(),
@@ -273,7 +292,6 @@ void TranslationUnit::createTranslationUnitIfNeeded() const
         checkTranslationUnitErrorCode(errorCode);
 
         updateIncludeFilePaths();
-
 
         updateLastProjectPartChangeTimePoint();
     }
@@ -336,6 +354,14 @@ void TranslationUnit::updateIncludeFilePaths() const
         d->dependedFilePaths = oldDependedFilePaths;
 
     d->translationUnits.addWatchedFiles(d->dependedFilePaths);
+}
+
+CommandLineArguments TranslationUnit::commandLineArguments() const
+{
+    return CommandLineArguments(d->filePath.constData(),
+                                d->projectPart.arguments(),
+                                d->fileArguments,
+                                isVerboseModeEnabled());
 }
 
 uint TranslationUnit::defaultOptions()

@@ -36,6 +36,7 @@ using namespace CppTools;
 
 static QLatin1String cppHeaderMimeType(Constants::CPP_HEADER_MIMETYPE);
 static QLatin1String cHeaderMimeType(Constants::C_HEADER_MIMETYPE);
+static QLatin1String clangExtraOptionsKey(Constants::CPPTOOLS_EXTRA_CLANG_OPTIONS);
 
 void CppCodeModelSettings::fromSettings(QSettings *s)
 {
@@ -44,6 +45,8 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
 
     foreach (const QString &mimeType, supportedMimeTypes())
         setIdForMimeType(supporters, mimeType);
+
+    setExtraClangOptions(s->value(clangExtraOptionsKey, defaultExtraClangOptions()).toStringList());
 
     QVariant v = s->value(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE), PchUse_None);
     setPCHUsage(static_cast<PCHUsage>(v.toInt()));
@@ -59,6 +62,7 @@ void CppCodeModelSettings::toSettings(QSettings *s)
     foreach (const QString &mimeType, m_modelManagerSupportByMimeType.keys())
         var[mimeType] = m_modelManagerSupportByMimeType[mimeType];
     s->setValue(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_SUPPORTERS_KEY), QVariant(var));
+    s->setValue(clangExtraOptionsKey, extraClangOptions());
     s->setValue(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE), pchUsage());
     s->endGroup();
 
@@ -114,6 +118,33 @@ bool CppCodeModelSettings::hasModelManagerSupportIdForMimeType(const QString &mi
         return m_modelManagerSupportByMimeType.value(cppHeaderMimeType) == id;
     else
         return m_modelManagerSupportByMimeType.value(mimeType) == id;
+}
+
+QStringList CppCodeModelSettings::defaultExtraClangOptions()
+{
+    return {
+        QStringLiteral("-Weverything"),
+        QStringLiteral("-Wno-c++98-compat"),
+        QStringLiteral("-Wno-c++98-compat-pedantic"),
+        QStringLiteral("-Wno-unused-macros"),
+        QStringLiteral("-Wno-newline-eof"),
+        QStringLiteral("-Wno-exit-time-destructors"),
+        QStringLiteral("-Wno-global-constructors"),
+        QStringLiteral("-Wno-gnu-zero-variadic-macro-arguments"),
+        QStringLiteral("-Wno-documentation"),
+        QStringLiteral("-Wno-shadow"),
+        QStringLiteral("-Wno-missing-prototypes"), // Not optimal for C projects.
+    };
+}
+
+QStringList CppCodeModelSettings::extraClangOptions() const
+{
+    return m_extraClangOptions;
+}
+
+void CppCodeModelSettings::setExtraClangOptions(const QStringList &extraClangOptions)
+{
+    m_extraClangOptions = extraClangOptions;
 }
 
 void CppCodeModelSettings::setIdForMimeType(const QVariant &var, const QString &mimeType)

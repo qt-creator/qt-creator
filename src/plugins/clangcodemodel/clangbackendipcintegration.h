@@ -133,8 +133,6 @@ public:
 
     void registerProjectsParts(const QList<CppTools::ProjectPart::Ptr> projectParts);
 
-    void registerTranslationUnit(TextEditor::TextDocument *document);
-    void registerTranslationUnit(const QString &filePath, const QByteArray &contents, uint documentRevision);
     void updateTranslationUnitIfNotCurrentDocument(Core::IDocument *document);
     void updateTranslationUnit(Core::IDocument *document);
     void updateUnsavedFile(Core::IDocument *document);
@@ -145,6 +143,8 @@ public:
     void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer);
     void requestDiagnostics(Core::IDocument *document);
     void updateChangeContentStartPosition(const QString &filePath, int position);
+
+    void registerFallbackProjectPart();
 
 public: // for tests
     IpcSenderInterface *setIpcSender(IpcSenderInterface *ipcSender);
@@ -158,7 +158,6 @@ private:
 
     void initializeBackend();
     void initializeBackendWithCurrentData();
-    void registerEmptyProjectForProjectLessFiles();
     void registerCurrentProjectParts();
     void registerCurrentCppEditorDocuments();
     void registerCurrentCodeModelUiHeaders();

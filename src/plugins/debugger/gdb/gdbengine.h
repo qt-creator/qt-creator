@@ -172,12 +172,7 @@ private: ////////// Gdb Command Management //////////
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
 
-protected:
-    void runCommand(const DebuggerCommand &command);
-    void runCommand(const QByteArray &command, int flags);
-    void runCommand(const QByteArray &command,
-                    const DebuggerCommand::Callback &callback,
-                    int flags = NoFlags);
+    void runCommand(const DebuggerCommand &command) override;
 
 private:
     Q_SLOT void commandTimeout();
@@ -336,8 +331,6 @@ private: ////////// View & Data Stuff //////////
     void fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &ac);
     bool handleCliDisassemblerResult(const QByteArray &response, DisassemblerAgent *agent);
 
-    void handleBreakOnQFatal(const DebuggerResponse &response, bool continueSetup);
-
     //
     // Source file specific stuff
     //
@@ -426,14 +419,10 @@ protected:
     // while updating locals.
     bool m_inUpdateLocals;
 
-    bool isQFatalBreakpoint(const BreakpointResponseId &id) const;
-    bool isHiddenBreakpoint(const BreakpointResponseId &id) const;
-
     // HACK:
     QByteArray m_currentThread;
     QString m_lastWinException;
     QString m_lastMissingDebugInfo;
-    BreakpointResponseId m_qFatalBreakpointResponseId;
     bool m_terminalTrap;
     bool m_temporaryStopPending;
     bool usesExecInterrupt() const;

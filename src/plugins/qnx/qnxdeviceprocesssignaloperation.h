@@ -36,6 +36,8 @@
 #include <remotelinux/remotelinuxsignaloperation.h>
 
 namespace Qnx {
+class QnxDeviceConfiguration;
+
 namespace Internal {
 
 class QnxDeviceProcessSignalOperation : public RemoteLinux::RemoteLinuxSignalOperation
@@ -48,7 +50,7 @@ private:
     QString killProcessByNameCommandLine(const QString &filePath) const;
     QString interruptProcessByNameCommandLine(const QString &filePath) const;
 
-    friend class QnxDeviceConfiguration;
+    friend class Qnx::QnxDeviceConfiguration;
 };
 
 } // namespace Internal

@@ -98,7 +98,7 @@ private:
     bool isSynchronous() const override { return true; }
     void updateItem(const QByteArray &iname) override;
 
-    void runCommand(const DebuggerCommand &cmd);
+    void runCommand(const DebuggerCommand &cmd) override;
     void postDirectCommand(const QByteArray &command);
 
     void refreshLocation(const GdbMi &reportedLocation);

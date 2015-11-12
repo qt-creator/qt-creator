@@ -46,7 +46,11 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(QWidget *parent)
 {
     m_ui->setupUi(this);
 
-    m_ui->theGroupBox->setVisible(true);
+    m_ui->clangSettingsGroupBox->setVisible(true);
+    connect(m_ui->clangOptionsResetButton, &QPushButton::clicked, [this]() {
+        const QString options = m_settings->defaultExtraClangOptions().join(QLatin1Char('\n'));
+        m_ui->clangOptionsToAppendTextEdit->document()->setPlainText(options);
+    });
 }
 
 CppCodeModelSettingsWidget::~CppCodeModelSettingsWidget()
@@ -58,41 +62,16 @@ void CppCodeModelSettingsWidget::setSettings(const QSharedPointer<CppCodeModelSe
 {
     m_settings = s;
 
-    applyToWidget(m_ui->cChooser, QLatin1String(Constants::C_SOURCE_MIMETYPE));
-    applyToWidget(m_ui->cppChooser, QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
-    applyToWidget(m_ui->objcChooser, QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE));
-    applyToWidget(m_ui->objcppChooser, QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
-    applyToWidget(m_ui->hChooser, QLatin1String(Constants::C_HEADER_MIMETYPE));
-
+    setupClangCodeModelWidgets();
     m_ui->ignorePCHCheckBox->setChecked(s->pchUsage() == CppCodeModelSettings::PchUse_None);
-}
-
-void CppCodeModelSettingsWidget::applyToWidget(QComboBox *chooser, const QString &mimeType) const
-{
-    chooser->clear();
-
-    QStringList names = m_settings->availableModelManagerSupportProvidersByName().keys();
-    Utils::sort(names);
-    foreach (const QString &name, names) {
-        const QString &id = m_settings->availableModelManagerSupportProvidersByName()[name];
-        chooser->addItem(name, id);
-        if (id == m_settings->modelManagerSupportIdForMimeType(mimeType))
-            chooser->setCurrentIndex(chooser->count() - 1);
-    }
-    chooser->setEnabled(names.size() > 1);
 }
 
 void CppCodeModelSettingsWidget::applyToSettings() const
 {
     bool changed = false;
-    changed |= applyToSettings(m_ui->cChooser, QLatin1String(Constants::C_SOURCE_MIMETYPE));
-    changed |= applyToSettings(m_ui->cppChooser, QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
-    changed |= applyToSettings(m_ui->objcChooser,
-                               QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE));
-    changed |= applyToSettings(m_ui->objcppChooser,
-                               QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
-    changed |= applyToSettings(m_ui->hChooser,
-                               QLatin1String(Constants::C_HEADER_MIMETYPE));
+
+    if (applyClangCodeModelWidgetsToSettings())
+        changed = true;
 
     if (m_ui->ignorePCHCheckBox->isChecked() !=
             (m_settings->pchUsage() == CppCodeModelSettings::PchUse_None)) {
@@ -106,14 +85,46 @@ void CppCodeModelSettingsWidget::applyToSettings() const
         m_settings->toSettings(Core::ICore::settings());
 }
 
-bool CppCodeModelSettingsWidget::applyToSettings(QComboBox *chooser, const QString &mimeType) const
+static bool isClangCodeModelActive(const CppCodeModelSettings &settings)
 {
-    QString newId = chooser->itemData(chooser->currentIndex()).toString();
-    QString currentId = m_settings->modelManagerSupportIdForMimeType(mimeType);
-    if (newId == currentId)
-        return false;
+    const QString currentCodeModelId
+        = settings.modelManagerSupportIdForMimeType(QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
+    return currentCodeModelId != settings.defaultId();
+}
 
-    m_settings->setModelManagerSupportIdForMimeType(mimeType, newId);
+void CppCodeModelSettingsWidget::setupClangCodeModelWidgets() const
+{
+    bool isClangActive = false;
+    const bool isClangAvailable = m_settings->availableModelManagerSupportProvidersByName().size() > 1;
+    if (isClangAvailable)
+        isClangActive = isClangCodeModelActive(*m_settings.data());
+
+    m_ui->activateClangCodeModelPluginHint->setVisible(!isClangAvailable);
+    m_ui->clangSettingsGroupBox->setEnabled(isClangAvailable);
+    m_ui->clangSettingsGroupBox->setChecked(isClangActive);
+
+    const QString extraClangOptions = m_settings->extraClangOptions().join(QLatin1Char('\n'));
+    m_ui->clangOptionsToAppendTextEdit->document()->setPlainText(extraClangOptions);
+}
+
+bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
+{
+    // Once the underlying settings are not mime type based anymore, simplify here.
+    // Until then, ensure that the settings are set uniformly for all the mime types
+    // to avoid surprises.
+
+    const QString activeCodeModelId = m_ui->clangSettingsGroupBox->isChecked()
+            ? QLatin1String("ClangCodeMode.ClangCodeMode")
+            : QLatin1String("CppTools.BuiltinCodeModel");
+
+    foreach (const QString &mimeType, m_settings->supportedMimeTypes())
+        m_settings->setModelManagerSupportIdForMimeType(mimeType, activeCodeModelId);
+
+    const QString clangOptionsText = m_ui->clangOptionsToAppendTextEdit->document()->toPlainText();
+    const QStringList extraClangOptions = clangOptionsText.split(QLatin1Char('\n'),
+                                                                 QString::SkipEmptyParts);
+    m_settings->setExtraClangOptions(extraClangOptions);
+
     return true;
 }
 

@@ -45,7 +45,7 @@ QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(
     setProjectSettings(new QmlProfilerSettings());
     setGlobalSettings(QmlProfilerPlugin::globalSettings());
     setId(Constants::SETTINGS);
-    setDisplayName(tr("QML Profiler Settings"));
+    setDisplayName(QCoreApplication::translate("QmlProfilerRunConfiguration", "QML Profiler Settings"));
     setUsingGlobalSettings(true);
     resetProjectToGlobalSettings();
 }
