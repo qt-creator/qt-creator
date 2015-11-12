@@ -115,10 +115,10 @@ class TypeNameRegistry :
 
 private:
 
-    static int __static_init;
+    static int staticInit;
 
 private:
-    static int __init(const QString &name)
+    static int init(const QString &name)
     {
         Base::init();
         QMT_CHECK(!Base::nameToUidMap().contains(QLatin1String(typeid(T).name())) || Base::nameToUidMap().value(QLatin1String(typeid(T).name())) == name);
@@ -207,10 +207,10 @@ class DerivedTypeRegistry :
 
 private:
 
-    static int __static_init;
+    static int staticInit;
 
 private:
-    static int __init(SaveFuncType sfunc, LoadFuncType lfunc)
+    static int init(SaveFuncType sfunc, LoadFuncType lfunc)
     {
         Base::init();
         QMT_CHECK(!Base::map().contains(QLatin1String(typeid(DERIVED).name())) || Base::map().value(QLatin1String(typeid(DERIVED).name())) == typename Base::TypeInfo(sfunc, lfunc));
@@ -319,22 +319,22 @@ typename registry::TypeRegistry<Archive,T>::TypeInfo typeInfo(const QString &uid
 
 #define QARK_REGISTER_TYPE_NAME(T, NAME) \
     template<> \
-    int qark::registry::TypeNameRegistry<T>::__static_init = qark::registry::TypeNameRegistry<T>::__init(QLatin1String(NAME));
+    int qark::registry::TypeNameRegistry<T>::staticInit = qark::registry::TypeNameRegistry<T>::init(QLatin1String(NAME));
 
 #define QARK_REGISTER_TYPE(T) \
     template<> \
-    int qark::registry::TypeNameRegistry<T>::__static_init = qark::registry::TypeNameRegistry<T>::__init(qark::registry::flattenTypename(QARK_TYPE_STRING(T)));
+    int qark::registry::TypeNameRegistry<T>::staticInit = qark::registry::TypeNameRegistry<T>::init(qark::registry::flattenTypename(QARK_TYPE_STRING(T)));
 
 #define QARK_REGISTER_DERIVED_CLASS(INARCHIVE, OUTARCHIVE, DERIVED, BASE) \
     template<> \
-    int qark::registry::DerivedTypeRegistry<INARCHIVE,BASE,DERIVED>::__static_init = \
-            qark::registry::DerivedTypeRegistry<INARCHIVE, BASE, DERIVED>::__init(0, qark::registry::loadPointer<INARCHIVE, BASE, DERIVED>); \
+    int qark::registry::DerivedTypeRegistry<INARCHIVE,BASE,DERIVED>::staticInit = \
+            qark::registry::DerivedTypeRegistry<INARCHIVE, BASE, DERIVED>::init(0, qark::registry::loadPointer<INARCHIVE, BASE, DERIVED>); \
     template<> \
-    int qark::registry::DerivedTypeRegistry<OUTARCHIVE, BASE, DERIVED>::__static_init = \
-            qark::registry::DerivedTypeRegistry<OUTARCHIVE, BASE, DERIVED>::__init(qark::registry::savePointer<OUTARCHIVE, BASE, DERIVED>, 0); \
+    int qark::registry::DerivedTypeRegistry<OUTARCHIVE, BASE, DERIVED>::staticInit = \
+            qark::registry::DerivedTypeRegistry<OUTARCHIVE, BASE, DERIVED>::init(qark::registry::savePointer<OUTARCHIVE, BASE, DERIVED>, 0); \
     template<> \
-    int qark::registry::DerivedTypeRegistry<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>::__static_init = \
+    int qark::registry::DerivedTypeRegistry<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>::staticInit = \
             qark::registry::DerivedTypeRegistry<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>:: \
-                __init(qark::registry::savePointer<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>, 0);
+                init(qark::registry::savePointer<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>, 0);
 
 #endif // QARK_TYPEREGISTRY_H
