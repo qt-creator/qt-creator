@@ -67,10 +67,6 @@
 #include <QtSvg/QSvgGenerator>
 #endif
 
-#ifdef USE_EMF_CLIPBOARD
-// TODO implement emf clipboard
-#endif
-
 #include <QDebug>
 
 
@@ -369,10 +365,6 @@ void DiagramSceneModel::copyToClipboard()
         svgPainter.end();
         mimeData->setData(QStringLiteral("image/svg+xml"), svgBuffer.buffer());
     }
-#endif
-
-#ifdef USE_EMF_CLIPBOARD
-    // TODO implement emf clipboard
 #endif
 
     QApplication::clipboard()->setMimeData(mimeData, QClipboard::Clipboard);

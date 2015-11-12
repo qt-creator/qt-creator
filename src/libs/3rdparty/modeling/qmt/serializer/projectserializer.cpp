@@ -30,8 +30,6 @@
 
 #include "projectserializer.h"
 
-//#define USE_COMPRESSED_FILES
-
 #include "infrastructureserializer.h"
 
 #include "qmt/project/project.h"

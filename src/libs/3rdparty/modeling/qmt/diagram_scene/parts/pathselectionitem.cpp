@@ -40,9 +40,6 @@
 #include <QLineF>
 #include <QPainter>
 
-//#define DEBUG_PAINT_SHAPE
-
-
 namespace qmt {
 
 static const double MAX_SELECTION_DISTANCE_FROM_PATH = 4.0;

@@ -1,10 +1,11 @@
 #ifndef QMT_QMTASSERT_H
 #define QMT_QMTASSERT_H
 
-// TODO implement with QTC_ASSERT when lib is translated into QtCreator style
+#include "utils/qtcassert.h"
 
-// implement with Q_ASSERT and Q_ASSERT_X locally during debugging but do not submit!
-#define QMT_CHECK(condition)
-#define QMT_CHECK_X(condition, where, what)
+// TODO extend with parameter action
+#define QMT_CHECK(condition) QTC_CHECK(condition)
+// TODO implement logging of where and what
+#define QMT_CHECK_X(condition, where, what) QTC_CHECK(condition)
 
 #endif // QMT_QMTASSERT_H

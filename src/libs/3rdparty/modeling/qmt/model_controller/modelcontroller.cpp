@@ -1260,40 +1260,38 @@ MReferences ModelController::simplify(const MSelection &modelSelection)
 
 void ModelController::verifyModelIntegrity() const
 {
-#if 0
-#ifndef QT_NO_DEBUG
-    QMT_CHECK(m_rootPackage);
+    static const bool debugModelIntegrity = false;
+    if (debugModelIntegrity) {
+        QMT_CHECK(m_rootPackage);
 
-    QHash<Uid, const MObject *> objectsMap;
-    QHash<Uid, const MRelation *> relationsMap;
-    QMultiHash<Uid, MRelation *> objectRelationsMap;
-    verifyModelIntegrity(m_rootPackage, &objectsMap, &relationsMap, &objectRelationsMap);
+        QHash<Uid, const MObject *> objectsMap;
+        QHash<Uid, const MRelation *> relationsMap;
+        QMultiHash<Uid, MRelation *> objectRelationsMap;
+        verifyModelIntegrity(m_rootPackage, &objectsMap, &relationsMap, &objectRelationsMap);
 
-    QMT_CHECK(objectsMap.size() == m_objectsMap.size());
-    foreach (const MObject *object, m_objectsMap) {
-        QMT_CHECK(object);
-        QMT_CHECK(m_objectsMap.contains(object->uid()));
-        QMT_CHECK(objectsMap.contains(object->uid()));
+        QMT_CHECK(objectsMap.size() == m_objectsMap.size());
+        foreach (const MObject *object, m_objectsMap) {
+            QMT_CHECK(object);
+            QMT_CHECK(m_objectsMap.contains(object->uid()));
+            QMT_CHECK(objectsMap.contains(object->uid()));
+        }
+        QMT_CHECK(relationsMap.size() == m_relationsMap.size());
+        foreach (const MRelation *relation, m_relationsMap) {
+            QMT_CHECK(relation);
+            QMT_CHECK(m_relationsMap.contains(relation->uid()));
+            QMT_CHECK(relationsMap.contains(relation->uid()));
+        }
+        QMT_CHECK(objectRelationsMap.size() == m_objectRelationsMap.size());
+        for (QMultiHash<Uid, MRelation *>::const_iterator it = m_objectRelationsMap.cbegin(); it != m_objectRelationsMap.cend(); ++it) {
+            QMT_CHECK(objectRelationsMap.contains(it.key(), it.value()));
+        }
     }
-    QMT_CHECK(relationsMap.size() == m_relationsMap.size());
-    foreach (const MRelation *relation, m_relationsMap) {
-        QMT_CHECK(relation);
-        QMT_CHECK(m_relationsMap.contains(relation->uid()));
-        QMT_CHECK(relationsMap.contains(relation->uid()));
-    }
-    QMT_CHECK(objectRelationsMap.size() == m_objectRelationsMap.size());
-    for (QMultiHash<Uid, MRelation *>::const_iterator it = m_objectRelationsMap.cbegin(); it != m_objectRelationsMap.cend(); ++it) {
-        QMT_CHECK(objectRelationsMap.contains(it.key(), it.value()));
-    }
-#endif
-#endif
 }
 
 void ModelController::verifyModelIntegrity(const MObject *object, QHash<Uid, const MObject *> *objectsMap,
                                            QHash<Uid, const MRelation *> *relationsMap,
                                            QMultiHash<Uid, MRelation *> *objectRelationsMap) const
 {
-#ifndef QT_NO_DEBUG
     QMT_CHECK(object);
     QMT_CHECK(!objectsMap->contains(object->uid()));
     objectsMap->insert(object->uid(), object);
@@ -1316,12 +1314,6 @@ void ModelController::verifyModelIntegrity(const MObject *object, QHash<Uid, con
             verifyModelIntegrity(childObject, objectsMap, relationsMap, objectRelationsMap);
         }
     }
-#else
-    Q_UNUSED(object);
-    Q_UNUSED(objectsMap);
-    Q_UNUSED(relationsMap);
-    Q_UNUSED(objectRelationsMap);
-#endif
 }
 
 }

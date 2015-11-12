@@ -243,22 +243,6 @@ QList<ILatchable::Latch> ComponentItem::verticalLatches(ILatchable::Action actio
     return ObjectItem::verticalLatches(action, grabbedItem);
 }
 
-#if 0
-QList<qreal> ComponentItem::horizontalLatches() const
-{
-    QRectF rect = object()->rect();
-    rect.translate(object()->pos());
-    return QList<qreal>() << (rect.left() - RECT_WIDTH * 0.5) << rect.left() << rect.right();
-}
-
-QList<qreal> ComponentItem::verticalLatches() const
-{
-    QRectF rect = object()->rect();
-    rect.translate(object()->pos());
-    return QList<qreal>() << rect.top() << rect.bottom();
-}
-#endif
-
 QPointF ComponentItem::relationStartPos() const
 {
     return pos();

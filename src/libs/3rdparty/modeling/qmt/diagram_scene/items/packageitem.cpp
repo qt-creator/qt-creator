@@ -212,23 +212,6 @@ QList<ILatchable::Latch> PackageItem::verticalLatches(ILatchable::Action action,
     return ObjectItem::verticalLatches(action, grabbedItem);
 }
 
-#if 0
-QList<qreal> PackageItem::horizontalLatches() const
-{
-    QRectF rect = object()->rect();
-    rect.translate(object()->pos());
-    return QList<qreal>() << rect.left() << rect.center().x() << rect.right();
-}
-
-QList<qreal> PackageItem::verticalLatches() const
-{
-    QRectF rect = object()->rect();
-    rect.translate(object()->pos());
-    ShapeGeometry shape = calcMinimumGeometry();
-    return QList<qreal>() << rect.topLeft().y() << (rect.topLeft() + QPointF(0.0, shape.m_minimumTabSize.height())).y() << rect.center().y() << rect.bottomRight().y();
-}
-#endif
-
 QPointF PackageItem::relationStartPos() const
 {
     return pos();

@@ -37,7 +37,7 @@
 
 namespace qark {
 
-#if 0 // ambigous with default implementation in access.h
+#if 0 // TODO this is ambigous with default implementation in access.h
 
 template<class Archive, typename T>
 inline typename std::enable_if<std::is_enum<T>::value, void>::type save(Archive &archive, const T &value, const Parameters &)

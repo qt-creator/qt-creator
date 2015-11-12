@@ -209,7 +209,7 @@ void RelationItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-#ifdef DEBUG_PAINT_SELECTION_SHAPE
+#ifdef DEBUG_PAINT_SHAPE
     painter->save();
     painter->setPen(Qt::red);
     painter->setBrush(Qt::blue);

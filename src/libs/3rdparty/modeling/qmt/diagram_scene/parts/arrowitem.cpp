@@ -118,7 +118,7 @@ public:
         Q_UNUSED(option);
         Q_UNUSED(widget);
 
-#if 0
+#ifdef DEBUG_PAINT_SHAPE
         painter->setPen(QPen(Qt::blue));
         painter->drawRect(boundingRect());
         painter->setPen(QPen(Qt::red));
@@ -373,7 +373,7 @@ void ArrowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-#if DEBUG_PAINT_ARROW_SHAPE
+#ifdef DEBUG_PAINT_SHAPE
     painter->setPen(QPen(Qt::blue));
     painter->drawRect(boundingRect());
     painter->setPen(QPen(Qt::red));
