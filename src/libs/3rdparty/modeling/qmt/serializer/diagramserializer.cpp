@@ -126,7 +126,7 @@ inline void Access<Archive, DObject>::serialize(Archive &archive, DObject &objec
             || attr(QStringLiteral("name"), object, &DObject::name, &DObject::setName)
             || attr(QStringLiteral("pos"), object, &DObject::pos, &DObject::setPos)
             || attr(QStringLiteral("rect"), object, &DObject::rect, &DObject::setRect)
-            || attr(QStringLiteral("auto-sized"), object, &DObject::hasAutoSize, &DObject::setAutoSize)
+            || attr(QStringLiteral("auto-sized"), object, &DObject::isAutoSized, &DObject::setAutoSized)
             || attr(QStringLiteral("visual-role"), object, &visualRole, &setVisualRole)
             || attr(QStringLiteral("visual-role2"), object, &DObject::visualSecondaryRole, &DObject::setVisualSecondaryRole)
             || attr(QStringLiteral("visual-emphasized"), object, &DObject::isVisualEmphasized, &DObject::setVisualEmphasized)
@@ -191,7 +191,7 @@ inline void Access<Archive, DComponent>::serialize(Archive &archive, DComponent 
 {
     archive || tag(component)
             || base<DObject>(component)
-            || attr(QStringLiteral("plain-shape"), component, &DComponent::plainShape, &DComponent::setPlainShape)
+            || attr(QStringLiteral("plain-shape"), component, &DComponent::isPlainShape, &DComponent::setPlainShape)
             || end;
 }
 
@@ -362,7 +362,7 @@ inline void Access<Archive, DAnnotation>::serialize(Archive &archive, DAnnotatio
             || attr(QStringLiteral("text"), annotation, &DAnnotation::text, &DAnnotation::setText)
             || attr(QStringLiteral("pos"), annotation, &DAnnotation::pos, &DAnnotation::setPos)
             || attr(QStringLiteral("rect"), annotation, &DAnnotation::rect, &DAnnotation::setRect)
-            || attr(QStringLiteral("auto-sized"), annotation, &DAnnotation::hasAutoSize, &DAnnotation::setAutoSize)
+            || attr(QStringLiteral("auto-sized"), annotation, &DAnnotation::isAutoSized, &DAnnotation::setAutoSized)
             || attr(QStringLiteral("visual-role"), annotation, &DAnnotation::visualRole, &DAnnotation::setVisualRole)
             || end;
 }

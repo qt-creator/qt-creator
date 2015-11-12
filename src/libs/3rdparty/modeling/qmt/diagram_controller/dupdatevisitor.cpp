@@ -58,14 +58,14 @@ DUpdateVisitor::DUpdateVisitor(DElement *target, const MDiagram *diagram, bool c
     : m_target(target),
       m_diagram(diagram),
       m_checkNeedsUpdate(checkNeedsUpdate),
-      m_updateNeeded(!checkNeedsUpdate)
+      m_isUpdateNeeded(!checkNeedsUpdate)
 {
 }
 
 void DUpdateVisitor::setCheckNeedsUpdate(bool checkNeedsUpdate)
 {
     m_checkNeedsUpdate = checkNeedsUpdate;
-    m_updateNeeded = !checkNeedsUpdate;
+    m_isUpdateNeeded = !checkNeedsUpdate;
 }
 
 void DUpdateVisitor::visitMElement(const MElement *element)
@@ -214,7 +214,7 @@ bool DUpdateVisitor::isUpdating(bool valueChanged)
 {
     if (m_checkNeedsUpdate) {
         if (valueChanged) {
-            m_updateNeeded = true;
+            m_isUpdateNeeded = true;
         }
         return false;
     }

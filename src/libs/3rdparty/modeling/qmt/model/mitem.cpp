@@ -38,8 +38,8 @@ namespace qmt {
 
 MItem::MItem()
     : MObject(),
-      m_varietyEditable(true),
-      m_shapeEditable(false)
+      m_isVarietyEditable(true),
+      m_isShapeEditable(false)
 {
 }
 
@@ -54,12 +54,12 @@ void MItem::setVariety(const QString &variety)
 
 void MItem::setVarietyEditable(bool varietyEditable)
 {
-    m_varietyEditable = varietyEditable;
+    m_isVarietyEditable = varietyEditable;
 }
 
 void MItem::setShapeEditable(bool shapeEditable)
 {
-    m_shapeEditable = shapeEditable;
+    m_isShapeEditable = shapeEditable;
 }
 
 void MItem::accept(MVisitor *visitor)

@@ -281,7 +281,7 @@ bool ComponentItem::hasPlainShape() const
 {
     DComponent *diagramComponent = dynamic_cast<DComponent *>(object());
     QMT_CHECK(diagramComponent);
-    return diagramComponent->plainShape();
+    return diagramComponent->isPlainShape();
 }
 
 QSizeF ComponentItem::calcMinimumGeometry() const
@@ -336,7 +336,7 @@ void ComponentItem::updateGeometry()
     width = geometry.width();
     height = geometry.height();
 
-    if (object()->hasAutoSize()) {
+    if (object()->isAutoSized()) {
         // nothing
     } else {
         QRectF rect = object()->rect();

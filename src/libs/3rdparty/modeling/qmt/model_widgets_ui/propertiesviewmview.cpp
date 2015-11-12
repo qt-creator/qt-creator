@@ -840,7 +840,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
     }
     if (!m_autoSizedCheckbox->hasFocus()) {
         bool autoSized;
-        if (haveSameValue(m_diagramElements, &DObject::hasAutoSize, &autoSized)) {
+        if (haveSameValue(m_diagramElements, &DObject::isAutoSized, &autoSized)) {
             m_autoSizedCheckbox->setChecked(autoSized);
         } else {
             m_autoSizedCheckbox->setChecked(false);
@@ -984,7 +984,7 @@ void PropertiesView::MView::visitDComponent(const DComponent *component)
     }
     if (!m_plainShapeCheckbox->hasFocus()) {
         bool plainShape;
-        if (haveSameValue(m_diagramElements, &DComponent::plainShape, &plainShape)) {
+        if (haveSameValue(m_diagramElements, &DComponent::isPlainShape, &plainShape)) {
             m_plainShapeCheckbox->setChecked(plainShape);
         } else {
             m_plainShapeCheckbox->setChecked(false);
@@ -1060,7 +1060,7 @@ void PropertiesView::MView::visitDAnnotation(const DAnnotation *annotation)
     }
     if (!m_annotationAutoWidthCheckbox->hasFocus()) {
         bool autoSized;
-        if (haveSameValue(m_diagramElements, &DAnnotation::hasAutoSize, &autoSized)) {
+        if (haveSameValue(m_diagramElements, &DAnnotation::isAutoSized, &autoSized)) {
             m_annotationAutoWidthCheckbox->setChecked(autoSized);
         } else {
             m_annotationAutoWidthCheckbox->setChecked(false);
@@ -1189,7 +1189,7 @@ void PropertiesView::MView::onAssociationEndBKindChanged(int kindIndex)
 
 void PropertiesView::MView::onAutoSizedChanged(bool autoSized)
 {
-    assignModelElement<DObject, bool>(m_diagramElements, SelectionMulti, autoSized, &DObject::hasAutoSize, &DObject::setAutoSize);
+    assignModelElement<DObject, bool>(m_diagramElements, SelectionMulti, autoSized, &DObject::isAutoSized, &DObject::setAutoSized);
 }
 
 void PropertiesView::MView::onVisualPrimaryRoleChanged(int visualRoleIndex)
@@ -1228,7 +1228,7 @@ void PropertiesView::MView::onShowAllMembersChanged(bool showAllMembers)
 
 void PropertiesView::MView::onPlainShapeChanged(bool plainShape)
 {
-    assignModelElement<DComponent, bool>(m_diagramElements, SelectionMulti, plainShape, &DComponent::plainShape, &DComponent::setPlainShape);
+    assignModelElement<DComponent, bool>(m_diagramElements, SelectionMulti, plainShape, &DComponent::isPlainShape, &DComponent::setPlainShape);
 }
 
 void PropertiesView::MView::onItemShapeChanged(const QString &shape)
@@ -1238,7 +1238,7 @@ void PropertiesView::MView::onItemShapeChanged(const QString &shape)
 
 void PropertiesView::MView::onAutoWidthChanged(bool autoWidthed)
 {
-    assignModelElement<DAnnotation, bool>(m_diagramElements, SelectionMulti, autoWidthed, &DAnnotation::hasAutoSize, &DAnnotation::setAutoSize);
+    assignModelElement<DAnnotation, bool>(m_diagramElements, SelectionMulti, autoWidthed, &DAnnotation::isAutoSized, &DAnnotation::setAutoSized);
 }
 
 void PropertiesView::MView::onAnnotationVisualRoleChanged(int visualRoleIndex)

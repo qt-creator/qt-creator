@@ -38,7 +38,7 @@ namespace qmt {
 
 MAssociationEnd::MAssociationEnd()
     : m_kind(Association),
-      m_navigable(false)
+      m_isNavigable(false)
 {
 }
 
@@ -46,7 +46,7 @@ MAssociationEnd::MAssociationEnd(const MAssociationEnd &rhs)
     : m_name(rhs.m_name),
       m_cardinality(rhs.m_cardinality),
       m_kind(rhs.m_kind),
-      m_navigable(rhs.m_navigable)
+      m_isNavigable(rhs.m_isNavigable)
 {
 }
 
@@ -60,7 +60,7 @@ MAssociationEnd &MAssociationEnd::operator =(const MAssociationEnd &rhs)
         m_name = rhs.m_name;
         m_cardinality = rhs.m_cardinality;
         m_kind = rhs.m_kind;
-        m_navigable = rhs.m_navigable;
+        m_isNavigable = rhs.m_isNavigable;
     }
     return *this;
 }
@@ -82,7 +82,7 @@ void MAssociationEnd::setKind(MAssociationEnd::Kind kind)
 
 void MAssociationEnd::setNavigable(bool navigable)
 {
-    m_navigable = navigable;
+    m_isNavigable = navigable;
 }
 
 bool operator==(const MAssociationEnd &lhs, const MAssociationEnd &rhs)

@@ -53,19 +53,19 @@ public:
 
 public:
 
-    explicit Handles(bool takeOwnership = false) : m_takeOwnership(takeOwnership) { }
+    explicit Handles(bool takeOwnership = false) : m_takesOwnership(takeOwnership) { }
 
     Handles(const Handles<T> &rhs)
         : m_handleList(rhs.m_handleList),
-          m_takeOwnership(false)
+          m_takesOwnership(false)
     {
     }
 
     Handles(const Handles<T> &rhs, bool takeOwnership)
         : m_handleList(rhs.m_handleList),
-          m_takeOwnership(takeOwnership)
+          m_takesOwnership(takeOwnership)
     {
-        if (m_takeOwnership && rhs.m_takeOwnership) {
+        if (m_takesOwnership && rhs.m_takesOwnership) {
             const_cast<Handles<T> &>(rhs).m_handleList.clear();
         }
     }
@@ -81,7 +81,7 @@ public:
     {
         if (this != &rhs) {
             m_handleList = rhs.m_handleList;
-            if (m_takeOwnership && rhs.m_takeOwnership) {
+            if (m_takesOwnership && rhs.m_takesOwnership) {
                 const_cast<Handles<T> &>(rhs).m_handleList.clear();
             }
         }
@@ -90,7 +90,7 @@ public:
 
 public:
 
-    bool takesOwnership() const { return m_takeOwnership; }
+    bool takesOwnership() const { return m_takesOwnership; }
 
     bool isEmpty() const { return m_handleList.empty(); }
 
@@ -170,7 +170,7 @@ public:
 
     void reset()
     {
-        if (m_takeOwnership) {
+        if (m_takesOwnership) {
             foreach (const Handle<T> &handle, m_handleList) {
                 delete handle.target();
             }
@@ -218,7 +218,7 @@ public:
     void remove(int index)
     {
         QMT_CHECK(index >= 0 && index < size());
-        if (m_takeOwnership) {
+        if (m_takesOwnership) {
             T *t = m_handleList.at(index).target();
             m_handleList.removeAt(index);
             delete t;
@@ -261,7 +261,7 @@ private:
 
     value_type m_handleList;
 
-    bool m_takeOwnership;
+    bool m_takesOwnership;
 };
 
 template<typename T>

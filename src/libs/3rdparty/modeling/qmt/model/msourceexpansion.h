@@ -58,7 +58,7 @@ public:
 
     void setSourceId(const QString &sourceId);
 
-    bool isTransient() const { return m_transient; }
+    bool isTransient() const { return m_isTransient; }
 
     void setTransient(bool transient);
 
@@ -66,7 +66,7 @@ private:
 
     QString m_sourceId;
 
-    bool m_transient;
+    bool m_isTransient;
 };
 
 }

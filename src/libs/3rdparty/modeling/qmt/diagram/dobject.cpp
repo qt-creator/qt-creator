@@ -42,8 +42,8 @@ DObject::DObject()
       m_visualPrimaryRole(PrimaryRoleNormal),
       m_visualSecondaryRole(SecondaryRoleNone),
       m_stereotypeDisplay(StereotypeSmart),
-      m_autoSized(true),
-      m_visualEmphasized(false)
+      m_isAutoSized(true),
+      m_isVisualEmphasized(false)
 {
 }
 
@@ -59,8 +59,8 @@ DObject::DObject(const DObject &rhs)
       m_visualPrimaryRole(rhs.m_visualPrimaryRole),
       m_visualSecondaryRole(rhs.m_visualSecondaryRole),
       m_stereotypeDisplay(rhs.m_stereotypeDisplay),
-      m_autoSized(rhs.m_autoSized),
-      m_visualEmphasized(rhs.m_visualEmphasized)
+      m_isAutoSized(rhs.m_isAutoSized),
+      m_isVisualEmphasized(rhs.m_isVisualEmphasized)
 {
 }
 
@@ -82,8 +82,8 @@ DObject &DObject::operator =(const DObject &rhs)
         m_visualPrimaryRole = rhs.m_visualPrimaryRole;
         m_visualSecondaryRole = rhs.m_visualSecondaryRole;
         m_stereotypeDisplay = rhs.m_stereotypeDisplay;
-        m_autoSized = rhs.m_autoSized;
-        m_visualEmphasized = rhs.m_visualEmphasized;
+        m_isAutoSized = rhs.m_isAutoSized;
+        m_isVisualEmphasized = rhs.m_isVisualEmphasized;
     }
     return *this;
 }
@@ -138,14 +138,14 @@ void DObject::setStereotypeDisplay(DObject::StereotypeDisplay stereotypeDisplay)
     m_stereotypeDisplay = stereotypeDisplay;
 }
 
-void DObject::setAutoSize(bool autoSized)
+void DObject::setAutoSized(bool autoSized)
 {
-    m_autoSized = autoSized;
+    m_isAutoSized = autoSized;
 }
 
 void DObject::setVisualEmphasized(bool visualEmphasized)
 {
-    m_visualEmphasized = visualEmphasized;
+    m_isVisualEmphasized = visualEmphasized;
 }
 
 void DObject::accept(DVisitor *visitor)

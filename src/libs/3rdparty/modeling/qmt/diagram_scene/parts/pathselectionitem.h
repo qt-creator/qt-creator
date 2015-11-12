@@ -99,7 +99,7 @@ private:
 
     QSizeF m_pointSize;
 
-    bool m_secondarySelected;
+    bool m_isSecondarySelected;
 
     QList<GraphicsHandleItem *> m_handles;
 

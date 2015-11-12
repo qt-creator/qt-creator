@@ -84,9 +84,9 @@ public:
 
     void setVisualRole(VisualRole visualRole);
 
-    bool hasAutoSize() const { return m_autoSized; }
+    bool isAutoSized() const { return m_isAutoSized; }
 
-    void setAutoSize(bool autoSized);
+    void setAutoSized(bool autoSized);
 
 public:
 
@@ -104,7 +104,7 @@ private:
 
     VisualRole m_visualRole;
 
-    bool m_autoSized;
+    bool m_isAutoSized;
 
 };
 

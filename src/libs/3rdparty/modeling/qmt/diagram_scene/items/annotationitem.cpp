@@ -81,13 +81,13 @@ AnnotationItem::AnnotationItem(DAnnotation *annotation, DiagramSceneModel *diagr
     : QGraphicsItem(parent),
       m_annotation(annotation),
       m_diagramSceneModel(diagramSceneModel),
-      m_secondarySelected(false),
-      m_focusSelected(false),
+      m_isSecondarySelected(false),
+      m_isFocusSelected(false),
       m_selectionMarker(0),
       m_noTextItem(0),
       m_textItem(0),
-      m_onUpdate(false),
-      m_onChanged(false)
+      m_isUpdating(false),
+      m_isChanged(false)
 {
     setFlags(QGraphicsItem::ItemIsSelectable);
 }
@@ -110,8 +110,8 @@ void AnnotationItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
 void AnnotationItem::update()
 {
-    QMT_CHECK(!m_onUpdate);
-    m_onUpdate = true;
+    QMT_CHECK(!m_isUpdating);
+    m_isUpdating = true;
 
     prepareGeometryChange();
 
@@ -127,7 +127,7 @@ void AnnotationItem::update()
     }
     m_textItem->setFont(style->normalFont());
     m_textItem->setDefaultTextColor(style->textBrush().color());
-    if (!m_onChanged) {
+    if (!m_isChanged) {
         m_textItem->setPlainText(annotation()->text());
     }
 
@@ -144,7 +144,7 @@ void AnnotationItem::update()
 
     setZValue(ANNOTATION_ITEMS_ZVALUE);
 
-    m_onUpdate = false;
+    m_isUpdating = false;
 }
 
 QPointF AnnotationItem::pos() const
@@ -171,7 +171,7 @@ void AnnotationItem::setPosAndRect(const QPointF &originalPos, const QRectF &ori
         m_diagramSceneModel->diagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
         m_annotation->setPos(newPos);
         if (newRect.size() != m_annotation->rect().size()) {
-            m_annotation->setAutoSize(false);
+            m_annotation->setAutoSized(false);
         }
         m_annotation->setRect(newRect);
         m_diagramSceneModel->diagramController()->finishUpdateElement(m_annotation, m_diagramSceneModel->diagram(), false);
@@ -208,26 +208,26 @@ void AnnotationItem::alignItemPositionToRaster(double rasterWidth, double raster
 
 bool AnnotationItem::isSecondarySelected() const
 {
-    return m_secondarySelected;
+    return m_isSecondarySelected;
 }
 
 void AnnotationItem::setSecondarySelected(bool secondarySelected)
 {
-    if (m_secondarySelected != secondarySelected) {
-        m_secondarySelected = secondarySelected;
+    if (m_isSecondarySelected != secondarySelected) {
+        m_isSecondarySelected = secondarySelected;
         update();
     }
 }
 
 bool AnnotationItem::isFocusSelected() const
 {
-    return m_focusSelected;
+    return m_isFocusSelected;
 }
 
 void AnnotationItem::setFocusSelected(bool focusSelected)
 {
-    if (m_focusSelected != focusSelected) {
-        m_focusSelected = focusSelected;
+    if (m_isFocusSelected != focusSelected) {
+        m_isFocusSelected = focusSelected;
         update();
     }
 }
@@ -273,13 +273,13 @@ void AnnotationItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void AnnotationItem::updateSelectionMarker()
 {
-    if (isSelected() || m_secondarySelected) {
+    if (isSelected() || m_isSecondarySelected) {
         if (!m_selectionMarker) {
             m_selectionMarker = new RectangularSelectionItem(this, this);
             m_selectionMarker->setShowBorder(true);
             m_selectionMarker->setFreedom(RectangularSelectionItem::FreedomHorizontalOnly);
         }
-        m_selectionMarker->setSecondarySelected(isSelected() ? false : m_secondarySelected);
+        m_selectionMarker->setSecondarySelected(isSelected() ? false : m_isSecondarySelected);
     } else if (m_selectionMarker) {
         if (m_selectionMarker->scene()) {
             m_selectionMarker->scene()->removeItem(m_selectionMarker);
@@ -314,10 +314,10 @@ bool AnnotationItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 
 void AnnotationItem::onContentsChanged()
 {
-    QMT_CHECK(!m_onChanged);
-    m_onChanged = true;
+    QMT_CHECK(!m_isChanged);
+    m_isChanged = true;
 
-    if (!m_onUpdate) {
+    if (!m_isUpdating) {
         QString plainText = m_textItem->toPlainText();
         if (m_annotation->text() != plainText) {
             m_diagramSceneModel->diagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->diagram(), DiagramController::UpdateMinor);
@@ -326,7 +326,7 @@ void AnnotationItem::onContentsChanged()
         }
     }
 
-    m_onChanged = false;
+    m_isChanged = false;
 }
 
 QSizeF AnnotationItem::calcMinimumGeometry() const
@@ -334,7 +334,7 @@ QSizeF AnnotationItem::calcMinimumGeometry() const
     qreal width = MINIMUM_TEXT_WIDTH + 2 * CONTENTS_BORDER_HORIZONTAL;
     qreal height = 0.0; // irrelevant; cannot be modified by user and will always be overwritten
 
-    if (annotation()->hasAutoSize()) {
+    if (annotation()->isAutoSized()) {
         if (m_textItem) {
             m_textItem->setTextWidth(-1);
             QSizeF textSize = m_textItem->document()->size();
@@ -352,7 +352,7 @@ void AnnotationItem::updateGeometry()
     qreal width = geometry.width();
     qreal height = geometry.height();
 
-    if (annotation()->hasAutoSize()) {
+    if (annotation()->isAutoSized()) {
         if (m_textItem) {
             m_textItem->setTextWidth(-1);
             QSizeF textSize = m_textItem->document()->size();

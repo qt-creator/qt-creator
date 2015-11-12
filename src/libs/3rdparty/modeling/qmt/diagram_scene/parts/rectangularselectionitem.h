@@ -116,7 +116,7 @@ public:
 
     void setFreedom(Freedom freedom);
 
-    bool isSecondarySelected() const { return m_secondarySelected; }
+    bool isSecondarySelected() const { return m_isSecondarySelected; }
 
     void setSecondarySelected(bool secondarySelected);
 
@@ -146,7 +146,7 @@ private:
 
     Freedom m_freedom;
 
-    bool m_secondarySelected;
+    bool m_isSecondarySelected;
 };
 
 }

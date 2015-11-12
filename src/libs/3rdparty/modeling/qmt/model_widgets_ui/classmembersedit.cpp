@@ -45,7 +45,7 @@ public:
 
 public:
 
-    bool isValid() const { return m_valid; }
+    bool isValid() const { return m_isValid; }
 
     bool atEnd() const { return m_pos == m_text.length(); }
 
@@ -87,7 +87,7 @@ private:
 
     QString m_text;
 
-    bool m_valid;
+    bool m_isValid;
 
     int m_pos;
 
@@ -97,7 +97,7 @@ private:
 
 ClassMembersEdit::Cursor::Cursor(const QString &text)
     : m_text(preparse(text)),
-      m_valid(true),
+      m_isValid(true),
       m_pos(0),
       m_lastPos(-1)
 {
@@ -105,7 +105,7 @@ ClassMembersEdit::Cursor::Cursor(const QString &text)
 
 void ClassMembersEdit::Cursor::setPosition(int pos)
 {
-    if (m_valid) {
+    if (m_isValid) {
         m_pos = pos;
     }
 }
@@ -114,13 +114,13 @@ QString ClassMembersEdit::Cursor::readWord()
 {
     skipWhitespaces();
     QString word;
-    if (m_valid && m_pos < m_text.length()) {
+    if (m_isValid && m_pos < m_text.length()) {
         m_lastPos = m_pos;
         QChar c = m_text.at(m_pos);
         ++m_pos;
         if (c.isLetterOrNumber() ||c == QLatin1Char('_')) {
             word = c;
-            while (m_valid && m_pos < m_text.length() && (m_text.at(m_pos).isLetterOrNumber() || m_text.at(m_pos) == QLatin1Char('_'))) {
+            while (m_isValid && m_pos < m_text.length() && (m_text.at(m_pos).isLetterOrNumber() || m_text.at(m_pos) == QLatin1Char('_'))) {
                 word += m_text.at(m_pos);
                 ++m_pos;
             }
@@ -136,7 +136,7 @@ QString ClassMembersEdit::Cursor::readWord()
             }
         }
     } else {
-        m_valid = false;
+        m_isValid = false;
     }
     return word;
 }
@@ -144,7 +144,7 @@ QString ClassMembersEdit::Cursor::readWord()
 bool ClassMembersEdit::Cursor::skip(const QString &s)
 {
     skipWhitespaces();
-    if (m_valid && m_pos + s.length() <= m_text.length() && s.compare(m_text.mid(m_pos, s.length()), s, Qt::CaseInsensitive) == 0) {
+    if (m_isValid && m_pos + s.length() <= m_text.length() && s.compare(m_text.mid(m_pos, s.length()), s, Qt::CaseInsensitive) == 0) {
         m_pos += s.length();
         return true;
     }
@@ -154,9 +154,9 @@ bool ClassMembersEdit::Cursor::skip(const QString &s)
 QString ClassMembersEdit::Cursor::readUntil(const QString &delimiter)
 {
     QString s;
-    while (m_valid) {
+    while (m_isValid) {
         if (m_pos >= m_text.length() || m_text.at(m_pos) == QStringLiteral("\n")) {
-            m_valid = false;
+            m_isValid = false;
             return s;
         }
         if (m_pos + delimiter.length() <= m_text.length() && s.compare(m_text.mid(m_pos, delimiter.length()), delimiter, Qt::CaseInsensitive) == 0) {
@@ -171,11 +171,11 @@ QString ClassMembersEdit::Cursor::readUntil(const QString &delimiter)
 
 void ClassMembersEdit::Cursor::unreadWord()
 {
-    if (!m_valid) {
+    if (!m_isValid) {
         return;
     }
     if (m_lastPos < 0) {
-        m_valid = false;
+        m_isValid = false;
         return;
     }
     m_pos = m_lastPos;
@@ -183,7 +183,7 @@ void ClassMembersEdit::Cursor::unreadWord()
 
 void ClassMembersEdit::Cursor::skipUntilOrNewline(const QString &delimiter)
 {
-    while (m_valid) {
+    while (m_isValid) {
         if (m_pos >= m_text.length()) {
             return;
         }
@@ -202,13 +202,13 @@ QString ClassMembersEdit::Cursor::readWordFromRight()
 {
     skipWhitespacesFromRight();
     QString word;
-    if (m_valid && m_pos >= 0) {
+    if (m_isValid && m_pos >= 0) {
         m_lastPos = m_pos;
         QChar c = m_text.at(m_pos);
         --m_pos;
         if (c.isLetterOrNumber() || c == QLatin1Char('_')) {
             word = c;
-            while (m_valid && m_pos >= 0 && (m_text.at(m_pos).isLetterOrNumber() || m_text.at(m_pos) == QLatin1Char('_'))) {
+            while (m_isValid && m_pos >= 0 && (m_text.at(m_pos).isLetterOrNumber() || m_text.at(m_pos) == QLatin1Char('_'))) {
                 word = m_text.at(m_pos) + word;
                 --m_pos;
             }
@@ -224,7 +224,7 @@ QString ClassMembersEdit::Cursor::readWordFromRight()
             }
         }
     } else {
-        m_valid = false;
+        m_isValid = false;
     }
     return word;
 
@@ -233,7 +233,7 @@ QString ClassMembersEdit::Cursor::readWordFromRight()
 bool ClassMembersEdit::Cursor::skipFromRight(const QString &s)
 {
     skipWhitespacesFromRight();
-    if (m_valid && m_pos - s.length() >= 0
+    if (m_isValid && m_pos - s.length() >= 0
             && s.compare(m_text.mid(m_pos - s.length() + 1, s.length()), s, Qt::CaseInsensitive) == 0) {
         m_pos -= s.length();
         return true;
@@ -243,30 +243,30 @@ bool ClassMembersEdit::Cursor::skipFromRight(const QString &s)
 
 QString ClassMembersEdit::Cursor::extractSubstr(int start, int stop)
 {
-    if (m_valid && start >= 0 && start < m_text.length() && stop >= start && stop < m_text.length()) {
+    if (m_isValid && start >= 0 && start < m_text.length() && stop >= start && stop < m_text.length()) {
         return m_text.mid(start, stop - start + 1);
     }
-    m_valid = false;
+    m_isValid = false;
     return QStringLiteral("");
 }
 
 void ClassMembersEdit::Cursor::skipWhitespaces()
 {
-    while (m_valid && m_pos < m_text.length() && m_text.at(m_pos).isSpace() && m_text.at(m_pos) != QStringLiteral("\n")) {
+    while (m_isValid && m_pos < m_text.length() && m_text.at(m_pos).isSpace() && m_text.at(m_pos) != QStringLiteral("\n")) {
         ++m_pos;
     }
     if (m_pos >= m_text.length()) {
-        m_valid = false;
+        m_isValid = false;
     }
 }
 
 void ClassMembersEdit::Cursor::skipWhitespacesFromRight()
 {
-    while (m_valid && m_pos >= 0 && m_text.at(m_pos).isSpace() && m_text.at(m_pos) != QStringLiteral("\n")) {
+    while (m_isValid && m_pos >= 0 && m_text.at(m_pos).isSpace() && m_text.at(m_pos) != QStringLiteral("\n")) {
         --m_pos;
     }
     if (m_pos < 0) {
-        m_valid = false;
+        m_isValid = false;
     }
 }
 
@@ -305,11 +305,11 @@ class ClassMembersEdit::ClassMembersEditPrivate
 {
 public:
     ClassMembersEditPrivate()
-        : m_valid(true)
+        : m_isValid(true)
     {
     }
 
-    bool m_valid;
+    bool m_isValid;
     QList<MClassMember> m_members;
 };
 
@@ -342,9 +342,9 @@ void ClassMembersEdit::reparse()
 {
     bool ok = false;
     QList<MClassMember> members = parse(toPlainText(), &ok);
-    if (ok != d->m_valid) {
-        d->m_valid = ok;
-        emit statusChanged(d->m_valid);
+    if (ok != d->m_isValid) {
+        d->m_isValid = ok;
+        emit statusChanged(d->m_isValid);
     }
     if (ok) {
         if (members != d->m_members) {
@@ -359,9 +359,9 @@ void ClassMembersEdit::onTextChanged()
 {
     bool ok = false;
     QList<MClassMember> members = parse(toPlainText(), &ok);
-    if (ok != d->m_valid) {
-        d->m_valid = ok;
-        emit statusChanged(d->m_valid);
+    if (ok != d->m_isValid) {
+        d->m_isValid = ok;
+        emit statusChanged(d->m_isValid);
     }
     if (ok) {
         if (members != d->m_members) {

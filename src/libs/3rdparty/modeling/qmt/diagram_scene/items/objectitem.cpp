@@ -66,8 +66,8 @@ ObjectItem::ObjectItem(DObject *object, DiagramSceneModel *diagramSceneModel, QG
     : QGraphicsItem(parent),
       m_object(object),
       m_diagramSceneModel(diagramSceneModel),
-      m_secondarySelected(false),
-      m_focusSelected(false),
+      m_isSecondarySelected(false),
+      m_isFocusSelected(false),
       m_stereotypeIconDisplay(StereotypeIcon::DisplayLabel),
       m_stereotypes(0),
       m_stereotypeIcon(0),
@@ -113,7 +113,7 @@ void ObjectItem::setPosAndRect(const QPointF &originalPos, const QRectF &origina
         m_diagramSceneModel->diagramController()->startUpdateElement(m_object, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
         m_object->setPos(newPos);
         if (newRect.size() != m_object->rect().size()) {
-            m_object->setAutoSize(false);
+            m_object->setAutoSized(false);
         }
         m_object->setRect(newRect);
         m_diagramSceneModel->diagramController()->finishUpdateElement(m_object, m_diagramSceneModel->diagram(), false);
@@ -191,26 +191,26 @@ void ObjectItem::alignItemPositionToRaster(double rasterWidth, double rasterHeig
 
 bool ObjectItem::isSecondarySelected() const
 {
-    return m_secondarySelected;
+    return m_isSecondarySelected;
 }
 
 void ObjectItem::setSecondarySelected(bool secondarySelected)
 {
-    if (m_secondarySelected != secondarySelected) {
-        m_secondarySelected = secondarySelected;
+    if (m_isSecondarySelected != secondarySelected) {
+        m_isSecondarySelected = secondarySelected;
         update();
     }
 }
 
 bool ObjectItem::isFocusSelected() const
 {
-    return m_focusSelected;
+    return m_isFocusSelected;
 }
 
 void ObjectItem::setFocusSelected(bool focusSelected)
 {
-    if (m_focusSelected != focusSelected) {
-        m_focusSelected = focusSelected;
+    if (m_isFocusSelected != focusSelected) {
+        m_isFocusSelected = focusSelected;
         update();
     }
 }

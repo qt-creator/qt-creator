@@ -190,8 +190,8 @@ RelationItem::RelationItem(DRelation *relation, DiagramSceneModel *diagramSceneM
     : QGraphicsItem(parent),
       m_relation(relation),
       m_diagramSceneModel(diagramSceneModel),
-      m_secondarySelected(false),
-      m_focusSelected(false),
+      m_isSecondarySelected(false),
+      m_isFocusSelected(false),
       m_arrow(0),
       m_name(0),
       m_stereotypes(0),
@@ -270,26 +270,26 @@ void RelationItem::alignItemPositionToRaster(double rasterWidth, double rasterHe
 
 bool RelationItem::isSecondarySelected() const
 {
-    return m_secondarySelected;
+    return m_isSecondarySelected;
 }
 
 void RelationItem::setSecondarySelected(bool secondarySelected)
 {
-    if (m_secondarySelected != secondarySelected) {
-        m_secondarySelected = secondarySelected;
+    if (m_isSecondarySelected != secondarySelected) {
+        m_isSecondarySelected = secondarySelected;
         update();
     }
 }
 
 bool RelationItem::isFocusSelected() const
 {
-    return m_focusSelected;
+    return m_isFocusSelected;
 }
 
 void RelationItem::setFocusSelected(bool focusSelected)
 {
-    if (m_focusSelected != focusSelected) {
-        m_focusSelected = focusSelected;
+    if (m_isFocusSelected != focusSelected) {
+        m_isFocusSelected = focusSelected;
         update();
     }
 }

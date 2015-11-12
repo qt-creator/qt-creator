@@ -132,11 +132,11 @@ public:
 
     void setStereotypeDisplay(StereotypeDisplay stereotypeDisplay);
 
-    bool hasAutoSize() const { return m_autoSized; }
+    bool isAutoSized() const { return m_isAutoSized; }
 
-    void setAutoSize(bool autoSized);
+    void setAutoSized(bool autoSized);
 
-    bool isVisualEmphasized() const { return m_visualEmphasized; }
+    bool isVisualEmphasized() const { return m_isVisualEmphasized; }
 
     void setVisualEmphasized(bool visualEmphasized);
 
@@ -168,9 +168,9 @@ private:
 
     StereotypeDisplay m_stereotypeDisplay;
 
-    bool m_autoSized;
+    bool m_isAutoSized;
 
-    bool m_visualEmphasized;
+    bool m_isVisualEmphasized;
 };
 
 }

@@ -55,7 +55,7 @@ public:
 
     void setShape(const QString &shape);
 
-    bool isShapeEditable() const { return m_shapeEditable; }
+    bool isShapeEditable() const { return m_isShapeEditable; }
 
     void setShapeEditable(bool shapeEditable);
 
@@ -71,7 +71,7 @@ private:
 
     QString m_shape;
 
-    bool m_shapeEditable;
+    bool m_isShapeEditable;
 
 };
 

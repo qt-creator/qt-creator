@@ -48,7 +48,7 @@ public:
 
 public:
 
-    bool updateNeeded() const { return m_updateNeeded; }
+    bool isUpdateNeeded() const { return m_isUpdateNeeded; }
 
     void setCheckNeedsUpdate(bool checkNeedsUpdate);
 
@@ -88,7 +88,7 @@ private:
 
     bool m_checkNeedsUpdate;
 
-    bool m_updateNeeded;
+    bool m_isUpdateNeeded;
 };
 
 }

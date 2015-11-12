@@ -36,14 +36,14 @@ namespace qmt {
 
 MSourceExpansion::MSourceExpansion()
     : MExpansion(),
-      m_transient(false)
+      m_isTransient(false)
 {
 }
 
 MSourceExpansion::MSourceExpansion(const MSourceExpansion &rhs)
     : MExpansion(rhs),
       m_sourceId(rhs.m_sourceId),
-      m_transient(rhs.m_transient)
+      m_isTransient(rhs.m_isTransient)
 {
 }
 
@@ -55,7 +55,7 @@ MSourceExpansion &MSourceExpansion::operator=(const MSourceExpansion &rhs)
 {
     if (this != &rhs) {
         m_sourceId = rhs.m_sourceId;
-        m_transient = rhs.m_transient;
+        m_isTransient = rhs.m_isTransient;
     }
     return *this;
 }
@@ -75,7 +75,7 @@ void MSourceExpansion::setSourceId(const QString &sourceId)
 
 void MSourceExpansion::setTransient(bool transient)
 {
-    m_transient = transient;
+    m_isTransient = transient;
 }
 
 }

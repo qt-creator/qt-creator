@@ -259,7 +259,7 @@ void ItemItem::updateGeometry()
     width = geometry.width();
     height = geometry.height();
 
-    if (object()->hasAutoSize()) {
+    if (object()->isAutoSized()) {
         // nothing
     } else {
         QRectF rect = object()->rect();

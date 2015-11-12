@@ -66,7 +66,7 @@ public:
 
     QXmlOutArchive(QXmlStreamWriter &stream)
         : m_stream(stream),
-          m_nextPointerIsReference(false)
+          m_isNextPointerAReference(false)
     {
     }
 
@@ -230,13 +230,13 @@ public:
     void beginReference(const Ref<T> &ref)
     {
         m_stream.writeStartElement(ref.qualifiedName());
-        m_nextPointerIsReference = true;
+        m_isNextPointerAReference = true;
     }
 
     template<class T>
     void endReference(const Ref<T> &)
     {
-        m_nextPointerIsReference = false;
+        m_isNextPointerAReference = false;
         m_stream.writeEndElement();
     }
 
@@ -244,13 +244,13 @@ public:
     void beginReference(const GetterRef<U, T> &ref)
     {
         m_stream.writeStartElement(ref.qualifiedName());
-        m_nextPointerIsReference = true;
+        m_isNextPointerAReference = true;
     }
 
     template<class U, typename T>
     void endReference(const GetterRef<U, T> &)
     {
-        m_nextPointerIsReference = false;
+        m_isNextPointerAReference = false;
         m_stream.writeEndElement();
     }
 
@@ -258,13 +258,13 @@ public:
     void beginReference(const GetterSetterRef<U, T, V> &ref)
     {
         m_stream.writeStartElement(ref.qualifiedName());
-        m_nextPointerIsReference = true;
+        m_isNextPointerAReference = true;
     }
 
     template<class U, typename T, typename V>
     void endReference(const GetterSetterRef<U, T, V> &)
     {
-        m_nextPointerIsReference = false;
+        m_isNextPointerAReference = false;
         m_stream.writeEndElement();
     }
 
@@ -272,13 +272,13 @@ public:
     void beginReference(const GetFuncRef<U, T> &ref)
     {
         m_stream.writeStartElement(ref.qualifiedName());
-        m_nextPointerIsReference = true;
+        m_isNextPointerAReference = true;
     }
 
     template<class U, typename T>
     void endReference(const GetFuncRef<U, T> &)
     {
-        m_nextPointerIsReference = false;
+        m_isNextPointerAReference = false;
         m_stream.writeEndElement();
     }
 
@@ -286,20 +286,20 @@ public:
     void beginReference(const GetSetFuncRef<U, T, V> &ref)
     {
         m_stream.writeStartElement(ref.qualifiedName());
-        m_nextPointerIsReference = true;
+        m_isNextPointerAReference = true;
     }
 
     template<class U, typename T, typename V>
     void endReference(const GetSetFuncRef<U, T, V> &)
     {
-        m_nextPointerIsReference = false;
+        m_isNextPointerAReference = false;
         m_stream.writeEndElement();
     }
 
     template<typename T>
     bool isReference(T *p)
     {
-        return m_nextPointerIsReference || m_savingRefMap.hasDefinedRef(p);
+        return m_isNextPointerAReference || m_savingRefMap.hasDefinedRef(p);
     }
 
     void beginNullPointer()
@@ -341,7 +341,7 @@ public:
 private:
     QXmlStreamWriter &m_stream;
     impl::SavingRefMap m_savingRefMap;
-    bool m_nextPointerIsReference;
+    bool m_isNextPointerAReference;
 };
 
 }

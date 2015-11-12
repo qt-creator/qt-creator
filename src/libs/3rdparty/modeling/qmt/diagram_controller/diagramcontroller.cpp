@@ -885,7 +885,7 @@ void DiagramController::updateElementFromModel(DElement *element, const MDiagram
     if (emitUpdateSignal) {
         visitor.setCheckNeedsUpdate(true);
         melement->accept(&visitor);
-        if (visitor.updateNeeded()) {
+        if (visitor.isUpdateNeeded()) {
             int row = diagram->diagramElements().indexOf(element);
             emit beginUpdateElement(row, diagram);
             visitor.setCheckNeedsUpdate(false);

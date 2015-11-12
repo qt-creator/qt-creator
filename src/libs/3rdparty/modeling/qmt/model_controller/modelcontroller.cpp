@@ -644,7 +644,7 @@ ModelController::ModelController(QObject *parent)
     : QObject(parent),
       m_rootPackage(0),
       m_undoController(0),
-      m_resettingModel(false)
+      m_isResettingModel(false)
 {
 }
 
@@ -689,21 +689,21 @@ MElement *ModelController::findElement(const Uid &key)
 
 void ModelController::startResetModel()
 {
-    QMT_CHECK(!m_resettingModel);
-    m_resettingModel = true;
+    QMT_CHECK(!m_isResettingModel);
+    m_isResettingModel = true;
     emit beginResetModel();
-    QMT_CHECK(m_resettingModel);
+    QMT_CHECK(m_isResettingModel);
 }
 
 void ModelController::finishResetModel(bool modified)
 {
-    QMT_CHECK(m_resettingModel);
+    QMT_CHECK(m_isResettingModel);
     emit endResetModel();
     if (modified) {
         emit this->modified();
     }
-    QMT_CHECK(m_resettingModel);
-    m_resettingModel = false;
+    QMT_CHECK(m_isResettingModel);
+    m_isResettingModel = false;
 }
 
 MObject *ModelController::object(int row, const MObject *owner) const
@@ -726,7 +726,7 @@ void ModelController::addObject(MPackage *parentPackage, MObject *object)
     QMT_CHECK(parentPackage);
     QMT_CHECK(object);
     int row = parentPackage->children().size();
-    if (!m_resettingModel) {
+    if (!m_isResettingModel) {
         emit beginInsertObject(row, parentPackage);
     }
     mapObject(object);
@@ -736,7 +736,7 @@ void ModelController::addObject(MPackage *parentPackage, MObject *object)
         undoCommand->add(TypeObject, object->uid(), parentPackage->uid());
     }
     parentPackage->addChild(object);
-    if (!m_resettingModel) {
+    if (!m_isResettingModel) {
         emit endInsertObject(row, parentPackage);
         emit modified();
     }
@@ -754,7 +754,7 @@ void ModelController::removeObject(MObject *object)
     QMT_CHECK(object->owner());
     int row = object->owner()->children().indexOf(object);
     MObject *owner = object->owner();
-    if (!m_resettingModel) {
+    if (!m_isResettingModel) {
         emit beginRemoveObject(row, owner);
     }
     if (m_undoController) {
@@ -764,7 +764,7 @@ void ModelController::removeObject(MObject *object)
     }
     unmapObject(object);
     owner->removeChild(object);
-    if (!m_resettingModel) {
+    if (!m_isResettingModel) {
         emit endRemoveObject(row, owner);
         emit modified();
     }
@@ -787,7 +787,7 @@ void ModelController::startUpdateObject(MObject *object)
     if (MPackage *package = dynamic_cast<MPackage *>(object)) {
         m_oldPackageName = package->name();
     }
-    if (!m_resettingModel) {
+    if (!m_isResettingModel) {
         emit beginUpdateObject(row, parent);
     }
     if (m_undoController) {
@@ -806,7 +806,7 @@ void ModelController::finishUpdateObject(MObject *object, bool cancelled)
     } else {
         row = parent->children().indexOf(object);
     }
-    if (!m_resettingModel) {
+    if (!m_isResettingModel) {
         emit endUpdateObject(row, parent);
         if (!cancelled) {
             QList<MRelation *> relations = findRelationsOfObject(object);
@@ -835,7 +835,7 @@ void ModelController::moveObject(MPackage *newOwner, MObject *object)
         MObject *formerOwner = object->owner();
         QMT_CHECK(formerOwner);
         formerRow = formerOwner->children().indexOf(object);
-        if (!m_resettingModel) {
+        if (!m_isResettingModel) {
             emit beginMoveObject(formerRow, formerOwner);
         }
         if (m_undoController) {
@@ -845,7 +845,7 @@ void ModelController::moveObject(MPackage *newOwner, MObject *object)
         formerOwner->decontrolChild(object);
         newOwner->addChild(object);
         int row = newOwner->children().indexOf(object);
-        if (!m_resettingModel) {
+        if (!m_isResettingModel) {
             emit endMoveObject(row, newOwner);
             emit modified();
         }
@@ -866,7 +866,7 @@ void ModelController::addRelation(MObject *owner, MRelation *relation)
     QMT_CHECK(findObject(relation->endBUid()));
 
     int row = owner->relations().size();
-    if (!m_resettingModel) {
+    if (!m_isResettingModel) {
         emit beginInsertRelation(row, owner);
     }
     mapRelation(relation);
@@ -876,7 +876,7 @@ void ModelController::addRelation(MObject *owner, MRelation *relation)
         undoCommand->add(TypeRelation, relation->uid(), owner->uid());
     }
     owner->addRelation(relation);
-    if (!m_resettingModel) {
+    if (!m_isResettingModel) {
         emit endInsertRelation(row, owner);
         emit modified();
     }
@@ -889,7 +889,7 @@ void ModelController::removeRelation(MRelation *relation)
     MObject *owner = relation->owner();
     QMT_CHECK(owner);
     int row = owner->relations().indexOf(relation);
-    if (!m_resettingModel) {
+    if (!m_isResettingModel) {
         emit beginRemoveRelation(row, owner);
     }
     if (m_undoController) {
@@ -899,7 +899,7 @@ void ModelController::removeRelation(MRelation *relation)
     }
     unmapRelation(relation);
     owner->removeRelation(relation);
-    if (!m_resettingModel) {
+    if (!m_isResettingModel) {
         emit endRemoveRelation(row, owner);
         emit modified();
     }
@@ -911,7 +911,7 @@ void ModelController::startUpdateRelation(MRelation *relation)
     QMT_CHECK(relation);
     MObject *owner = relation->owner();
     QMT_CHECK(owner);
-    if (!m_resettingModel) {
+    if (!m_isResettingModel) {
         emit beginUpdateRelation(owner->relations().indexOf(relation), owner);
     }
     if (m_undoController) {
@@ -926,7 +926,7 @@ void ModelController::finishUpdateRelation(MRelation *relation, bool cancelled)
     QMT_CHECK(findObject(relation->endBUid()));
     MObject *owner = relation->owner();
     QMT_CHECK(owner);
-    if (!m_resettingModel) {
+    if (!m_isResettingModel) {
         emit endUpdateRelation(owner->relations().indexOf(relation), owner);
         if (!cancelled) {
             emit modified();
@@ -945,7 +945,7 @@ void ModelController::moveRelation(MObject *newOwner, MRelation *relation)
         MObject *formerOwner = relation->owner();
         QMT_CHECK(formerOwner);
         formerRow = formerOwner->relations().indexOf(relation);
-        if (!m_resettingModel) {
+        if (!m_isResettingModel) {
             emit beginMoveRelation(formerRow, formerOwner);
         }
         if (m_undoController) {
@@ -955,7 +955,7 @@ void ModelController::moveRelation(MObject *newOwner, MRelation *relation)
         formerOwner->decontrolRelation(relation);
         newOwner->addRelation(relation);
         int row = newOwner->relations().indexOf(relation);
-        if (!m_resettingModel) {
+        if (!m_isResettingModel) {
             emit endMoveRelation(row, newOwner);
             emit modified();
         }

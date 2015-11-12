@@ -38,7 +38,7 @@ namespace qmt {
 
 DAssociationEnd::DAssociationEnd()
     : m_kind(MAssociationEnd::Association),
-      m_navigable(false)
+      m_isNavigable(false)
 {
 }
 
@@ -58,7 +58,7 @@ void DAssociationEnd::setCardinatlity(const QString &cardinality)
 
 void DAssociationEnd::setNavigable(bool navigable)
 {
-    m_navigable = navigable;
+    m_isNavigable = navigable;
 }
 
 void DAssociationEnd::setKind(MAssociationEnd::Kind kind)

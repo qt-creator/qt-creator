@@ -143,7 +143,7 @@ private:
 
         const QString m_source;
         const QString m_pattern;
-        bool m_evaluated;
+        bool m_isEvaluated;
         bool m_evaluationFailed;
         QList<Node *> m_nodes;
     };

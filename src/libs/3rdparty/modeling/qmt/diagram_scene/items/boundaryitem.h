@@ -145,9 +145,9 @@ private:
 
     DiagramSceneModel *m_diagramSceneModel;
 
-    bool m_secondarySelected;
+    bool m_isSecondarySelected;
 
-    bool m_focusSelected;
+    bool m_isFocusSelected;
 
     RectangularSelectionItem *m_selectionMarker;
 
@@ -157,9 +157,9 @@ private:
 
     BoundaryTextItem *m_textItem;
 
-    bool m_onUpdate;
+    bool m_isUpdating;
 
-    bool m_onChanged;
+    bool m_isChanged;
 };
 
 }

@@ -51,11 +51,11 @@ public:
 
     void setVariety(const QString &variety);
 
-    bool isVarietyEditable() const { return m_varietyEditable; }
+    bool isVarietyEditable() const { return m_isVarietyEditable; }
 
     void setVarietyEditable(bool varietyEditable);
 
-    bool isShapeEditable() const { return m_shapeEditable; }
+    bool isShapeEditable() const { return m_isShapeEditable; }
 
     void setShapeEditable(bool shapeEditable);
 
@@ -69,9 +69,9 @@ private:
 
     QString m_variety;
 
-    bool m_varietyEditable;
+    bool m_isVarietyEditable;
 
-    bool m_shapeEditable;
+    bool m_isShapeEditable;
 
 };
 

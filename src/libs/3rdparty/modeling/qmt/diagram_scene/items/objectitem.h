@@ -208,9 +208,9 @@ private:
 
     DiagramSceneModel *m_diagramSceneModel;
 
-    bool m_secondarySelected;
+    bool m_isSecondarySelected;
 
-    bool m_focusSelected;
+    bool m_isFocusSelected;
 
     QString m_stereotypeIconId;
 

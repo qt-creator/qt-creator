@@ -37,7 +37,7 @@ namespace qmt {
 ObjectVisuals::ObjectVisuals()
     : m_visualPrimaryRole(DObject::PrimaryRoleNormal),
       m_visualSecondaryRole(DObject::SecondaryRoleNone),
-      m_emphasized(false),
+      m_isEmphasized(false),
       m_depth(0)
 {
 }
@@ -47,7 +47,7 @@ ObjectVisuals::ObjectVisuals(DObject::VisualPrimaryRole visualPrimaryRole,
                              bool emphasized, const QColor &baseColor, int depth)
     : m_visualPrimaryRole(visualPrimaryRole),
       m_visualSecondaryRole(visualSecondaryRole),
-      m_emphasized(emphasized),
+      m_isEmphasized(emphasized),
       m_baseColor(baseColor),
       m_depth(depth)
 {
@@ -69,7 +69,7 @@ void ObjectVisuals::setVisualSecondaryRole(DObject::VisualSecondaryRole visualSe
 
 void ObjectVisuals::setEmphasized(bool emphasized)
 {
-    m_emphasized = emphasized;
+    m_isEmphasized = emphasized;
 }
 
 void ObjectVisuals::setBaseColor(const QColor &baseColor)

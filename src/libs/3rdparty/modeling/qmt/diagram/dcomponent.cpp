@@ -38,13 +38,13 @@ namespace qmt {
 
 DComponent::DComponent()
     : DObject(),
-      m_plainShape(false)
+      m_isPlainShape(false)
 {
 }
 
 void DComponent::setPlainShape(bool planeShape)
 {
-    m_plainShape = planeShape;
+    m_isPlainShape = planeShape;
 }
 
 void DComponent::accept(DVisitor *visitor)

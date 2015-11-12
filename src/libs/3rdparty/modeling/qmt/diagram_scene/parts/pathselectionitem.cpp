@@ -152,7 +152,7 @@ PathSelectionItem::PathSelectionItem(IWindable *windable, QGraphicsItem *parent)
     : QGraphicsItem(parent),
       m_windable(windable),
       m_pointSize(QSizeF(8.0, 8.0)),
-      m_secondarySelected(false)
+      m_isSecondarySelected(false)
 {
 }
 
@@ -244,8 +244,8 @@ void PathSelectionItem::setPoints(const QList<QPointF> &points)
 
 void PathSelectionItem::setSecondarySelected(bool secondarySelected)
 {
-    if (m_secondarySelected != secondarySelected) {
-        m_secondarySelected = secondarySelected;
+    if (m_isSecondarySelected != secondarySelected) {
+        m_isSecondarySelected = secondarySelected;
         update();
     }
 }
@@ -273,7 +273,7 @@ void PathSelectionItem::update()
     foreach (GraphicsHandleItem *handle, m_handles) {
         handle->setPointSize(m_pointSize);
         bool isEndPoint = (i == 0 || i == m_handles.size() - 1);
-        handle->setSelection(m_secondarySelected
+        handle->setSelection(m_isSecondarySelected
                              ? (isEndPoint ? GraphicsHandleItem::NotSelected : GraphicsHandleItem::SecondarySelected)
                              : GraphicsHandleItem::Selected);
         ++i;

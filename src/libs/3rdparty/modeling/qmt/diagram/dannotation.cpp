@@ -38,7 +38,7 @@ namespace qmt {
 DAnnotation::DAnnotation()
     : DElement(),
       m_visualRole(RoleNormal),
-      m_autoSized(true)
+      m_isAutoSized(true)
 {
 }
 
@@ -48,7 +48,7 @@ DAnnotation::DAnnotation(const DAnnotation &rhs)
       m_pos(rhs.m_pos),
       m_rect(rhs.m_rect),
       m_visualRole(rhs.m_visualRole),
-      m_autoSized(rhs.m_autoSized)
+      m_isAutoSized(rhs.m_isAutoSized)
 {
 }
 
@@ -64,7 +64,7 @@ DAnnotation &DAnnotation::operator=(const DAnnotation &rhs)
         m_pos = rhs.m_pos;
         m_rect = rhs.m_rect;
         m_visualRole = rhs.m_visualRole;
-        m_autoSized = rhs.m_autoSized;
+        m_isAutoSized = rhs.m_isAutoSized;
     }
     return *this;
 }
@@ -89,9 +89,9 @@ void DAnnotation::setVisualRole(DAnnotation::VisualRole visualRole)
     m_visualRole = visualRole;
 }
 
-void DAnnotation::setAutoSize(bool autoSized)
+void DAnnotation::setAutoSized(bool autoSized)
 {
-    m_autoSized = autoSized;
+    m_isAutoSized = autoSized;
 }
 
 void DAnnotation::accept(DVisitor *visitor)

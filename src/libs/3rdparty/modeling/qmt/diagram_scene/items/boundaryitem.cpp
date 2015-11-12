@@ -83,14 +83,14 @@ BoundaryItem::BoundaryItem(DBoundary *boundary, DiagramSceneModel *diagramSceneM
     : QGraphicsItem(parent),
       m_boundary(boundary),
       m_diagramSceneModel(diagramSceneModel),
-      m_secondarySelected(false),
-      m_focusSelected(false),
+      m_isSecondarySelected(false),
+      m_isFocusSelected(false),
       m_selectionMarker(0),
       m_borderItem(0),
       m_noTextItem(0),
       m_textItem(0),
-      m_onUpdate(false),
-      m_onChanged(false)
+      m_isUpdating(false),
+      m_isChanged(false)
 {
     setFlags(QGraphicsItem::ItemIsSelectable);
 }
@@ -113,8 +113,8 @@ void BoundaryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
 void BoundaryItem::update()
 {
-    QMT_CHECK(!m_onUpdate);
-    m_onUpdate = true;
+    QMT_CHECK(!m_isUpdating);
+    m_isUpdating = true;
 
     prepareGeometryChange();
 
@@ -130,7 +130,7 @@ void BoundaryItem::update()
     }
     m_textItem->setFont(style->normalFont());
     m_textItem->setDefaultTextColor(style->textBrush().color());
-    if (!m_onChanged) {
+    if (!m_isChanged) {
         m_textItem->setTextWidth(-1);
         m_textItem->setPlainText(m_boundary->text());
     }
@@ -159,7 +159,7 @@ void BoundaryItem::update()
 
     setZValue(BOUNDARY_ITEMS_ZVALUE);
 
-    m_onUpdate = false;
+    m_isUpdating = false;
 }
 
 QPointF BoundaryItem::pos() const
@@ -261,26 +261,26 @@ void BoundaryItem::alignItemPositionToRaster(double rasterWidth, double rasterHe
 
 bool BoundaryItem::isSecondarySelected() const
 {
-    return m_secondarySelected;
+    return m_isSecondarySelected;
 }
 
 void BoundaryItem::setSecondarySelected(bool secondarySelected)
 {
-    if (m_secondarySelected != secondarySelected) {
-        m_secondarySelected = secondarySelected;
+    if (m_isSecondarySelected != secondarySelected) {
+        m_isSecondarySelected = secondarySelected;
         update();
     }
 }
 
 bool BoundaryItem::isFocusSelected() const
 {
-    return m_focusSelected;
+    return m_isFocusSelected;
 }
 
 void BoundaryItem::setFocusSelected(bool focusSelected)
 {
-    if (m_focusSelected != focusSelected) {
-        m_focusSelected = focusSelected;
+    if (m_isFocusSelected != focusSelected) {
+        m_isFocusSelected = focusSelected;
         update();
     }
 }
@@ -326,11 +326,11 @@ void BoundaryItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void BoundaryItem::updateSelectionMarker()
 {
-    if (isSelected() || m_secondarySelected) {
+    if (isSelected() || m_isSecondarySelected) {
         if (!m_selectionMarker) {
             m_selectionMarker = new RectangularSelectionItem(this, this);
         }
-        m_selectionMarker->setSecondarySelected(isSelected() ? false : m_secondarySelected);
+        m_selectionMarker->setSecondarySelected(isSelected() ? false : m_isSecondarySelected);
     } else if (m_selectionMarker) {
         if (m_selectionMarker->scene()) {
             m_selectionMarker->scene()->removeItem(m_selectionMarker);
@@ -365,10 +365,10 @@ bool BoundaryItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 
 void BoundaryItem::onContentsChanged()
 {
-    QMT_CHECK(!m_onChanged);
-    m_onChanged = true;
+    QMT_CHECK(!m_isChanged);
+    m_isChanged = true;
 
-    if (!m_onUpdate) {
+    if (!m_isUpdating) {
         QString plainText = m_textItem->toPlainText();
         if (m_boundary->text() != plainText) {
             m_diagramSceneModel->diagramController()->startUpdateElement(m_boundary, m_diagramSceneModel->diagram(), DiagramController::UpdateMinor);
@@ -377,7 +377,7 @@ void BoundaryItem::onContentsChanged()
         }
     }
 
-    m_onChanged = false;
+    m_isChanged = false;
 }
 
 QSizeF BoundaryItem::calcMinimumGeometry() const

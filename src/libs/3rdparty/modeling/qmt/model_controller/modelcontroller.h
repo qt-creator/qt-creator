@@ -247,7 +247,7 @@ private:
 
     QMultiHash<Uid, MRelation *> m_objectRelationsMap;
 
-    bool m_resettingModel;
+    bool m_isResettingModel;
 
     QString m_oldPackageName;
 

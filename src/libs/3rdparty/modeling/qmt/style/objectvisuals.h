@@ -56,7 +56,7 @@ public:
 
     void setVisualSecondaryRole(DObject::VisualSecondaryRole visualSecondaryRole);
 
-    bool isEmphasized() const { return m_emphasized; }
+    bool isEmphasized() const { return m_isEmphasized; }
 
     void setEmphasized(bool emphasized);
 
@@ -74,7 +74,7 @@ private:
 
     DObject::VisualSecondaryRole m_visualSecondaryRole;
 
-    bool m_emphasized;
+    bool m_isEmphasized;
 
     QColor m_baseColor;
 

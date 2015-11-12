@@ -69,7 +69,7 @@ void DFlatAssignmentVisitor::visitDObject(const DObject *object)
     target->setName(object->name());
     target->setPos(object->pos());
     target->setRect(object->rect());
-    target->setAutoSize(object->hasAutoSize());
+    target->setAutoSized(object->isAutoSized());
     target->setDepth(object->depth());
     target->setVisualPrimaryRole(object->visualPrimaryRole());
     target->setVisualSecondaryRole(object->visualSecondaryRole());
@@ -100,7 +100,7 @@ void DFlatAssignmentVisitor::visitDComponent(const DComponent *component)
     visitDObject(component);
     DComponent *target = dynamic_cast<DComponent *>(m_target);
     QMT_CHECK(target);
-    target->setPlainShape(component->plainShape());
+    target->setPlainShape(component->isPlainShape());
 }
 
 void DFlatAssignmentVisitor::visitDDiagram(const DDiagram *diagram)
@@ -156,7 +156,7 @@ void DFlatAssignmentVisitor::visitDAnnotation(const DAnnotation *annotation)
     target->setText(annotation->text());
     target->setPos(annotation->pos());
     target->setRect(annotation->rect());
-    target->setAutoSize(annotation->hasAutoSize());
+    target->setAutoSized(annotation->isAutoSized());
     target->setVisualRole(annotation->visualRole());
 }
 

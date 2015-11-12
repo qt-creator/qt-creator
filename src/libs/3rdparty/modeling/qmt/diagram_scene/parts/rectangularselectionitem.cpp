@@ -52,7 +52,7 @@ public:
         : QGraphicsRectItem(parent),
           m_owner(parent),
           m_handle(handle),
-          m_secondarySelected(false)
+          m_isSecondarySelected(false)
     {
         setPen(QPen(Qt::black));
         setBrush(QBrush(Qt::black));
@@ -60,8 +60,8 @@ public:
 
     void setSecondarySelected(bool secondarySelected)
     {
-        if (secondarySelected != m_secondarySelected) {
-            m_secondarySelected = secondarySelected;
+        if (secondarySelected != m_isSecondarySelected) {
+            m_isSecondarySelected = secondarySelected;
             if (secondarySelected) {
                 setPen(QPen(Qt::lightGray));
                 setBrush(Qt::NoBrush);
@@ -78,7 +78,7 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
         m_startPos = mapToScene(event->pos());
-        if (!m_secondarySelected) {
+        if (!m_isSecondarySelected) {
             m_owner->moveHandle(m_handle, QPointF(0.0, 0.0), Press, None);
         }
     }
@@ -86,7 +86,7 @@ protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     {
         QPointF pos = mapToScene(event->pos()) - m_startPos;
-        if (!m_secondarySelected) {
+        if (!m_isSecondarySelected) {
             m_owner->moveHandle(m_handle, pos, Move, None);
         }
 
@@ -95,7 +95,7 @@ protected:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     {
         QPointF pos = mapToScene(event->pos()) - m_startPos;
-        if (!m_secondarySelected) {
+        if (!m_isSecondarySelected) {
             m_owner->moveHandle(m_handle, pos, Release, None);
         }
     }
@@ -106,7 +106,7 @@ private:
 
     Handle m_handle;
 
-    bool m_secondarySelected;
+    bool m_isSecondarySelected;
 
     QPointF m_startPos;
 };
@@ -120,7 +120,7 @@ RectangularSelectionItem::RectangularSelectionItem(IResizable *itemResizer, QGra
       m_showBorder(false),
       m_borderItem(0),
       m_freedom(FreedomAny),
-      m_secondarySelected(false)
+      m_isSecondarySelected(false)
 {
 }
 
@@ -173,8 +173,8 @@ void RectangularSelectionItem::setFreedom(Freedom freedom)
 
 void RectangularSelectionItem::setSecondarySelected(bool secondarySelected)
 {
-    if (secondarySelected != m_secondarySelected) {
-        m_secondarySelected = secondarySelected;
+    if (secondarySelected != m_isSecondarySelected) {
+        m_isSecondarySelected = secondarySelected;
         update();
     }
 }
@@ -216,7 +216,7 @@ void RectangularSelectionItem::update()
             visible = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
             break;
         }
-        m_points[i]->setSecondarySelected(m_secondarySelected);
+        m_points[i]->setSecondarySelected(m_isSecondarySelected);
         m_points[i]->setVisible(visible);
     }
     double horizCenter = (m_rect.left() + m_rect.right()) * 0.5;
@@ -235,7 +235,7 @@ void RectangularSelectionItem::update()
             m_borderItem = new QGraphicsRectItem(this);
         }
         m_borderItem->setRect(m_rect);
-        if (m_secondarySelected) {
+        if (m_isSecondarySelected) {
             m_borderItem->setPen(QPen(QBrush(Qt::lightGray), 0.0, Qt::DashDotLine));
         } else {
             m_borderItem->setPen(QPen(QBrush(Qt::black), 0.0, Qt::DashDotLine));

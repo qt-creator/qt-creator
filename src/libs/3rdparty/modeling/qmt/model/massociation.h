@@ -78,7 +78,7 @@ public:
 
     void setKind(Kind kind);
 
-    bool isNavigable() const { return m_navigable; }
+    bool isNavigable() const { return m_isNavigable; }
 
     void setNavigable(bool navigable);
 
@@ -90,7 +90,7 @@ private:
 
     Kind m_kind;
 
-    bool m_navigable;
+    bool m_isNavigable;
 };
 
 bool operator==(const MAssociationEnd &lhs, const MAssociationEnd &rhs);

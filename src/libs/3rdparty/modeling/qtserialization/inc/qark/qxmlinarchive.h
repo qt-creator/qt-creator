@@ -386,7 +386,7 @@ public:
         Node *node = m_nodeStack.pop();
         if (m_nodeStack.empty()) {
             XmlTag xmlTag = readTag();
-            if (xmlTag.m_tagName != node->qualifiedName() || xmlTag.m_endTag) {
+            if (xmlTag.m_tagName != node->qualifiedName() || xmlTag.m_isEndTag) {
                 throw FileFormatException();
             }
             node->accept(*this, xmlTag);
@@ -543,7 +543,7 @@ public:
     void readReferenceEndTag(ReferenceKind kind)
     {
         XmlTag tag = readTag();
-        if (!tag.m_endTag) {
+        if (!tag.m_isEndTag) {
             throw FileFormatException();
         } else if (tag.m_tagName == QLatin1String("null") && kind != Nullpointer) {
             throw FileFormatException();
@@ -573,9 +573,9 @@ private:
     class XmlTag
     {
     public:
-        XmlTag() : m_endTag(false) { }
+        XmlTag() : m_isEndTag(false) { }
         QString m_tagName;
-        bool m_endTag;
+        bool m_isEndTag;
         impl::ObjectId m_id;
         QHash<QString, QString> m_attributes;
     };
@@ -583,7 +583,7 @@ private:
     void readChildren(Node *node) {
         for (;;) {
             XmlTag xmlTag = readTag();
-            if (xmlTag.m_endTag) {
+            if (xmlTag.m_isEndTag) {
                 if (xmlTag.m_tagName != node->qualifiedName()) {
                     throw FileFormatException();
                 }
@@ -627,7 +627,7 @@ private:
     {
         load(*this, node->base().base(), node->base().parameters());
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->base().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->base().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -637,7 +637,7 @@ private:
     {
         load(*this, *node->attribute().value(), node->attribute().parameters());
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -649,7 +649,7 @@ private:
         load(*this, value, node->attribute().parameters());
         (node->attribute().object().*(node->attribute().setter()))(value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -661,7 +661,7 @@ private:
         load(*this, value, node->attribute().parameters());
         (node->attribute().object().*(node->attribute().setter()))(value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -673,7 +673,7 @@ private:
         load(*this, value, node->attribute().parameters());
         (node->attribute().object().*(node->attribute().setter()))(value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -685,7 +685,7 @@ private:
         load(*this, value, node->attribute().parameters());
         (node->attribute().object().*(node->attribute().setter()))(value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -697,7 +697,7 @@ private:
         load(*this, value, node->attribute().parameters());
         (node->attribute().setterFunc())(node->attribute().object(), value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -709,7 +709,7 @@ private:
         load(*this, value, node->attribute().parameters());
         (node->attribute().setterFunc())(node->attribute().object(), value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -721,7 +721,7 @@ private:
         load(*this, value, node->attribute().parameters());
         (node->attribute().setterFunc())(node->attribute().object(), value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -733,7 +733,7 @@ private:
         load(*this, value, node->attribute().parameters());
         (node->attribute().setterFunc())(node->attribute().object(), value);
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->attribute().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -749,7 +749,7 @@ private:
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -765,7 +765,7 @@ private:
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -781,7 +781,7 @@ private:
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -797,7 +797,7 @@ private:
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -813,7 +813,7 @@ private:
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -829,7 +829,7 @@ private:
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -845,7 +845,7 @@ private:
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -861,7 +861,7 @@ private:
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -877,7 +877,7 @@ private:
             m_currentRefNode = 0;
         }
         XmlTag xmlTag = readTag();
-        if (!xmlTag.m_endTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
+        if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName()) {
             throw FileFormatException();
         }
     }
@@ -906,7 +906,7 @@ QXmlInArchive::XmlTag QXmlInArchive::readTag()
             throw FileFormatException();
         }
         xmlTag.m_tagName = m_stream.name().toString();
-        xmlTag.m_endTag = true;
+        xmlTag.m_isEndTag = true;
         m_endTagWasRead = false;
         return xmlTag;
     }
@@ -931,7 +931,7 @@ QXmlInArchive::XmlTag QXmlInArchive::readTag()
             return xmlTag;
         case QXmlStreamReader::EndElement:
             xmlTag.m_tagName = m_stream.name().toString();
-            xmlTag.m_endTag = true;
+            xmlTag.m_isEndTag = true;
             return xmlTag;
         case QXmlStreamReader::Comment:
             // intentionally left blank

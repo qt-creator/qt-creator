@@ -203,7 +203,7 @@ void DiagramItem::updateGeometry()
     width = geometry.width();
     height = geometry.height();
 
-    if (object()->hasAutoSize()) {
+    if (object()->isAutoSized()) {
         if (!m_customIcon) {
             if (width < MINIMUM_AUTO_WIDTH) {
                 width = MINIMUM_AUTO_WIDTH;

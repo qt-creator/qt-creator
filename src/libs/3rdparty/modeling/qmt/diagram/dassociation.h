@@ -59,7 +59,7 @@ public:
 
     void setKind(MAssociationEnd::Kind kind);
 
-    bool isNavigable() const { return m_navigable; }
+    bool isNavigable() const { return m_isNavigable; }
 
     void setNavigable(bool navigable);
 
@@ -71,7 +71,7 @@ private:
 
     MAssociationEnd::Kind m_kind;
 
-    bool m_navigable;
+    bool m_isNavigable;
 
 };
 

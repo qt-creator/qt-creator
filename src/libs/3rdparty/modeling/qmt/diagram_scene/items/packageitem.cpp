@@ -302,7 +302,7 @@ void PackageItem::updateGeometry()
     double tabHeight = geometry.m_minimumTabSize.height();
 
     // calc width and height
-    if (object()->hasAutoSize()) {
+    if (object()->isAutoSized()) {
         if (!m_customIcon) {
             if (width < MINIMUM_AUTO_WIDTH) {
                 width = MINIMUM_AUTO_WIDTH;

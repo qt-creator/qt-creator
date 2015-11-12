@@ -55,7 +55,7 @@ QStringParser::Parser QStringParser::parse(const QString &pattern)
 QStringParser::Parser::Parser(const QString &source, const QString &pattern)
     : m_source(source),
       m_pattern(pattern),
-      m_evaluated(false),
+      m_isEvaluated(false),
       m_evaluationFailed(false)
 {
 }
@@ -151,8 +151,8 @@ bool QStringParser::Parser::scan(double *d, int *index)
 
 void QStringParser::Parser::evaluate()
 {
-    if (!m_evaluated) {
-        m_evaluated = true;
+    if (!m_isEvaluated) {
+        m_isEvaluated = true;
         m_evaluationFailed = false;
 
         int p = 0;

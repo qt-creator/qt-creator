@@ -547,7 +547,7 @@ void DiagramSceneController::alignSize(DObject *object, const DSelection &select
             QRectF newRect = aligner(selectedObject, size);
             if (newRect != selectedObject->rect()) {
                 m_diagramController->startUpdateElement(selectedObject, diagram, DiagramController::UpdateGeometry);
-                selectedObject->setAutoSize(false);
+                selectedObject->setAutoSized(false);
                 selectedObject->setRect(newRect);
                 m_diagramController->finishUpdateElement(selectedObject, diagram, false);
             }
