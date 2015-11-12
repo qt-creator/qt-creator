@@ -74,7 +74,7 @@ void MFlatAssignmentVisitor::visitMClass(const MClass *klass)
     visitMObject(klass);
     MClass *targetClass = dynamic_cast<MClass *>(m_target);
     QMT_CHECK(targetClass);
-    targetClass->setNameSpace(klass->nameSpace());
+    targetClass->setUmlNamespace(klass->umlNamespace());
     targetClass->setTemplateParameters(klass->templateParameters());
     targetClass->setMembers(klass->members());
 }

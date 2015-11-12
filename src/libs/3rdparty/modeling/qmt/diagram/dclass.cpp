@@ -42,9 +42,9 @@ DClass::DClass()
 {
 }
 
-void DClass::setNameSpace(const QString &nameSpace)
+void DClass::setUmlNamespace(const QString &umlNamespace)
 {
-    m_namespace = nameSpace;
+    m_umlNamespace = umlNamespace;
 }
 
 void DClass::setTemplateParameters(const QList<QString> &templateParameters)

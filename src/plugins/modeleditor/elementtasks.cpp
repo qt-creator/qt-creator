@@ -97,9 +97,9 @@ void ElementTasks::openElement(const qmt::DElement *element, const qmt::MDiagram
 bool ElementTasks::hasClassDefinition(const qmt::MElement *element) const
 {
     if (auto klass = dynamic_cast<const qmt::MClass *>(element)) {
-        QString qualifiedClassName = klass->nameSpace().isEmpty()
+        QString qualifiedClassName = klass->umlNamespace().isEmpty()
                 ? klass->name()
-                : klass->nameSpace() + QStringLiteral("::") + klass->name();
+                : klass->umlNamespace() + QStringLiteral("::") + klass->name();
 
         CppTools::CppClassesFilter *classesFilter = ExtensionSystem::PluginManager::getObject<CppTools::CppClassesFilter>();
         if (!classesFilter)
@@ -133,9 +133,9 @@ bool ElementTasks::hasClassDefinition(const qmt::DElement *element,
 void ElementTasks::openClassDefinition(const qmt::MElement *element)
 {
     if (auto klass = dynamic_cast<const qmt::MClass *>(element)) {
-        QString qualifiedClassName = klass->nameSpace().isEmpty()
+        QString qualifiedClassName = klass->umlNamespace().isEmpty()
                 ? klass->name()
-                : klass->nameSpace() + QStringLiteral("::") + klass->name();
+                : klass->umlNamespace() + QStringLiteral("::") + klass->name();
 
         CppTools::CppClassesFilter *classesFilter = ExtensionSystem::PluginManager::getObject<CppTools::CppClassesFilter>();
         if (!classesFilter)

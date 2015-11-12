@@ -87,7 +87,7 @@ void DFlatAssignmentVisitor::visitDClass(const DClass *klass)
     visitDObject(klass);
     DClass *target = dynamic_cast<DClass *>(m_target);
     QMT_CHECK(target);
-    target->setNameSpace(klass->nameSpace());
+    target->setUmlNamespace(klass->umlNamespace());
     target->setTemplateParameters(klass->templateParameters());
     target->setTemplateDisplay(klass->templateDisplay());
     target->setMembers(klass->members());

@@ -56,9 +56,9 @@ public:
 
 public:
 
-    QString nameSpace() const { return m_namespace; }
+    QString umlNamespace() const { return m_umlNamespace; }
 
-    void setNameSpace(const QString &nameSpace);
+    void setUmlNamespace(const QString &umlNamespace);
 
     QList<QString> templateParameters() const { return m_templateParameters; }
 
@@ -84,7 +84,7 @@ public:
 
 private:
 
-    QString m_namespace;
+    QString m_umlNamespace;
 
     QList<QString> m_templateParameters;
 

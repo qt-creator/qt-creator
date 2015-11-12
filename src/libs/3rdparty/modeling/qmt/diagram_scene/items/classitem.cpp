@@ -141,13 +141,13 @@ void ClassItem::update()
     updateStereotypes(stereotypeIconId(), stereotypeIconDisplay(), style);
 
     // namespace
-    if (!diagramClass->nameSpace().isEmpty()) {
+    if (!diagramClass->umlNamespace().isEmpty()) {
         if (!m_namespace) {
             m_namespace = new QGraphicsSimpleTextItem(this);
         }
         m_namespace->setFont(style->smallFont());
         m_namespace->setBrush(style->textBrush());
-        m_namespace->setText(diagramClass->nameSpace());
+        m_namespace->setText(diagramClass->umlNamespace());
     } else if (m_namespace) {
         m_namespace->scene()->removeItem(m_namespace);
         delete m_namespace;

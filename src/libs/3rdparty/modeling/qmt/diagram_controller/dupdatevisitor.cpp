@@ -119,8 +119,8 @@ void DUpdateVisitor::visitMClass(const MClass *klass)
 {
     DClass *dclass = dynamic_cast<DClass *>(m_target);
     QMT_CHECK(dclass);
-    if (isUpdating(klass->nameSpace() != dclass->nameSpace())) {
-        dclass->setNameSpace(klass->nameSpace());
+    if (isUpdating(klass->umlNamespace() != dclass->umlNamespace())) {
+        dclass->setUmlNamespace(klass->umlNamespace());
     }
     if (isUpdating(klass->templateParameters() != dclass->templateParameters())) {
         dclass->setTemplateParameters(klass->templateParameters());

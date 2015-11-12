@@ -168,7 +168,7 @@ inline void Access<Archive, DClass>::serialize(Archive &archive, DClass &klass)
 {
     archive || tag(klass)
             || base<DObject>(klass)
-            || attr(QStringLiteral("namespace"), klass, &DClass::nameSpace, &DClass::setNameSpace)
+            || attr(QStringLiteral("namespace"), klass, &DClass::umlNamespace, &DClass::setUmlNamespace)
             || attr(QStringLiteral("template"), klass, &DClass::templateParameters, &DClass::setTemplateParameters)
             || attr(QStringLiteral("template-display"), klass, &DClass::templateDisplay, &DClass::setTemplateDisplay)
             || attr(QStringLiteral("show-all-members"), klass, &DClass::showAllMembers, &DClass::setShowAllMembers)

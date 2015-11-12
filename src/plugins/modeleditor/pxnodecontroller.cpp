@@ -299,7 +299,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
         QString qualifiedName = action->className;
         int i = qualifiedName.lastIndexOf(QStringLiteral("::"));
         if (i >= 0) {
-            klass->setNameSpace(qualifiedName.left(i));
+            klass->setUmlNamespace(qualifiedName.left(i));
             klass->setName(qualifiedName.mid(i + 2));
         } else {
             klass->setName(qualifiedName);

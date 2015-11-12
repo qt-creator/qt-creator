@@ -801,8 +801,8 @@ QString TreeModel::createObjectLabel(const MObject *object)
     }
 
     if (const MClass *klass = dynamic_cast<const MClass *>(object)) {
-        if (!klass->nameSpace().isEmpty()) {
-            return QString(QStringLiteral("%1 [%2]")).arg(klass->name()).arg(klass->nameSpace());
+        if (!klass->umlNamespace().isEmpty()) {
+            return QString(QStringLiteral("%1 [%2]")).arg(klass->name()).arg(klass->umlNamespace());
         }
     }
     return object->name();

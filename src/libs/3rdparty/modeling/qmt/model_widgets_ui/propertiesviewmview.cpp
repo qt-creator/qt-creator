@@ -478,11 +478,11 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
         connect(m_namespaceLineEdit, SIGNAL(textEdited(QString)), this, SLOT(onNamespaceChanged(QString)));
     }
     if (!m_namespaceLineEdit->hasFocus()) {
-        QString nameSpace;
-        if (haveSameValue(m_modelElements, &MClass::nameSpace, &nameSpace)) {
+        QString umlNamespace;
+        if (haveSameValue(m_modelElements, &MClass::umlNamespace, &umlNamespace)) {
             m_namespaceLineEdit->setEnabled(true);
-            if (nameSpace != m_namespaceLineEdit->text()) {
-                m_namespaceLineEdit->setText(nameSpace);
+            if (umlNamespace != m_namespaceLineEdit->text()) {
+                m_namespaceLineEdit->setText(umlNamespace);
             }
         } else {
             m_namespaceLineEdit->clear();
@@ -1099,9 +1099,9 @@ void PropertiesView::MView::onObjectNameChanged(const QString &name)
     assignModelElement<MObject, QString>(m_modelElements, SelectionSingle, name, &MObject::name, &MObject::setName);
 }
 
-void PropertiesView::MView::onNamespaceChanged(const QString &nameSpace)
+void PropertiesView::MView::onNamespaceChanged(const QString &umlNamespace)
 {
-    assignModelElement<MClass, QString>(m_modelElements, SelectionMulti, nameSpace, &MClass::nameSpace, &MClass::setNameSpace);
+    assignModelElement<MClass, QString>(m_modelElements, SelectionMulti, umlNamespace, &MClass::umlNamespace, &MClass::setUmlNamespace);
 }
 
 void PropertiesView::MView::onTemplateParametersChanged(const QString &templateParameters)

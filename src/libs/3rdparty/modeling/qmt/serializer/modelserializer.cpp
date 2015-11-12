@@ -164,7 +164,7 @@ inline void Access<Archive, MClass>::serialize(Archive &archive, MClass &klass)
 {
     archive || tag(klass)
             || base<MObject>(klass)
-            || attr(QStringLiteral("namespace"), klass, &MClass::nameSpace, &MClass::setNameSpace)
+            || attr(QStringLiteral("namespace"), klass, &MClass::umlNamespace, &MClass::setUmlNamespace)
             || attr(QStringLiteral("template"), klass, &MClass::templateParameters, &MClass::setTemplateParameters)
             || attr(QStringLiteral("members"), klass, &MClass::members, &MClass::setMembers)
             || end;

@@ -148,7 +148,7 @@ private slots:
 
     void onObjectNameChanged(const QString &name);
 
-    void onNamespaceChanged(const QString &nameSpace);
+    void onNamespaceChanged(const QString &umlNamespace);
 
     void onTemplateParametersChanged(const QString &templateParameters);
 

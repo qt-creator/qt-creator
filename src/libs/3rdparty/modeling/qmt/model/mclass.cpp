@@ -44,7 +44,7 @@ MClass::MClass()
 
 MClass::MClass(const MClass &rhs)
     : MObject(rhs),
-      m_namespace(rhs.m_namespace),
+      m_umlNamespace(rhs.m_umlNamespace),
       m_templateParameters(rhs.m_templateParameters),
       m_members(rhs.m_members)
 {
@@ -58,16 +58,16 @@ MClass &MClass::operator=(const MClass &rhs)
 {
     if (this != &rhs) {
         MObject::operator =(rhs);
-        m_namespace = rhs.m_namespace;
+        m_umlNamespace = rhs.m_umlNamespace;
         m_templateParameters = rhs.m_templateParameters;
         m_members = rhs.m_members;
     }
     return *this;
 }
 
-void MClass::setNameSpace(const QString &nameSpace)
+void MClass::setUmlNamespace(const QString &umlNamespace)
 {
-    m_namespace = nameSpace;
+    m_umlNamespace = umlNamespace;
 }
 
 void MClass::setTemplateParameters(const QList<QString> &templateParameters)
