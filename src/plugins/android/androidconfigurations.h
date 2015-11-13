@@ -57,19 +57,22 @@ namespace Utils { class Environment; }
 namespace Android {
 class AndroidPlugin;
 
-struct AndroidDeviceInfo
+class AndroidDeviceInfo
 {
+public:
     QString serialNumber;
     QString avdname;
     QStringList cpuAbi;
-    int sdk;
+    int sdk = -1;
     enum State { OkState, UnAuthorizedState, OfflineState };
-    State state;
-    bool unauthorized;
+    State state = OfflineState;
+    bool unauthorized = false;
     enum AndroidDeviceType { Hardware, Emulator };
-    AndroidDeviceType type;
+    AndroidDeviceType type = Emulator;
 
     static QStringList adbSelector(const QString &serialNumber);
+
+    bool isValid() { return !serialNumber.isEmpty() && !avdname.isEmpty(); }
 };
 
 class SdkPlatform
