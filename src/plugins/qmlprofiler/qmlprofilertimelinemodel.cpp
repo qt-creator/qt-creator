@@ -127,4 +127,24 @@ int QmlProfilerTimelineModel::bindingLoopDest(int index) const
     return -1;
 }
 
+QVariantMap QmlProfilerTimelineModel::locationFromTypeId(int index) const
+{
+    QVariantMap result;
+    int id = typeId(index);
+    if (id < 0)
+        return result;
+
+    auto types = modelManager()->qmlModel()->getEventTypes();
+    if (id >= types.length())
+        return result;
+
+    const QmlDebug::QmlEventLocation &location = types.at(id).location;
+
+    result.insert(QStringLiteral("file"), location.filename);
+    result.insert(QStringLiteral("line"), location.line);
+    result.insert(QStringLiteral("column"), location.column);
+
+    return result;
+}
+
 }

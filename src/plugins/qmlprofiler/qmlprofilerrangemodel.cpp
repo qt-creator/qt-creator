@@ -242,17 +242,7 @@ QVariantMap QmlProfilerRangeModel::details(int index) const
 
 QVariantMap QmlProfilerRangeModel::location(int index) const
 {
-    QVariantMap result;
-    int id = selectionId(index);
-
-    const QmlDebug::QmlEventLocation &location
-            = modelManager()->qmlModel()->getEventTypes().at(id).location;
-
-    result.insert(QStringLiteral("file"), location.filename);
-    result.insert(QStringLiteral("line"), location.line);
-    result.insert(QStringLiteral("column"), location.column);
-
-    return result;
+    return locationFromTypeId(index);
 }
 
 int QmlProfilerRangeModel::typeId(int index) const

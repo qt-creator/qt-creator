@@ -58,6 +58,7 @@ public:
     virtual bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
     bool handlesTypeId(int typeId) const;
     Q_INVOKABLE virtual int bindingLoopDest(int index) const;
+    QVariantMap locationFromTypeId(int index) const;
 
     virtual void loadData() = 0;
     void clear();
