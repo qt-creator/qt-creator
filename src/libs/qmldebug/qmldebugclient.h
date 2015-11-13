@@ -90,6 +90,7 @@ public:
     QString name() const;
     int remoteVersion() const;
     State state() const;
+    QmlDebugConnection *connection() const;
 
     virtual void sendMessage(const QByteArray &);
 

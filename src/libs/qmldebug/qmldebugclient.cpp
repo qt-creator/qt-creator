@@ -400,6 +400,12 @@ QmlDebugClient::State QmlDebugClient::state() const
     return Unavailable;
 }
 
+QmlDebugConnection *QmlDebugClient::connection() const
+{
+    Q_D(const QmlDebugClient);
+    return d->connection;
+}
+
 void QmlDebugClient::sendMessage(const QByteArray &message)
 {
     Q_D(QmlDebugClient);
