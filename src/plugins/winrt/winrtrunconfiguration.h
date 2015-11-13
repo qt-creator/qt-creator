@@ -43,10 +43,10 @@ class WinRtRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     explicit WinRtRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
-    QWidget *createConfigurationWidget();
-    bool isEnabled() const { return true; } // Always enabled like DLL run control
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &map);
+    QWidget *createConfigurationWidget() override;
+    bool isEnabled() const override { return true; } // Always enabled like DLL run control
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &map) override;
 
     const QString &proFilePath() const { return m_proFilePath; }
     const QString &arguments() const { return m_arguments; }

@@ -61,28 +61,28 @@ class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public AbstractRemoteLinu
 
 public:
     RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
-        const QString &targetName);
-    ~RemoteLinuxRunConfiguration();
+                                const QString &targetName);
+    ~RemoteLinuxRunConfiguration() override;
 
-    bool isEnabled() const;
-    QWidget *createConfigurationWidget();
-    Utils::OutputFormatter *createOutputFormatter() const;
+    bool isEnabled() const override;
+    QWidget *createConfigurationWidget() override;
+    Utils::OutputFormatter *createOutputFormatter() const override;
 
-    virtual Utils::Environment environment() const;
+    virtual Utils::Environment environment() const override;
 
-    QString localExecutableFilePath() const;
+    QString localExecutableFilePath() const override;
     QString defaultRemoteExecutableFilePath() const;
-    QString remoteExecutableFilePath() const;
-    QStringList arguments() const;
+    QString remoteExecutableFilePath() const override;
+    QStringList arguments() const override;
     void setArguments(const QString &args);
-    QString workingDirectory() const;
+    QString workingDirectory() const override;
     void setWorkingDirectory(const QString &wd);
     void setAlternateRemoteExecutable(const QString &exe);
     QString alternateRemoteExecutable() const;
     void setUseAlternateExecutable(bool useAlternate);
     bool useAlternateExecutable() const;
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
     static const char *IdPrefix;
 
@@ -93,7 +93,7 @@ signals:
 protected:
     RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent,
         RemoteLinuxRunConfiguration *source);
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName();
 
 protected slots:

@@ -61,11 +61,11 @@ class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplor
 public:
     QmlProjectRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
-    QString executable() const;
-    ProjectExplorer::ApplicationLauncher::Mode runMode() const;
-    QString commandLineArguments() const;
+    QString executable() const override;
+    ProjectExplorer::ApplicationLauncher::Mode runMode() const override;
+    QString commandLineArguments() const override;
 
-    QString workingDirectory() const;
+    QString workingDirectory() const override;
     QtSupport::BaseQtVersion *qtVersion() const;
 
     enum MainScriptSource {
@@ -79,13 +79,13 @@ public:
     QString mainScript() const;
 
     // RunConfiguration
-    bool isEnabled() const;
-    QString disabledReason() const;
-    virtual QWidget *createConfigurationWidget();
-    Utils::OutputFormatter *createOutputFormatter() const;
-    QVariantMap toMap() const;
+    bool isEnabled() const override;
+    QString disabledReason() const override;
+    virtual QWidget *createConfigurationWidget() override;
+    Utils::OutputFormatter *createOutputFormatter() const override;
+    QVariantMap toMap() const override;
 
-    ProjectExplorer::Abi abi() const;
+    ProjectExplorer::Abi abi() const override;
 signals:
     void scriptSourceChanged();
 
@@ -96,7 +96,7 @@ private slots:
 protected:
     QmlProjectRunConfiguration(ProjectExplorer::Target *parent,
                                QmlProjectRunConfiguration *source);
-    virtual bool fromMap(const QVariantMap &map);
+    virtual bool fromMap(const QVariantMap &map) override;
     void setEnabled(bool value);
 
 private:

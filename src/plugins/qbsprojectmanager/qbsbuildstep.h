@@ -51,18 +51,18 @@ class QbsBuildStep : public ProjectExplorer::BuildStep
     Q_OBJECT
 
 public:
-    QbsBuildStep(ProjectExplorer::BuildStepList *bsl);
+    explicit QbsBuildStep(ProjectExplorer::BuildStepList *bsl);
     QbsBuildStep(ProjectExplorer::BuildStepList *bsl, const QbsBuildStep *other);
-    ~QbsBuildStep();
+    ~QbsBuildStep() override;
 
-    bool init();
+    bool init() override;
 
-    void run(QFutureInterface<bool> &fi);
+    void run(QFutureInterface<bool> &fi) override;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
-    bool runInGuiThread() const;
-    void cancel();
+    bool runInGuiThread() const override;
+    void cancel() override;
 
     QVariantMap qbsConfiguration() const;
     void setQbsConfiguration(const QVariantMap &config);
@@ -77,8 +77,8 @@ public:
 
     bool isQmlDebuggingEnabled() const;
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
 signals:
     void qbsConfigurationChanged();

@@ -93,14 +93,14 @@ class ConfigureStep : public ProjectExplorer::AbstractProcessStep
     friend class ConfigureStepConfigWidget;
 
 public:
-    ConfigureStep(ProjectExplorer::BuildStepList *bsl);
+    explicit ConfigureStep(ProjectExplorer::BuildStepList *bsl);
 
-    bool init();
-    void run(QFutureInterface<bool> &interface);
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    bool immutable() const;
+    bool init() override;
+    void run(QFutureInterface<bool> &interface) override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    bool immutable() const override;
     QString additionalArguments() const;
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
 public slots:
     void setAdditionalArguments(const QString &list);
@@ -114,7 +114,7 @@ protected:
     ConfigureStep(ProjectExplorer::BuildStepList *bsl, ConfigureStep *bs);
     ConfigureStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
 private:
     void ctor();

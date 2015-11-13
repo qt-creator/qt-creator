@@ -53,29 +53,29 @@ class QTSUPPORT_EXPORT CustomExecutableRunConfiguration : public ProjectExplorer
 
 public:
     explicit CustomExecutableRunConfiguration(ProjectExplorer::Target *parent);
-    ~CustomExecutableRunConfiguration();
+    ~CustomExecutableRunConfiguration() override;
 
     /**
      * Returns the executable, looks in the environment for it and might even
      * ask the user if none is specified
      */
-    QString executable() const;
+    QString executable() const override;
 
     /** Returns whether this runconfiguration ever was configured with an executable
      */
-    bool isConfigured() const;
+    bool isConfigured() const override;
 
-    ProjectExplorer::ApplicationLauncher::Mode runMode() const;
-    QString workingDirectory() const;
-    QString commandLineArguments() const;
+    ProjectExplorer::ApplicationLauncher::Mode runMode() const override;
+    QString workingDirectory() const override;
+    QString commandLineArguments() const override;
 
-    QWidget *createConfigurationWidget();
+    QWidget *createConfigurationWidget() override;
 
-    ProjectExplorer::Abi abi() const;
+    ProjectExplorer::Abi abi() const override;
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
-    ConfigurationState ensureConfigured(QString *errorMessage);
+    ConfigurationState ensureConfigured(QString *errorMessage) override;
 
 signals:
     void changed();
@@ -83,7 +83,7 @@ signals:
 protected:
     CustomExecutableRunConfiguration(ProjectExplorer::Target *parent,
                                      CustomExecutableRunConfiguration *source);
-    virtual bool fromMap(const QVariantMap &map);
+    virtual bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
 
 private slots:

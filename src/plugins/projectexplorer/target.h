@@ -60,7 +60,7 @@ class PROJECTEXPLORER_EXPORT Target : public ProjectConfiguration
 
 public:
     Target(Project *parent, Kit *k);
-    ~Target();
+    ~Target() override;
 
     Project *project() const;
 
@@ -109,7 +109,7 @@ public:
     QString toolTip() const;
     void setToolTip(const QString &text);
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
     void updateDefaultBuildConfigurations();
     void updateDefaultDeployConfigurations();
@@ -163,7 +163,7 @@ public slots:
 protected:
     void setEnabled(bool);
 
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
 protected slots:
     void updateDeviceState();

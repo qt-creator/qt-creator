@@ -45,21 +45,20 @@ class QnxRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
     Q_OBJECT
 public:
     QnxRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
-            const QString &targetName);
+                        const QString &targetName);
 
-    Utils::Environment environment() const;
+    Utils::Environment environment() const override;
 
-    QWidget *createConfigurationWidget();
+    QWidget *createConfigurationWidget() override;
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
 protected:
     friend class QnxRunConfigurationFactory;
 
-    QnxRunConfiguration(ProjectExplorer::Target *parent,
-                        QnxRunConfiguration *source);
+    QnxRunConfiguration(ProjectExplorer::Target *parent, QnxRunConfiguration *source);
 
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
 private slots:
     void setQtLibPath(const QString &path);

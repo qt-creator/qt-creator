@@ -64,13 +64,13 @@ class ProcessStep : public AbstractProcessStep
 
 public:
     explicit ProcessStep(BuildStepList *bsl);
-    virtual ~ProcessStep();
+    ~ProcessStep() override;
 
-    virtual bool init();
-    virtual void run(QFutureInterface<bool> &);
+    bool init() override;
+    void run(QFutureInterface<bool> &) override;
 
-    virtual BuildStepConfigWidget *createConfigWidget();
-    virtual bool immutable() const;
+    BuildStepConfigWidget *createConfigWidget() override;
+    bool immutable() const override;
 
     QString command() const;
     QString arguments() const;
@@ -80,12 +80,12 @@ public:
     void setArguments(const QString &arguments);
     void setWorkingDirectory(const QString &workingDirectory);
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
 protected:
     ProcessStep(BuildStepList *bsl, ProcessStep *bs);
 
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
 private:
     void ctor();

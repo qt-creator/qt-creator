@@ -69,16 +69,16 @@ class DesktopQmakeRunConfiguration : public ProjectExplorer::LocalApplicationRun
 
 public:
     DesktopQmakeRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
-    virtual ~DesktopQmakeRunConfiguration();
+    ~DesktopQmakeRunConfiguration() override;
 
-    virtual bool isEnabled() const;
-    virtual QString disabledReason() const;
-    virtual QWidget *createConfigurationWidget();
+    bool isEnabled() const override;
+    QString disabledReason() const override;
+    QWidget *createConfigurationWidget() override;
 
-    virtual QString executable() const;
-    virtual ProjectExplorer::ApplicationLauncher::Mode runMode() const;
-    virtual QString workingDirectory() const;
-    virtual QString commandLineArguments() const;
+    QString executable() const override;
+    ProjectExplorer::ApplicationLauncher::Mode runMode() const override;
+    QString workingDirectory() const override;
+    QString commandLineArguments() const override;
 
     bool isUsingDyldImageSuffix() const;
     void setUsingDyldImageSuffix(bool state);
@@ -88,13 +88,13 @@ public:
 
     Utils::FileName proFilePath() const;
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
-    Utils::OutputFormatter *createOutputFormatter() const;
+    Utils::OutputFormatter *createOutputFormatter() const override;
 
     void setRunMode(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
-    void addToBaseEnvironment(Utils::Environment &env) const;
+    void addToBaseEnvironment(Utils::Environment &env) const override;
 signals:
     void commandLineArgumentsChanged(const QString&);
     void baseWorkingDirectoryChanged(const QString&);
@@ -111,7 +111,7 @@ private slots:
 
 protected:
     DesktopQmakeRunConfiguration(ProjectExplorer::Target *parent, DesktopQmakeRunConfiguration *source);
-    virtual bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
 private:
     QPair<QString, QString> extractWorkingDirAndExecutable(const QmakeProFileNode *node) const;

@@ -52,14 +52,14 @@ class GenericMakeStep : public ProjectExplorer::AbstractProcessStep
     friend class GenericMakeStepFactory;
 
 public:
-    GenericMakeStep(ProjectExplorer::BuildStepList *parent);
-    ~GenericMakeStep();
+    explicit GenericMakeStep(ProjectExplorer::BuildStepList *parent);
+    ~GenericMakeStep() override;
 
-    bool init();
-    void run(QFutureInterface<bool> &fi);
+    bool init() override;
+    void run(QFutureInterface<bool> &fi) override;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    bool immutable() const;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    bool immutable() const override;
     bool buildsTarget(const QString &target) const;
     void setBuildTarget(const QString &target, bool on);
     QString allArguments() const;
@@ -68,12 +68,12 @@ public:
     void setClean(bool clean);
     bool isClean() const;
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
 protected:
     GenericMakeStep(ProjectExplorer::BuildStepList *parent, GenericMakeStep *bs);
     GenericMakeStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
 private:
     void ctor();

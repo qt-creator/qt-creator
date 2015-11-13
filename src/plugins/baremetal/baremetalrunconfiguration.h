@@ -50,10 +50,10 @@ public:
     explicit BareMetalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
                                        const QString &projectFilePath);
 
-    bool isEnabled() const;
-    QString disabledReason() const;
-    QWidget *createConfigurationWidget();
-    Utils::OutputFormatter *createOutputFormatter() const;
+    bool isEnabled() const override;
+    QString disabledReason() const override;
+    QWidget *createConfigurationWidget() override;
+    Utils::OutputFormatter *createOutputFormatter() const override;
 
     virtual QString localExecutableFilePath() const;
     QString arguments() const;
@@ -61,7 +61,7 @@ public:
     QString workingDirectory() const;
     void setWorkingDirectory(const QString &wd);
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
     QString projectFilePath() const;
 
@@ -73,7 +73,7 @@ signals:
 
 protected:
     BareMetalRunConfiguration(ProjectExplorer::Target *parent, BareMetalRunConfiguration *source);
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName();
     void setDisabledReason(const QString &reason) const;
 

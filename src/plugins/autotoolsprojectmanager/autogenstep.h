@@ -94,14 +94,14 @@ class AutogenStep : public ProjectExplorer::AbstractProcessStep
     friend class AutogenStepConfigWidget;
 
 public:
-    AutogenStep(ProjectExplorer::BuildStepList *bsl);
+    explicit AutogenStep(ProjectExplorer::BuildStepList *bsl);
 
-    bool init();
-    void run(QFutureInterface<bool> &interface);
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    bool immutable() const;
+    bool init() override;
+    void run(QFutureInterface<bool> &interface) override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    bool immutable() const override;
     QString additionalArguments() const;
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
 public slots:
     void setAdditionalArguments(const QString &list);
@@ -113,7 +113,7 @@ protected:
     AutogenStep(ProjectExplorer::BuildStepList *bsl, AutogenStep *bs);
     AutogenStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
 private:
     void ctor();

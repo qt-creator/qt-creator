@@ -48,21 +48,21 @@ class QbsCleanStep : public ProjectExplorer::BuildStep
     Q_OBJECT
 
 public:
-    QbsCleanStep(ProjectExplorer::BuildStepList *bsl);
+    explicit QbsCleanStep(ProjectExplorer::BuildStepList *bsl);
     QbsCleanStep(ProjectExplorer::BuildStepList *bsl, const QbsCleanStep *other);
-    ~QbsCleanStep();
+    ~QbsCleanStep() override;
 
-    bool init();
+    bool init() override;
 
-    void run(QFutureInterface<bool> &fi);
+    void run(QFutureInterface<bool> &fi) override;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
-    bool runInGuiThread() const;
-    void cancel();
+    bool runInGuiThread() const override;
+    void cancel() override;
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
     bool dryRun() const;
     bool keepGoing() const;

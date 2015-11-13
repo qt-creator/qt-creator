@@ -94,14 +94,14 @@ class AutoreconfStep : public ProjectExplorer::AbstractProcessStep
     friend class AutoreconfStepConfigWidget;
 
 public:
-    AutoreconfStep(ProjectExplorer::BuildStepList *bsl);
+    explicit AutoreconfStep(ProjectExplorer::BuildStepList *bsl);
 
-    bool init();
-    void run(QFutureInterface<bool> &interface);
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    bool immutable() const;
+    bool init() override;
+    void run(QFutureInterface<bool> &interface) override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    bool immutable() const override;
     QString additionalArguments() const;
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
 public slots:
     void setAdditionalArguments(const QString &list);
@@ -113,7 +113,7 @@ protected:
     AutoreconfStep(ProjectExplorer::BuildStepList *bsl, AutoreconfStep *bs);
     AutoreconfStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
 private:
     void ctor();

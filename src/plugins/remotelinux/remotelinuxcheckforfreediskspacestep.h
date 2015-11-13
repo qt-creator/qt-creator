@@ -43,7 +43,7 @@ public:
             Core::Id id = stepId());
     RemoteLinuxCheckForFreeDiskSpaceStep(ProjectExplorer::BuildStepList *bsl,
             RemoteLinuxCheckForFreeDiskSpaceStep *other);
-    ~RemoteLinuxCheckForFreeDiskSpaceStep();
+    ~RemoteLinuxCheckForFreeDiskSpaceStep() override;
 
     void setPathToCheck(const QString &path);
     QString pathToCheck() const;
@@ -55,12 +55,12 @@ public:
     static QString stepDisplayName();
 
 protected:
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
-    bool initInternal(QString *error);
-    AbstractRemoteLinuxDeployService *deployService() const;
+    bool initInternal(QString *error) override;
+    AbstractRemoteLinuxDeployService *deployService() const override;
 
 private:
     void ctor();

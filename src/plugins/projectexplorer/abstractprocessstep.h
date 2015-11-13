@@ -52,11 +52,11 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
     Q_OBJECT
 
 public:
-    virtual ~AbstractProcessStep();
+    ~AbstractProcessStep() override;
 
-    virtual bool init();
-    virtual void run(QFutureInterface<bool> &);
-    bool runInGuiThread() const { return true; }
+    bool init() override;
+    void run(QFutureInterface<bool> &) override;
+    bool runInGuiThread() const  override { return true; }
 
     ProcessParameters *processParameters() { return &m_param; }
 

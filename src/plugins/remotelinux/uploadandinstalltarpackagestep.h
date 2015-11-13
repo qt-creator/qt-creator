@@ -62,15 +62,15 @@ public:
     UploadAndInstallTarPackageStep(ProjectExplorer::BuildStepList *bsl,
         UploadAndInstallTarPackageStep *other);
 
-    bool initInternal(QString *error = 0);
+    bool initInternal(QString *error = 0) override;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
     static Core::Id stepId();
     static QString displayName();
 
 private:
-    AbstractRemoteLinuxDeployService *deployService() const { return m_deployService; }
+    AbstractRemoteLinuxDeployService *deployService() const override { return m_deployService; }
 
     void ctor();
 

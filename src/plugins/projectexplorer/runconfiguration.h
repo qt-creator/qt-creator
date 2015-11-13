@@ -160,7 +160,7 @@ class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
     Q_OBJECT
 
 public:
-    ~RunConfiguration();
+    ~RunConfiguration() override;
 
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
@@ -176,8 +176,8 @@ public:
 
     virtual Utils::OutputFormatter *createOutputFormatter() const;
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
     QList<IRunConfigurationAspect *> extraAspects() const;
     IRunConfigurationAspect *extraAspect(Core::Id id) const;

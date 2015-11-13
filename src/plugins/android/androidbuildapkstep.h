@@ -54,8 +54,8 @@ public:
         BundleLibrariesDeployment
     };
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
     AndroidDeployAction deployAction() const;
 
@@ -79,7 +79,7 @@ public:
     bool useGradle() const;
     void setUseGradle(bool b);
 
-    bool runInGuiThread() const;
+    bool runInGuiThread() const override;
 
     QString buildTargetSdk() const;
     void setBuildTargetSdk(const QString &sdk);
@@ -97,10 +97,10 @@ protected:
     bool keystorePassword();
     bool certificatePassword();
 
-    bool init();
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    bool immutable() const { return true; }
-    void processFinished(int exitCode, QProcess::ExitStatus status);
+    bool init() override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    bool immutable() const override { return true; }
+    void processFinished(int exitCode, QProcess::ExitStatus status) override;
 
 protected:
     AndroidDeployAction m_deployAction;

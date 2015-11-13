@@ -92,16 +92,16 @@ class MakeStep : public ProjectExplorer::AbstractProcessStep
     friend class MakeStepConfigWidget;
 
 public:
-    MakeStep(ProjectExplorer::BuildStepList *bsl);
+    explicit MakeStep(ProjectExplorer::BuildStepList *bsl);
 
-    bool init();
-    void run(QFutureInterface<bool> &interface);
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    bool init() override;
+    void run(QFutureInterface<bool> &interface) override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     void setClean(bool clean);
-    bool immutable() const;
+    bool immutable() const override;
     void setBuildTarget(const QString &target, bool on);
     QString additionalArguments() const;
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
 public slots:
     void setAdditionalArguments(const QString &list);
@@ -113,7 +113,7 @@ protected:
     MakeStep(ProjectExplorer::BuildStepList *bsl, MakeStep *bs);
     MakeStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
 private:
     void ctor();

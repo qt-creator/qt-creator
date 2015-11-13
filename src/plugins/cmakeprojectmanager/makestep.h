@@ -55,17 +55,17 @@ class MakeStep : public ProjectExplorer::AbstractProcessStep
     friend class MakeStepFactory;
 
 public:
-    MakeStep(ProjectExplorer::BuildStepList *bsl);
-    virtual ~MakeStep();
+    explicit MakeStep(ProjectExplorer::BuildStepList *bsl);
+    ~MakeStep() override;
 
     CMakeBuildConfiguration *cmakeBuildConfiguration() const;
 
-    virtual bool init();
+    bool init() override;
 
-    virtual void run(QFutureInterface<bool> &fi);
+    void run(QFutureInterface<bool> &fi) override;
 
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    virtual bool immutable() const;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    bool immutable() const override;
 
     QStringList buildTargets() const;
     bool buildsBuildTarget(const QString &target) const;
@@ -80,7 +80,7 @@ public:
 
     void setClean(bool clean);
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
     void setUserMakeCommand(const QString &make);
     QString userMakeCommand() const;
@@ -93,16 +93,16 @@ signals:
     void targetsToBuildChanged();
 
 protected:
-    void processStarted();
-    void processFinished(int exitCode, QProcess::ExitStatus status);
+    void processStarted() override;
+    void processFinished(int exitCode, QProcess::ExitStatus status) override;
 
     MakeStep(ProjectExplorer::BuildStepList *bsl, MakeStep *bs);
     MakeStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
     // For parsing [ 76%]
-    virtual void stdOutput(const QString &line);
+    virtual void stdOutput(const QString &line) override;
 
 private:
     void ctor();

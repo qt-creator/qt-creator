@@ -41,11 +41,11 @@ class WinRtPackageDeploymentStep : public ProjectExplorer::AbstractProcessStep
     Q_OBJECT
 public:
     explicit WinRtPackageDeploymentStep(ProjectExplorer::BuildStepList *bsl);
-    bool init();
-    void run(QFutureInterface<bool> &fi);
-    bool processSucceeded(int exitCode, QProcess::ExitStatus status);
-    void stdOutput(const QString &line);
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    bool init() override;
+    void run(QFutureInterface<bool> &fi) override;
+    bool processSucceeded(int exitCode, QProcess::ExitStatus status) override;
+    void stdOutput(const QString &line) override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
     void setWinDeployQtArguments(const QString &args);
     QString winDeployQtArguments() const;
@@ -54,8 +54,8 @@ public:
     void raiseError(const QString &errorMessage);
     void raiseWarning(const QString &warningMessage);
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
 private:
     bool parseIconsAndExecutableFromManifest(QString manifestFileName, QStringList *items, QString *executable);

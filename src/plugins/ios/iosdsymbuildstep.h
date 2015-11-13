@@ -47,7 +47,7 @@ class IosPresetBuildStep : public ProjectExplorer::AbstractProcessStep
     friend class IosPresetBuildStepFactory;
 
 public:
-    ~IosPresetBuildStep();
+    ~IosPresetBuildStep() override;
 
     bool init() override;
     void run(QFutureInterface<bool> &fi) override;

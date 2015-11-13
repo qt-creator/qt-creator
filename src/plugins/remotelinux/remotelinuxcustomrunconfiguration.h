@@ -44,20 +44,20 @@ public:
     RemoteLinuxCustomRunConfiguration(ProjectExplorer::Target *parent,
                                       RemoteLinuxCustomRunConfiguration *source);
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
-    bool isEnabled() const { return true; }
-    bool isConfigured() const;
-    ConfigurationState ensureConfigured(QString *errorMessage);
-    QWidget *createConfigurationWidget();
-    Utils::OutputFormatter *createOutputFormatter() const;
+    bool isEnabled() const override { return true; }
+    bool isConfigured() const override;
+    ConfigurationState ensureConfigured(QString *errorMessage) override;
+    QWidget *createConfigurationWidget() override;
+    Utils::OutputFormatter *createOutputFormatter() const override;
 
-    QString localExecutableFilePath() const { return m_localExecutable; }
-    QString remoteExecutableFilePath() const { return m_remoteExecutable; }
-    QStringList arguments() const { return m_arguments; }
-    QString workingDirectory() const { return m_workingDirectory; }
-    Utils::Environment environment() const;
+    QString localExecutableFilePath() const override { return m_localExecutable; }
+    QString remoteExecutableFilePath() const override { return m_remoteExecutable; }
+    QStringList arguments() const override { return m_arguments; }
+    QString workingDirectory() const override { return m_workingDirectory; }
+    Utils::Environment environment() const override;
 
     void setLocalExecutableFilePath(const QString &executable) { m_localExecutable = executable; }
     void setRemoteExecutableFilePath(const QString &executable);

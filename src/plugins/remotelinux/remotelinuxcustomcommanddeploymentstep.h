@@ -45,10 +45,10 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxCustomCommandDeploymentStep
 {
     Q_OBJECT
 public:
-    ~AbstractRemoteLinuxCustomCommandDeploymentStep();
+    ~AbstractRemoteLinuxCustomCommandDeploymentStep() override;
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
     void setCommandLine(const QString &commandLine);
     QString commandLine() const;
@@ -58,13 +58,13 @@ protected:
     AbstractRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl,
         AbstractRemoteLinuxCustomCommandDeploymentStep *other);
 
-    bool initInternal(QString *error = 0);
+    bool initInternal(QString *error = 0) override;
 
 private:
     void ctor();
 
-    RemoteLinuxCustomCommandDeployService *deployService() const = 0;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    RemoteLinuxCustomCommandDeployService *deployService() const  override = 0;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
     Internal::AbstractRemoteLinuxCustomCommandDeploymentStepPrivate *d;
 };
@@ -75,16 +75,16 @@ class REMOTELINUX_EXPORT GenericRemoteLinuxCustomCommandDeploymentStep
 {
     Q_OBJECT
 public:
-    GenericRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl);
+    explicit GenericRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl);
     GenericRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl,
         GenericRemoteLinuxCustomCommandDeploymentStep *other);
-    ~GenericRemoteLinuxCustomCommandDeploymentStep();
+    ~GenericRemoteLinuxCustomCommandDeploymentStep() override;
 
     static Core::Id stepId();
     static QString stepDisplayName();
 
 private:
-    RemoteLinuxCustomCommandDeployService *deployService() const;
+    RemoteLinuxCustomCommandDeployService *deployService() const override;
     void ctor();
 
     Internal::GenericRemoteLinuxCustomCommandDeploymentStepPrivate *d;

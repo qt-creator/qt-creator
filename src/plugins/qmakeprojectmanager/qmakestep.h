@@ -129,13 +129,13 @@ class QMAKEPROJECTMANAGER_EXPORT QMakeStep : public ProjectExplorer::AbstractPro
 
 public:
     explicit QMakeStep(ProjectExplorer::BuildStepList *parent);
-    virtual ~QMakeStep();
+    ~QMakeStep() override;
 
     QmakeBuildConfiguration *qmakeBuildConfiguration() const;
-    virtual bool init();
-    virtual void run(QFutureInterface<bool> &);
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    virtual bool immutable() const;
+    bool init() override;
+    void run(QFutureInterface<bool> &) override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    bool immutable() const override;
     void setForced(bool b);
     bool forced();
 
@@ -155,7 +155,7 @@ public:
     bool separateDebugInfo() const;
     void setSeparateDebugInfo(bool enable);
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
 signals:
     void userArgumentsChanged();
@@ -166,10 +166,10 @@ signals:
 protected:
     QMakeStep(ProjectExplorer::BuildStepList *parent, QMakeStep *source);
     QMakeStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
-    virtual bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
-    virtual void processStartupFailed();
-    virtual bool processSucceeded(int exitCode, QProcess::ExitStatus status);
+    void processStartupFailed() override;
+    bool processSucceeded(int exitCode, QProcess::ExitStatus status) override;
 
 private:
     void ctor();

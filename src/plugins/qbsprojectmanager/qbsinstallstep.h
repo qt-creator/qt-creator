@@ -48,21 +48,21 @@ class QbsInstallStep : public ProjectExplorer::BuildStep
     Q_OBJECT
 
 public:
-    QbsInstallStep(ProjectExplorer::BuildStepList *bsl);
+    explicit QbsInstallStep(ProjectExplorer::BuildStepList *bsl);
     QbsInstallStep(ProjectExplorer::BuildStepList *bsl, const QbsInstallStep *other);
-    ~QbsInstallStep();
+    ~QbsInstallStep() override;
 
-    bool init();
+    bool init() override;
 
-    void run(QFutureInterface<bool> &fi);
+    void run(QFutureInterface<bool> &fi) override;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
-    bool runInGuiThread() const;
-    void cancel();
+    bool runInGuiThread() const override;
+    void cancel() override;
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
     qbs::InstallOptions installOptions() const;
     QString installRoot() const;

@@ -53,7 +53,7 @@ class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
 
 public:
     // ctors are protected
-    virtual ~BuildConfiguration();
+    ~BuildConfiguration() override;
 
     Utils::FileName buildDirectory() const;
     Utils::FileName rawBuildDirectory() const;
@@ -75,8 +75,8 @@ public:
     QList<Core::Id> knownStepLists() const;
     BuildStepList *stepList(Core::Id id) const;
 
-    virtual bool fromMap(const QVariantMap &map);
-    virtual QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
     Target *target() const;
 

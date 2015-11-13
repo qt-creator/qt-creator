@@ -64,9 +64,9 @@ public:
     };
 
     friend class IosDeployStepFactory;
-    IosDeployStep(ProjectExplorer::BuildStepList *bc);
+    explicit IosDeployStep(ProjectExplorer::BuildStepList *bc);
 
-    ~IosDeployStep();
+    ~IosDeployStep() override;
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;

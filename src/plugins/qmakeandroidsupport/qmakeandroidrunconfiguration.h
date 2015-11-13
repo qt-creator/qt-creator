@@ -51,14 +51,14 @@ public:
 
     Utils::FileName proFilePath() const;
 
-    bool isEnabled() const;
-    QString disabledReason() const;
+    bool isEnabled() const override;
+    QString disabledReason() const override;
 
 protected:
     QmakeAndroidRunConfiguration(ProjectExplorer::Target *parent, QmakeAndroidRunConfiguration *source);
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
     QString defaultDisplayName();
 
 private slots:

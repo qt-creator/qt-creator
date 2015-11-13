@@ -47,11 +47,11 @@ public:
     DeviceCheckBuildStep(BuildStepList *bsl, Core::Id id);
     DeviceCheckBuildStep(BuildStepList *bsl, DeviceCheckBuildStep *bs);
 
-    bool init();
+    bool init() override;
 
-    void run(QFutureInterface<bool> &fi);
+    void run(QFutureInterface<bool> &fi) override;
 
-    BuildStepConfigWidget *createConfigWidget();
+    BuildStepConfigWidget *createConfigWidget() override;
 
     static Core::Id stepId();
     static QString stepDisplayName();

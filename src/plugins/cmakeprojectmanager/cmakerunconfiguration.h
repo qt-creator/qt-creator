@@ -57,32 +57,32 @@ class CMakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfigu
 public:
     CMakeRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &target,
                           const QString &workingDirectory, const QString &title);
-    ~CMakeRunConfiguration();
+    ~CMakeRunConfiguration() override;
 
-    QString executable() const;
-    ProjectExplorer::ApplicationLauncher::Mode runMode() const;
-    QString workingDirectory() const;
-    QString commandLineArguments() const;
-    QWidget *createConfigurationWidget();
+    QString executable() const override;
+    ProjectExplorer::ApplicationLauncher::Mode runMode() const override;
+    QString workingDirectory() const override;
+    QString commandLineArguments() const override;
+    QWidget *createConfigurationWidget() override;
 
     void setExecutable(const QString &executable);
     void setBaseWorkingDirectory(const QString &workingDirectory);
 
     QString title() const;
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
     void setEnabled(bool b);
 
-    bool isEnabled() const;
-    QString disabledReason() const;
+    bool isEnabled() const override;
+    QString disabledReason() const override;
 
 signals:
     void baseWorkingDirectoryChanged(const QString&);
 
 protected:
     CMakeRunConfiguration(ProjectExplorer::Target *parent, CMakeRunConfiguration *source);
-    virtual bool fromMap(const QVariantMap &map);
+    virtual bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
 
 private:

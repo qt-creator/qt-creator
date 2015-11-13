@@ -56,7 +56,7 @@ protected:
     BuildStep(BuildStepList *bsl, BuildStep *bs);
 
 public:
-    virtual ~BuildStep();
+    ~BuildStep() override;
 
     virtual bool init() = 0;
 
@@ -68,8 +68,8 @@ public:
     virtual bool runInGuiThread() const;
     virtual void cancel();
 
-    virtual bool fromMap(const QVariantMap &map);
-    virtual QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
     bool enabled() const;
     void setEnabled(bool b);

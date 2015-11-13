@@ -44,23 +44,23 @@ class BareMetalCustomRunConfiguration : public BareMetalRunConfiguration
 public:
     BareMetalCustomRunConfiguration(ProjectExplorer::Target *parent);
     BareMetalCustomRunConfiguration(ProjectExplorer::Target *parent,
-                                      BareMetalCustomRunConfiguration *source);
+                                    BareMetalCustomRunConfiguration *source);
 
-    bool isEnabled() const { return true; }
-    bool isConfigured() const;
-    ConfigurationState ensureConfigured(QString *errorMessage);
-    QWidget *createConfigurationWidget();
-    Utils::OutputFormatter *createOutputFormatter() const;
+    bool isEnabled() const override { return true; }
+    bool isConfigured() const override;
+    ConfigurationState ensureConfigured(QString *errorMessage) override;
+    QWidget *createConfigurationWidget() override;
+    Utils::OutputFormatter *createOutputFormatter() const override;
 
-    virtual QString localExecutableFilePath() const { return m_localExecutable; }
+    virtual QString localExecutableFilePath() const override { return m_localExecutable; }
 
     void setLocalExecutableFilePath(const QString &executable) { m_localExecutable = executable; }
 
     static Core::Id runConfigId();
     static QString runConfigDefaultDisplayName();
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
 private:
     QString m_localExecutable;

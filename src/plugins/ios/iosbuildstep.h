@@ -51,8 +51,8 @@ class IosBuildStep : public ProjectExplorer::AbstractProcessStep
     friend class IosBuildStepFactory;
 
 public:
-    IosBuildStep(ProjectExplorer::BuildStepList *parent);
-    ~IosBuildStep();
+    explicit IosBuildStep(ProjectExplorer::BuildStepList *parent);
+    ~IosBuildStep() override;
 
     bool init() override;
     void run(QFutureInterface<bool> &fi) override;

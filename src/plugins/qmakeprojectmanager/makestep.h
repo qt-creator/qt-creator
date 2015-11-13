@@ -80,22 +80,22 @@ class QMAKEPROJECTMANAGER_EXPORT MakeStep : public ProjectExplorer::AbstractProc
 
 public:
     explicit MakeStep(ProjectExplorer::BuildStepList *bsl);
-    virtual ~MakeStep();
+    ~MakeStep() override;
 
     QmakeBuildConfiguration *qmakeBuildConfiguration() const;
 
-    virtual bool init();
-    virtual void run(QFutureInterface<bool> &);
+    bool init() override;
+    void run(QFutureInterface<bool> &) override;
 
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    virtual bool immutable() const;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    bool immutable() const override;
     QString userArguments();
     void setUserArguments(const QString &arguments);
     void setClean(bool clean);
     bool isClean() const;
     QString makeCommand() const;
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
 signals:
     void userArgumentsChanged();
@@ -103,7 +103,7 @@ signals:
 protected:
     MakeStep(ProjectExplorer::BuildStepList *bsl, MakeStep *bs);
     MakeStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-    virtual bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
 private:
     void ctor();

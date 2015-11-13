@@ -52,18 +52,18 @@ public:
     static Core::Id stepId();
     static QString displayName();
 
-    bool init();
-    void run(QFutureInterface<bool> &fi);
+    bool init() override;
+    void run(QFutureInterface<bool> &fi) override;
 
     void setIgnoreMissingFiles(bool ignoreMissingFiles);
     bool ignoreMissingFiles() const;
 
 private:
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
-    QString packageFileName() const;
+    QString packageFileName() const override;
 
     void ctor();
     bool doPackage(QFutureInterface<bool> &fi);

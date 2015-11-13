@@ -47,16 +47,16 @@ public:
     BareMetalGdbCommandsDeployStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
     BareMetalGdbCommandsDeployStep(ProjectExplorer::BuildStepList *bsl,
                                    BareMetalGdbCommandsDeployStep *other);
-    ~BareMetalGdbCommandsDeployStep();
+    ~BareMetalGdbCommandsDeployStep() override;
 
-    bool init();
-    void run(QFutureInterface<bool> &fi);
-    bool runInGuiThread() const { return true;}
+    bool init() override;
+    void run(QFutureInterface<bool> &fi) override;
+    bool runInGuiThread() const override { return true;}
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
     static Core::Id stepId();
     static QString displayName();

@@ -47,14 +47,14 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployStep : public ProjectExplorer:
     Q_OBJECT
 
 public:
-    ~AbstractRemoteLinuxDeployStep();
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
-    bool init();
-    void run(QFutureInterface<bool> &fi);
-    bool runInGuiThread() const { return true; }
-    void cancel();
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    ~AbstractRemoteLinuxDeployStep() override;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
+    bool init() override;
+    void run(QFutureInterface<bool> &fi) override;
+    bool runInGuiThread() const override { return true; }
+    void cancel() override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     RemoteLinuxDeployConfiguration *deployConfiguration() const;
 
     virtual AbstractRemoteLinuxDeployService *deployService() const = 0;

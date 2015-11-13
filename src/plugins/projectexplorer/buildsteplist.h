@@ -50,7 +50,7 @@ public:
     BuildStepList(QObject *parent, Core::Id id);
     BuildStepList(QObject *parent, BuildStepList *source);
     BuildStepList(QObject *parent, const QVariantMap &data);
-    virtual ~BuildStepList();
+    ~BuildStepList() override;
 
     QList<BuildStep *> steps() const;
     bool isNull() const;
@@ -66,7 +66,7 @@ public:
 
     Target *target() const;
 
-    virtual QVariantMap toMap() const;
+    virtual QVariantMap toMap() const override;
     void cloneSteps(BuildStepList *source);
 
 signals:
@@ -76,7 +76,7 @@ signals:
     void stepMoved(int from, int to);
 
 protected:
-    virtual bool fromMap(const QVariantMap &map);
+    virtual bool fromMap(const QVariantMap &map) override;
 
 private:
     QList<BuildStep *> m_steps;

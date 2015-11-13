@@ -81,12 +81,12 @@ public:
         ForceUnintall
     };
 public:
-    AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc);
+    explicit AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc);
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
-    bool runInGuiThread() const;
+    bool runInGuiThread() const override;
 
     UninstallType uninstallPreviousPackage();
 
@@ -103,15 +103,15 @@ private:
     void ctor();
     void runCommand(const QString &program, const QStringList &arguments);
 
-    bool init();
-    void run(QFutureInterface<bool> &fi);
+    bool init() override;
+    void run(QFutureInterface<bool> &fi) override;
     enum DeployResult { Success, Failure, AskUinstall };
     DeployResult runDeploy(QFutureInterface<bool> &fi);
     void slotAskForUninstall();
     void slotSetSerialNumber(const QString &serialNumber);
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    bool immutable() const { return true; }
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    bool immutable() const override { return true; }
 
     void processReadyReadStdOutput();
     void stdOutput(const QString &line);

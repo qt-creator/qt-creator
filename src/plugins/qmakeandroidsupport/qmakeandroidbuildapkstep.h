@@ -69,22 +69,21 @@ public:
     Utils::FileName proFilePathForInputFile() const;
     void setProFilePathForInputFile(const QString &path);
 
-
 protected:
     friend class QmakeAndroidBuildApkStepFactory;
     QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc,
         QmakeAndroidBuildApkStep *other);
 
-    Utils::FileName androidPackageSourceDir() const;
+    Utils::FileName androidPackageSourceDir() const override;
 
 protected:
     void ctor();
-    bool init();
-    void run(QFutureInterface<bool> &fi);
-    void processStarted();
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool init() override;
+    void run(QFutureInterface<bool> &fi) override;
+    void processStarted() override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
 private:
     void setupProcessParameters(ProjectExplorer::ProcessParameters *pp,

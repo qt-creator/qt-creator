@@ -73,20 +73,20 @@ class QbsRunConfiguration : public ProjectExplorer::LocalApplicationRunConfigura
 public:
     QbsRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
-    bool isEnabled() const;
-    QString disabledReason() const;
-    QWidget *createConfigurationWidget();
+    bool isEnabled() const override;
+    QString disabledReason() const override;
+    QWidget *createConfigurationWidget() override;
 
-    QString executable() const;
-    ProjectExplorer::ApplicationLauncher::Mode runMode() const;
-    QString workingDirectory() const;
-    QString commandLineArguments() const;
+    QString executable() const override;
+    ProjectExplorer::ApplicationLauncher::Mode runMode() const override;
+    QString workingDirectory() const override;
+    QString commandLineArguments() const override;
 
-    Utils::OutputFormatter *createOutputFormatter() const;
+    Utils::OutputFormatter *createOutputFormatter() const override;
 
     void setRunMode(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
-    void addToBaseEnvironment(Utils::Environment &env) const;
+    void addToBaseEnvironment(Utils::Environment &env) const override;
 
     QString uniqueProductName() const;
     bool isConsoleApplication() const;

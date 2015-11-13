@@ -43,8 +43,8 @@ class ANDROID_EXPORT AndroidRunConfiguration : public ProjectExplorer::RunConfig
 public:
     AndroidRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
-    QWidget *createConfigurationWidget();
-    Utils::OutputFormatter *createOutputFormatter() const;
+    QWidget *createConfigurationWidget() override;
+    Utils::OutputFormatter *createOutputFormatter() const override;
     const QString remoteChannel() const;
 
 protected:

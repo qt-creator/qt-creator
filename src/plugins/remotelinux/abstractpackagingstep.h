@@ -46,11 +46,11 @@ class REMOTELINUX_EXPORT AbstractPackagingStep : public ProjectExplorer::BuildSt
 public:
     AbstractPackagingStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
     AbstractPackagingStep(ProjectExplorer::BuildStepList *bsl, AbstractPackagingStep *other);
-    ~AbstractPackagingStep();
+    ~AbstractPackagingStep() override;
 
     QString packageFilePath() const;
     QString cachedPackageFilePath() const;
-    bool init();
+    bool init() override;
 
 signals:
     void packageFilePathChanged();

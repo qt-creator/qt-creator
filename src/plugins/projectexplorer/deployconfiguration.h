@@ -52,12 +52,12 @@ class PROJECTEXPLORER_EXPORT DeployConfiguration : public ProjectConfiguration
 
 public:
     // ctors are protected
-    virtual ~DeployConfiguration();
+    ~DeployConfiguration() override;
 
     BuildStepList *stepList() const;
 
-    virtual bool fromMap(const QVariantMap &map);
-    virtual QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
     virtual NamedWidget *createConfigWidget();
 

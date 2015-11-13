@@ -50,7 +50,7 @@ public:
     RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target,
         RemoteLinuxDeployConfiguration *source);
 
-    ProjectExplorer::NamedWidget *createConfigWidget();
+    ProjectExplorer::NamedWidget *createConfigWidget() override;
 
     template<class T> T *earlierBuildStep(const ProjectExplorer::BuildStep *laterBuildStep) const
     {
