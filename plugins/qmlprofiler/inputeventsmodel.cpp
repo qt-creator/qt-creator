@@ -66,52 +66,52 @@ QVariantList InputEventsModel::labels() const
 QVariantMap InputEventsModel::details(int index) const
 {
     QVariantMap result;
-    result.insert(QLatin1String("Timestamp"), QmlProfilerDataModel::formatTime(startTime(index)));
+    result.insert(tr("Timestamp"), QmlProfilerDataModel::formatTime(startTime(index)));
     QString type;
     const InputEvent &event = m_data[index];
     switch (event.type) {
     case QmlDebug::InputKeyPress:
-        type = QLatin1String("Key Press");
+        type = tr("Key Press");
     case QmlDebug::InputKeyRelease:
         if (type.isEmpty())
-            type = QLatin1String("Key Release");
+            type = tr("Key Release");
         if (event.a != 0) {
-            result.insert(QLatin1String("Key"), QLatin1String(
+            result.insert(tr("Key"), QLatin1String(
                               QMetaEnum::fromType<Qt::Key>().valueToKey(event.a)));
         }
         if (event.b != 0) {
-            result.insert(QLatin1String("Modifiers"), QLatin1String(
+            result.insert(tr("Modifiers"), QLatin1String(
                               QMetaEnum::fromType<Qt::KeyboardModifiers>().valueToKeys(event.b)));
         }
         break;
     case QmlDebug::InputMouseDoubleClick:
-        type = QLatin1String("Double Click");
+        type = tr("Double Click");
     case QmlDebug::InputMousePress:
         if (type.isEmpty())
-            type = QLatin1String("Mouse Press");
+            type = tr("Mouse Press");
     case QmlDebug::InputMouseRelease:
         if (type.isEmpty())
-            type = QLatin1String("Mouse Release");
-        result.insert(QLatin1String("Button"), QLatin1String(
+            type = tr("Mouse Release");
+        result.insert(tr("Button"), QLatin1String(
                           QMetaEnum::fromType<Qt::MouseButtons>().valueToKey(event.a)));
-        result.insert(QLatin1String("Result"), QLatin1String(
+        result.insert(tr("Result"), QLatin1String(
                           QMetaEnum::fromType<Qt::MouseButtons>().valueToKeys(event.b)));
         break;
     case QmlDebug::InputMouseMove:
-        type = QLatin1String("Mouse Move");
-        result.insert(QLatin1String("X"), QString::number(event.a));
-        result.insert(QLatin1String("Y"), QString::number(event.b));
+        type = tr("Mouse Move");
+        result.insert(tr("X"), QString::number(event.a));
+        result.insert(tr("Y"), QString::number(event.b));
         break;
     case QmlDebug::InputMouseWheel:
-        type = QLatin1String("Mouse Wheel");
-        result.insert(QLatin1String("Angle X"), QString::number(event.a));
-        result.insert(QLatin1String("Angle Y"), QString::number(event.b));
+        type = tr("Mouse Wheel");
+        result.insert(tr("Angle X"), QString::number(event.a));
+        result.insert(tr("Angle Y"), QString::number(event.b));
         break;
     case QmlDebug::InputKeyUnknown:
-        type = QLatin1String("Keyboard Event");
+        type = tr("Keyboard Event");
         break;
     case QmlDebug::InputMouseUnknown:
-        type = QLatin1String("Mouse Event");
+        type = tr("Mouse Event");
         break;
     default:
         Q_UNREACHABLE();
