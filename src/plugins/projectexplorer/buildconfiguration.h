@@ -53,7 +53,6 @@ class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
 
 public:
     // ctors are protected
-    ~BuildConfiguration() override;
 
     Utils::FileName buildDirectory() const;
     Utils::FileName rawBuildDirectory() const;

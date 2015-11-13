@@ -80,7 +80,6 @@ class QMAKEPROJECTMANAGER_EXPORT MakeStep : public ProjectExplorer::AbstractProc
 
 public:
     explicit MakeStep(ProjectExplorer::BuildStepList *bsl);
-    ~MakeStep() override;
 
     QmakeBuildConfiguration *qmakeBuildConfiguration() const;
 

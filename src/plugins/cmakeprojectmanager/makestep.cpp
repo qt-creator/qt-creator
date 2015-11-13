@@ -115,10 +115,6 @@ void MakeStep::ctor()
             this, &MakeStep::buildTargetsChanged);
 }
 
-MakeStep::~MakeStep()
-{
-}
-
 CMakeBuildConfiguration *MakeStep::cmakeBuildConfiguration() const
 {
     return static_cast<CMakeBuildConfiguration *>(buildConfiguration());

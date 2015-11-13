@@ -56,8 +56,6 @@ protected:
     BuildStep(BuildStepList *bsl, BuildStep *bs);
 
 public:
-    ~BuildStep() override;
-
     virtual bool init() = 0;
 
     virtual void run(QFutureInterface<bool> &fi) = 0;

@@ -105,10 +105,6 @@ void QMakeStep::ctor()
     setDefaultDisplayName(tr("qmake"));
 }
 
-QMakeStep::~QMakeStep()
-{
-}
-
 QmakeBuildConfiguration *QMakeStep::qmakeBuildConfiguration() const
 {
     return static_cast<QmakeBuildConfiguration *>(buildConfiguration());

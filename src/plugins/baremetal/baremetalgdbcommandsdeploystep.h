@@ -47,7 +47,6 @@ public:
     BareMetalGdbCommandsDeployStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
     BareMetalGdbCommandsDeployStep(ProjectExplorer::BuildStepList *bsl,
                                    BareMetalGdbCommandsDeployStep *other);
-    ~BareMetalGdbCommandsDeployStep() override;
 
     bool init() override;
     void run(QFutureInterface<bool> &fi) override;

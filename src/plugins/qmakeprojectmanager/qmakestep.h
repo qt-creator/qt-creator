@@ -129,7 +129,6 @@ class QMAKEPROJECTMANAGER_EXPORT QMakeStep : public ProjectExplorer::AbstractPro
 
 public:
     explicit QMakeStep(ProjectExplorer::BuildStepList *parent);
-    ~QMakeStep() override;
 
     QmakeBuildConfiguration *qmakeBuildConfiguration() const;
     bool init() override;

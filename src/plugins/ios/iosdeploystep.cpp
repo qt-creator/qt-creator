@@ -76,8 +76,6 @@ IosDeployStep::IosDeployStep(BuildStepList *parent,
     ctor();
 }
 
-IosDeployStep::~IosDeployStep() { }
-
 void IosDeployStep::ctor()
 {
     m_toolHandler = 0;

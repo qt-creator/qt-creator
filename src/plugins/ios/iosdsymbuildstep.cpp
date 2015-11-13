@@ -84,10 +84,6 @@ bool IosPresetBuildStep::completeSetupWithStep(BuildStep *bs)
     return true;
 }
 
-IosPresetBuildStep::~IosPresetBuildStep()
-{
-}
-
 bool IosPresetBuildStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();

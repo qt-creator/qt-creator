@@ -52,7 +52,7 @@ public:
     void run(QFutureInterface<bool> &fi) override;
 private:
     AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bc,
-        AndroidPackageInstallationStep *other);
+                                   AndroidPackageInstallationStep *other);
     QStringList m_androidDirsToClean;
     static const Core::Id Id;
 };

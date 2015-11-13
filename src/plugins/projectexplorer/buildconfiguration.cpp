@@ -113,10 +113,6 @@ void BuildConfiguration::ctor()
             [this] { return displayName(); }, false);
 }
 
-BuildConfiguration::~BuildConfiguration()
-{
-}
-
 Utils::FileName BuildConfiguration::buildDirectory() const
 {
     QString path = QDir::cleanPath(environment().expandVariables(m_buildDirectory.toString()));

@@ -56,7 +56,6 @@ class MakeStep : public ProjectExplorer::AbstractProcessStep
 
 public:
     explicit MakeStep(ProjectExplorer::BuildStepList *bsl);
-    ~MakeStep() override;
 
     CMakeBuildConfiguration *cmakeBuildConfiguration() const;
 

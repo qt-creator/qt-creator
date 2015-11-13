@@ -64,7 +64,6 @@ class ProcessStep : public AbstractProcessStep
 
 public:
     explicit ProcessStep(BuildStepList *bsl);
-    ~ProcessStep() override;
 
     bool init() override;
     void run(QFutureInterface<bool> &) override;

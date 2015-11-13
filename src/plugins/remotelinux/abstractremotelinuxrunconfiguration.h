@@ -48,8 +48,6 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxRunConfiguration :
 public:
     AbstractRemoteLinuxRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
-    ~AbstractRemoteLinuxRunConfiguration() override;
-
     virtual QString localExecutableFilePath() const = 0;
     virtual QString remoteExecutableFilePath() const = 0;
     virtual QStringList arguments() const = 0;

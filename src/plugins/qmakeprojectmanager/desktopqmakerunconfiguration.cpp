@@ -110,10 +110,6 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Deskt
     ctor();
 }
 
-DesktopQmakeRunConfiguration::~DesktopQmakeRunConfiguration()
-{
-}
-
 bool DesktopQmakeRunConfiguration::isEnabled() const
 {
     return m_parseSuccess && !m_parseInProgress;

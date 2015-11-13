@@ -51,10 +51,6 @@ LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *targe
 {
 }
 
-LocalApplicationRunConfiguration::~LocalApplicationRunConfiguration()
-{
-}
-
 void LocalApplicationRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
     Q_UNUSED(env);

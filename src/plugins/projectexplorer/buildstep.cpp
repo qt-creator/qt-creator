@@ -127,10 +127,6 @@ BuildStep::BuildStep(BuildStepList *bsl, BuildStep *bs) :
     setDisplayName(bs->displayName());
 }
 
-BuildStep::~BuildStep()
-{
-}
-
 bool BuildStep::fromMap(const QVariantMap &map)
 {
     m_enabled = map.value(QLatin1String(buildStepEnabledKey), true).toBool();

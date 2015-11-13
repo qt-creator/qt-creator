@@ -53,7 +53,6 @@ class GenericMakeStep : public ProjectExplorer::AbstractProcessStep
 
 public:
     explicit GenericMakeStep(ProjectExplorer::BuildStepList *parent);
-    ~GenericMakeStep() override;
 
     bool init() override;
     void run(QFutureInterface<bool> &fi) override;

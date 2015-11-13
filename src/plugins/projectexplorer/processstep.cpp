@@ -72,10 +72,6 @@ void ProcessStep::ctor()
         m_workingDirectory = QLatin1String(Constants::DEFAULT_WORKING_DIR);
 }
 
-ProcessStep::~ProcessStep()
-{
-}
-
 bool ProcessStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();

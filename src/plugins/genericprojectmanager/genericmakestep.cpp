@@ -94,10 +94,6 @@ void GenericMakeStep::ctor()
                                                       GENERIC_MS_DISPLAY_NAME));
 }
 
-GenericMakeStep::~GenericMakeStep()
-{
-}
-
 bool GenericMakeStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();

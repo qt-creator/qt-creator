@@ -95,10 +95,6 @@ void IosBuildStep::ctor()
                                                       IOS_BUILD_STEP_DISPLAY_NAME));
 }
 
-IosBuildStep::~IosBuildStep()
-{
-}
-
 bool IosBuildStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();

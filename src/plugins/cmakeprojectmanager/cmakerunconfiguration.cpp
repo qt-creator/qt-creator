@@ -92,10 +92,6 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, CMakeRunConfigurati
     ctor();
 }
 
-CMakeRunConfiguration::~CMakeRunConfiguration()
-{
-}
-
 void CMakeRunConfiguration::ctor()
 {
     setDefaultDisplayName(defaultDisplayName());

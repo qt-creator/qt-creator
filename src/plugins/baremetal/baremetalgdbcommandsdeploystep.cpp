@@ -84,10 +84,6 @@ void BareMetalGdbCommandsDeployStep::ctor()
     setDefaultDisplayName(displayName());
 }
 
-BareMetalGdbCommandsDeployStep::~BareMetalGdbCommandsDeployStep()
-{
-}
-
 void BareMetalGdbCommandsDeployStep::run(QFutureInterface<bool> &fi)
 {
     fi.reportResult(true);

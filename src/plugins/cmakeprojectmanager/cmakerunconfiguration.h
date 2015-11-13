@@ -57,7 +57,6 @@ class CMakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfigu
 public:
     CMakeRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &target,
                           const QString &workingDirectory, const QString &title);
-    ~CMakeRunConfiguration() override;
 
     QString executable() const override;
     ProjectExplorer::ApplicationLauncher::Mode runMode() const override;

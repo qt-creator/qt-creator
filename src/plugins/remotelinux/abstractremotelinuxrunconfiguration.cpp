@@ -39,11 +39,6 @@ AbstractRemoteLinuxRunConfiguration::AbstractRemoteLinuxRunConfiguration(Project
 
 }
 
-AbstractRemoteLinuxRunConfiguration::~AbstractRemoteLinuxRunConfiguration()
-{
-
-}
-
 AbstractRemoteLinuxRunConfiguration::AbstractRemoteLinuxRunConfiguration(ProjectExplorer::Target *parent,
         AbstractRemoteLinuxRunConfiguration *source): RunConfiguration(parent, source)
 {

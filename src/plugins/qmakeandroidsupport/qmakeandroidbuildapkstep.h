@@ -71,8 +71,7 @@ public:
 
 protected:
     friend class QmakeAndroidBuildApkStepFactory;
-    QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc,
-        QmakeAndroidBuildApkStep *other);
+    QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, QmakeAndroidBuildApkStep *other);
 
     Utils::FileName androidPackageSourceDir() const override;
 

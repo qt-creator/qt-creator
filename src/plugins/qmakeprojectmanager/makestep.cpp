@@ -93,10 +93,6 @@ void MakeStep::setMakeCommand(const QString &make)
     m_makeCmd = make;
 }
 
-MakeStep::~MakeStep()
-{
-}
-
 QmakeBuildConfiguration *MakeStep::qmakeBuildConfiguration() const
 {
     return static_cast<QmakeBuildConfiguration *>(buildConfiguration());

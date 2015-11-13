@@ -69,7 +69,6 @@ class DesktopQmakeRunConfiguration : public ProjectExplorer::LocalApplicationRun
 
 public:
     DesktopQmakeRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
-    ~DesktopQmakeRunConfiguration() override;
 
     bool isEnabled() const override;
     QString disabledReason() const override;
