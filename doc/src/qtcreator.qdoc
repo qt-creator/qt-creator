@@ -47,6 +47,7 @@
             \li \inlineimage creator_gettingstarted.png
             \li \inlineimage creator_managingprojects.png
             \li \inlineimage creator_designinguserinterface.png
+            \li \inlineimage creator_coding.png
         \row
             \li \b {\l{Getting Started}}
                 \list
@@ -69,11 +70,6 @@
                     \li \l{Developing Widget Based Applications}
                     \li \l{Optimizing Applications for Mobile Devices}
                 \endlist
-        \row
-            \li \inlineimage creator_coding.png
-            \li \inlineimage creator_buildingrunning.png
-            \li \inlineimage creator_testing.png
-        \row
             \li \b {\l{Coding}}
                 \list
                     \li \l{Modeling}
@@ -81,25 +77,26 @@
                     \li \l{Finding}
                     \li \l{Refactoring}
                     \li \l{Configuring the Editor}
-            \endlist
+                \endlist
+        \row
+            \li \inlineimage creator_buildingrunning.png
+            \li \inlineimage creator_testing.png
+            \li \inlineimage creator_advanceduse.png
+            \li \inlineimage creator_gettinghelp.png
+        \row
             \li \b {\l{Building and Running}}
                 \list
                     \li \l{Building for Multiple Platforms}
                     \li \l{Running on Multiple Platforms}
                     \li \l{Deploying to Mobile Devices}
                     \li \l{Connecting Mobile Devices}
-            \endlist
+                \endlist
             \li \b {\l{Testing}}
                 \list
                     \li \l{Debugging}
                     \li \l{Analyzing Code}
                     \li \l{Running Autotests}
                 \endlist
-        \row
-            \li \inlineimage creator_advanceduse.png
-            \li \inlineimage creator_gettinghelp.png
-            \li
-        \row
             \li \b {\l{Advanced Use}}
                 \list
                     \li \l{Supported Platforms}
@@ -118,7 +115,7 @@
                 \endlist
             \li
         \row
-            \li {3,1} \note To report bugs and suggestions to the Qt Bug
+            \li {4,1} \note To report bugs and suggestions to the Qt Bug
                 Tracker, select \uicontrol {Help > Report Bug}.
 
                 You can also join the \QC mailing list at:
