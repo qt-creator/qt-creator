@@ -65,7 +65,8 @@ static const char *MESSAGE_STRINGS[] = {
     "Complete",
     "PixmapCache",
     "SceneGraph",
-    "MemoryAllocation"
+    "MemoryAllocation",
+    "DebugMessage"
 };
 
 Q_STATIC_ASSERT(sizeof(MESSAGE_STRINGS) == QmlDebug::MaximumMessage * sizeof(const char *));
@@ -226,6 +227,8 @@ QmlDebug::ProfileFeature featureFromEvent(const QmlProfilerDataModel::QmlEventTy
         return ProfileSceneGraph;
     case MemoryAllocation:
         return ProfileMemory;
+    case DebugMessage:
+        return ProfileDebugMessages;
     default:
         return MaximumProfileFeature;
     }
@@ -234,8 +237,6 @@ QmlDebug::ProfileFeature featureFromEvent(const QmlProfilerDataModel::QmlEventTy
 void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
 {
     QTC_ASSERT(stream.name() == _("eventData"), return);
-
-    QXmlStreamAttributes attributes = stream.attributes();
 
     int eventIndex = -1;
     QmlProfilerDataModel::QmlEventTypeData event = {
@@ -327,7 +328,8 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
                     elementName == _("sgEventType") ||
                     elementName == _("memoryEventType") ||
                     elementName == _("mouseEvent") ||
-                    elementName == _("keyEvent")) {
+                    elementName == _("keyEvent") ||
+                    elementName == _("level")) {
                 event.detailType = readData.toInt();
                 break;
             }
@@ -417,6 +419,8 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
                     range.setNumericData(1, attributes.value(_("data1")).toLongLong());
                 if (attributes.hasAttribute(_("data2")))
                     range.setNumericData(2, attributes.value(_("data2")).toLongLong());
+                if (attributes.hasAttribute(_("text")))
+                    range.setStringData(attributes.value(_("text")).toString());
 
                 range.setTypeIndex(attributes.value(_("eventIndex")).toInt());
 
@@ -585,6 +589,8 @@ void QmlProfilerFileWriter::save(QIODevice *device)
             stream.writeTextElement(_("sgEventType"), QString::number(event.detailType));
         } else if (event.message == MemoryAllocation) {
             stream.writeTextElement(_("memoryEventType"), QString::number(event.detailType));
+        } else if (event.message == DebugMessage) {
+            stream.writeTextElement(_("level"), QString::number(event.detailType));
         }
         stream.writeEndElement();
         incrementProgress();
@@ -651,6 +657,9 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         // special: memory allocation event
         if (event.message == MemoryAllocation)
             stream.writeAttribute(_("amount"), QString::number(range.numericData(0)));
+
+        if (event.message == DebugMessage)
+            stream.writeAttribute(_("text"), range.stringData());
 
         stream.writeEndElement();
         incrementProgress();

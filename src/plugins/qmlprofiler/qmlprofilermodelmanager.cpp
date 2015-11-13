@@ -45,7 +45,7 @@
 namespace QmlProfiler {
 namespace Internal {
 
-static const char *ProfileFeatureNames[QmlDebug::MaximumProfileFeature] = {
+static const char *ProfileFeatureNames[] = {
     QT_TRANSLATE_NOOP("MainView", "JavaScript"),
     QT_TRANSLATE_NOOP("MainView", "Memory Usage"),
     QT_TRANSLATE_NOOP("MainView", "Pixmap Cache"),
@@ -56,8 +56,11 @@ static const char *ProfileFeatureNames[QmlDebug::MaximumProfileFeature] = {
     QT_TRANSLATE_NOOP("MainView", "Creating"),
     QT_TRANSLATE_NOOP("MainView", "Binding"),
     QT_TRANSLATE_NOOP("MainView", "Handling Signal"),
-    QT_TRANSLATE_NOOP("MainView", "Input Events")
+    QT_TRANSLATE_NOOP("MainView", "Input Events"),
+    QT_TRANSLATE_NOOP("MainView", "Debug Messages")
 };
+
+Q_STATIC_ASSERT(sizeof(ProfileFeatureNames) == sizeof(char *) * QmlDebug::MaximumProfileFeature);
 
 /////////////////////////////////////////////////////////////////////
 QmlProfilerTraceTime::QmlProfilerTraceTime(QObject *parent) :

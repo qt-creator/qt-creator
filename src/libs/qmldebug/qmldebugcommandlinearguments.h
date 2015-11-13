@@ -50,7 +50,7 @@ static inline QString qmlDebugServices(QmlDebugServicesPreset preset)
     case QmlDebuggerServices:
         return QStringLiteral("DebugMessages,QmlDebugger,V8Debugger,QmlInspector");
     case QmlProfilerServices:
-        return QStringLiteral("CanvasFrameRate,EngineControl");
+        return QStringLiteral("CanvasFrameRate,EngineControl,DebugMessages");
     case QmlNativeDebuggerServices:
         return QStringLiteral("NativeQmlDebugger");
     default:

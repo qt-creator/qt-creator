@@ -30,6 +30,7 @@
 
 #include "qmlprofilertraceclient.h"
 #include "qmlenginecontrolclient.h"
+#include "qdebugmessageclient.h"
 
 namespace QmlDebug {
 
@@ -53,6 +54,7 @@ public:
 
     QmlProfilerTraceClient *q;
     QmlEngineControlClient engineControl;
+    QScopedPointer<QDebugMessageClient> messageClient;
     qint64 inProgressRanges;
     QStack<qint64> rangeStartTimes[MaximumRangeType];
     QStack<QString> rangeDatas[MaximumRangeType];
@@ -86,7 +88,7 @@ QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebugConnection *client, quint
     : QmlDebugClient(QLatin1String("CanvasFrameRate"), client)
     , d(new QmlProfilerTraceClientPrivate(this, client))
 {
-    d->requestedFeatures = features;
+    setRequestedFeatures(features);
     connect(&d->engineControl, &QmlEngineControlClient::engineAboutToBeAdded,
             this, &QmlProfilerTraceClient::sendRecordingStatus);
 }
@@ -152,6 +154,19 @@ quint64 QmlProfilerTraceClient::recordedFeatures() const
 void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
 {
     d->requestedFeatures = features;
+    if (features & static_cast<quint64>(1) << ProfileDebugMessages) {
+        d->messageClient.reset(new QDebugMessageClient(connection()));
+        connect(d->messageClient.data(), &QDebugMessageClient::message, this, [this](QtMsgType type,
+                const QString &text, const QmlDebug::QDebugContextInfo &context)
+        {
+            emit this->rangedEvent(QmlDebug::DebugMessage, QmlDebug::MaximumRangeType,
+                                   type, context.timestamp, 0, text,
+                                   QmlDebug::QmlEventLocation(context.file, context.line, 1), 0, 0,
+                                   0, 0, 0);
+        });
+    } else {
+        d->messageClient.reset();
+    }
 }
 
 void QmlProfilerTraceClient::setFlushInterval(quint32 flushInterval)

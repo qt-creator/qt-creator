@@ -45,6 +45,7 @@ enum Message {
     PixmapCacheEvent,
     SceneGraphFrame,
     MemoryAllocation,
+    DebugMessage,
 
     MaximumMessage
 };
@@ -148,6 +149,7 @@ enum ProfileFeature {
     ProfileBinding,
     ProfileHandlingSignal,
     ProfileInputEvents,
+    ProfileDebugMessages,
 
     MaximumProfileFeature
 };
