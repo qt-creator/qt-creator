@@ -45,6 +45,9 @@ using namespace ProjectExplorer;
 namespace Ios {
 namespace Internal {
 
+const char IOS_DEPLOYCONFIGURATION_ID[] = "Qt4ProjectManager.IosDeployConfiguration";
+const char IOS_DC_PREFIX[] = "Qt4ProjectManager.IosDeployConfiguration.";
+
 IosDeployConfiguration::IosDeployConfiguration(Target *parent, Core::Id id)
     : DeployConfiguration(parent, id)
 {

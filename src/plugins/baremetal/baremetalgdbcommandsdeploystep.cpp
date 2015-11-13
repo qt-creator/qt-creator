@@ -37,6 +37,8 @@ using namespace ProjectExplorer;
 namespace BareMetal {
 namespace Internal {
 
+const char GdbCommandsKey[] = "BareMetal.GdbCommandsStep.Commands";
+
 BareMetalGdbCommandsDeployStepWidget::BareMetalGdbCommandsDeployStepWidget(BareMetalGdbCommandsDeployStep &step)
     : m_step(step)
 {

@@ -35,9 +35,6 @@
 namespace Ios {
 namespace Internal {
 
-const char IOS_DEPLOYCONFIGURATION_ID[] = "Qt4ProjectManager.IosDeployConfiguration";
-const char IOS_DC_PREFIX[] = "Qt4ProjectManager.IosDeployConfiguration.";
-
 class IosDeployConfiguration : public ProjectExplorer::DeployConfiguration
 {
     Q_OBJECT

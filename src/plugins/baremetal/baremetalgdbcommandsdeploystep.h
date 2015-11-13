@@ -68,8 +68,6 @@ private:
     QString m_gdbCommands;
 };
 
-const char GdbCommandsKey[] = "BareMetal.GdbCommandsStep.Commands";
-
 class BareMetalGdbCommandsDeployStepWidget: public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT

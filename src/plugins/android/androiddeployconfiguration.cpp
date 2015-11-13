@@ -47,6 +47,9 @@ using namespace ProjectExplorer;
 namespace Android {
 namespace Internal {
 
+// Qt 5.2 has a new form of deployment
+const char ANDROID_DEPLOYCONFIGURATION_ID[] = "Qt4ProjectManager.AndroidDeployConfiguration2";
+
 AndroidDeployConfiguration::AndroidDeployConfiguration(Target *parent, Core::Id id)
     : DeployConfiguration(parent, id)
 {

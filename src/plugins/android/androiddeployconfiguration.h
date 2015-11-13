@@ -36,10 +36,6 @@
 namespace Android {
 namespace Internal {
 
-// Qt 5.2 has a new form of deployment
-const char ANDROID_DEPLOYCONFIGURATION_ID[] = "Qt4ProjectManager.AndroidDeployConfiguration2";
-const char ANDROID_DC_PREFIX[] = "Qt4ProjectManager.AndroidDeployConfiguration2.";
-
 class AndroidDeployConfiguration : public ProjectExplorer::DeployConfiguration
 {
     Q_OBJECT
