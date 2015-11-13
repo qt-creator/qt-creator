@@ -45,6 +45,7 @@
 #include "pixmapcachemodel.h"
 #include "memoryusagemodel.h"
 #include "inputeventsmodel.h"
+#include "debugmessagesmodel.h"
 
 using namespace QmlProfilerExtension::Internal;
 
@@ -58,7 +59,8 @@ public:
         models << new PixmapCacheModel(manager, this)
                << new SceneGraphTimelineModel(manager, this)
                << new MemoryUsageModel(manager, this)
-               << new InputEventsModel(manager, this);
+               << new InputEventsModel(manager, this)
+               << new DebugMessagesModel(manager, this);
         return models;
     }
 };

@@ -10,6 +10,8 @@ QtcCommercialPlugin {
     Depends { name: "Qt.widgets" }
 
     files: [
+        "debugmessagesmodel.cpp",
+        "debugmessagesmodel.h",
         "inputeventsmodel.cpp",
         "inputeventsmodel.h",
         "memoryusagemodel.cpp",
