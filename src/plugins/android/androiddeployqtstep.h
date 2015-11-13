@@ -98,8 +98,7 @@ signals:
     void setSerialNumber(const QString &serialNumber);
 
 private:
-    AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc,
-        AndroidDeployQtStep *other);
+    AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc, AndroidDeployQtStep *other);
     void ctor();
     void runCommand(const QString &program, const QStringList &arguments);
 
@@ -132,16 +131,16 @@ private:
     QString m_targetArch;
     bool m_uninstallPreviousPackage;
     bool m_uninstallPreviousPackageRun;
-    static const Core::Id Id;
     bool m_installOk;
     bool m_useAndroiddeployqt;
+    bool m_askForUinstall;
+    static const Core::Id Id;
     QString m_androiddeployqtArgs;
     QString m_adbPath;
     QString m_command;
     QString m_workingDirectory;
     Utils::Environment m_environment;
     Utils::QtcProcess *m_process;
-    bool m_askForUinstall;
 };
 
 }
