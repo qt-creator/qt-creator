@@ -80,12 +80,12 @@ void QmlProfilerRangeModel::loadData()
     const QVector<QmlProfilerDataModel::QmlEventData> &eventList = simpleModel->getEvents();
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &typesList = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
-        const QmlProfilerDataModel::QmlEventTypeData &type = typesList[event.typeIndex];
+        const QmlProfilerDataModel::QmlEventTypeData &type = typesList[event.typeIndex()];
         if (!accepted(type))
             continue;
 
         // store starttime-based instance
-        m_data.insert(insert(event.startTime, event.duration, event.typeIndex),
+        m_data.insert(insert(event.startTime(), event.duration(), event.typeIndex()),
                       QmlRangeEventStartInstance());
         updateProgress(count(), eventList.count() * 5);
     }

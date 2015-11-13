@@ -194,7 +194,7 @@ bool QmlProfilerDataModel::isEmpty() const
 inline static bool operator<(const QmlProfilerDataModel::QmlEventData &t1,
                              const QmlProfilerDataModel::QmlEventData &t2)
 {
-    return t1.startTime < t2.startTime;
+    return t1.startTime() < t2.startTime();
 }
 
 inline static uint qHash(const QmlProfilerDataModel::QmlEventTypeData &type)
@@ -266,15 +266,15 @@ void QmlProfilerDataModel::addQmlEvent(QmlDebug::Message message, QmlDebug::Rang
     Q_D(QmlProfilerDataModel);
     QString displayName;
 
-    QmlEventTypeData typeData = {displayName, location, message, rangeType, detailType, data};
-    QmlEventData eventData = {-1, startTime, duration, ndata1, ndata2, ndata3, ndata4, ndata5};
+    QmlEventTypeData typeData(displayName, location, message, rangeType, detailType, data);
+    QmlEventData eventData(startTime, duration, -1, ndata1, ndata2, ndata3, ndata4, ndata5);
 
     QHash<QmlEventTypeData, int>::Iterator it = d->eventTypeIds.find(typeData);
     if (it != d->eventTypeIds.end()) {
-        eventData.typeIndex = it.value();
+        eventData.setTypeIndex(it.value());
     } else {
-        eventData.typeIndex = d->eventTypes.size();
-        d->eventTypeIds[typeData] = eventData.typeIndex;
+        eventData.setTypeIndex(d->eventTypes.size());
+        d->eventTypeIds[typeData] = eventData.typeIndex();
         d->eventTypes.append(typeData);
     }
 
@@ -290,7 +290,7 @@ qint64 QmlProfilerDataModel::lastTimeMark() const
     if (d->eventList.isEmpty())
         return 0;
 
-    return d->eventList.last().startTime + d->eventList.last().duration;
+    return d->eventList.last().startTime() + d->eventList.last().duration();
 }
 
 void QmlProfilerDataModel::detailsChanged(int requestId, const QString &newString)

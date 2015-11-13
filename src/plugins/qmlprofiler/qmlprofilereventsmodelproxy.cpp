@@ -196,34 +196,34 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
 
     for (int i = 0; i < eventList.size(); ++i) {
         const QmlProfilerDataModel::QmlEventData *event = &eventList[i];
-        const QmlProfilerDataModel::QmlEventTypeData *type = &typesList[event->typeIndex];
+        const QmlProfilerDataModel::QmlEventTypeData *type = &typesList[event->typeIndex()];
 
         if (!d->acceptedTypes.contains(type->rangeType))
             continue;
 
         if (checkRanges) {
-            if ((event->startTime + event->duration < rangeStart)
-                    || (event->startTime > rangeEnd))
+            if ((event->startTime() + event->duration() < rangeStart)
+                    || (event->startTime() > rangeEnd))
                 continue;
         }
 
         // update stats
-        QmlEventStats *stats = &d->data[event->typeIndex];
+        QmlEventStats *stats = &d->data[event->typeIndex()];
 
-        stats->duration += event->duration;
-        if (event->duration < stats->minTime)
-            stats->minTime = event->duration;
-        if (event->duration > stats->maxTime)
-            stats->maxTime = event->duration;
+        stats->duration += event->duration();
+        if (event->duration() < stats->minTime)
+            stats->minTime = event->duration();
+        if (event->duration() > stats->maxTime)
+            stats->maxTime = event->duration();
         stats->calls++;
 
         // for median computing
-        durations[event->typeIndex].append(event->duration);
+        durations[event->typeIndex()].append(event->duration());
 
         // qml time computation
-        if (event->startTime > lastEndTime) { // assume parent event if starts before last end
-            qmlTime += event->duration;
-            lastEndTime = event->startTime + event->duration;
+        if (event->startTime() > lastEndTime) { // assume parent event if starts before last end
+            qmlTime += event->duration();
+            lastEndTime = event->startTime() + event->duration();
         }
 
 
@@ -231,16 +231,16 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
         // binding loop detection
         //
         const QmlProfilerDataModel::QmlEventData *potentialParent = callStack.top();
-        while (potentialParent
-               && !(potentialParent->startTime + potentialParent->duration > event->startTime)) {
+        while (potentialParent && !(potentialParent->startTime() + potentialParent->duration() >
+                    event->startTime())) {
             callStack.pop();
             potentialParent = callStack.top();
         }
 
         // check whether event is already in stack
         for (int ii = 1; ii < callStack.size(); ++ii) {
-            if (callStack.at(ii)->typeIndex == event->typeIndex) {
-                d->eventsInBindingLoop.insert(event->typeIndex);
+            if (callStack.at(ii)->typeIndex() == event->typeIndex()) {
+                d->eventsInBindingLoop.insert(event->typeIndex());
                 break;
             }
         }
@@ -374,30 +374,31 @@ void QmlProfilerEventParentsModelProxy::loadData()
     const QVector<QmlProfilerDataModel::QmlEventTypeData> typesList = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         // whitelist
-        if (!m_eventsModel->eventTypeAccepted(typesList[event.typeIndex].rangeType))
+        if (!m_eventsModel->eventTypeAccepted(typesList[event.typeIndex()].rangeType))
             continue;
 
         // level computation
-        if (endtimesPerLevel[level] > event.startTime) {
+        if (endtimesPerLevel[level] > event.startTime()) {
             level++;
         } else {
-            while (level > QmlDebug::Constants::QML_MIN_LEVEL && endtimesPerLevel[level-1] <= event.startTime)
+            while (level > QmlDebug::Constants::QML_MIN_LEVEL &&
+                   endtimesPerLevel[level-1] <= event.startTime())
                 level--;
         }
-        endtimesPerLevel[level] = event.startTime + event.duration;
+        endtimesPerLevel[level] = event.startTime() + event.duration();
 
         int parentTypeIndex = -1;
         if (level > QmlDebug::Constants::QML_MIN_LEVEL && lastParent.contains(level-1))
             parentTypeIndex = lastParent[level-1];
 
-        QmlEventRelativesMap &relativesMap = m_data[event.typeIndex];
+        QmlEventRelativesMap &relativesMap = m_data[event.typeIndex()];
         QmlEventRelativesMap::Iterator it = relativesMap.find(parentTypeIndex);
         if (it != relativesMap.end()) {
             it.value().calls++;
-            it.value().duration += event.duration;
+            it.value().duration += event.duration();
         } else {
             QmlEventRelativesData parent = {
-                event.duration,
+                event.duration(),
                 1,
                 eventsInBindingLoop.contains(parentTypeIndex)
             };
@@ -405,7 +406,7 @@ void QmlProfilerEventParentsModelProxy::loadData()
         }
 
         // now lastparent is the new type
-        lastParent[level] = event.typeIndex;
+        lastParent[level] = event.typeIndex();
     }
 }
 
@@ -438,17 +439,18 @@ void QmlProfilerEventChildrenModelProxy::loadData()
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &typesList = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         // whitelist
-        if (!m_eventsModel->eventTypeAccepted(typesList[event.typeIndex].rangeType))
+        if (!m_eventsModel->eventTypeAccepted(typesList[event.typeIndex()].rangeType))
             continue;
 
         // level computation
-        if (endtimesPerLevel[level] > event.startTime) {
+        if (endtimesPerLevel[level] > event.startTime()) {
             level++;
         } else {
-            while (level > QmlDebug::Constants::QML_MIN_LEVEL && endtimesPerLevel[level-1] <= event.startTime)
+            while (level > QmlDebug::Constants::QML_MIN_LEVEL &&
+                   endtimesPerLevel[level-1] <= event.startTime())
                 level--;
         }
-        endtimesPerLevel[level] = event.startTime + event.duration;
+        endtimesPerLevel[level] = event.startTime() + event.duration();
 
         int parentId = -1;
 
@@ -456,21 +458,21 @@ void QmlProfilerEventChildrenModelProxy::loadData()
             parentId = lastParent[level-1];
 
         QmlEventRelativesMap &relativesMap = m_data[parentId];
-        QmlEventRelativesMap::Iterator it = relativesMap.find(event.typeIndex);
+        QmlEventRelativesMap::Iterator it = relativesMap.find(event.typeIndex());
         if (it != relativesMap.end()) {
             it.value().calls++;
-            it.value().duration += event.duration;
+            it.value().duration += event.duration();
         } else {
             QmlEventRelativesData child = {
-                event.duration,
+                event.duration(),
                 1,
                 eventsInBindingLoop.contains(parentId)
             };
-            relativesMap.insert(event.typeIndex, child);
+            relativesMap.insert(event.typeIndex(), child);
         }
 
         // now lastparent is the new type
-        lastParent[level] = event.typeIndex;
+        lastParent[level] = event.typeIndex();
     }
 }
 

@@ -81,20 +81,21 @@ void QmlProfilerAnimationsModel::loadData()
     qint64 minNextStartTimes[] = {0, 0};
 
     foreach (const QmlProfilerDataModel::QmlEventData &event, referenceList) {
-        const QmlProfilerDataModel::QmlEventTypeData &type = typeList[event.typeIndex];
+        const QmlProfilerDataModel::QmlEventTypeData &type = typeList[event.typeIndex()];
         if (!accepted(type))
             continue;
 
-        lastThread = (QmlDebug::AnimationThread)event.numericData3;
+        lastThread = (QmlDebug::AnimationThread)event.numericData(2);
 
         // initial estimation of the event duration: 1/framerate
-        qint64 estimatedDuration = event.numericData1 > 0 ? 1e9/event.numericData1 : 1;
+        qint64 estimatedDuration = event.numericData(0) > 0 ? 1e9/event.numericData(0) : 1;
 
         // the profiler registers the animation events at the end of them
-        qint64 realEndTime = event.startTime;
+        qint64 realEndTime = event.startTime();
 
         // ranges should not overlap. If they do, our estimate wasn't accurate enough
-        qint64 realStartTime = qMax(event.startTime - estimatedDuration, minNextStartTimes[lastThread]);
+        qint64 realStartTime = qMax(event.startTime() - estimatedDuration,
+                                    minNextStartTimes[lastThread]);
 
         // Sometimes our estimate is far off or the server has miscalculated the frame rate
         if (realStartTime >= realEndTime)
@@ -102,9 +103,9 @@ void QmlProfilerAnimationsModel::loadData()
 
         // Don't "fix" the framerate even if we've fixed the duration.
         // The server should know better after all and if it doesn't we want to see that.
-        lastEvent.typeId = event.typeIndex;
-        lastEvent.framerate = (int)event.numericData1;
-        lastEvent.animationcount = (int)event.numericData2;
+        lastEvent.typeId = event.typeIndex();
+        lastEvent.framerate = (int)event.numericData(0);
+        lastEvent.animationcount = (int)event.numericData(1);
         QTC_ASSERT(lastEvent.animationcount > 0, continue);
 
         m_data.insert(insert(realStartTime, realEndTime - realStartTime, lastThread), lastEvent);
@@ -112,9 +113,10 @@ void QmlProfilerAnimationsModel::loadData()
         if (lastThread == QmlDebug::GuiThread)
             m_maxGuiThreadAnimations = qMax(lastEvent.animationcount, m_maxGuiThreadAnimations);
         else
-            m_maxRenderThreadAnimations = qMax(lastEvent.animationcount, m_maxRenderThreadAnimations);
+            m_maxRenderThreadAnimations = qMax(lastEvent.animationcount,
+                                               m_maxRenderThreadAnimations);
 
-        minNextStartTimes[lastThread] = event.startTime + 1;
+        minNextStartTimes[lastThread] = event.startTime() + 1;
 
         updateProgress(count(), referenceList.count());
     }

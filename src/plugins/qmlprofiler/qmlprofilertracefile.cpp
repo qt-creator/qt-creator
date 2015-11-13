@@ -164,9 +164,9 @@ bool QmlProfilerFileReader::load(QIODevice *device)
                 else
                     validVersion = false;
                 if (attributes.hasAttribute(_("traceStart")))
-                    traceStart = attributes.value(_("traceStart")).toString().toLongLong();
+                    traceStart = attributes.value(_("traceStart")).toLongLong();
                 if (attributes.hasAttribute(_("traceEnd")))
-                    traceEnd = attributes.value(_("traceEnd")).toString().toLongLong();
+                    traceEnd = attributes.value(_("traceEnd")).toLongLong();
             }
 
             if (elementName == _("eventData")) {
@@ -263,7 +263,7 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
 
                 const QXmlStreamAttributes attributes = stream.attributes();
                 if (attributes.hasAttribute(_("index"))) {
-                    eventIndex = attributes.value(_("index")).toString().toInt();
+                    eventIndex = attributes.value(_("index")).toInt();
                 } else {
                     // ignore event
                     eventIndex = -1;
@@ -373,7 +373,7 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
         case QXmlStreamReader::StartElement: {
             if (elementName == _("range")) {
                 progress(stream.device());
-                QmlProfilerDataModel::QmlEventData range = { -1, 0, 0, 0, 0, 0, 0, 0 };
+                QmlProfilerDataModel::QmlEventData range(0, 0, -1, 0, 0, 0, 0, 0);
 
                 const QXmlStreamAttributes attributes = stream.attributes();
                 if (!attributes.hasAttribute(_("startTime"))
@@ -382,43 +382,43 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
                     continue;
                 }
 
-                range.startTime = attributes.value(_("startTime")).toString().toLongLong();
+                range.setStartTime(attributes.value(_("startTime")).toLongLong());
                 if (attributes.hasAttribute(_("duration")))
-                    range.duration = attributes.value(_("duration")).toString().toLongLong();
+                    range.setDuration(attributes.value(_("duration")).toLongLong());
 
                 // attributes for special events
                 if (attributes.hasAttribute(_("framerate")))
-                    range.numericData1 = attributes.value(_("framerate")).toString().toLongLong();
+                    range.setNumericData(0, attributes.value(_("framerate")).toLongLong());
                 if (attributes.hasAttribute(_("animationcount")))
-                    range.numericData2 = attributes.value(_("animationcount")).toString().toLongLong();
+                    range.setNumericData(1, attributes.value(_("animationcount")).toLongLong());
                 if (attributes.hasAttribute(_("thread")))
-                    range.numericData3 = attributes.value(_("thread")).toString().toLongLong();
+                    range.setNumericData(2, attributes.value(_("thread")).toLongLong());
                 if (attributes.hasAttribute(_("width")))
-                    range.numericData1 = attributes.value(_("width")).toString().toLongLong();
+                    range.setNumericData(0, attributes.value(_("width")).toLongLong());
                 if (attributes.hasAttribute(_("height")))
-                    range.numericData2 = attributes.value(_("height")).toString().toLongLong();
+                    range.setNumericData(1, attributes.value(_("height")).toLongLong());
                 if (attributes.hasAttribute(_("refCount")))
-                    range.numericData3 = attributes.value(_("refCount")).toString().toLongLong();
+                    range.setNumericData(2, attributes.value(_("refCount")).toLongLong());
                 if (attributes.hasAttribute(_("amount")))
-                    range.numericData1 = attributes.value(_("amount")).toString().toLongLong();
+                    range.setNumericData(0, attributes.value(_("amount")).toLongLong());
                 if (attributes.hasAttribute(_("timing1")))
-                    range.numericData1 = attributes.value(_("timing1")).toString().toLongLong();
+                    range.setNumericData(0, attributes.value(_("timing1")).toLongLong());
                 if (attributes.hasAttribute(_("timing2")))
-                    range.numericData2 = attributes.value(_("timing2")).toString().toLongLong();
+                    range.setNumericData(1, attributes.value(_("timing2")).toLongLong());
                 if (attributes.hasAttribute(_("timing3")))
-                    range.numericData3 = attributes.value(_("timing3")).toString().toLongLong();
+                    range.setNumericData(2, attributes.value(_("timing3")).toLongLong());
                 if (attributes.hasAttribute(_("timing4")))
-                    range.numericData4 = attributes.value(_("timing4")).toString().toLongLong();
+                    range.setNumericData(3, attributes.value(_("timing4")).toLongLong());
                 if (attributes.hasAttribute(_("timing5")))
-                    range.numericData5 = attributes.value(_("timing5")).toString().toLongLong();
+                    range.setNumericData(4, attributes.value(_("timing5")).toLongLong());
                 if (attributes.hasAttribute(_("type")))
-                    range.numericData1 = attributes.value(_("type")).toString().toLongLong();
+                    range.setNumericData(0, attributes.value(_("type")).toLongLong());
                 if (attributes.hasAttribute(_("data1")))
-                    range.numericData2 = attributes.value(_("data1")).toString().toLongLong();
+                    range.setNumericData(1, attributes.value(_("data1")).toLongLong());
                 if (attributes.hasAttribute(_("data2")))
-                    range.numericData3 = attributes.value(_("data2")).toString().toLongLong();
+                    range.setNumericData(2, attributes.value(_("data2")).toLongLong());
 
-                range.typeIndex = attributes.value(_("eventIndex")).toString().toInt();
+                range.setTypeIndex(attributes.value(_("eventIndex")).toInt());
 
                 m_ranges.append(range);
             }
@@ -451,9 +451,9 @@ void QmlProfilerFileReader::loadNoteData(QXmlStreamReader &stream)
             if (elementName == _("note")) {
                 progress(stream.device());
                 QXmlStreamAttributes attrs = stream.attributes();
-                currentNote.startTime = attrs.value(_("startTime")).toString().toLongLong();
-                currentNote.duration = attrs.value(_("duration")).toString().toLongLong();
-                currentNote.typeIndex = attrs.value(_("eventIndex")).toString().toInt();
+                currentNote.startTime = attrs.value(_("startTime")).toLongLong();
+                currentNote.duration = attrs.value(_("duration")).toLongLong();
+                currentNote.typeIndex = attrs.value(_("eventIndex")).toInt();
             }
             break;
         }
@@ -600,57 +600,57 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         const QmlProfilerDataModel::QmlEventData &range = m_ranges[rangeIndex];
 
         stream.writeStartElement(_("range"));
-        stream.writeAttribute(_("startTime"), QString::number(range.startTime));
-        if (range.duration > 0) // no need to store duration of instantaneous events
-            stream.writeAttribute(_("duration"), QString::number(range.duration));
-        stream.writeAttribute(_("eventIndex"), QString::number(range.typeIndex));
+        stream.writeAttribute(_("startTime"), QString::number(range.startTime()));
+        if (range.duration() > 0) // no need to store duration of instantaneous events
+            stream.writeAttribute(_("duration"), QString::number(range.duration()));
+        stream.writeAttribute(_("eventIndex"), QString::number(range.typeIndex()));
 
-        const QmlProfilerDataModel::QmlEventTypeData &event = m_qmlEvents[range.typeIndex];
+        const QmlProfilerDataModel::QmlEventTypeData &event = m_qmlEvents[range.typeIndex()];
 
 
         if (event.message == Event) {
             if (event.detailType == AnimationFrame) {
                 // special: animation event
-                stream.writeAttribute(_("framerate"), QString::number(range.numericData1));
-                stream.writeAttribute(_("animationcount"), QString::number(range.numericData2));
-                stream.writeAttribute(_("thread"), QString::number(range.numericData3));
+                stream.writeAttribute(_("framerate"), QString::number(range.numericData(0)));
+                stream.writeAttribute(_("animationcount"), QString::number(range.numericData(1)));
+                stream.writeAttribute(_("thread"), QString::number(range.numericData(2)));
             } else if (event.detailType == Key || event.detailType == Mouse) {
                 // special: input event
-                stream.writeAttribute(_("type"), QString::number(range.numericData1));
-                stream.writeAttribute(_("data1"), QString::number(range.numericData2));
-                stream.writeAttribute(_("data2"), QString::number(range.numericData3));
+                stream.writeAttribute(_("type"), QString::number(range.numericData(0)));
+                stream.writeAttribute(_("data1"), QString::number(range.numericData(1)));
+                stream.writeAttribute(_("data2"), QString::number(range.numericData(2)));
             }
         }
 
         // special: pixmap cache event
         if (event.message == PixmapCacheEvent) {
             if (event.detailType == PixmapSizeKnown) {
-                stream.writeAttribute(_("width"), QString::number(range.numericData1));
-                stream.writeAttribute(_("height"), QString::number(range.numericData2));
+                stream.writeAttribute(_("width"), QString::number(range.numericData(0)));
+                stream.writeAttribute(_("height"), QString::number(range.numericData(1)));
             }
 
             if (event.detailType == PixmapReferenceCountChanged ||
                     event.detailType == PixmapCacheCountChanged)
-                stream.writeAttribute(_("refCount"), QString::number(range.numericData3));
+                stream.writeAttribute(_("refCount"), QString::number(range.numericData(2)));
         }
 
         if (event.message == SceneGraphFrame) {
             // special: scenegraph frame events
-            if (range.numericData1 > 0)
-                stream.writeAttribute(_("timing1"), QString::number(range.numericData1));
-            if (range.numericData2 > 0)
-                stream.writeAttribute(_("timing2"), QString::number(range.numericData2));
-            if (range.numericData3 > 0)
-                stream.writeAttribute(_("timing3"), QString::number(range.numericData3));
-            if (range.numericData4 > 0)
-                stream.writeAttribute(_("timing4"), QString::number(range.numericData4));
-            if (range.numericData5 > 0)
-                stream.writeAttribute(_("timing5"), QString::number(range.numericData5));
+            if (range.numericData(0) > 0)
+                stream.writeAttribute(_("timing1"), QString::number(range.numericData(0)));
+            if (range.numericData(1) > 0)
+                stream.writeAttribute(_("timing2"), QString::number(range.numericData(1)));
+            if (range.numericData(2) > 0)
+                stream.writeAttribute(_("timing3"), QString::number(range.numericData(2)));
+            if (range.numericData(3) > 0)
+                stream.writeAttribute(_("timing4"), QString::number(range.numericData(3)));
+            if (range.numericData(4) > 0)
+                stream.writeAttribute(_("timing5"), QString::number(range.numericData(4)));
         }
 
         // special: memory allocation event
         if (event.message == MemoryAllocation)
-            stream.writeAttribute(_("amount"), QString::number(range.numericData1));
+            stream.writeAttribute(_("amount"), QString::number(range.numericData(0)));
 
         stream.writeEndElement();
         incrementProgress();
