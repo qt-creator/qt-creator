@@ -63,7 +63,7 @@ public:
     }
 
 private:
-    QWidget *createConfigurationWidget() { return 0; }
+    QWidget *createConfigurationWidget() override { return 0; }
 };
 
 ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
