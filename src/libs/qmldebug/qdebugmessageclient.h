@@ -42,6 +42,8 @@ struct QDebugContextInfo
     int line;
     QString file;
     QString function;
+    QString category;
+    qint64 timestamp;
 };
 
 class QMLDEBUG_EXPORT QDebugMessageClient : public QmlDebugClient

@@ -65,6 +65,14 @@ void QDebugMessageClient::messageReceived(const QByteArray &data)
         info.line = line;
         info.file = QString::fromUtf8(file);
         info.function = QString::fromUtf8(function);
+        info.timestamp = -1;
+        if (!ds.atEnd()) {
+            QByteArray category;
+            ds >> category;
+            info.category = QString::fromUtf8(category);
+            if (!ds.atEnd())
+                ds >> info.timestamp;
+        }
         emit message(QtMsgType(type), QString::fromUtf8(debugMessage), info);
     }
 }
