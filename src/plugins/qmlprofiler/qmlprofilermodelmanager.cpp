@@ -149,6 +149,8 @@ QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *fin
     QObject(parent), d(new QmlProfilerModelManagerPrivate(this))
 {
     d->totalWeight = 0;
+    d->previousProgress = 0;
+    d->progress = 0;
     d->availableFeatures = 0;
     d->visibleFeatures = 0;
     d->recordedFeatures = 0;
