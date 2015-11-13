@@ -52,6 +52,7 @@
 
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -166,6 +167,13 @@ void AndroidDeployQtStep::ctor()
             this, &AndroidDeployQtStep::slotSetSerialNumber);
 }
 
+static AndroidDeviceInfo earlierDeviceInfo(QList<const ProjectExplorer::BuildStep *> &earlierSteps, Core::Id id)
+{
+    const ProjectExplorer::BuildStep *bs
+            = Utils::findOrDefault(earlierSteps, Utils::equal(&ProjectExplorer::BuildStep::id, id));
+    return bs ? static_cast<const AndroidDeployQtStep *>(bs)->deviceInfo() : AndroidDeviceInfo();
+}
+
 bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
 {
     Q_UNUSED(earlierSteps);
@@ -191,8 +199,13 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     AndroidConfigurations::Options options = AndroidConfigurations::None;
     if (androidBuildApkStep->deployAction() == AndroidBuildApkStep::DebugDeployment)
         options = AndroidConfigurations::FilterAndroid5;
-    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(project(), deviceAPILevel, m_targetArch, options);
-    if (info.serialNumber.isEmpty() && info.avdname.isEmpty()) // aborted
+    AndroidDeviceInfo info = earlierDeviceInfo(earlierSteps, Id);
+    if (!info.isValid()) {
+        info = AndroidConfigurations::showDeviceDialog(project(), deviceAPILevel, m_targetArch, options);
+        m_deviceInfo = info; // Keep around for later steps
+    }
+
+    if (!info.isValid()) // aborted
         return false;
 
     m_avdName = info.avdname;
@@ -477,6 +490,11 @@ void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &
             mainMessage += tr("Exit code: %1").arg(buildProc.exitCode());
         emit addOutput(mainMessage, BuildStep::ErrorMessageOutput);
     }
+}
+
+AndroidDeviceInfo AndroidDeployQtStep::deviceInfo() const
+{
+    return m_deviceInfo;
 }
 
 ProjectExplorer::BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget()

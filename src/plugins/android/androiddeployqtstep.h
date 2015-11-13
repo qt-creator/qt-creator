@@ -90,6 +90,8 @@ public:
 
     UninstallType uninstallPreviousPackage();
 
+    AndroidDeviceInfo deviceInfo() const;
+
 public slots:
     void setUninstallPreviousPackage(bool uninstall);
 
@@ -141,6 +143,7 @@ private:
     QString m_workingDirectory;
     Utils::Environment m_environment;
     Utils::QtcProcess *m_process;
+    AndroidDeviceInfo m_deviceInfo;
 };
 
 }
