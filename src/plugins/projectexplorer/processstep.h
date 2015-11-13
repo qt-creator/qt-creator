@@ -65,7 +65,7 @@ class ProcessStep : public AbstractProcessStep
 public:
     explicit ProcessStep(BuildStepList *bsl);
 
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &) override;
 
     BuildStepConfigWidget *createConfigWidget() override;

@@ -132,8 +132,9 @@ QString BareMetalGdbCommandsDeployStep::gdbCommands() const
     return m_gdbCommands;
 }
 
-bool BareMetalGdbCommandsDeployStep::init()
+bool BareMetalGdbCommandsDeployStep::init(QList<const BuildStep *> &earlierSteps)
 {
+    Q_UNUSED(earlierSteps);
     return true;
 }
 

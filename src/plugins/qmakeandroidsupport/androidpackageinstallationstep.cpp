@@ -60,7 +60,7 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::
     : AbstractProcessStep(bc, other)
 { }
 
-bool AndroidPackageInstallationStep::init()
+bool AndroidPackageInstallationStep::init(QList<const BuildStep *> &earlierSteps)
 {
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
     QString dirPath = bc->buildDirectory().appendPath(QLatin1String(Android::Constants::ANDROID_BUILDDIRECTORY)).toString();
@@ -100,7 +100,7 @@ bool AndroidPackageInstallationStep::init()
         m_androidDirsToClean << dirPath;
     }
 
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 void AndroidPackageInstallationStep::run(QFutureInterface<bool> &fi)

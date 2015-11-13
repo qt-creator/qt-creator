@@ -94,7 +94,7 @@ class MakeStep : public ProjectExplorer::AbstractProcessStep
 public:
     explicit MakeStep(ProjectExplorer::BuildStepList *bsl);
 
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &interface) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     void setClean(bool clean);

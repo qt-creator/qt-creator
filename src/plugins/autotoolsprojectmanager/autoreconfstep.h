@@ -96,7 +96,7 @@ class AutoreconfStep : public ProjectExplorer::AbstractProcessStep
 public:
     explicit AutoreconfStep(ProjectExplorer::BuildStepList *bsl);
 
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &interface) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override;

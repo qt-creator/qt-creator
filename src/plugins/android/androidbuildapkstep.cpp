@@ -97,7 +97,7 @@ AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent,
     }
 }
 
-bool AndroidBuildApkStep::init()
+bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 {
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
 
@@ -132,7 +132,7 @@ bool AndroidBuildApkStep::init()
     m_openPackageLocationForRun = m_openPackageLocation;
     m_apkPath = AndroidManager::androidQtSupport(target())->apkPath(target()).toString();
 
-    bool result = AbstractProcessStep::init();
+    bool result = AbstractProcessStep::init(earlierSteps);
     if (!result)
         return false;
 

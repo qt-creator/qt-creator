@@ -94,7 +94,7 @@ void GenericMakeStep::ctor()
                                                       GENERIC_MS_DISPLAY_NAME));
 }
 
-bool GenericMakeStep::init()
+bool GenericMakeStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
@@ -134,7 +134,7 @@ bool GenericMakeStep::init()
         appendOutputParser(parser);
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 void GenericMakeStep::setClean(bool clean)

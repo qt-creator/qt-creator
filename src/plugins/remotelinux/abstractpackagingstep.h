@@ -50,7 +50,7 @@ public:
 
     QString packageFilePath() const;
     QString cachedPackageFilePath() const;
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
 
 signals:
     void packageFilePathChanged();

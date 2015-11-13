@@ -80,8 +80,9 @@ QbsCleanStep::~QbsCleanStep()
     }
 }
 
-bool QbsCleanStep::init()
+bool QbsCleanStep::init(QList<const BuildStep *> &earlierSteps)
 {
+    Q_UNUSED(earlierSteps);
     if (static_cast<QbsProject *>(project())->isParsing() || m_job)
         return false;
 

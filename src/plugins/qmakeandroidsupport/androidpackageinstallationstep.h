@@ -44,7 +44,7 @@ class AndroidPackageInstallationStep : public ProjectExplorer::AbstractProcessSt
 
 public:
     explicit AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl);
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override;

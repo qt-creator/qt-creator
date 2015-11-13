@@ -152,7 +152,7 @@ void AutogenStep::ctor()
     setDefaultDisplayName(tr("Autogen"));
 }
 
-bool AutogenStep::init()
+bool AutogenStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
 
@@ -165,7 +165,7 @@ bool AutogenStep::init()
     pp->setArguments(additionalArguments());
     pp->resolveAll();
 
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 void AutogenStep::run(QFutureInterface<bool> &interface)

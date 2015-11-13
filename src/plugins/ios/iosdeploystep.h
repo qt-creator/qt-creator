@@ -88,7 +88,7 @@ private slots:
 private:
     IosDeployStep(ProjectExplorer::BuildStepList *bc,
         IosDeployStep *other);
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override { return true; }
     bool runInGuiThread() const override { return true; }

@@ -103,7 +103,7 @@ private:
     void ctor();
     void runCommand(const QString &program, const QStringList &arguments);
 
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
     enum DeployResult { Success, Failure, AskUinstall };
     DeployResult runDeploy(QFutureInterface<bool> &fi);

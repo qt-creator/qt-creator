@@ -180,7 +180,7 @@ QMakeStepConfig QMakeStep::deducedArguments()
 }
 
 
-bool QMakeStep::init()
+bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
 {
     QmakeBuildConfiguration *qt4bc = qmakeBuildConfiguration();
     const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
@@ -251,7 +251,7 @@ bool QMakeStep::init()
 
     m_scriptTemplate = node->projectType() == ScriptTemplate;
 
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 void QMakeStep::run(QFutureInterface<bool> &fi)

@@ -54,7 +54,7 @@ class GenericMakeStep : public ProjectExplorer::AbstractProcessStep
 public:
     explicit GenericMakeStep(ProjectExplorer::BuildStepList *parent);
 
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;

@@ -83,7 +83,7 @@ public:
 
     QmakeBuildConfiguration *qmakeBuildConfiguration() const;
 
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &) override;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;

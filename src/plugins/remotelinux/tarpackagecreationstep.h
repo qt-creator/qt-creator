@@ -52,7 +52,7 @@ public:
     static Core::Id stepId();
     static QString displayName();
 
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
 
     void setIgnoreMissingFiles(bool ignoreMissingFiles);

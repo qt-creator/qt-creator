@@ -47,7 +47,7 @@ public:
     DeviceCheckBuildStep(BuildStepList *bsl, Core::Id id);
     DeviceCheckBuildStep(BuildStepList *bsl, DeviceCheckBuildStep *bs);
 
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
 
     void run(QFutureInterface<bool> &fi) override;
 

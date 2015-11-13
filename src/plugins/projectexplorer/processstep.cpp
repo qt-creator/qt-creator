@@ -72,7 +72,7 @@ void ProcessStep::ctor()
         m_workingDirectory = QLatin1String(Constants::DEFAULT_WORKING_DIR);
 }
 
-bool ProcessStep::init()
+bool ProcessStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
@@ -86,7 +86,7 @@ bool ProcessStep::init()
     pp->resolveAll();
 
     setOutputParser(target()->kit()->createOutputParser());
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 void ProcessStep::run(QFutureInterface<bool> & fi)

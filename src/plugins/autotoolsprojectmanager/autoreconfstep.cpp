@@ -151,7 +151,7 @@ void AutoreconfStep::ctor()
     setDefaultDisplayName(tr("Autoreconf"));
 }
 
-bool AutoreconfStep::init()
+bool AutoreconfStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
 
@@ -164,7 +164,7 @@ bool AutoreconfStep::init()
     pp->setArguments(additionalArguments());
     pp->resolveAll();
 
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 void AutoreconfStep::run(QFutureInterface<bool> &interface)

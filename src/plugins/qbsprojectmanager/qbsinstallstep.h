@@ -52,7 +52,7 @@ public:
     QbsInstallStep(ProjectExplorer::BuildStepList *bsl, const QbsInstallStep *other);
     ~QbsInstallStep() override;
 
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
 
     void run(QFutureInterface<bool> &fi) override;
 

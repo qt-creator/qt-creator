@@ -48,7 +48,7 @@ public:
     BareMetalGdbCommandsDeployStep(ProjectExplorer::BuildStepList *bsl,
                                    BareMetalGdbCommandsDeployStep *other);
 
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
     bool runInGuiThread() const override { return true;}
 

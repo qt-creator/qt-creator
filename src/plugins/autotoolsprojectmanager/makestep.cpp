@@ -160,7 +160,7 @@ void MakeStep::setClean(bool clean)
     m_clean = clean;
 }
 
-bool MakeStep::init()
+bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
@@ -200,7 +200,7 @@ bool MakeStep::init()
         appendOutputParser(parser);
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 void MakeStep::run(QFutureInterface<bool> &interface)

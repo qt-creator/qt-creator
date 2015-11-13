@@ -174,7 +174,7 @@ bool MakeStep::fromMap(const QVariantMap &map)
 }
 
 
-bool MakeStep::init()
+bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
 {
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
     if (!bc)
@@ -219,7 +219,7 @@ bool MakeStep::init()
         appendOutputParser(parser);
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 void MakeStep::run(QFutureInterface<bool> &fi)

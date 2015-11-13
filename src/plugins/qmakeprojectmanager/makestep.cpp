@@ -147,7 +147,7 @@ bool MakeStep::fromMap(const QVariantMap &map)
     return AbstractProcessStep::fromMap(map);
 }
 
-bool MakeStep::init()
+bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
 {
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     if (!bc)
@@ -266,7 +266,7 @@ bool MakeStep::init()
 
     m_scriptTarget = (static_cast<QmakeProject *>(bc->target()->project())->rootQmakeProjectNode()->projectType() == ScriptTemplate);
 
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 void MakeStep::run(QFutureInterface<bool> & fi)

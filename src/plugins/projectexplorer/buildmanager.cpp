@@ -491,6 +491,7 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names,
             addToOutputWindow(str, BuildStep::MessageOutput, BuildStep::DontAppendNewline);
     }
 
+    QList<const BuildStep *> earlierSteps;
     int count = steps.size();
     bool init = true;
     int i = 0;
@@ -501,9 +502,10 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names,
         connect(bs, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat,ProjectExplorer::BuildStep::OutputNewlineSetting)),
                 m_instance, SLOT(addToOutputWindow(QString,ProjectExplorer::BuildStep::OutputFormat,ProjectExplorer::BuildStep::OutputNewlineSetting)));
         if (bs->enabled()) {
-            init = bs->init();
+            init = bs->init(earlierSteps);
             if (!init)
                 break;
+            earlierSteps.append(bs);
         }
     }
     if (!init) {

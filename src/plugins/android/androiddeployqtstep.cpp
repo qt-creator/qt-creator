@@ -166,8 +166,9 @@ void AndroidDeployQtStep::ctor()
             this, &AndroidDeployQtStep::slotSetSerialNumber);
 }
 
-bool AndroidDeployQtStep::init()
+bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
 {
+    Q_UNUSED(earlierSteps);
     m_androiddeployqtArgs.clear();
 
     if (AndroidManager::checkForQt51Files(project()->projectDirectory()))

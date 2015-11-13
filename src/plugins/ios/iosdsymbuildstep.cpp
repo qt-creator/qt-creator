@@ -84,7 +84,7 @@ bool IosPresetBuildStep::completeSetupWithStep(BuildStep *bs)
     return true;
 }
 
-bool IosPresetBuildStep::init()
+bool IosPresetBuildStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
@@ -111,7 +111,7 @@ bool IosPresetBuildStep::init()
     if (outputParser())
         outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 QVariantMap IosPresetBuildStep::toMap() const

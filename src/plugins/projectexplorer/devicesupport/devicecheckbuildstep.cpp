@@ -54,8 +54,9 @@ DeviceCheckBuildStep::DeviceCheckBuildStep(BuildStepList *bsl, DeviceCheckBuildS
     setDefaultDisplayName(stepDisplayName());
 }
 
-bool DeviceCheckBuildStep::init()
+bool DeviceCheckBuildStep::init(QList<const BuildStep *> &earlierSteps)
 {
+    Q_UNUSED(earlierSteps);
     IDevice::ConstPtr device = DeviceKitInformation::device(target()->kit());
     if (!device) {
         Core::Id deviceTypeId = DeviceTypeKitInformation::deviceTypeId(target()->kit());

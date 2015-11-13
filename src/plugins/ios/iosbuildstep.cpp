@@ -95,7 +95,7 @@ void IosBuildStep::ctor()
                                                       IOS_BUILD_STEP_DISPLAY_NAME));
 }
 
-bool IosBuildStep::init()
+bool IosBuildStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
@@ -135,7 +135,7 @@ bool IosBuildStep::init()
         appendOutputParser(parser);
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 void IosBuildStep::setClean(bool clean)

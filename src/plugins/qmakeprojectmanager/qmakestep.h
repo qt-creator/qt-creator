@@ -131,7 +131,7 @@ public:
     explicit QMakeStep(ProjectExplorer::BuildStepList *parent);
 
     QmakeBuildConfiguration *qmakeBuildConfiguration() const;
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override;

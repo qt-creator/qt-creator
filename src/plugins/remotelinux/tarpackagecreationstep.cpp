@@ -130,9 +130,9 @@ void TarPackageCreationStep::ctor()
     m_ignoreMissingFiles = false;
 }
 
-bool TarPackageCreationStep::init()
+bool TarPackageCreationStep::init(QList<const BuildStep *> &earlierSteps)
 {
-    if (!AbstractPackagingStep::init())
+    if (!AbstractPackagingStep::init(earlierSteps))
         return false;
     m_packagingNeeded = isPackagingNeeded();
     if (m_packagingNeeded)

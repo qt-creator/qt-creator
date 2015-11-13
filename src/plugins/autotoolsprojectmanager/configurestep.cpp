@@ -166,7 +166,7 @@ void ConfigureStep::ctor()
     setDefaultDisplayName(tr("Configure"));
 }
 
-bool ConfigureStep::init()
+bool ConfigureStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
 
@@ -178,7 +178,7 @@ bool ConfigureStep::init()
     pp->setArguments(additionalArguments());
     pp->resolveAll();
 
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 void ConfigureStep::run(QFutureInterface<bool>& interface)

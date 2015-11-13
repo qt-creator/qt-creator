@@ -77,7 +77,7 @@ protected:
 
 protected:
     void ctor();
-    bool init() override;
+    bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
     void processStarted() override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
