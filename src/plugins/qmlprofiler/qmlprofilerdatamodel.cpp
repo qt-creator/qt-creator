@@ -267,14 +267,6 @@ void QmlProfilerDataModel::addQmlEvent(QmlDebug::Message message, QmlDebug::Rang
     QString displayName;
 
     QmlEventTypeData typeData = {displayName, location, message, rangeType, detailType, data};
-
-    // Special case for QtQuick 1 Compiling and Creating events: filename is in the "data" field.
-    if ((rangeType == QmlDebug::Compiling || rangeType == QmlDebug::Creating) &&
-            location.filename.isEmpty()) {
-        typeData.location.filename = data;
-        typeData.location.line = typeData.location.column = 1;
-    }
-
     QmlEventData eventData = {-1, startTime, duration, ndata1, ndata2, ndata3, ndata4, ndata5};
 
     QHash<QmlEventTypeData, int>::Iterator it = d->eventTypeIds.find(typeData);
