@@ -68,7 +68,6 @@ private:
     QCheckBox *checkBoxUseAlternatingRowColors;
     QCheckBox *checkBoxFontSizeFollowsEditor;
     QCheckBox *checkBoxUseToolTipsInMainEditor;
-    QCheckBox *checkBoxListSourceFiles;
     QCheckBox *checkBoxCloseSourceBuffersOnExit;
     QCheckBox *checkBoxCloseMemoryBuffersOnExit;
     QCheckBox *checkBoxSwitchModeOnExit;
