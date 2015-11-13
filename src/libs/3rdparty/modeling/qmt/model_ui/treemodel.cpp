@@ -426,7 +426,7 @@ MElement *TreeModel::element(const QModelIndex &index) const
     return element;
 }
 
-QModelIndex TreeModel::index(const MElement *element) const
+QModelIndex TreeModel::indexOf(const MElement *element) const
 {
     if (const MObject *object = dynamic_cast<const MObject *>(element)) {
         if (!object->owner()) {

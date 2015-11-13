@@ -690,7 +690,7 @@ void ModelEditor::onAddPackage()
     ExtDocumentController *documentController = d->document->documentController();
 
     qmt::MPackage *package = documentController->createNewPackage(d->modelTreeViewServant->selectedPackage());
-    d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->index(package));
+    d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->indexOf(package));
     QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
 }
 
@@ -699,7 +699,7 @@ void ModelEditor::onAddComponent()
     ExtDocumentController *documentController = d->document->documentController();
 
     qmt::MComponent *component = documentController->createNewComponent(d->modelTreeViewServant->selectedPackage());
-    d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->index(component));
+    d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->indexOf(component));
     QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
 }
 
@@ -708,7 +708,7 @@ void ModelEditor::onAddClass()
     ExtDocumentController *documentController = d->document->documentController();
 
     qmt::MClass *klass = documentController->createNewClass(d->modelTreeViewServant->selectedPackage());
-    d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->index(klass));
+    d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->indexOf(klass));
     QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
 }
 
@@ -717,7 +717,7 @@ void ModelEditor::onAddCanvasDiagram()
     ExtDocumentController *documentController = d->document->documentController();
 
     qmt::MDiagram *diagram = documentController->createNewCanvasDiagram(d->modelTreeViewServant->selectedPackage());
-    d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->index(diagram));
+    d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->indexOf(diagram));
     QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
 }
 
@@ -1035,7 +1035,7 @@ void ModelEditor::onContentSet()
     qmt::MDiagram *rootDiagram = documentController->findOrCreateRootDiagram();
     showDiagram(rootDiagram);
     // select diagram in model tree view
-    QModelIndex modelIndex = documentController->treeModel()->index(rootDiagram);
+    QModelIndex modelIndex = documentController->treeModel()->indexOf(rootDiagram);
     if (modelIndex.isValid())
         d->modelTreeView->selectFromSourceModelIndex(modelIndex);
 

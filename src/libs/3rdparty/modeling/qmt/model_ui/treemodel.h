@@ -99,7 +99,7 @@ public:
 
     MElement *element(const QModelIndex &index) const;
 
-    QModelIndex index(const MElement *element) const;
+    QModelIndex indexOf(const MElement *element) const;
 
     QIcon icon(const QModelIndex &index) const;
 
