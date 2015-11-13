@@ -171,13 +171,13 @@ void PixmapCacheModel::loadData()
 
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
-        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex];
+        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex()];
         if (!accepted(type))
             continue;
 
         PixmapCacheEvent newEvent;
         newEvent.pixmapEventType = static_cast<PixmapEventType>(type.detailType);
-        qint64 pixmapStartTime = event.startTime;
+        qint64 pixmapStartTime = event.startTime();
 
         newEvent.urlIndex = -1;
         for (QVector<Pixmap>::const_iterator it(m_pixmaps.cend()); it != m_pixmaps.cbegin();) {
@@ -206,31 +206,31 @@ void PixmapCacheModel::loadData()
                 // We can't have cached it before we knew the size
                 Q_ASSERT(i->cacheState != Cached);
 
-                i->size.setWidth(event.numericData1);
-                i->size.setHeight(event.numericData2);
+                i->size.setWidth(event.numericData(0));
+                i->size.setHeight(event.numericData(1));
                 newEvent.sizeIndex = i - pixmap.sizes.begin();
                 break;
             }
 
             if (newEvent.sizeIndex == -1) {
                 newEvent.sizeIndex = pixmap.sizes.length();
-                pixmap.sizes << PixmapState(event.numericData1, event.numericData2);
+                pixmap.sizes << PixmapState(event.numericData(0), event.numericData(1));
             }
 
             PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
             if (state.cacheState == ToBeCached) {
                 lastCacheSizeEvent = updateCacheCount(lastCacheSizeEvent, pixmapStartTime,
                                               state.size.width() * state.size.height(), newEvent,
-                                              event.typeIndex);
+                                              event.typeIndex());
                 state.cacheState = Cached;
             }
             break;
         }
         case PixmapCacheCountChanged: {// Cache Size Changed Event
-            pixmapStartTime = event.startTime + 1; // delay 1 ns for proper sorting
+            pixmapStartTime = event.startTime() + 1; // delay 1 ns for proper sorting
 
-            bool uncache = cumulatedCount > event.numericData3;
-            cumulatedCount = event.numericData3;
+            bool uncache = cumulatedCount > event.numericData(2);
+            cumulatedCount = event.numericData(2);
             qint64 pixSize = 0;
 
             // First try to find a preferred pixmap, which either is Corrupt and will be uncached
@@ -281,7 +281,7 @@ void PixmapCacheModel::loadData()
             }
 
             lastCacheSizeEvent = updateCacheCount(lastCacheSizeEvent, pixmapStartTime, pixSize,
-                                                  newEvent, event.typeIndex);
+                                                  newEvent, event.typeIndex());
             break;
         }
         case PixmapLoadingStarted: { // Load
@@ -301,7 +301,7 @@ void PixmapCacheModel::loadData()
 
             PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
             state.loadState = Loading;
-            newEvent.typeId = event.typeIndex;
+            newEvent.typeId = event.typeIndex();
             state.started = insertStart(pixmapStartTime, newEvent.urlIndex + 1);
             m_data.insert(state.started, newEvent);
             break;
@@ -346,7 +346,7 @@ void PixmapCacheModel::loadData()
             // If the pixmap loading wasn't started, start it at traceStartTime()
             if (state.loadState == Initial) {
                 newEvent.pixmapEventType = PixmapLoadingStarted;
-                newEvent.typeId = event.typeIndex;
+                newEvent.typeId = event.typeIndex();
                 qint64 traceStart = modelManager()->traceTime()->startTime();
                 state.started = insert(traceStart, pixmapStartTime - traceStart,
                                        newEvent.urlIndex + 1);

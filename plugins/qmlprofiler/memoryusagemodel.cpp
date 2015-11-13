@@ -157,13 +157,13 @@ void MemoryUsageModel::loadData()
 
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
-        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex];
-        while (!rangeStack.empty() && rangeStack.top().endTime < event.startTime)
+        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex()];
+        while (!rangeStack.empty() && rangeStack.top().endTime < event.startTime())
             rangeStack.pop();
         if (!accepted(type)) {
             if (type.rangeType != QmlDebug::MaximumRangeType) {
-                rangeStack.push(RangeStackFrame(event.typeIndex, event.startTime,
-                                                event.startTime + event.duration));
+                rangeStack.push(RangeStackFrame(event.typeIndex(), event.startTime(),
+                                                event.startTime() + event.duration()));
             }
             continue;
         }
@@ -173,19 +173,19 @@ void MemoryUsageModel::loadData()
                     type.detailType == selectionId(currentUsageIndex) &&
                     m_data[currentUsageIndex].originTypeIndex == rangeStack.top().originTypeIndex &&
                     rangeStack.top().startTime < startTime(currentUsageIndex)) {
-                m_data[currentUsageIndex].update(event.numericData1);
+                m_data[currentUsageIndex].update(event.numericData(0));
                 currentUsage = m_data[currentUsageIndex].size;
             } else {
-                MemoryAllocation allocation(event.typeIndex, currentUsage,
+                MemoryAllocation allocation(event.typeIndex(), currentUsage,
                         rangeStack.empty() ? -1 : rangeStack.top().originTypeIndex);
-                allocation.update(event.numericData1);
+                allocation.update(event.numericData(0));
                 currentUsage = allocation.size;
 
                 if (currentUsageIndex != -1) {
                     insertEnd(currentUsageIndex,
-                              event.startTime - startTime(currentUsageIndex) - 1);
+                              event.startTime() - startTime(currentUsageIndex) - 1);
                 }
-                currentUsageIndex = insertStart(event.startTime, QmlDebug::SmallItem);
+                currentUsageIndex = insertStart(event.startTime(), QmlDebug::SmallItem);
                 m_data.insert(currentUsageIndex, allocation);
             }
         }
@@ -196,20 +196,20 @@ void MemoryUsageModel::loadData()
                     m_data[currentJSHeapIndex].originTypeIndex ==
                     rangeStack.top().originTypeIndex &&
                     rangeStack.top().startTime < startTime(currentJSHeapIndex)) {
-                m_data[currentJSHeapIndex].update(event.numericData1);
+                m_data[currentJSHeapIndex].update(event.numericData(0));
                 currentSize = m_data[currentJSHeapIndex].size;
             } else {
-                MemoryAllocation allocation(event.typeIndex, currentSize,
+                MemoryAllocation allocation(event.typeIndex(), currentSize,
                         rangeStack.empty() ? -1 : rangeStack.top().originTypeIndex);
-                allocation.update(event.numericData1);
+                allocation.update(event.numericData(0));
                 currentSize = allocation.size;
 
                 if (currentSize > m_maxSize)
                     m_maxSize = currentSize;
                 if (currentJSHeapIndex != -1)
                     insertEnd(currentJSHeapIndex,
-                              event.startTime - startTime(currentJSHeapIndex) - 1);
-                currentJSHeapIndex = insertStart(event.startTime, type.detailType);
+                              event.startTime() - startTime(currentJSHeapIndex) - 1);
+                currentJSHeapIndex = insertStart(event.startTime(), type.detailType);
                 m_data.insert(currentJSHeapIndex, allocation);
             }
         }

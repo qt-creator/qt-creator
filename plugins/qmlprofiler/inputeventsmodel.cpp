@@ -142,19 +142,19 @@ void InputEventsModel::loadData()
 
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
-        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex];
+        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex()];
         if (!accepted(type))
             continue;
 
-        m_data.insert(insert(event.startTime, 0, type.detailType),
-                      InputEvent(static_cast<QmlDebug::InputEventType>(event.numericData1),
-                                 event.numericData2, event.numericData3));
+        m_data.insert(insert(event.startTime(), 0, type.detailType),
+                      InputEvent(static_cast<QmlDebug::InputEventType>(event.numericData(0)),
+                                 event.numericData(1), event.numericData(2)));
 
         if (type.detailType == QmlDebug::Mouse) {
             if (m_mouseTypeId == -1)
-                m_mouseTypeId = event.typeIndex;
+                m_mouseTypeId = event.typeIndex();
         } else if (m_keyTypeId == -1) {
-            m_keyTypeId = event.typeIndex;
+            m_keyTypeId = event.typeIndex();
         }
         updateProgress(count(), simpleModel->getEvents().count());
     }

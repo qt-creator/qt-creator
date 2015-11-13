@@ -136,7 +136,7 @@ void SceneGraphTimelineModel::loadData()
     // combine the data of several eventtypes into two rows
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
-        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex];
+        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex()];
         if (!accepted(type))
             continue;
 
@@ -146,70 +146,70 @@ void SceneGraphTimelineModel::loadData()
             // look incomplete if that was left out as the printf profiler lists it, too, and people
             // are apparently comparing that. Unfortunately it is somewhat redundant as the other
             // parts of the breakdown are usually very short.
-            qint64 startTime = event.startTime - event.numericData1 - event.numericData2 -
-                    event.numericData3 - event.numericData4;
-            startTime += insert(startTime, event.numericData1, event.typeIndex, RenderPreprocess);
-            startTime += insert(startTime, event.numericData2, event.typeIndex, RenderUpdate);
-            startTime += insert(startTime, event.numericData3, event.typeIndex, RenderBind);
-            insert(startTime, event.numericData4, event.typeIndex, RenderRender);
+            qint64 startTime = event.startTime() - event.numericData(0) - event.numericData(1) -
+                    event.numericData(2) - event.numericData(3);
+            startTime += insert(startTime, event.numericData(0), event.typeIndex(), RenderPreprocess);
+            startTime += insert(startTime, event.numericData(1), event.typeIndex(), RenderUpdate);
+            startTime += insert(startTime, event.numericData(2), event.typeIndex(), RenderBind);
+            insert(startTime, event.numericData(3), event.typeIndex(), RenderRender);
             break;
         }
         case QmlDebug::SceneGraphAdaptationLayerFrame: {
-            qint64 startTime = event.startTime - event.numericData2 - event.numericData3;
-            startTime += insert(startTime, event.numericData2, event.typeIndex, GlyphRender,
-                                event.numericData1);
-            insert(startTime, event.numericData3, event.typeIndex, GlyphStore, event.numericData1);
+            qint64 startTime = event.startTime() - event.numericData(1) - event.numericData(2);
+            startTime += insert(startTime, event.numericData(1), event.typeIndex(), GlyphRender,
+                                event.numericData(0));
+            insert(startTime, event.numericData(2), event.typeIndex(), GlyphStore, event.numericData(0));
             break;
         }
         case QmlDebug::SceneGraphContextFrame: {
-            insert(event.startTime - event.numericData1, event.numericData1, event.typeIndex,
+            insert(event.startTime() - event.numericData(0), event.numericData(0), event.typeIndex(),
                       Material);
             break;
         }
         case QmlDebug::SceneGraphRenderLoopFrame: {
-            qint64 startTime = event.startTime - event.numericData1 - event.numericData2 -
-                    event.numericData3;
-            startTime += insert(startTime, event.numericData1, event.typeIndex,
+            qint64 startTime = event.startTime() - event.numericData(0) - event.numericData(1) -
+                    event.numericData(2);
+            startTime += insert(startTime, event.numericData(0), event.typeIndex(),
                                    RenderThreadSync);
-            startTime += insert(startTime, event.numericData2, event.typeIndex,
+            startTime += insert(startTime, event.numericData(1), event.typeIndex(),
                                    Render);
-            insert(startTime, event.numericData3, event.typeIndex, Swap);
+            insert(startTime, event.numericData(2), event.typeIndex(), Swap);
             break;
         }
         case QmlDebug::SceneGraphTexturePrepare: {
-            qint64 startTime = event.startTime - event.numericData1 - event.numericData2 -
-                    event.numericData3 - event.numericData4 - event.numericData5;
-            startTime += insert(startTime, event.numericData1, event.typeIndex, TextureBind);
-            startTime += insert(startTime, event.numericData2, event.typeIndex, TextureConvert);
-            startTime += insert(startTime, event.numericData3, event.typeIndex, TextureSwizzle);
-            startTime += insert(startTime, event.numericData4, event.typeIndex, TextureUpload);
-            insert(startTime, event.numericData5, event.typeIndex, TextureMipmap);
+            qint64 startTime = event.startTime() - event.numericData(0) - event.numericData(1) -
+                    event.numericData(2) - event.numericData(3) - event.numericData(4);
+            startTime += insert(startTime, event.numericData(0), event.typeIndex(), TextureBind);
+            startTime += insert(startTime, event.numericData(1), event.typeIndex(), TextureConvert);
+            startTime += insert(startTime, event.numericData(2), event.typeIndex(), TextureSwizzle);
+            startTime += insert(startTime, event.numericData(3), event.typeIndex(), TextureUpload);
+            insert(startTime, event.numericData(4), event.typeIndex(), TextureMipmap);
             break;
         }
         case QmlDebug::SceneGraphTextureDeletion: {
-            insert(event.startTime - event.numericData1, event.numericData1, event.typeIndex,
+            insert(event.startTime() - event.numericData(0), event.numericData(0), event.typeIndex(),
                    TextureDeletion);
             break;
         }
         case QmlDebug::SceneGraphPolishAndSync: {
-            qint64 startTime = event.startTime - event.numericData1 - event.numericData2 -
-                    event.numericData3 - event.numericData4;
+            qint64 startTime = event.startTime() - event.numericData(0) - event.numericData(1) -
+                    event.numericData(2) - event.numericData(3);
 
-            startTime += insert(startTime, event.numericData1, event.typeIndex, Polish);
-            startTime += insert(startTime, event.numericData2, event.typeIndex, Wait);
-            startTime += insert(startTime, event.numericData3, event.typeIndex, GUIThreadSync);
-            insert(startTime, event.numericData4, event.typeIndex, Animations);
+            startTime += insert(startTime, event.numericData(0), event.typeIndex(), Polish);
+            startTime += insert(startTime, event.numericData(1), event.typeIndex(), Wait);
+            startTime += insert(startTime, event.numericData(2), event.typeIndex(), GUIThreadSync);
+            insert(startTime, event.numericData(3), event.typeIndex(), Animations);
             break;
         }
         case QmlDebug::SceneGraphWindowsAnimations: {
             // GUI thread, separate animations stage
-            insert(event.startTime - event.numericData1, event.numericData1, event.typeIndex,
+            insert(event.startTime() - event.numericData(0), event.numericData(0), event.typeIndex(),
                    Animations);
             break;
         }
         case QmlDebug::SceneGraphPolishFrame: {
             // GUI thread, separate polish stage
-            insert(event.startTime - event.numericData1, event.numericData1, event.typeIndex,
+            insert(event.startTime() - event.numericData(0), event.numericData(0), event.typeIndex(),
                    Polish);
             break;
         }
