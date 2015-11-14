@@ -54,9 +54,8 @@ void StereotypeIcon::setId(const QString &id)
 
 QString StereotypeIcon::title() const
 {
-    if (m_title.isEmpty()) {
+    if (m_title.isEmpty())
         return m_id;
-    }
     return m_title;
 }
 

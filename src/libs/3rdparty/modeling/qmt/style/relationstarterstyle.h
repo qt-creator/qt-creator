@@ -35,15 +35,13 @@
 
 namespace qmt {
 
-class QMT_EXPORT RelationStarterStyle :
-        public Style
+class QMT_EXPORT RelationStarterStyle : public Style
 {
 public:
     RelationStarterStyle();
-
     ~RelationStarterStyle();
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_RELATIONSTARTERSTYLE_H

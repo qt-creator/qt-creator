@@ -42,7 +42,6 @@ QT_BEGIN_NAMESPACE
 class QModelIndex;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class MDiagram;
@@ -57,79 +56,50 @@ class TreeModel;
 class DiagramsViewInterface;
 class DiagramSceneModel;
 
-
-class QMT_EXPORT DiagramsManager :
-        public QObject
+class QMT_EXPORT DiagramsManager : public QObject
 {
     Q_OBJECT
-
     class ManagedDiagram;
 
 public:
-
     explicit DiagramsManager(QObject *parent = 0);
-
     ~DiagramsManager();
 
 signals:
-
     void someDiagramOpened(bool);
-
     void diagramActivated(const MDiagram *diagram);
-
     void diagramSelectionChanged(const MDiagram *diagram);
 
 public:
-
     void setModel(TreeModel *model);
-
     void setDiagramsView(DiagramsViewInterface *diagramsView);
-
     void setDiagramController(DiagramController *diagramController);
-
     void setDiagramSceneController(DiagramSceneController *diagramSceneController);
-
     void setStyleController(StyleController *styleController);
-
     void setStereotypeController(StereotypeController *stereotypeController);
 
-public:
-
     DiagramSceneModel *bindDiagramSceneModel(MDiagram *diagram);
-
     DiagramSceneModel *diagramSceneModel(const MDiagram *diagram) const;
-
     void unbindDiagramSceneModel(const MDiagram *diagram);
 
 public slots:
-
     void openDiagram(MDiagram *diagram);
-
     void removeDiagram(const MDiagram *diagram);
-
     void removeAllDiagrams();
 
 private slots:
-
     void onDataChanged(const QModelIndex &topleft, const QModelIndex &bottomright);
 
 private:
-
     QPointer<TreeModel> m_model;
-
     DiagramsViewInterface *m_diagramsView;
-
     DiagramController *m_diagramController;
-
     DiagramSceneController *m_diagramSceneController;
-
     StyleController *m_styleController;
-
     StereotypeController *m_stereotypeController;
-
     QHash<Uid, ManagedDiagram *> m_diagramUidToManagedDiagramMap;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DIAGRAMSMANAGER_H

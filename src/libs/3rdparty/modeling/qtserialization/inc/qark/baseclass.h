@@ -36,11 +36,11 @@
 
 #include <QString>
 
-
 namespace qark {
 
 template<class BASE, class DERIVED>
-class Base {
+class Base
+{
 public:
     Base(const QString &qualifiedName, DERIVED &obj)
         : m_qualifiedName(qualifiedName),
@@ -56,11 +56,8 @@ public:
     }
 
     const QString &qualifiedName() const { return m_qualifiedName; }
-
     const BASE &base() const { return m_base; }
-
     BASE &base() { return m_base; }
-
     Parameters parameters() const { return m_parameters; }
 
 private:
@@ -105,6 +102,6 @@ Base<BASE, DERIVED> base(DERIVED &obj, const Parameters &parameters)
     return Base<BASE, DERIVED>(QString(QStringLiteral("base-%1")).arg(typeUid<BASE>()), obj, parameters);
 }
 
-}
+} // namespace qark
 
 #endif // QARK_BASECLASS_H

@@ -85,11 +85,10 @@ void TemplateParameterBox::updateText()
     bool first = true;
     foreach (const QString &parameter, m_templateParameters) {
         if (!first) {
-            if (m_breakLines) {
+            if (m_breakLines)
                 templateText += QLatin1Char('\n');
-            } else {
+            else
                 templateText += QStringLiteral(", ");
-            }
         }
         templateText += parameter;
         first = false;

@@ -33,19 +33,17 @@
 
 namespace qmt {
 
-class ISelectable {
+class ISelectable
+{
 public:
     virtual ~ISelectable() { }
 
     virtual bool isSecondarySelected() const = 0;
-
     virtual void setSecondarySelected(bool secondarySelected) = 0;
-
     virtual bool isFocusSelected() const = 0;
-
     virtual void setFocusSelected(bool focusSelected) = 0;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_SELECTABLE_H

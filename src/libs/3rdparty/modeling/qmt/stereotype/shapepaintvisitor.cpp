@@ -145,7 +145,6 @@ void ShapePaintVisitor::visitPath(const PathShape *shapePath)
     m_painter->restore();
 }
 
-
 ShapeSizeVisitor::ShapeSizeVisitor(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize, const QSizeF &size)
     : m_scaledOrigin(scaledOrigin),
       m_originalSize(originalSize),
@@ -229,6 +228,5 @@ void ShapeSizeVisitor::visitPath(const PathShape *shapePath)
     }
     m_boundingRect |= path.boundingRect();
 }
-
 
 } // namespace qmt

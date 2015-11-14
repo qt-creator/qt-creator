@@ -43,11 +43,9 @@
 #include "qmt/model/mdependency.h"
 #include "qmt/model/minheritance.h"
 
-#include <qglobal.h>
-
+#include <QtGlobal>
 
 namespace qmt {
-
 
 MVoidVisitor::MVoidVisitor()
 {
@@ -113,9 +111,6 @@ void MVoidVisitor::visitMAssociation(MAssociation *association)
     visitMRelation(association);
 }
 
-
-
-
 MVoidConstVisitor::MVoidConstVisitor()
 {
 }
@@ -180,4 +175,4 @@ void MVoidConstVisitor::visitMAssociation(const MAssociation *association)
     visitMRelation(association);
 }
 
-}
+} // namespace qmt

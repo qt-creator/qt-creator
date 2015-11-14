@@ -33,32 +33,23 @@
 
 #include "dobject.h"
 
-
 namespace qmt {
 
-class QMT_EXPORT DComponent :
-        public DObject
+class QMT_EXPORT DComponent : public DObject
 {
 public:
     DComponent();
 
-public:
-
     bool isPlainShape() const { return m_isPlainShape; }
-
     void setPlainShape(bool planeShape);
 
-public:
-
     virtual void accept(DVisitor *visitor);
-
     virtual void accept(DConstVisitor *visitor) const;
 
 private:
-
     bool m_isPlainShape;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DCOMPONENT_H

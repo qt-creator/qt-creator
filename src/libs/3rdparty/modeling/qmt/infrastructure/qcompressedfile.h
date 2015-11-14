@@ -36,51 +36,34 @@
 
 namespace qmt {
 
-class QCompressedDevice :
-        public QIODevice
+class QCompressedDevice : public QIODevice
 {
     Q_OBJECT
 
 public:
-
     explicit QCompressedDevice(QObject *parent = 0);
-
     explicit QCompressedDevice(QIODevice *targetDevice, QObject *parent = 0);
-
     ~QCompressedDevice();
 
-public:
-
     QIODevice *targetDevice() const { return m_targetDevice; }
-
     void setTargetDevice(QIODevice *targetDevice);
-
-public:
 
     void close();
 
 protected:
-
     qint64 readData(char *data, qint64 maxlen);
-
     qint64 writeData(const char *data, qint64 len);
 
 public:
-
     qint64 flush();
 
 private:
-
     QIODevice *m_targetDevice;
-
     QByteArray m_buffer;
-
     qint64 m_bytesInBuffer;
-
     qint64 m_indexInBuffer;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QCOMPRESSEDDEVICE_H

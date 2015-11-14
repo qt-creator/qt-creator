@@ -33,7 +33,6 @@
 #include "dvisitor.h"
 #include "dconstvisitor.h"
 
-
 namespace qmt {
 
 DRelation::IntermediatePoint::IntermediatePoint(const QPointF &pos)
@@ -50,7 +49,6 @@ bool operator==(const DRelation::IntermediatePoint &lhs, const DRelation::Interm
 {
     return lhs.pos() == rhs.pos();
 }
-
 
 DRelation::DRelation()
     : DElement(),
@@ -94,4 +92,4 @@ void DRelation::setIntermediatePoints(const QList<DRelation::IntermediatePoint> 
     m_intermediatePoints = intermediatePoints;
 }
 
-}
+} // namespace qmt

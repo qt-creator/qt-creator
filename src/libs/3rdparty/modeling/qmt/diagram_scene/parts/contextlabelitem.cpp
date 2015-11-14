@@ -89,4 +89,4 @@ void ContextLabelItem::update()
     }
 }
 
-}
+} // namespace qmt

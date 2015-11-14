@@ -33,14 +33,12 @@
 #include "mvisitor.h"
 #include "mconstvisitor.h"
 
-
 namespace qmt {
 
 void MExpansion::assign(MElement *lhs, const MElement &rhs)
 {
-    if (lhs->m_expansion) {
+    if (lhs->m_expansion)
         lhs->m_expansion->destroy(lhs);
-    }
     lhs->m_expansion = clone(rhs);
 }
 
@@ -50,7 +48,6 @@ void MExpansion::destroy(MElement *element)
 
     delete this;
 }
-
 
 MElement::MElement()
     : m_owner(0),
@@ -68,9 +65,8 @@ MElement::MElement(const MElement &rhs)
 
 MElement::~MElement()
 {
-    if (m_expansion) {
+    if (m_expansion)
         m_expansion->destroy(this);
-    }
 }
 
 MElement &MElement::operator=(const MElement &rhs)
@@ -78,9 +74,8 @@ MElement &MElement::operator=(const MElement &rhs)
     if (this != &rhs) {
         m_uid = rhs.m_uid;
         // owner is intentionally left unchanged
-        if (rhs.m_expansion) {
+        if (rhs.m_expansion)
             rhs.m_expansion->assign(this, rhs);
-        }
         m_stereotypes = rhs.m_stereotypes;
     }
     return *this;
@@ -103,9 +98,8 @@ void MElement::setOwner(MObject *owner)
 
 void MElement::setExpansion(MExpansion *expansion)
 {
-    if (m_expansion) {
+    if (m_expansion)
         m_expansion->destroy(this);
-    }
     m_expansion = expansion;
 }
 
@@ -129,4 +123,4 @@ void MElement::accept(MConstVisitor *visitor) const
     visitor->visitMElement(this);
 }
 
-}
+} // namespace qmt

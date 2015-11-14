@@ -83,9 +83,8 @@ QList<QString> StereotypeController::knownStereotypes(StereotypeIcon::Element st
 {
     QSet<QString> stereotypes;
     foreach (const StereotypeIcon &icon, d->m_iconIdToStereotypeIconsMap.values()) {
-        if (icon.elements().isEmpty() || icon.elements().contains(stereotypeElement)) {
+        if (icon.elements().isEmpty() || icon.elements().contains(stereotypeElement))
             stereotypes += icon.stereotypes();
-        }
     }
     QList<QString> list = stereotypes.toList();
     std::sort(list.begin(), list.end());
@@ -95,24 +94,21 @@ QList<QString> StereotypeController::knownStereotypes(StereotypeIcon::Element st
 QString StereotypeController::findStereotypeIconId(StereotypeIcon::Element element, const QList<QString> &stereotypes) const
 {
     foreach (const QString &stereotype, stereotypes) {
-        if (d->m_stereotypeToIconIdMap.contains(qMakePair(element, stereotype))) {
+        if (d->m_stereotypeToIconIdMap.contains(qMakePair(element, stereotype)))
             return d->m_stereotypeToIconIdMap.value(qMakePair(element, stereotype));
-        } else if (d->m_stereotypeToIconIdMap.contains(qMakePair(StereotypeIcon::ElementAny, stereotype))) {
+        else if (d->m_stereotypeToIconIdMap.contains(qMakePair(StereotypeIcon::ElementAny, stereotype)))
             return d->m_stereotypeToIconIdMap.value(qMakePair(StereotypeIcon::ElementAny, stereotype));
-        }
     }
     return QString();
 }
 
 QList<QString> StereotypeController::filterStereotypesByIconId(const QString &stereotypeIconId, const QList<QString> &stereotypes) const
 {
-    if (!d->m_iconIdToStereotypeIconsMap.contains(stereotypeIconId)) {
+    if (!d->m_iconIdToStereotypeIconsMap.contains(stereotypeIconId))
         return stereotypes;
-    }
     QList<QString> filteredStereotypes = stereotypes;
-    foreach (const QString &stereotype, d->m_iconIdToStereotypeIconsMap.value(stereotypeIconId).stereotypes()) {
+    foreach (const QString &stereotype, d->m_iconIdToStereotypeIconsMap.value(stereotypeIconId).stereotypes())
         filteredStereotypes.removeAll(stereotype);
-    }
     return filteredStereotypes;
 }
 
@@ -137,11 +133,10 @@ QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QL
         qreal height = size.height() - margins.top() - margins.bottom();
         qreal ratioWidth = height * stereotypeIcon.width() / stereotypeIcon.height();
         qreal ratioHeight = width * stereotypeIcon.height() / stereotypeIcon.width();
-        if (ratioWidth > width) {
+        if (ratioWidth > width)
             height = ratioHeight;
-        } else if (ratioHeight > height) {
+        else if (ratioHeight > height)
             width = ratioWidth;
-        }
         QSizeF shapeSize(width, height);
 
         ShapeSizeVisitor sizeVisitor(QPointF(0.0, 0.0),
@@ -169,9 +164,8 @@ QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QL
         iconPainter.drawPixmap((iconPixmap.width() - pixmap.width()) / 2, (iconPixmap.width() - pixmap.height()) / 2, pixmap);
         icon = QIcon(iconPixmap);
     }
-    if (icon.isNull() && !defaultIconPath.isEmpty()) {
+    if (icon.isNull() && !defaultIconPath.isEmpty())
         icon = QIcon(defaultIconPath);
-    }
     return icon;
 
 }
@@ -179,14 +173,12 @@ QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QL
 void StereotypeController::addStereotypeIcon(const StereotypeIcon &stereotypeIcon)
 {
     if (stereotypeIcon.elements().isEmpty()) {
-        foreach (const QString &stereotype, stereotypeIcon.stereotypes()) {
+        foreach (const QString &stereotype, stereotypeIcon.stereotypes())
             d->m_stereotypeToIconIdMap.insert(qMakePair(StereotypeIcon::ElementAny, stereotype), stereotypeIcon.id());
-        }
     } else {
         foreach (StereotypeIcon::Element element, stereotypeIcon.elements()) {
-            foreach (const QString &stereotype, stereotypeIcon.stereotypes()) {
+            foreach (const QString &stereotype, stereotypeIcon.stereotypes())
                 d->m_stereotypeToIconIdMap.insert(qMakePair(element, stereotype), stereotypeIcon.id());
-            }
         }
     }
     d->m_iconIdToStereotypeIconsMap.insert(stereotypeIcon.id(), stereotypeIcon);

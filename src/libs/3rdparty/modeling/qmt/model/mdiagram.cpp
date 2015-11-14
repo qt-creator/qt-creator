@@ -34,7 +34,6 @@
 #include "mconstvisitor.h"
 #include "qmt/diagram/delement.h"
 
-
 namespace qmt {
 
 MDiagram::MDiagram()
@@ -72,9 +71,8 @@ DElement *MDiagram::findDiagramElement(const Uid &key) const
 {
     // PERFORM introduce map for better performance
     foreach (DElement *element, m_elements) {
-        if (element->uid() == key) {
+        if (element->uid() == key)
             return element;
-        }
     }
     return 0;
 }
@@ -133,4 +131,4 @@ void MDiagram::accept(MConstVisitor *visitor) const
     visitor->visitMDiagram(this);
 }
 
-}
+} // namespace qmt

@@ -34,7 +34,6 @@
 #include "mvisitor.h"
 #include "mconstvisitor.h"
 
-
 namespace qmt {
 
 MInheritance::MInheritance()
@@ -53,9 +52,8 @@ MInheritance::~MInheritance()
 
 MInheritance MInheritance::operator =(const MInheritance &rhs)
 {
-    if (this != &rhs) {
+    if (this != &rhs)
         MRelation::operator=(rhs);
-    }
     return *this;
 }
 
@@ -89,4 +87,4 @@ void MInheritance::accept(MConstVisitor *visitor) const
     visitor->visitMInheritance(this);
 }
 
-}
+} // namespace qmt

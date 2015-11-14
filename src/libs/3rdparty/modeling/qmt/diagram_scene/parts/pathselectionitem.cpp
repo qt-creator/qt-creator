@@ -44,19 +44,14 @@ namespace qmt {
 
 static const double MAX_SELECTION_DISTANCE_FROM_PATH = 4.0;
 
-
-class PathSelectionItem::GraphicsHandleItem :
-        public QGraphicsRectItem
+class PathSelectionItem::GraphicsHandleItem : public QGraphicsRectItem
 {
 public:
-
     enum Selection {
         NotSelected,
         Selected,
         SecondarySelected
     };
-
-public:
 
     GraphicsHandleItem(int pointIndex, PathSelectionItem *parent)
         : QGraphicsRectItem(parent),
@@ -65,8 +60,6 @@ public:
           m_selection(NotSelected)
     {
     }
-
-public:
 
     void setPointSize(const QSizeF &pointSize)
     {
@@ -85,7 +78,6 @@ public:
     }
 
 protected:
-
     void mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
         m_startPos = mapToScene(event->pos());
@@ -106,7 +98,6 @@ protected:
     }
 
 private:
-
     void update()
     {
         prepareGeometryChange();
@@ -127,23 +118,13 @@ private:
         }
     }
 
-private:
-
     PathSelectionItem *m_owner;
-
     int m_pointIndex;
-
     QSizeF m_pointSize;
-
     Selection m_selection;
-
     QPointF m_startPos;
-
     PathSelectionItem::HandleQualifier m_qualifier;
-
 };
-
-
 
 PathSelectionItem::PathSelectionItem(IWindable *windable, QGraphicsItem *parent)
     : QGraphicsItem(parent),
@@ -181,14 +162,12 @@ QPainterPath PathSelectionItem::shape() const
 {
     QPainterPath shape;
     shape.setFillRule(Qt::WindingFill);
-    foreach (const GraphicsHandleItem *handle, m_handles) {
+    foreach (const GraphicsHandleItem *handle, m_handles)
         shape.addPath(handle->shape());
-    }
     // TODO duplicate of ArrowItem::GraphicsShaftItem's shape
     QPolygonF polygon;
-    for (int i = 0; i < m_handles.size(); ++i) {
+    for (int i = 0; i < m_handles.size(); ++i)
         polygon.append(m_handles.at(i)->pos());
-    }
     QPainterPath polygonPath;
     polygonPath.addPolygon(polygon);
     QPainterPathStroker ps;
@@ -209,9 +188,8 @@ void PathSelectionItem::setPointSize(const QSizeF &size)
 QList<QPointF> PathSelectionItem::points() const
 {
     QList<QPointF> points;
-    foreach (GraphicsHandleItem *handle, m_handles) {
+    foreach (GraphicsHandleItem *handle, m_handles)
         points.append(handle->pos());
-    }
     return points;
 }
 
@@ -282,22 +260,19 @@ void PathSelectionItem::moveHandle(int pointIndex, const QPointF &deltaMove, Han
     switch (handleQualifier) {
     case None:
     {
-        if (handleStatus == Press) {
+        if (handleStatus == Press)
             m_originalHandlePos = m_windable->handlePos(pointIndex);
-        }
         QPointF newPos = m_originalHandlePos + deltaMove;
         m_windable->setHandlePos(pointIndex, newPos);
-        if (handleStatus == Release) {
+        if (handleStatus == Release)
             m_windable->alignHandleToRaster(pointIndex, RASTER_WIDTH, RASTER_HEIGHT);
-        }
         break;
     }
     case DeleteHandle:
-        if (handleStatus == Press) {
+        if (handleStatus == Press)
             m_windable->deleteHandle(pointIndex);
-        }
         break;
     }
 }
 
-}
+} // namespace qmt

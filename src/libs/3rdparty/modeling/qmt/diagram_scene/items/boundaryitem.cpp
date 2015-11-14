@@ -50,7 +50,6 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QCoreApplication>
 
-
 namespace qmt {
 
 static const qreal MINIMUM_INNER_WIDTH = 22.0;
@@ -58,9 +57,7 @@ static const qreal MINIMUM_INNER_HEIGHT = 22.0;
 static const qreal CONTENTS_BORDER_VERTICAL = 4.0;
 static const qreal CONTENTS_BORDER_HORIZONTAL = 4.0;
 
-
-class BoundaryItem::BoundaryTextItem :
-        public QGraphicsTextItem
+class BoundaryItem::BoundaryTextItem : public QGraphicsTextItem
 {
 public:
     BoundaryTextItem(QGraphicsItem *parent)
@@ -77,7 +74,6 @@ public:
         QGraphicsTextItem::paint(painter, &option2, widget);
     }
 };
-
 
 BoundaryItem::BoundaryItem(DBoundary *boundary, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : QGraphicsItem(parent),
@@ -137,9 +133,8 @@ void BoundaryItem::update()
 
     // item shown if annotation has no text and is not selected
     if (m_textItem->document()->isEmpty() && isSelected()) {
-        if (!m_noTextItem) {
+        if (!m_noTextItem)
             m_noTextItem = new QGraphicsRectItem(this);
-        }
         m_noTextItem->setPen(QPen(QBrush(QColor(192, 192, 192)), 1, Qt::DashDotLine));
     } else if (m_noTextItem) {
         m_noTextItem->scene()->removeItem(m_noTextItem);
@@ -148,15 +143,12 @@ void BoundaryItem::update()
     }
 
     // item shown if annotation has no text and is not selected
-    if (!m_borderItem) {
+    if (!m_borderItem)
         m_borderItem = new QGraphicsRectItem(this);
-    }
     m_borderItem->setPen(QPen(QBrush(Qt::black), 1, Qt::DashLine));
 
     updateSelectionMarker();
-
     updateGeometry();
-
     setZValue(BOUNDARY_ITEMS_ZVALUE);
 
     m_isUpdating = false;
@@ -200,12 +192,10 @@ void BoundaryItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, 
 
     // make sure the new size is at least the minimum size
     QSizeF minimumSize = this->minimumSize();
-    while (rect.width() + horizDelta < minimumSize.width()) {
+    while (rect.width() + horizDelta < minimumSize.width())
         horizDelta += rasterWidth;
-    }
-    while (rect.height() + vertDelta < minimumSize.height()) {
+    while (rect.height() + vertDelta < minimumSize.height())
         vertDelta += rasterHeight;
-    }
 
     double leftDelta = 0.0;
     double rightDelta = 0.0;
@@ -292,49 +282,42 @@ bool BoundaryItem::isEditable() const
 
 void BoundaryItem::edit()
 {
-    if (m_textItem) {
+    if (m_textItem)
         m_textItem->setFocus();
-    }
 }
 
 void BoundaryItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton) {
+    if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton)
         m_diagramSceneModel->selectItem(this, event->modifiers() & Qt::ControlModifier);
-    }
-    if (event->buttons() & Qt::LeftButton) {
+    if (event->buttons() & Qt::LeftButton)
         m_diagramSceneModel->moveSelectedItems(this, QPointF(0.0, 0.0));
-    }
 }
 
 void BoundaryItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (event->buttons() & Qt::LeftButton) {
+    if (event->buttons() & Qt::LeftButton)
         m_diagramSceneModel->moveSelectedItems(this, event->scenePos() - event->lastScenePos());
-    }
 }
 
 void BoundaryItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         m_diagramSceneModel->moveSelectedItems(this, event->scenePos() - event->lastScenePos());
-        if (event->scenePos() != event->buttonDownScenePos(Qt::LeftButton)) {
+        if (event->scenePos() != event->buttonDownScenePos(Qt::LeftButton))
             m_diagramSceneModel->alignSelectedItemsPositionOnRaster();
-        }
     }
 }
 
 void BoundaryItem::updateSelectionMarker()
 {
     if (isSelected() || m_isSecondarySelected) {
-        if (!m_selectionMarker) {
+        if (!m_selectionMarker)
             m_selectionMarker = new RectangularSelectionItem(this, this);
-        }
         m_selectionMarker->setSecondarySelected(isSelected() ? false : m_isSecondarySelected);
     } else if (m_selectionMarker) {
-        if (m_selectionMarker->scene()) {
+        if (m_selectionMarker->scene())
             m_selectionMarker->scene()->removeItem(m_selectionMarker);
-        }
         delete m_selectionMarker;
         m_selectionMarker = 0;
     }
@@ -342,9 +325,8 @@ void BoundaryItem::updateSelectionMarker()
 
 void BoundaryItem::updateSelectionMarkerGeometry(const QRectF &boundaryRect)
 {
-    if (m_selectionMarker) {
+    if (m_selectionMarker)
         m_selectionMarker->setRect(boundaryRect);
-    }
 }
 
 const Style *BoundaryItem::adaptedStyle()
@@ -389,13 +371,11 @@ QSizeF BoundaryItem::calcMinimumGeometry() const
         m_textItem->setTextWidth(-1);
         QSizeF textSize = m_textItem->document()->size();
         qreal textWidth = textSize.width() + 2 * CONTENTS_BORDER_HORIZONTAL;
-        if (textWidth > width) {
+        if (textWidth > width)
             width = textWidth;
-        }
         qreal textHeight = textSize.height() + 2 * CONTENTS_BORDER_VERTICAL;
-        if (textHeight > height) {
+        if (textHeight > height)
             height = textHeight;
-        }
     }
     return GeometryUtilities::ensureMinimumRasterSize(QSizeF(width, height), 2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
 }
@@ -418,12 +398,10 @@ void BoundaryItem::updateGeometry()
     }
 
     QRectF boundaryRect = m_boundary->rect();
-    if (boundaryRect.width() > width) {
+    if (boundaryRect.width() > width)
         width = boundaryRect.width();
-    }
-    if (boundaryRect.height() > height) {
+    if (boundaryRect.height() > height)
         height = boundaryRect.height();
-    }
 
     // update sizes and positions
     double left = -width / 2.0;
@@ -437,20 +415,13 @@ void BoundaryItem::updateGeometry()
     // attribute rect is not a real attribute stored on DObject but
     // a backup for the graphics item used for manual resized and persistency.
     m_boundary->setRect(rect);
-
-    if (m_borderItem) {
+    if (m_borderItem)
         m_borderItem->setRect(rect);
-    }
-
-    if (m_noTextItem) {
+    if (m_noTextItem)
         m_noTextItem->setRect(QRectF(-textWidth / 2, top + CONTENTS_BORDER_VERTICAL, textWidth, textHeight));
-    }
-
-    if (m_textItem) {
+    if (m_textItem)
         m_textItem->setPos(-textWidth / 2.0, top + CONTENTS_BORDER_VERTICAL);
-    }
-
     updateSelectionMarkerGeometry(rect);
 }
 
-}
+} // namespace qmt

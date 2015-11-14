@@ -38,51 +38,37 @@ namespace qmt {
 
 class MClassMember;
 
-class QMT_EXPORT ClassMembersEdit :
-        public QPlainTextEdit
+class QMT_EXPORT ClassMembersEdit : public QPlainTextEdit
 {
     Q_OBJECT
-
     class Cursor;
     class ClassMembersEditPrivate;
 
 public:
-
     explicit ClassMembersEdit(QWidget *parent = 0);
-
     ~ClassMembersEdit();
 
 signals:
-
     void statusChanged(bool valid);
-
     void membersChanged(QList<MClassMember> &);
 
 public:
-
     QList<MClassMember> members() const;
-
     void setMembers(const QList<MClassMember> &members);
 
 public slots:
-
     void reparse();
 
 private slots:
-
     void onTextChanged();
 
 private:
-
     QString build(const QList<MClassMember> &members);
-
     QList<MClassMember> parse(const QString &text, bool *ok);
-
-private:
 
     ClassMembersEditPrivate *d;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_CLASSMEMBERSEDIT_H

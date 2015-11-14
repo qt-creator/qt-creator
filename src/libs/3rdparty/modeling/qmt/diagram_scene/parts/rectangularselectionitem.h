@@ -38,16 +38,13 @@ QT_BEGIN_NAMESPACE
 class QGraphicsRectItem;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class IResizable;
 
-class RectangularSelectionItem :
-        public QGraphicsItem
+class RectangularSelectionItem : public QGraphicsItem
 {
     class GraphicsHandleItem;
-
     friend class GraphicsHandleItem;
 
     enum Handle {
@@ -76,7 +73,6 @@ class RectangularSelectionItem :
     };
 
 public:
-
     enum Freedom {
         FreedomAny,
         FreedomVerticalOnly,
@@ -84,71 +80,40 @@ public:
         FreedomKeepRatio
     };
 
-public:
-
     RectangularSelectionItem(IResizable *itemResizer, QGraphicsItem *parent = 0);
-
     ~RectangularSelectionItem();
 
-public:
-
     QRectF boundingRect() const;
-
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
-public:
-
     QRectF rect() const { return m_rect; }
-
     void setRect(const QRectF &rectangle);
-
     void setRect(qreal x, qreal y, qreal width, qreal height);
-
     QSizeF pointSize() const { return m_pointSize; }
-
     void setPointSize(const QSizeF &size);
-
     bool showBorder() const { return m_showBorder; }
-
     void setShowBorder(bool showBorder);
-
     Freedom freedom() const { return m_freedom; }
-
     void setFreedom(Freedom freedom);
-
     bool isSecondarySelected() const { return m_isSecondarySelected; }
-
     void setSecondarySelected(bool secondarySelected);
 
 private:
-
     void update();
-
     void moveHandle(Handle handle, const QPointF &deltaMove, HandleStatus handleStatus, HandleQualifier handleQualifier);
 
-private:
-
     IResizable *m_itemResizer;
-
     QRectF m_rect;
-
     QSizeF m_pointSize;
-
     QVector<GraphicsHandleItem *> m_points;
-
     QPointF m_originalResizePos;
-
     QRectF m_originalResizeRect;
-
     bool m_showBorder;
-
     QGraphicsRectItem *m_borderItem;
-
     Freedom m_freedom;
-
     bool m_isSecondarySelected;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_RECTENGULARSELECTIONITEM_H

@@ -33,7 +33,6 @@
 #include "mvisitor.h"
 #include "mconstvisitor.h"
 
-
 namespace qmt {
 
 MDependency::MDependency()
@@ -73,11 +72,10 @@ Uid MDependency::source() const
 
 void MDependency::setSource(const Uid &source)
 {
-    if (m_direction == BToA) {
+    if (m_direction == BToA)
         setEndBUid(source);
-    } else {
+    else
         setEndAUid(source);
-    }
 }
 
 Uid MDependency::target() const
@@ -87,11 +85,10 @@ Uid MDependency::target() const
 
 void MDependency::setTarget(const Uid &target)
 {
-    if (m_direction == BToA) {
+    if (m_direction == BToA)
         setEndAUid(target);
-    } else {
+    else
         setEndBUid(target);
-    }
 }
 
 void MDependency::accept(MVisitor *visitor)
@@ -104,4 +101,4 @@ void MDependency::accept(MConstVisitor *visitor) const
     visitor->visitMDependency(this);
 }
 
-}
+} // namespace qmt

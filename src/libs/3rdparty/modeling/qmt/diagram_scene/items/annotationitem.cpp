@@ -49,16 +49,13 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QCoreApplication>
 
-
 namespace qmt {
 
 static const qreal MINIMUM_TEXT_WIDTH = 20.0;
 static const qreal CONTENTS_BORDER_VERTICAL = 4.0;
 static const qreal CONTENTS_BORDER_HORIZONTAL = 4.0;
 
-
-class AnnotationItem::AnnotationTextItem :
-        public QGraphicsTextItem
+class AnnotationItem::AnnotationTextItem : public QGraphicsTextItem
 {
 public:
     AnnotationTextItem(QGraphicsItem *parent)
@@ -75,7 +72,6 @@ public:
         QGraphicsTextItem::paint(painter, &option2, widget);
     }
 };
-
 
 AnnotationItem::AnnotationItem(DAnnotation *annotation, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : QGraphicsItem(parent),
@@ -127,21 +123,17 @@ void AnnotationItem::update()
     }
     m_textItem->setFont(style->normalFont());
     m_textItem->setDefaultTextColor(style->textBrush().color());
-    if (!m_isChanged) {
+    if (!m_isChanged)
         m_textItem->setPlainText(annotation()->text());
-    }
 
     // item shown if annotation has no text and is not selected
-    if (!m_noTextItem) {
+    if (!m_noTextItem)
         m_noTextItem = new QGraphicsRectItem(this);
-    }
     m_noTextItem->setPen(QPen(QBrush(QColor(192, 192, 192)), 1, Qt::DashDotLine));
     m_noTextItem->setVisible(!isSelected() && m_textItem->document()->isEmpty());
 
     updateSelectionMarker();
-
     updateGeometry();
-
     setZValue(ANNOTATION_ITEMS_ZVALUE);
 
     m_isUpdating = false;
@@ -170,9 +162,8 @@ void AnnotationItem::setPosAndRect(const QPointF &originalPos, const QRectF &ori
     if (newPos != m_annotation->pos() || newRect != m_annotation->rect()) {
         m_diagramSceneModel->diagramController()->startUpdateElement(m_annotation, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
         m_annotation->setPos(newPos);
-        if (newRect.size() != m_annotation->rect().size()) {
+        if (newRect.size() != m_annotation->rect().size())
             m_annotation->setAutoSized(false);
-        }
         m_annotation->setRect(newRect);
         m_diagramSceneModel->diagramController()->finishUpdateElement(m_annotation, m_diagramSceneModel->diagram(), false);
     }
@@ -239,35 +230,30 @@ bool AnnotationItem::isEditable() const
 
 void AnnotationItem::edit()
 {
-    if (m_textItem) {
+    if (m_textItem)
         m_textItem->setFocus();
-    }
 }
 
 void AnnotationItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton) {
+    if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton)
         m_diagramSceneModel->selectItem(this, event->modifiers() & Qt::ControlModifier);
-    }
-    if (event->buttons() & Qt::LeftButton) {
+    if (event->buttons() & Qt::LeftButton)
         m_diagramSceneModel->moveSelectedItems(this, QPointF(0.0, 0.0));
-    }
 }
 
 void AnnotationItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (event->buttons() & Qt::LeftButton) {
+    if (event->buttons() & Qt::LeftButton)
         m_diagramSceneModel->moveSelectedItems(this, event->scenePos() - event->lastScenePos());
-    }
 }
 
 void AnnotationItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         m_diagramSceneModel->moveSelectedItems(this, event->scenePos() - event->lastScenePos());
-        if (event->scenePos() != event->buttonDownScenePos(Qt::LeftButton)) {
+        if (event->scenePos() != event->buttonDownScenePos(Qt::LeftButton))
             m_diagramSceneModel->alignSelectedItemsPositionOnRaster();
-        }
     }
 }
 
@@ -281,9 +267,8 @@ void AnnotationItem::updateSelectionMarker()
         }
         m_selectionMarker->setSecondarySelected(isSelected() ? false : m_isSecondarySelected);
     } else if (m_selectionMarker) {
-        if (m_selectionMarker->scene()) {
+        if (m_selectionMarker->scene())
             m_selectionMarker->scene()->removeItem(m_selectionMarker);
-        }
         delete m_selectionMarker;
         m_selectionMarker = 0;
     }
@@ -291,9 +276,8 @@ void AnnotationItem::updateSelectionMarker()
 
 void AnnotationItem::updateSelectionMarkerGeometry(const QRectF &annotationRect)
 {
-    if (m_selectionMarker) {
+    if (m_selectionMarker)
         m_selectionMarker->setRect(annotationRect);
-    }
 }
 
 const Style *AnnotationItem::adaptedStyle()
@@ -381,15 +365,13 @@ void AnnotationItem::updateGeometry()
     // a backup for the graphics item used for manual resized and persistency.
     annotation()->setRect(rect);
 
-    if (m_noTextItem) {
+    if (m_noTextItem)
         m_noTextItem->setRect(rect);
-    }
 
-    if (m_textItem) {
+    if (m_textItem)
         m_textItem->setPos(left + CONTENTS_BORDER_HORIZONTAL, top + CONTENTS_BORDER_VERTICAL);
-    }
 
     updateSelectionMarkerGeometry(rect);
 }
 
-}
+} // namespace qmt

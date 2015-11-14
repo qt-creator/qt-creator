@@ -33,7 +33,6 @@
 #include "dvisitor.h"
 #include "dconstvisitor.h"
 
-
 namespace qmt {
 
 DDependency::DDependency()
@@ -80,4 +79,4 @@ void DDependency::accept(DConstVisitor *visitor) const
     visitor->visitDDependency(this);
 }
 
-}
+} // namespace qmt

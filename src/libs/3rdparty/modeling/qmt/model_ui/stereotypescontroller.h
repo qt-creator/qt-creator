@@ -37,11 +37,9 @@
 #include <QList>
 #include <QString>
 
-
 namespace qmt {
 
-class QMT_EXPORT StereotypesController :
-        public QObject
+class QMT_EXPORT StereotypesController : public QObject
 {
     Q_OBJECT
 
@@ -49,21 +47,14 @@ public:
     explicit StereotypesController(QObject *parent = 0);
 
 signals:
-
     void parseError(const QString &stereotypes);
 
 public:
-
     bool isParsable(const QString &stereotypes);
-
     QString toString(const QList<QString> &stereotypes);
-
     QList<QString> fromString(const QString &stereotypes);
-
-public slots:
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_STEREOTYPESCONTROLLER_H

@@ -34,16 +34,14 @@
 #include "qmt/controller/references.h"
 #include "qmt/infrastructure/qmt_global.h"
 
-
 namespace qmt {
 
 class DElement;
 
-class QMT_EXPORT DReferences :
-        public References<DElement>
+class QMT_EXPORT DReferences : public References<DElement>
 {
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DREFERENCES_H

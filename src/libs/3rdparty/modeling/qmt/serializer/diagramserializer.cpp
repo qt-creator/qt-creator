@@ -56,9 +56,7 @@
 
 using namespace qmt;
 
-
 namespace qark {
-
 
 // DElement
 
@@ -74,7 +72,6 @@ inline void Access<Archive, DElement>::serialize(Archive &archive, DElement &ele
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DElement)
-
 
 // DObject
 
@@ -137,7 +134,6 @@ inline void Access<Archive, DObject>::serialize(Archive &archive, DObject &objec
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DObject)
 
-
 // DPackage
 
 QARK_REGISTER_TYPE_NAME(DPackage, "DPackage")
@@ -154,7 +150,6 @@ inline void Access<Archive, DPackage>::serialize(Archive &archive, DPackage &pac
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DPackage)
-
 
 // DClass
 
@@ -178,7 +173,6 @@ inline void Access<Archive, DClass>::serialize(Archive &archive, DClass &klass)
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DClass)
 
-
 // DComponent
 
 QARK_REGISTER_TYPE_NAME(DComponent, "DComponent")
@@ -197,7 +191,6 @@ inline void Access<Archive, DComponent>::serialize(Archive &archive, DComponent 
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DComponent)
 
-
 // DDiagram
 
 QARK_REGISTER_TYPE_NAME(DDiagram, "DDiagram")
@@ -214,7 +207,6 @@ inline void Access<Archive, DDiagram>::serialize(Archive &archive, DDiagram &dia
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DDiagram)
-
 
 // DItem
 
@@ -235,7 +227,6 @@ inline void Access<Archive, DItem>::serialize(Archive &archive, DItem &item)
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DItem)
-
 
 // DRelation
 
@@ -259,7 +250,6 @@ inline void Access<Archive, DRelation>::serialize(Archive &archive, DRelation &r
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DRelation)
 
-
 // DRelation::IntermediatePoint
 
 QARK_REGISTER_TYPE_NAME(DRelation::IntermediatePoint, "DRelation--IntermediatePoint")
@@ -274,7 +264,6 @@ inline void Access<Archive, DRelation::IntermediatePoint>::serialize(Archive &ar
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DRelation::IntermediatePoint)
-
 
 // DInheritance
 
@@ -293,7 +282,6 @@ inline void Access<Archive, DInheritance>::serialize(Archive &archive, DInherita
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DInheritance)
 
-
 // DDependency
 
 QARK_REGISTER_TYPE_NAME(DDependency, "DDependency")
@@ -311,7 +299,6 @@ inline void Access<Archive, DDependency>::serialize(Archive &archive, DDependenc
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DDependency)
-
 
 // DAssociation
 
@@ -347,7 +334,6 @@ inline void Access<Archive, DAssociation>::serialize(Archive &archive, DAssociat
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DAssociation)
 
-
 // DAnnotation
 
 QARK_REGISTER_TYPE_NAME(DAnnotation, "DAnnotation")
@@ -369,7 +355,6 @@ inline void Access<Archive, DAnnotation>::serialize(Archive &archive, DAnnotatio
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DAnnotation)
 
-
 // DBoundary
 
 QARK_REGISTER_TYPE_NAME(DBoundary, "DBoundary")
@@ -389,4 +374,4 @@ inline void Access<Archive, DBoundary>::serialize(Archive &archive, DBoundary &b
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DBoundary)
 
-}
+} // namespace qark

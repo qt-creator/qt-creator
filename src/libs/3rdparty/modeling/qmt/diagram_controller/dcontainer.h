@@ -34,14 +34,12 @@
 #include "qmt/controller/container.h"
 #include "qmt/diagram/delement.h"
 
-
 namespace qmt {
 
-class QMT_EXPORT DContainer :
-        public Container<DElement>
+class QMT_EXPORT DContainer : public Container<DElement>
 {
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DCONTAINER_H

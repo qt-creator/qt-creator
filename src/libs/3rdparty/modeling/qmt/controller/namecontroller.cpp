@@ -42,7 +42,6 @@ NameController::NameController(QObject *parent)
 
 NameController::~NameController()
 {
-
 }
 
 QString NameController::convertFileNameToElementName(const QString &fileName)
@@ -116,11 +115,10 @@ QString NameController::calcRelativePath(const QString &absoluteFileName, const 
     } else if (i >= absoluteFileName.size()) {
         // absoluteFileName is a substring of anchor path.
         if (slashIndex == i - 1) {
-            if (secondLastSlashIndex < 0) {
+            if (secondLastSlashIndex < 0)
                 relativePath = absoluteFileName;
-            } else {
+            else
                 relativePath = absoluteFileName.mid(secondLastSlashIndex + 1);
-            }
         } else {
             relativePath = absoluteFileName.mid(slashIndex + 1);
         }
@@ -135,9 +133,8 @@ QString NameController::calcElementNameSearchId(const QString &elementName)
 {
     QString searchId;
     foreach (const QChar &c, elementName) {
-        if (c.isLetterOrNumber()) {
+        if (c.isLetterOrNumber())
             searchId += c.toLower();
-        }
     }
     return searchId;
 }
@@ -148,9 +145,8 @@ QList<QString> NameController::buildElementsPath(const QString &filePath, bool i
 
     QStringList splitted = filePath.split(QStringLiteral("/"));
     QStringList::const_iterator splittedEnd = splitted.end();
-    if (ignoreLastFilePathPart || splitted.last().isEmpty()) {
+    if (ignoreLastFilePathPart || splitted.last().isEmpty())
         splittedEnd = --splittedEnd;
-    }
     for (QStringList::const_iterator it = splitted.cbegin(); it != splittedEnd; ++it) {
         QString packageName = qmt::NameController::convertFileNameToElementName(*it);
         relativeElements.append(packageName);
@@ -158,5 +154,4 @@ QList<QString> NameController::buildElementsPath(const QString &filePath, bool i
     return relativeElements;
 }
 
-
-}
+} // namespace qmt

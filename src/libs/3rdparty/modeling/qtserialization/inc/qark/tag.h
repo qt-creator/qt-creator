@@ -36,10 +36,10 @@
 
 #include <QString>
 
-
 namespace qark {
 
-class Tag {
+class Tag
+{
 public:
     explicit Tag(const QString &qualifiedName)
         : m_qualifiedName(qualifiedName)
@@ -53,7 +53,6 @@ public:
     }
 
     const QString &qualifiedName() const { return m_qualifiedName; }
-
     Parameters parameters() const { return m_parameters; }
 
 private:
@@ -61,10 +60,8 @@ private:
     Parameters m_parameters;
 };
 
-
 template<class T>
-class Object :
-        public Tag
+class Object :  public Tag
 {
 public:
     Object(const QString &qualifiedName, T *object)
@@ -84,7 +81,6 @@ public:
 private:
     T *m_object;
 };
-
 
 inline Tag tag(const QString &qualifiedName)
 {
@@ -130,8 +126,8 @@ inline Object<T> tag(const QString &qualifiedName, T &object, const Parameters &
     return Object<T>(qualifiedName, &object, parameters);
 }
 
-
-class End {
+class End
+{
 public:
     explicit End()
     {
@@ -158,6 +154,6 @@ inline End end(const Parameters &parameters)
     return End(parameters);
 }
 
-}
+} // namespace qark
 
 #endif // QARK_TAG_H

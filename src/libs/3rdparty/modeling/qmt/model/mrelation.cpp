@@ -33,7 +33,6 @@
 #include "mvisitor.h"
 #include "mconstvisitor.h"
 
-
 namespace qmt {
 
 MRelation::MRelation()
@@ -58,7 +57,7 @@ MRelation::~MRelation()
 MRelation &MRelation::operator =(const MRelation &rhs)
 {
     if (this != &rhs) {
-        MElement::operator =(rhs);
+        MElement::operator=(rhs);
         m_name = rhs.m_name;
         m_endAUid = rhs.m_endAUid;
         m_endBUid = rhs.m_endBUid;
@@ -91,4 +90,4 @@ void MRelation::accept(MConstVisitor *visitor) const
     visitor->visitMRelation(this);
 }
 
-}
+} // namespace qmt

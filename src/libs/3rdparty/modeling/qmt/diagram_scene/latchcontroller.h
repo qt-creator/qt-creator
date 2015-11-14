@@ -41,61 +41,41 @@ class QGraphicsScene;
 class QGraphicsSceneMouseEvent;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class DiagramController;
 class DiagramSceneModel;
 class AlignLineItem;
 
-class QMT_EXPORT LatchController :
-        public QObject
+class QMT_EXPORT LatchController : public QObject
 {
     Q_OBJECT
 
 public:
-
     LatchController(QObject *parent = 0);
-
     ~LatchController();
-
-public:
 
     void setDiagramSceneModel(DiagramSceneModel *diagramSceneModel);
 
-public:
-
     void addToGraphicsScene(QGraphicsScene *graphicsScene);
-
     void removeFromGraphicsScene(QGraphicsScene *graphicsScene);
 
     void mousePressEventLatching(QGraphicsSceneMouseEvent *event);
-
     void mouseMoveEventLatching(QGraphicsSceneMouseEvent *event);
-
     void mouseReleaseEventLatching(QGraphicsSceneMouseEvent *event);
 
 private:
-
     DiagramSceneModel *m_diagramSceneModel;
-
     AlignLineItem *m_horizontalAlignLine;
-
     AlignLineItem *m_verticalAlignLine;
-
     bool m_foundHorizontalLatch;
-
     ILatchable::Latch m_horizontalLatch;
-
     qreal m_horizontalDist;
-
     bool m_foundVerticalLatch;
-
     ILatchable::Latch m_verticalLatch;
-
     qreal m_verticalDist;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_LATCHCONTROLLER_H

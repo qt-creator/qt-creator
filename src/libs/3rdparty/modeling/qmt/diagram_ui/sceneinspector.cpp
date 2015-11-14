@@ -70,9 +70,8 @@ QSizeF SceneInspector::minimalSize(const DElement *element, const MDiagram *diag
         const QGraphicsItem *item = diagramSceneModel->graphicsItem(const_cast<DElement *>(element));
         QMT_CHECK(item);
         if (item) {
-            if (const IResizable *resizable = dynamic_cast<const IResizable *>(item)) {
+            if (const IResizable *resizable = dynamic_cast<const IResizable *>(item))
                 return resizable->minimumSize();
-            }
         }
     }
     QMT_CHECK(false);
@@ -87,9 +86,8 @@ IMoveable *SceneInspector::moveable(const DElement *element, const MDiagram *dia
         QGraphicsItem *item = diagramSceneModel->graphicsItem(const_cast<DElement *>(element));
         QMT_CHECK(item);
         if (item) {
-            if (IMoveable *moveable = dynamic_cast<IMoveable *>(item)) {
+            if (IMoveable *moveable = dynamic_cast<IMoveable *>(item))
                 return moveable;
-            }
         }
     }
     QMT_CHECK(false);
@@ -104,13 +102,12 @@ IResizable *SceneInspector::resizable(const DElement *element, const MDiagram *d
         QGraphicsItem *item = diagramSceneModel->graphicsItem(const_cast<DElement *>(element));
         QMT_CHECK(item);
         if (item) {
-            if (IResizable *resizeable = dynamic_cast<IResizable *>(item)) {
+            if (IResizable *resizeable = dynamic_cast<IResizable *>(item))
                 return resizeable;
-            }
         }
     }
     QMT_CHECK(false);
     return 0;
 }
 
-}
+} // namespace qmt

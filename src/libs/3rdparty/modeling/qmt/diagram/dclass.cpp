@@ -33,7 +33,6 @@
 #include "dvisitor.h"
 #include "dconstvisitor.h"
 
-
 namespace qmt {
 
 DClass::DClass()
@@ -82,4 +81,4 @@ void DClass::accept(DConstVisitor *visitor) const
     visitor->visitDClass(this);
 }
 
-}
+} // namespace qmt

@@ -33,13 +33,11 @@
 #include "dconstvisitor.h"
 #include "dvisitor.h"
 
-
 namespace qmt {
 
 DElement::DElement()
 {
 }
-
 
 DElement::~DElement()
 {
@@ -65,4 +63,4 @@ void DElement::accept(DConstVisitor *visitor) const
     visitor->visitDElement(this);
 }
 
-}
+} // namespace qmt

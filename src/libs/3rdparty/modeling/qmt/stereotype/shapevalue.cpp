@@ -76,8 +76,6 @@ qreal ShapeValueF::mapScaledTo(qreal scaledOrigin, qreal originalSize, qreal bas
     return v;
 }
 
-
-
 QPointF ShapePointF::mapTo(const QPointF &origin, const QSizeF &size) const
 {
     qreal x = m_x.mapTo(origin.x(), size.width());
@@ -119,6 +117,5 @@ QSizeF ShapeSizeF::mapScaledTo(const QPointF &scaledOrigin, const QSizeF &origin
     qreal h = m_height.mapScaledTo(scaledOrigin.y(), originalSize.height(), baseSize.height(), actualSize.height());
     return QSizeF(w, h);
 }
-
 
 } // namespace qmt

@@ -34,15 +34,12 @@
 #include <QString>
 #include <QList>
 
-
 class QStringParser
 {
 private:
-
     class Parser
     {
     private:
-
         class Node
         {
         public:
@@ -51,8 +48,7 @@ private:
         };
 
         template<typename V>
-        class RefNode :
-        public Node
+        class RefNode : public Node
         {
         public:
             RefNode(V &v) : m_v(v) { }
@@ -63,8 +59,7 @@ private:
         };
 
         template<class U, typename V>
-        class SetterNode :
-        public Node
+        class SetterNode : public Node
         {
         public:
             SetterNode(U &u, void (U::*setter)(V)) : m_object(u), m_setter(setter) { }
@@ -77,11 +72,8 @@ private:
         };
 
     public:
-
         Parser(const QString &source, const QString &pattern);
         ~Parser();
-
-    public:
 
         template<typename V>
         Parser &arg(V &v)
@@ -100,7 +92,6 @@ private:
         bool failed();
 
     private:
-
         bool scan(int *i, int *index);
         bool scan(double *d, int *index);
 
@@ -108,9 +99,8 @@ private:
         bool visit(RefNode<V> *node, int *index)
         {
             V v = 0;
-            if (!scan(&v, index)) {
+            if (!scan(&v, index))
                 return false;
-            }
             node->ref() = v;
             return true;
         }
@@ -119,9 +109,8 @@ private:
         bool visit(SetterNode<U, V> *node, int *index)
         {
             V v = 0;
-            if (!scan(&v, index)) {
+            if (!scan(&v, index))
                 return false;
-            }
             (node->object().*(node->setter()))(v);
             return true;
         }
@@ -130,9 +119,8 @@ private:
         bool visit(SetterNode<U, const V &> *node, int *index)
         {
             V v = 0;
-            if (!scan(&v, index)) {
+            if (!scan(&v, index))
                 return false;
-            }
             (node->object().*(node->setter()))(v);
             return true;
         }
@@ -140,7 +128,6 @@ private:
         void evaluate();
 
     private:
-
         const QString m_source;
         const QString m_pattern;
         bool m_isEvaluated;
@@ -149,16 +136,12 @@ private:
     };
 
 public:
-
     explicit QStringParser(const QString &source);
     ~QStringParser();
-
-public:
 
     Parser parse(const QString &pattern);
 
 private:
-
     const QString m_source;
 };
 

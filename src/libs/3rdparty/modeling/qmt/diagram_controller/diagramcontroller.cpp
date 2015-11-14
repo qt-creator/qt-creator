@@ -51,7 +51,6 @@
 #include "qmt/model/mdiagram.h"
 #include "qmt/model/mrelation.h"
 
-
 namespace qmt {
 
 class DiagramController::Clone
@@ -69,11 +68,9 @@ DiagramController::Clone::Clone()
 {
 }
 
-class DiagramController::DiagramUndoCommand :
-        public UndoCommand
+class DiagramController::DiagramUndoCommand : public UndoCommand
 {
 public:
-
     DiagramUndoCommand(DiagramController *diagramController, const Uid &diagramKey, const QString &text)
         : UndoCommand(text),
           m_diagramController(diagramController),
@@ -82,7 +79,6 @@ public:
     }
 
 protected:
-
     DiagramController *diagramController() const
     {
         return m_diagramController;
@@ -98,15 +94,11 @@ protected:
     }
 
 private:
-
     DiagramController *m_diagramController;
-
     Uid m_diagramKey;
 };
 
-
-class DiagramController::UpdateElementCommand :
-        public DiagramUndoCommand
+class DiagramController::UpdateElementCommand : public DiagramUndoCommand
 {
 public:
     UpdateElementCommand(DiagramController *diagramController, const Uid &diagramKey, DElement *element,
@@ -127,12 +119,10 @@ public:
     bool mergeWith(const UndoCommand *other)
     {
         const UpdateElementCommand *otherUpdateCommand = dynamic_cast<const UpdateElementCommand *>(other);
-        if (!otherUpdateCommand) {
+        if (!otherUpdateCommand)
             return false;
-        }
-        if (diagramKey() != otherUpdateCommand->diagramKey()) {
+        if (diagramKey() != otherUpdateCommand->diagramKey())
             return false;
-        }
         if (m_updateAction == DiagramController::UpdateMajor || otherUpdateCommand->m_updateAction == DiagramController::UpdateMajor
                 || m_updateAction != otherUpdateCommand->m_updateAction) {
             return false;
@@ -189,16 +179,11 @@ private:
         diagramController->diagramModified(diagram);
     }
 
-private:
-
     DiagramController::UpdateAction m_updateAction;
-
     QHash<Uid, DElement *> m_clonedElements;
 };
 
-
-class DiagramController::AbstractAddRemCommand :
-        public DiagramUndoCommand
+class DiagramController::AbstractAddRemCommand : public DiagramUndoCommand
 {
 protected:
     AbstractAddRemCommand(DiagramController *diagramController, const Uid &diagramKey, const QString &commandLabel)
@@ -208,9 +193,8 @@ protected:
 
     ~AbstractAddRemCommand()
     {
-        foreach (const Clone &clone, m_clonedElements) {
+        foreach (const Clone &clone, m_clonedElements)
             delete clone.m_clonedElement;
-        }
     }
 
     void remove()
@@ -233,9 +217,8 @@ protected:
             emit diagramController->endRemoveElement(clone.m_indexOfElement, diagram);
             removed = true;
         }
-        if (removed) {
+        if (removed)
             diagramController->diagramModified(diagram);
-        }
     }
 
     void insert()
@@ -253,19 +236,14 @@ protected:
             emit diagramController->endInsertElement(clone.m_indexOfElement, diagram);
             inserted = true;
         }
-        if (inserted) {
+        if (inserted)
             diagramController->diagramModified(diagram);
-        }
-
     }
 
-protected:
     QList<Clone> m_clonedElements;
-
 };
 
-class DiagramController::AddElementsCommand :
-        public AbstractAddRemCommand
+class DiagramController::AddElementsCommand : public AbstractAddRemCommand
 {
 public:
     AddElementsCommand(DiagramController *diagramController, const Uid &diagramKey, const QString &commandLabel)
@@ -296,9 +274,7 @@ public:
     }
 };
 
-
-class DiagramController::RemoveElementsCommand :
-        public AbstractAddRemCommand
+class DiagramController::RemoveElementsCommand : public AbstractAddRemCommand
 {
 public:
     RemoveElementsCommand(DiagramController *diagramController, const Uid &diagramKey, const QString &commandLabel)
@@ -336,12 +312,9 @@ public:
     }
 };
 
-
-class DiagramController::FindDiagramsVisitor :
-        public MChildrenVisitor
+class DiagramController::FindDiagramsVisitor : public MChildrenVisitor
 {
 public:
-
     FindDiagramsVisitor(QList<MDiagram *> *allDiagrams)
         : m_allDiagrams(allDiagrams)
     {
@@ -354,10 +327,8 @@ public:
     }
 
 private:
-
     QList<MDiagram *> *m_allDiagrams;
 };
-
 
 DiagramController::DiagramController(QObject *parent)
     : QObject(parent),
@@ -456,9 +427,8 @@ DElement *DiagramController::findDelegate(const MElement *modelElement, const MD
 {
     // PERFORM use map to increase performance
     foreach (DElement *diagramElement, diagram->diagramElements()) {
-        if (diagramElement->modelUid().isValid() && diagramElement->modelUid() == modelElement->uid()) {
+        if (diagramElement->modelUid().isValid() && diagramElement->modelUid() == modelElement->uid())
             return diagramElement;
-        }
     }
     return 0;
 }
@@ -466,20 +436,17 @@ DElement *DiagramController::findDelegate(const MElement *modelElement, const MD
 void DiagramController::startUpdateElement(DElement *element, MDiagram *diagram, UpdateAction updateAction)
 {
     emit beginUpdateElement(diagram->diagramElements().indexOf(element), diagram);
-    if (m_undoController) {
+    if (m_undoController)
         m_undoController->push(new UpdateElementCommand(this, diagram->uid(), element, updateAction));
-    }
 }
 
 void DiagramController::finishUpdateElement(DElement *element, MDiagram *diagram, bool cancelled)
 {
-    if (!cancelled) {
+    if (!cancelled)
         updateElementFromModel(element, diagram, false);
-    }
     emit endUpdateElement(diagram->diagramElements().indexOf(element), diagram);
-    if (!cancelled) {
+    if (!cancelled)
         diagramModified(diagram);
-    }
 }
 
 void DiagramController::breakUndoChain()
@@ -528,13 +495,11 @@ void DiagramController::pasteElements(const DContainer &diagramContainer, MDiagr
     // fix all keys referencing between pasting elements
     foreach(DElement *clonedElement, clonedElements) {
         DRelation *relation = dynamic_cast<DRelation *>(clonedElement);
-        if (relation) {
+        if (relation)
             updateRelationKeys(relation, renewedKeys);
-        }
     }
-    if (m_undoController) {
+    if (m_undoController)
         m_undoController->beginMergeSequence(tr("Paste"));
-    }
     // insert all elements
     bool added = false;
     foreach (DElement *clonedElement, clonedElements) {
@@ -566,12 +531,10 @@ void DiagramController::pasteElements(const DContainer &diagramContainer, MDiagr
             added = true;
         }
     }
-    if (added) {
+    if (added)
         diagramModified(diagram);
-    }
-    if (m_undoController) {
+    if (m_undoController)
         m_undoController->endMergeSequence();
-    }
 }
 
 void DiagramController::deleteElements(const DSelection &diagramSelection, MDiagram *diagram)
@@ -593,15 +556,13 @@ void DiagramController::onEndResetModel()
         foreach (DElement *element, diagram->diagramElements()) {
             if (element->modelUid().isValid()) {
                 MElement *modelElement = m_modelController->findElement(element->modelUid());
-                if (!modelElement) {
+                if (!modelElement)
                     removeElement(element, diagram);
-                }
             }
         }
         // update all remaining elements from model
-        foreach (DElement *element, diagram->diagramElements()) {
+        foreach (DElement *element, diagram->diagramElements())
             updateElementFromModel(element, diagram, false);
-        }
     }
     emit endResetAllDiagrams();
 }
@@ -629,9 +590,8 @@ void DiagramController::onEndUpdateObject(int row, const MObject *parent)
             foreach (DElement *diagramElement, diagram->diagramElements()) {
                 if (diagramElement->modelUid().isValid()) {
                     MObject *mobject = m_modelController->findObject(diagramElement->modelUid());
-                    if (mobject && mobject->owner() == modelPackage) {
+                    if (mobject && mobject->owner() == modelPackage)
                         updateElementFromModel(diagramElement, diagram, true);
-                    }
                 }
             }
         }
@@ -673,7 +633,6 @@ void DiagramController::onBeginMoveObject(int formerRow, const MObject *formerOw
 {
     Q_UNUSED(formerRow);
     Q_UNUSED(formerOwner);
-
 }
 
 void DiagramController::onEndMoveObject(int row, const MObject *owner)
@@ -686,9 +645,8 @@ void DiagramController::onEndMoveObject(int row, const MObject *owner)
     MDiagram *modelDiagram = dynamic_cast<MDiagram *>(modelObject);
     if (modelDiagram) {
         emit beginResetDiagram(modelDiagram);
-        foreach (DElement *diagramElement, modelDiagram->diagramElements()) {
+        foreach (DElement *diagramElement, modelDiagram->diagramElements())
             updateElementFromModel(diagramElement, modelDiagram, false);
-        }
         emit endResetDiagram(modelDiagram);
     }
 }
@@ -744,12 +702,10 @@ void DiagramController::deleteElements(const DSelection &diagramSelection, MDiag
     QMT_CHECK(diagram);
 
     DReferences simplifiedSelection = simplify(diagramSelection, diagram);
-    if (simplifiedSelection.elements().isEmpty()) {
+    if (simplifiedSelection.elements().isEmpty())
         return;
-    }
-    if (m_undoController) {
+    if (m_undoController)
         m_undoController->beginMergeSequence(commandLabel);
-    }
     bool removed = false;
     foreach (DElement *element, simplifiedSelection.elements()) {
         // element may have been deleted indirectly by predecessor element in loop
@@ -767,21 +723,18 @@ void DiagramController::deleteElements(const DSelection &diagramSelection, MDiag
             removed = true;
         }
     }
-    if (removed) {
+    if (removed)
         diagramModified(diagram);
-    }
-    if (m_undoController) {
+    if (m_undoController)
         m_undoController->endMergeSequence();
-    }
 }
 
 DElement *DiagramController::findElementOnAnyDiagram(const Uid &uid)
 {
     foreach (MDiagram *diagram, m_allDiagrams) {
         DElement *element = findElement(uid, diagram);
-        if (element) {
+        if (element)
             return element;
-        }
     }
     return 0;
 }
@@ -790,20 +743,17 @@ void DiagramController::removeObjects(MObject *modelObject)
 {
     foreach (MDiagram *diagram, m_allDiagrams) {
         DElement *diagramElement = findDelegate(modelObject, diagram);
-        if (diagramElement) {
+        if (diagramElement)
             removeElement(diagramElement, diagram);
-        }
         foreach (const Handle<MRelation> &relation, modelObject->relations()) {
             DElement *diagramElement = findDelegate(relation.target(), diagram);
-            if (diagramElement) {
+            if (diagramElement)
                 removeElement(diagramElement, diagram);
-            }
         }
     }
     foreach (const Handle<MObject> &object, modelObject->children()) {
-        if (object.hasTarget()) {
+        if (object.hasTarget())
             removeObjects(object.target());
-        }
     }
     if (MDiagram *diagram = dynamic_cast<MDiagram *>(modelObject)) {
         emit diagramAboutToBeRemoved(diagram);
@@ -822,9 +772,8 @@ void DiagramController::removeRelations(MRelation *modelRelation)
 {
     foreach (MDiagram *diagram, m_allDiagrams) {
         DElement *diagramElement = findDelegate(modelRelation, diagram);
-        if (diagramElement) {
+        if (diagramElement)
             removeElement(diagramElement, diagram);
-        }
     }
 }
 
@@ -834,9 +783,8 @@ void DiagramController::removeRelations(DElement *element, MDiagram *diagram)
     if (diagramObject) {
         foreach (DElement *diagramElement, diagram->diagramElements()) {
             if (DRelation *diagramRelation = dynamic_cast<DRelation *>(diagramElement)) {
-                if (diagramRelation->endAUid() == diagramObject->uid() || diagramRelation->endBUid() == diagramObject->uid()) {
+                if (diagramRelation->endAUid() == diagramObject->uid() || diagramRelation->endBUid() == diagramObject->uid())
                     removeElement(diagramRelation, diagram);
-                }
             }
         }
     }
@@ -861,20 +809,17 @@ void DiagramController::renewElementKey(DElement *element, QHash<Uid, Uid> *rene
 void DiagramController::updateRelationKeys(DRelation *relation, const QHash<Uid, Uid> &renewedKeys)
 {
     Uid newEndAKey = renewedKeys.value(relation->endAUid(), Uid::invalidUid());
-    if (newEndAKey.isValid()) {
+    if (newEndAKey.isValid())
         relation->setEndAUid(newEndAKey);
-    }
     Uid newEndBKey = renewedKeys.value(relation->endBUid(), Uid::invalidUid());
-    if (newEndBKey.isValid()) {
+    if (newEndBKey.isValid())
         relation->setEndBUid(newEndBKey);
-    }
 }
 
 void DiagramController::updateElementFromModel(DElement *element, const MDiagram *diagram, bool emitUpdateSignal)
 {
-    if (!element->modelUid().isValid()) {
+    if (!element->modelUid().isValid())
         return;
-    }
 
     DUpdateVisitor visitor(element, diagram);
 
@@ -908,27 +853,24 @@ DReferences DiagramController::simplify(const DSelection &diagramSelection, cons
     DReferences references;
     foreach (const DSelection::Index &index, diagramSelection.indices()) {
         DElement *element = findElement(index.elementKey(), diagram);
-        if (element) {
+        if (element)
             references.append(element);
-        }
     }
     return references;
 }
 
 MElement *DiagramController::delegatedElement(const DElement *element) const
 {
-    if (!element->modelUid().isValid()) {
+    if (!element->modelUid().isValid())
         return 0;
-    }
     return m_modelController->findElement(element->modelUid());
 }
 
 bool DiagramController::isDelegatedElementOnDiagram(const DElement *element, const MDiagram *diagram) const
 {
     MElement *modelElement = delegatedElement(element);
-    if (!modelElement) {
+    if (!modelElement)
         return false;
-    }
     return hasDelegate(modelElement, diagram);
 }
 
@@ -946,4 +888,4 @@ void DiagramController::updateAllDiagramsList()
     }
 }
 
-}
+} // namespace qmt

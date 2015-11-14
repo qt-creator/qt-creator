@@ -41,7 +41,6 @@ QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class ModelController;
@@ -54,153 +53,85 @@ class DElement;
 class StereotypeController;
 class StyleController;
 
-
-class QMT_EXPORT PropertiesView :
-        public QObject
+class QMT_EXPORT PropertiesView : public QObject
 {
     Q_OBJECT
-
     class MView;
 
 public:
-
     explicit PropertiesView(QObject *parent = 0);
-
     ~PropertiesView();
 
-signals:
-
-public:
-
     ModelController *modelController() const { return m_modelController; }
-
     void setModelController(ModelController *modelController);
-
     DiagramController *diagramController() const { return m_diagramController; }
-
     void setDiagramController(DiagramController *diagramController);
-
     StereotypeController *stereotypeController() const { return m_stereotypeController; }
-
     void setStereotypeController(StereotypeController *stereotypeController);
-
     StyleController *styleController() const { return m_styleController; }
-
     void setStyleController(StyleController *styleController);
 
-public:
-
     QList<MElement *> selectedModelElements() const { return m_selectedModelElements; }
-
     void setSelectedModelElements(const QList<MElement *> &modelElements);
-
     QList<DElement *> selectedDiagramElements() const { return m_selectedDiagramElements; }
-
     MDiagram *selectedDiagram() const { return m_selectedDiagram; }
-
     void setSelectedDiagramElements(const QList<DElement *> &diagramElements, MDiagram *diagram);
-
     void clearSelection();
 
     QWidget *widget() const;
 
 public slots:
-
     void editSelectedElement();
 
 private slots:
-
     void onBeginResetModel();
-
     void onEndResetModel();
-
     void onBeginUpdateObject(int row, const MObject *parent);
-
     void onEndUpdateObject(int row, const MObject *parent);
-
     void onBeginInsertObject(int row, const MObject *parent);
-
     void onEndInsertObject(int row, const MObject *parent);
-
     void onBeginRemoveObject(int row, const MObject *parent);
-
     void onEndRemoveObject(int row, const MObject *parent);
-
     void onBeginMoveObject(int formerRow, const MObject *formerOwner);
-
     void onEndMoveObject(int row, const MObject *owner);
-
     void onBeginUpdateRelation(int row, const MObject *parent);
-
     void onEndUpdateRelation(int row, const MObject *parent);
-
     void onBeginInsertRelation(int row, const MObject *parent);
-
     void onEndInsertRelation(int row, const MObject *parent);
-
     void onBeginRemoveRelation(int row, const MObject *parent);
-
     void onEndRemoveRelation(int row, const MObject *parent);
-
     void onBeginMoveRelation(int formerRow, const MObject *formerOwner);
-
     void onEndMoveRelation(int row, const MObject *owner);
-
     void onRelationEndChanged(MRelation *relation, MObject *endObject);
 
-private slots:
-
     void onBeginResetAllDiagrams();
-
     void onEndResetAllDiagrams();
-
     void onBeginResetDiagram(const MDiagram *diagram);
-
     void onEndResetDiagram(const MDiagram *diagram);
-
     void onBeginUpdateElement(int row, const MDiagram *diagram);
-
     void onEndUpdateElement(int row, const MDiagram *diagram);
-
     void onBeginInsertElement(int row, const MDiagram *diagram);
-
     void onEndInsertElement(int row, const MDiagram *diagram);
-
     void onBeginRemoveElement(int row, const MDiagram *diagram);
-
     void onEndRemoveElement(int row, const MDiagram *diagram);
 
 private:
-
     void beginUpdate(MElement *modelElement);
-
     void endUpdate(MElement *modelElement, bool cancelled);
-
     void beginUpdate(DElement *diagramElement);
-
     void endUpdate(DElement *diagramElement, bool cancelled);
 
-private:
-
     ModelController *m_modelController;
-
     DiagramController *m_diagramController;
-
     StereotypeController *m_stereotypeController;
-
     StyleController *m_styleController;
-
     QList<MElement *> m_selectedModelElements;
-
     QList<DElement *> m_selectedDiagramElements;
-
     MDiagram *m_selectedDiagram;
-
     QScopedPointer<MView> m_mview;
-
     QWidget *m_widget;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_PROPERTIESVIEW_H

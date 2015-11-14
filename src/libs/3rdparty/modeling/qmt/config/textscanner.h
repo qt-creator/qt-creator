@@ -43,16 +43,11 @@ class ITextSource;
 class SourceChar;
 class Token;
 
-class QMT_EXPORT TextScannerError :
-        public Exception
+class QMT_EXPORT TextScannerError : public Exception
 {
 public:
-
     TextScannerError(const QString &errorMsg, const SourcePos &sourcePos);
-
     ~TextScannerError();
-
-public:
 
     SourcePos sourcePos() const { return m_sourcePos; }
 
@@ -60,58 +55,35 @@ private:
     SourcePos m_sourcePos;
 };
 
-
 class QMT_EXPORT TextScanner : public QObject
 {
     Q_OBJECT
-
     class TextScannerPrivate;
 
 public:
     explicit TextScanner(QObject *parent = 0);
-
     ~TextScanner();
 
-signals:
-
-public:
-
     void setKeywords(const QList<QPair<QString, int> > &keywords);
-
     void setOperators(const QList<QPair<QString, int> > &operators);
-
     void setSource(ITextSource *textSource);
-
     SourcePos sourcePos() const;
 
-public:
-
     Token read();
-
     void unread(const Token &token);
 
 private:
-
     SourceChar readChar();
-
     void unreadChar(const SourceChar &sourceChar);
-
     void skipWhitespaces();
 
     Token scanString(const SourceChar &delimiterChar);
-
     Token scanNumber(const SourceChar &firstDigit);
-
     Token scanIdentifier(const SourceChar &firstChar);
-
     Token scanColorIdentifier(const SourceChar &firstChar);
-
     Token scanOperator(const SourceChar &firstChar);
 
-private:
-
     TextScannerPrivate *d;
-
 };
 
 } // namespace qmt

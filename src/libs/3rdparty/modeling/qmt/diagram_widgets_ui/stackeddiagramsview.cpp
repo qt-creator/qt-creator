@@ -76,9 +76,8 @@ void StackedDiagramsView::openDiagram(MDiagram *diagram)
 
 void StackedDiagramsView::closeDiagram(const MDiagram *diagram)
 {
-    if (!diagram) {
+    if (!diagram)
         return;
-    }
 
     DiagramView *diagramView = m_diagramViews.value(diagram->uid());
     if (diagramView) {
@@ -122,10 +121,9 @@ MDiagram *StackedDiagramsView::diagram(int tabIndex) const
 
 MDiagram *StackedDiagramsView::diagram(DiagramView *diagramView) const
 {
-    if (!diagramView || !diagramView->diagramSceneModel()) {
+    if (!diagramView || !diagramView->diagramSceneModel())
         return 0;
-    }
     return diagramView->diagramSceneModel()->diagram();
 }
 
-}
+} // namespace qmt

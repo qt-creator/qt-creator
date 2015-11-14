@@ -39,32 +39,22 @@
 
 namespace qmt {
 
-class QMT_EXPORT NameController :
-        public QObject
+class QMT_EXPORT NameController : public QObject
 {
     Q_OBJECT
 
 private:
     NameController(QObject *parent = 0);
-
     ~NameController();
 
 public:
-
     static QString convertFileNameToElementName(const QString &fileName);
-
     static QString convertElementNameToBaseFileName(const QString &elementName);
-
     static QString calcRelativePath(const QString &absoluteFileName, const QString &anchorPath);
-
     static QString calcElementNameSearchId(const QString &elementName);
-
     static QList<QString> buildElementsPath(const QString &filePath, bool ignoreLastFilePathPart);
-
-private:
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_NAMECONTROLLER_H

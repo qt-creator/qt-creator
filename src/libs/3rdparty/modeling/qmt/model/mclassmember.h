@@ -41,7 +41,6 @@ namespace qmt {
 class QMT_EXPORT MClassMember
 {
 public:
-
     enum Visibility {
         VisibilityUndefined,
         VisibilityPublic,
@@ -73,69 +72,40 @@ public:
 
     Q_DECLARE_FLAGS(Properties, Property)
 
-public:
-
     MClassMember(MemberType memberType = MemberUndefined);
-
     MClassMember(const MClassMember &rhs);
-
     ~MClassMember();
-
-public:
 
     MClassMember &operator=(const MClassMember &rhs);
 
-public:
-
     Uid uid() const { return m_uid; }
-
     void setUid(const Uid &uid);
-
     void renewUid();
-
     QList<QString> stereotypes() const { return m_stereotypes; }
-
     void setStereotypes(const QList<QString> &stereotypes);
-
     QString group() const { return m_group; }
-
     void setGroup(const QString &group);
-
     QString declaration() const { return m_declaration; }
-
     void setDeclaration(const QString &declaration);
-
     Visibility visibility() const { return m_visibility; }
-
     void setVisibility(Visibility visibility);
-
     MemberType memberType() const { return m_memberType; }
-
     void setMemberType(MemberType memberType);
-
     Properties properties() const { return m_properties; }
-
     void setProperties(Properties properties);
 
 private:
-
     Uid m_uid;
-
     QList<QString> m_stereotypes;
-
     QString m_group;
-
     QString m_declaration;
-
     Visibility m_visibility;
-
     MemberType m_memberType;
-
     Properties m_properties;
 };
 
 bool operator==(const MClassMember &lhs, const MClassMember &rhs);
 
-}
+} // namespace qmt
 
 #endif // QMT_MCLASSMEMBER_H

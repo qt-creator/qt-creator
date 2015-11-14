@@ -33,7 +33,6 @@
 #include "infrastructureserializer.h"
 
 #include "qmt/project/project.h"
-
 #include "qmt/model/mpackage.h"
 
 #include "qark/qxmloutarchive.h"
@@ -47,7 +46,6 @@
 #endif
 
 #include <QFile>
-
 
 namespace qark {
 
@@ -64,8 +62,7 @@ void serialize(Archive &archive, Project &project)
             || qark::end;
 }
 
-}
-
+} // namespace qark
 
 namespace qmt {
 
@@ -82,17 +79,15 @@ void ProjectSerializer::save(const QString &fileName, const Project *project)
     QMT_CHECK(project);
 
     QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly)) {
+    if (!file.open(QIODevice::WriteOnly))
         throw FileCreationException(fileName);
-    }
 
     QIODevice *xmlDevice = &file;
 
 #ifdef USE_COMPRESSED_FILES
     qmt::QCompressedDevice compressor(&file);
-    if (!compressor.open(QIODevice::WriteOnly)) {
+    if (!compressor.open(QIODevice::WriteOnly))
         throw IOException("Unable to create compressed file");
-    }
     xmlDevice = &compressor;
 #endif
 
@@ -120,17 +115,15 @@ void ProjectSerializer::load(const QString &fileName, Project *project)
     QMT_CHECK(project);
 
     QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly)) {
+    if (!file.open(QIODevice::ReadOnly))
         throw FileNotFoundException(fileName);
-    }
 
     QIODevice *xmlDevice = &file;
 
 #ifdef USE_COMPRESSED_FILES
     qmt::QCompressedDevice uncompressor(&file);
-    if (!uncompressor.open(QIODevice::ReadOnly)) {
+    if (!uncompressor.open(QIODevice::ReadOnly))
         throw IOException("Unable to access compressed file");
-    }
     xmlDevice = &uncompressor;
 #endif
 
@@ -170,7 +163,6 @@ void ProjectSerializer::write(QXmlStreamWriter *writer, const Project *project)
     } catch (...) {
         throw IOException(QStringLiteral("serialization error"));
     }
-
 }
 
-}
+} // namespace qmt

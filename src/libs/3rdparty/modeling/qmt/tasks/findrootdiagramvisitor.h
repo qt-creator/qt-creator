@@ -33,34 +33,24 @@
 
 #include "qmt/model_controller/mvoidvisitor.h"
 
-
 namespace qmt {
 
 class MDiagram;
 
-
-class QMT_EXPORT FindRootDiagramVisitor :
-        public MVoidVisitor
+class QMT_EXPORT FindRootDiagramVisitor : public MVoidVisitor
 {
 public:
     FindRootDiagramVisitor();
-
     ~FindRootDiagramVisitor();
 
-public:
-
     MDiagram *diagram() const { return m_diagram; }
-
-public:
 
     void visitMObject(MObject *object);
 
 private:
-
     MDiagram *m_diagram;
 };
 
-
-}
+} // namespace qmt
 
 #endif // QMT_FINDROOTDIAGRAMVISITOR_H

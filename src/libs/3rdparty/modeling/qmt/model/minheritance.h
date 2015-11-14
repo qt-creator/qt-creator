@@ -34,45 +34,26 @@
 #include "mrelation.h"
 #include "qmt/infrastructure/handle.h"
 
-
 namespace qmt {
 
-class MClass;
-
-
-class QMT_EXPORT MInheritance :
-        public MRelation
+class QMT_EXPORT MInheritance : public MRelation
 {
 public:
-
     MInheritance();
-
     MInheritance(const MInheritance &rhs);
-
     ~MInheritance();
-
-public:
 
     MInheritance operator=(const MInheritance &rhs);
 
-public:
-
     Uid derived() const;
-
     void setDerived(const Uid &derived);
-
     Uid base() const;
-
     void setBase(const Uid &base);
 
-public:
-
     virtual void accept(MVisitor *visitor);
-
     virtual void accept(MConstVisitor *visitor) const;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MINHERITANCE_H

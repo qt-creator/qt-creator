@@ -80,9 +80,8 @@ void DiagramsView::openDiagram(MDiagram *diagram)
 
 void DiagramsView::closeDiagram(const MDiagram *diagram)
 {
-    if (!diagram) {
+    if (!diagram)
         return;
-    }
 
     DiagramView *diagramView = m_diagramViews.value(diagram->uid());
     if (diagramView) {
@@ -118,13 +117,11 @@ void DiagramsView::onTabCloseRequested(int tabIndex)
 
 void DiagramsView::onDiagramRenamed(const MDiagram *diagram)
 {
-    if (!diagram) {
+    if (!diagram)
         return;
-    }
     DiagramView *diagramView = m_diagramViews.value(diagram->uid());
-    if (diagramView) {
+    if (diagramView)
         setTabText(indexOf(diagramView), diagram->name());
-    }
 }
 
 MDiagram *DiagramsView::diagram(int tabIndex) const
@@ -135,10 +132,9 @@ MDiagram *DiagramsView::diagram(int tabIndex) const
 
 MDiagram *DiagramsView::diagram(DiagramView *diagramView) const
 {
-    if (!diagramView || diagramView->diagramSceneModel()) {
+    if (!diagramView || diagramView->diagramSceneModel())
         return 0;
-    }
     return diagramView->diagramSceneModel()->diagram();
 }
 
-}
+} // namespace qmt

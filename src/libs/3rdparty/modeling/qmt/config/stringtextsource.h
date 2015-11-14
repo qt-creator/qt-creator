@@ -37,37 +37,25 @@
 
 namespace qmt {
 
-class QMT_EXPORT StringTextSource :
-        public ITextSource
+class QMT_EXPORT StringTextSource : public ITextSource
 {
 public:
-
     StringTextSource();
     ~StringTextSource();
 
 public:
-
     void setText(const QString &text);
-
     int sourceId() const { return m_sourceId; }
-
     void setSourceId(int sourceId);
 
     // ITextSource interface
-public:
-
     SourceChar readNextChar();
 
 private:
-
     QString m_text;
-
     int m_sourceId;
-
     int m_index;
-
     int m_lineNumber;
-
     int m_columnNumber;
 };
 

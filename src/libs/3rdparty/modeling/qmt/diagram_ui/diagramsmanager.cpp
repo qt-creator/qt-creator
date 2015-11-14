@@ -41,20 +41,16 @@
 
 #include <QModelIndex>
 
-
 namespace qmt {
 
-class DiagramsManager::ManagedDiagram {
+class DiagramsManager::ManagedDiagram
+{
 public:
     ManagedDiagram(DiagramSceneModel *diagramSceneModel, const QString &diagramName);
-
     ~ManagedDiagram();
 
-public:
     DiagramSceneModel *diagramSceneModel() const { return m_diagramSceneModel.data(); }
-
     QString diagramName() const { return m_diagramName; }
-
     void setDiagramName(const QString &name) { m_diagramName = name; }
 
 private:
@@ -71,8 +67,6 @@ DiagramsManager::ManagedDiagram::ManagedDiagram(DiagramSceneModel *diagramSceneM
 DiagramsManager::ManagedDiagram::~ManagedDiagram()
 {
 }
-
-
 
 DiagramsManager::DiagramsManager(QObject *parent)
     : QObject(parent),
@@ -91,13 +85,11 @@ DiagramsManager::~DiagramsManager()
 
 void DiagramsManager::setModel(TreeModel *model)
 {
-    if (m_model) {
+    if (m_model)
         connect(m_model, 0, this, 0);
-    }
     m_model = model;
-    if (model) {
+    if (model)
         connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onDataChanged(QModelIndex,QModelIndex)));
-    }
 }
 
 void DiagramsManager::setDiagramsView(DiagramsViewInterface *diagramsView)
@@ -107,13 +99,11 @@ void DiagramsManager::setDiagramsView(DiagramsViewInterface *diagramsView)
 
 void DiagramsManager::setDiagramController(DiagramController *diagramController)
 {
-    if (m_diagramController) {
+    if (m_diagramController)
         connect(m_diagramController, 0, this, 0);
-    }
     m_diagramController = diagramController;
-    if (diagramController) {
+    if (diagramController)
         connect(diagramController, SIGNAL(diagramAboutToBeRemoved(const MDiagram*)), this, SLOT(removeDiagram(const MDiagram*)));
-    }
 }
 
 void DiagramsManager::setDiagramSceneController(DiagramSceneController *diagramSceneController)
@@ -165,9 +155,8 @@ void DiagramsManager::unbindDiagramSceneModel(const MDiagram *diagram)
 
 void DiagramsManager::openDiagram(MDiagram *diagram)
 {
-    if (m_diagramsView) {
+    if (m_diagramsView)
         m_diagramsView->openDiagram(diagram);
-    }
 }
 
 void DiagramsManager::removeDiagram(const MDiagram *diagram)
@@ -185,9 +174,8 @@ void DiagramsManager::removeDiagram(const MDiagram *diagram)
 
 void DiagramsManager::removeAllDiagrams()
 {
-    if (m_diagramsView) {
+    if (m_diagramsView)
         m_diagramsView->closeAllDiagrams();
-    }
     qDeleteAll(m_diagramUidToManagedDiagramMap);
     m_diagramUidToManagedDiagramMap.clear();
 
@@ -202,12 +190,11 @@ void DiagramsManager::onDataChanged(const QModelIndex &topleft, const QModelInde
             ManagedDiagram *managedDiagram = m_diagramUidToManagedDiagramMap.value(diagram->uid());
             if (managedDiagram && managedDiagram->diagramName() != diagram->name()) {
                 managedDiagram->setDiagramName(diagram->name());
-                if (m_diagramsView) {
+                if (m_diagramsView)
                     m_diagramsView->onDiagramRenamed(diagram);
-                }
             }
         }
     }
 }
 
-}
+} // namespace qmt

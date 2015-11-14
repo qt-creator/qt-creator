@@ -36,55 +36,34 @@
 #include <QPointF>
 #include <QRectF>
 
-
 namespace qmt {
 
-class QMT_EXPORT DBoundary :
-        public DElement
+class QMT_EXPORT DBoundary : public DElement
 {
 public:
     DBoundary();
-
     DBoundary(const DBoundary &rhs);
-
     ~DBoundary();
-
-public:
 
     DBoundary &operator=(const DBoundary &rhs);
 
-public:
-
     Uid modelUid() const { return Uid::invalidUid(); }
-
     QString text() const { return m_text; }
-
     void setText(const QString &text);
-
     QPointF pos() const { return m_pos; }
-
     void setPos(const QPointF &pos);
-
     QRectF rect() const { return m_rect; }
-
     void setRect(const QRectF &rect);
 
-public:
-
     virtual void accept(DVisitor *visitor);
-
     virtual void accept(DConstVisitor *visitor) const;
 
 private:
-
     QString m_text;
-
     QPointF m_pos;
-
     QRectF m_rect;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DBOUNDARY_H

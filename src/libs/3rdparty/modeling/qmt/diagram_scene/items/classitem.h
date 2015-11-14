@@ -42,7 +42,6 @@ class QGraphicsLineItem;
 class QGraphicsTextItem;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class DiagramSceneModel;
@@ -53,77 +52,45 @@ class TemplateParameterBox;
 class RelationStarter;
 class Style;
 
-class ClassItem :
-        public ObjectItem,
-        public IRelationable
+class ClassItem : public ObjectItem, public IRelationable
 {
 public:
     ClassItem(DClass *klass, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-
     ~ClassItem();
-
-public:
 
     void update();
 
-public:
-
     bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const;
-
-public:
 
     QSizeF minimumSize() const;
 
-public:
-
     QPointF relationStartPos() const;
-
     void relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints);
 
 protected:
-
     bool extendContextMenu(QMenu *menu);
-
     bool handleSelectedContextMenuAction(QAction *action);
 
 private:
-
     QSizeF calcMinimumGeometry() const;
-
     void updateGeometry();
-
     void updateMembers(const Style *style);
 
-private:
-
     CustomIconItem *m_customIcon;
-
     QGraphicsRectItem *m_shape;
-
     QGraphicsSimpleTextItem *m_namespace;
-
     QGraphicsSimpleTextItem *m_className;
-
     ContextLabelItem *m_contextLabel;
-
     QGraphicsLineItem *m_attributesSeparator;
-
     QString m_attributesText;
-
     QGraphicsTextItem *m_attributes;
-
     QGraphicsLineItem *m_methodsSeparator;
-
     QString m_methodsText;
-
     QGraphicsTextItem *m_methods;
-
     TemplateParameterBox *m_templateParameterBox;
-
     RelationStarter *m_relationStarter;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_GRAPHICSCLASSITEM_H

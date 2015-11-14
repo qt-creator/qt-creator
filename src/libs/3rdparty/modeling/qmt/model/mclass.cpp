@@ -117,4 +117,4 @@ void MClass::accept(MConstVisitor *visitor) const
     visitor->visitMClass(this);
 }
 
-}
+} // namespace qmt

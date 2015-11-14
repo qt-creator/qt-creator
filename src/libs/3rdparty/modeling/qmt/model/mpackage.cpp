@@ -33,7 +33,6 @@
 #include "mvisitor.h"
 #include "mconstvisitor.h"
 
-
 namespace qmt {
 
 MPackage::MPackage()
@@ -55,4 +54,4 @@ void MPackage::accept(MConstVisitor *visitor) const
     visitor->visitMPackage(this);
 }
 
-}
+} // namespace qmt

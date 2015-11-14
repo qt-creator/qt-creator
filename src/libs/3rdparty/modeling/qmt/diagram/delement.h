@@ -35,40 +35,29 @@
 
 #include <QString>
 
-
 namespace qmt {
 
 class DVisitor;
 class DConstVisitor;
 
-
 class QMT_EXPORT DElement
 {
 public:
     DElement();
-
     virtual ~DElement();
 
-public:
     Uid uid() const { return m_uid; }
-
     void setUid(const Uid &uid);
-
     void renewUid();
-
     virtual Uid modelUid() const = 0;
 
-public:
-
     virtual void accept(DVisitor *visitor);
-
     virtual void accept(DConstVisitor *visitor) const;
 
 private:
-
     Uid m_uid;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DELEMENT_H

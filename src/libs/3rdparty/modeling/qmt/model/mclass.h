@@ -38,60 +38,36 @@ namespace qmt {
 
 class MInheritance;
 
-
-class QMT_EXPORT MClass :
-        public MObject
+class QMT_EXPORT MClass : public MObject
 {
 public:
-
     MClass();
-
     MClass(const MClass &rhs);
-
     ~MClass();
-
-public:
 
     MClass &operator=(const MClass &rhs);
 
-public:
-
     QString umlNamespace() const { return m_umlNamespace; }
-
     void setUmlNamespace(const QString &umlNamespace);
-
     QList<QString> templateParameters() const { return m_templateParameters; }
-
     void setTemplateParameters(const QList<QString> &templateParameters);
-
     QList<MClassMember> members() const { return m_members; }
-
     void setMembers(const QList<MClassMember> &members);
 
     void addMember(const MClassMember &member);
-
     void insertMember(int beforeIndex, const MClassMember &member);
-
     void removeMember(const Uid &uid);
-
     void removeMember(const MClassMember &member);
 
-public:
-
     virtual void accept(MVisitor *visitor);
-
     virtual void accept(MConstVisitor *visitor) const;
 
 private:
-
     QString m_umlNamespace;
-
     QList<QString> m_templateParameters;
-
     QList<MClassMember> m_members;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MCLASS_H

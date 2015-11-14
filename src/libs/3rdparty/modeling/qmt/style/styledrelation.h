@@ -38,32 +38,22 @@ namespace qmt {
 class DRelation;
 class DObject;
 
-
 class QMT_EXPORT StyledRelation
 {
 public:
     StyledRelation(const DRelation *relation, const DObject *endA, const DObject *endB);
-
     ~StyledRelation();
 
-public:
-
     const DRelation *relation() const { return m_relation; }
-
     const DObject *endA() const { return m_endA; }
-
     const DObject *endB() const { return m_endB; }
 
 private:
-
     const DRelation *m_relation;
-
     const DObject *m_endA;
-
     const DObject *m_endB;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_STYLEDRELATION_H

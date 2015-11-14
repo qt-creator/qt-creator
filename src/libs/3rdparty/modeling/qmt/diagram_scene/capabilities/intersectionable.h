@@ -38,18 +38,16 @@ class QPointF;
 class QLineF;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
-class IIntersectionable {
+class IIntersectionable
+{
 public:
-
     virtual ~IIntersectionable() { }
 
     virtual bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine = 0) const = 0;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_INTERSECTIONABLE_H

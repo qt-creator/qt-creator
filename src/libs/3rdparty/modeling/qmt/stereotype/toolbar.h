@@ -36,13 +36,11 @@
 #include <QString>
 #include <QList>
 
-
 namespace qmt {
 
 class QMT_EXPORT Toolbar
 {
 public:
-
     enum ToolType {
         TooltypeTool,
         TooltypeSeparator
@@ -70,34 +68,22 @@ public:
         QString m_stereotype;
     };
 
-public:
     Toolbar();
-
     ~Toolbar();
 
-public:
-
     QString id() const { return m_id; }
-
     void setId(const QString &id);
-
     int priority() const { return m_priority; }
-
     void setPriority(int priority);
-
     QList<Tool> tools() const { return m_tools; }
-
     void setTools(const QList<Tool> &tools);
 
 private:
-
     QString m_id;
-
     int m_priority;
-
     QList<Tool> m_tools;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_TOOLBAR_H

@@ -38,7 +38,8 @@
 namespace qark {
 
 template<typename T>
-class Ref {
+class Ref
+{
 public:
     Ref(const QString &qualifiedName, T *value)
         : m_qualifiedName(qualifiedName),
@@ -54,9 +55,7 @@ public:
     }
 
     const QString &qualifiedName() const { return m_qualifiedName; }
-
     T *value() const { return m_value; }
-
     Parameters parameters() const { return m_parameters; }
 
 private:
@@ -89,9 +88,9 @@ Ref<T *> ref(const QString &qualifiedName, T *&value, const Parameters &paramete
     return Ref<T *>(qualifiedName, &value, parameters);
 }
 
-
 template<class U, typename T>
-class GetterRef {
+class GetterRef
+{
 public:
     GetterRef(const QString &qualifiedName, const U &u, T (U::*getter)() const)
         : m_qualifiedName(qualifiedName),
@@ -109,11 +108,8 @@ public:
     }
 
     const QString &qualifiedName() const { return m_qualifiedName; }
-
     const U &object() const { return m_u; }
-
     T (U::*getter() const)() const { return m_getter; }
-
     Parameters parameters() const { return m_parameters; }
 
 private:
@@ -135,9 +131,9 @@ GetterRef<U, T *> ref(const QString &qualifiedName, const U &u, T *(U::*getter)(
     return GetterRef<U, T *>(qualifiedName, u, getter, parameters);
 }
 
-
 template<class U, typename T>
-class SetterRef {
+class SetterRef
+{
 public:
     SetterRef(const QString &qualifiedName, U &u, void (U::*setter)(T))
         : m_qualifiedName(qualifiedName),
@@ -155,11 +151,8 @@ public:
     }
 
     const QString &qualifiedName() const { return m_qualifiedName; }
-
     U &object() const { return m_u; }
-
     void (U::*setter() const)(T) { return m_setter; }
-
     Parameters parameters() const { return m_parameters; }
 
 private:
@@ -193,9 +186,9 @@ SetterRef<U, T * const &> ref(const QString &qualifiedName, U &u, void (U::*sett
     return SetterRef<U, T * const &>(qualifiedName, u, setter, parameters);
 }
 
-
 template<class U, typename T, typename V>
-class GetterSetterRef {
+class GetterSetterRef
+{
 public:
     GetterSetterRef(const QString &qualifiedName, U &u, T (U::*getter)() const, void (U::*setter)(V))
         : m_qualifiedName(qualifiedName),
@@ -215,13 +208,9 @@ public:
     }
 
     const QString &qualifiedName() const { return m_qualifiedName; }
-
     U &object() const { return m_u; }
-
     T (U::*getter() const)() const { return m_getter; }
-
     void (U::*setter() const)(V) { return m_setter; }
-
     Parameters parameters() const { return m_parameters; }
 
 private:
@@ -256,9 +245,9 @@ GetterSetterRef<U, T *, V * const &> ref(const QString &qualifiedName, U &u, T *
     return GetterSetterRef<U, T *, V * const &>(qualifiedName, u, getter, setter, parameters);
 }
 
-
 template<class U, typename T>
-class GetFuncRef {
+class GetFuncRef
+{
 public:
     GetFuncRef(const QString &qualifiedName, const U &u, T (*func)(const U &))
         : m_qualifiedName(qualifiedName),
@@ -276,11 +265,8 @@ public:
     }
 
     const QString &qualifiedName() const { return m_qualifiedName; }
-
     const U &object() const { return m_u; }
-
     T (*getterFunc() const)(const U &) { return m_getFunc; }
-
     Parameters parameters() const { return m_parameters; }
 
 private:
@@ -302,9 +288,9 @@ GetFuncRef<U, T *> ref(const QString &qualifiedName, const U &u, T *(*func)(cons
     return GetFuncRef<U, T *>(qualifiedName, u, func, parameters);
 }
 
-
 template<class U, typename T>
-class SetFuncRef {
+class SetFuncRef
+{
 public:
     SetFuncRef(const QString &qualifiedName, U &u, void (*setFunc)(U &, T))
         : m_qualifiedName(qualifiedName),
@@ -322,11 +308,8 @@ public:
     }
 
     const QString &qualifiedName() const { return m_qualifiedName; }
-
     U &object() const { return m_u; }
-
     void (*setterFunc() const)(U &, T) { return m_setFunc; }
-
     Parameters parameters() const { return m_parameters; }
 
 private:
@@ -360,9 +343,9 @@ SetFuncRef<U, T * const &> ref(const QString &qualifiedName, U &u, void (*setFun
     return SetFuncRef<U, T * const &>(qualifiedName, u, setFunc, parameters);
 }
 
-
 template<class U, typename T, typename V>
-class GetSetFuncRef {
+class GetSetFuncRef
+{
 public:
     GetSetFuncRef(const QString &qualifiedName, U &u, T (*func)(const U &), void (*setFunc)(U &, V))
         : m_qualifiedName(qualifiedName),
@@ -382,13 +365,9 @@ public:
     }
 
     const QString &qualifiedName() const { return m_qualifiedName; }
-
     U &object() const { return m_u; }
-
     T (*getterFunc() const)(const U &) { return m_getFunc; }
-
     void (*setterFunc() const)(U &, V) { return m_setFunc; }
-
     Parameters parameters() const { return m_parameters; }
 
 private:
@@ -423,6 +402,6 @@ GetSetFuncRef<U, T *, V * const &> ref(const QString &qualifiedName, U &u, T *(*
     return GetSetFuncRef<U, T *, V * const &>(qualifiedName, u, func, setFunc, parameters);
 }
 
-}
+} // namespace qark
 
 #endif // QARK_REFERENCE_H

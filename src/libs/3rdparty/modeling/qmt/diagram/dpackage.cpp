@@ -33,7 +33,6 @@
 #include "dvisitor.h"
 #include "dconstvisitor.h"
 
-
 namespace qmt {
 
 DPackage::DPackage()
@@ -50,4 +49,4 @@ void DPackage::accept(DConstVisitor *visitor) const
     visitor->visitDPackage(this);
 }
 
-}
+} // namespace qmt

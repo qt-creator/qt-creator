@@ -55,9 +55,8 @@ RelationStarterStyle::RelationStarterStyle()
     setHeaderFont(headerFont);
 }
 
-
 RelationStarterStyle::~RelationStarterStyle()
 {
 }
 
-}
+} // namespace qmt

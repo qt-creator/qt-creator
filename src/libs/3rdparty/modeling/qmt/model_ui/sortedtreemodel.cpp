@@ -32,7 +32,6 @@
 
 #include "treemodel.h"
 
-
 namespace qmt {
 
 SortedTreeModel::SortedTreeModel(QObject *parent)
@@ -50,7 +49,6 @@ SortedTreeModel::SortedTreeModel(QObject *parent)
 
 SortedTreeModel::~SortedTreeModel()
 {
-
 }
 
 void SortedTreeModel::setTreeModel(TreeModel *treeModel)
@@ -106,4 +104,4 @@ void SortedTreeModel::startDelayedSortTimer()
     m_delayedSortTimer.start(1000);
 }
 
-}
+} // namespace qmt

@@ -88,9 +88,8 @@ TextScanner::~TextScanner()
 void TextScanner::setKeywords(const QList<QPair<QString, int> > &keywords)
 {
     d->m_keywordToSubtypeMap.clear();
-    foreach (const DefTuple &tuple, keywords) {
+    foreach (const DefTuple &tuple, keywords)
         d->m_keywordToSubtypeMap.insert(tuple.first.toLower(), tuple.second);
-    }
 }
 
 void TextScanner::setOperators(const QList<QPair<QString, int> > &operators)
@@ -102,13 +101,11 @@ void TextScanner::setOperators(const QList<QPair<QString, int> > &operators)
     foreach (const DefTuple &tuple, operators) {
         QString op = tuple.first;
         d->m_operatorToSubtypeMap.insert(op, tuple.second);
-        if (op.length() > d->m_maxOperatorLength) {
+        if (op.length() > d->m_maxOperatorLength)
             d->m_maxOperatorLength = op.length();
-        }
         d->m_operatorFirstCharsSet.insert(op.at(0));
-        foreach (const QChar ch, op) {
+        foreach (const QChar ch, op)
             d->m_operatorCharsSet.insert(ch);
-        }
     }
 }
 
@@ -124,28 +121,26 @@ SourcePos TextScanner::sourcePos() const
 
 Token TextScanner::read()
 {
-    if (!d->m_unreadTokens.isEmpty()) {
+    if (!d->m_unreadTokens.isEmpty())
         return d->m_unreadTokens.pop();
-    }
     skipWhitespaces();
     SourceChar sourceChar = readChar();
-    if (sourceChar.ch == QLatin1Char('\'') || sourceChar.ch == QLatin1Char('\"')) {
+    if (sourceChar.ch == QLatin1Char('\'') || sourceChar.ch == QLatin1Char('\"'))
         return scanString(sourceChar);
-    } else if (sourceChar.ch.isDigit()) {
+    else if (sourceChar.ch.isDigit())
         return scanNumber(sourceChar);
-    } else if (sourceChar.ch.isLetter() || sourceChar.ch == QLatin1Char('_')) {
+    else if (sourceChar.ch.isLetter() || sourceChar.ch == QLatin1Char('_'))
         return scanIdentifier(sourceChar);
-    } else if (sourceChar.ch == QLatin1Char('#')) {
+    else if (sourceChar.ch == QLatin1Char('#'))
         return scanColorIdentifier(sourceChar);
-    } else if (sourceChar.ch == QChar::LineFeed || sourceChar.ch == QChar::CarriageReturn) {
+    else if (sourceChar.ch == QChar::LineFeed || sourceChar.ch == QChar::CarriageReturn)
         return Token(Token::TokenEndOfLine, QString(), sourceChar.pos);
-    } else if (sourceChar.ch.isNull()) {
+    else if (sourceChar.ch.isNull())
         return Token(Token::TokenEndOfInput, QString(), sourceChar.pos);
-    } else if (d->m_operatorFirstCharsSet.contains(sourceChar.ch)) {
+    else if (d->m_operatorFirstCharsSet.contains(sourceChar.ch))
         return scanOperator(sourceChar);
-    } else {
+    else
         throw TextScannerError(QStringLiteral("Unexpected character."), sourceChar.pos);
-    }
 }
 
 void TextScanner::unread(const Token &token)
@@ -156,11 +151,10 @@ void TextScanner::unread(const Token &token)
 SourceChar TextScanner::readChar()
 {
     SourceChar ch;
-    if (!d->m_unreadSourceChars.isEmpty()) {
+    if (!d->m_unreadSourceChars.isEmpty())
         ch = d->m_unreadSourceChars.pop();
-    } else {
+    else
         ch = d->m_source->readNextChar();
-    }
     d->m_lastSourcePos = ch.pos;
     return ch;
 }
@@ -179,9 +173,8 @@ void TextScanner::skipWhitespaces()
             if (secondSourceChar.ch == QLatin1Char('/')) {
                 for (;;) {
                     SourceChar commentChar = readChar();
-                    if (commentChar.ch.isNull() || commentChar.ch == QChar::LineFeed || commentChar.ch == QChar::CarriageReturn) {
+                    if (commentChar.ch.isNull() || commentChar.ch == QChar::LineFeed || commentChar.ch == QChar::CarriageReturn)
                         break;
-                    }
                 }
             } else {
                 unreadChar(secondSourceChar);
@@ -203,19 +196,18 @@ Token TextScanner::scanString(const SourceChar &delimiterChar)
             return Token(Token::TokenString, text, delimiterChar.pos);
         } else if (sourceChar.ch == QLatin1Char('\\')) {
             sourceChar = readChar();
-            if (sourceChar.ch == QLatin1Char('n')) {
+            if (sourceChar.ch == QLatin1Char('n'))
                 text += QLatin1Char('\n');
-            } else if (sourceChar.ch == QLatin1Char('\\')) {
+            else if (sourceChar.ch == QLatin1Char('\\'))
                 text += QLatin1Char('\\');
-            } else if (sourceChar.ch == QLatin1Char('t')) {
+            else if (sourceChar.ch == QLatin1Char('t'))
                 text += QLatin1Char('\t');
-            } else if (sourceChar.ch == QLatin1Char('\"')) {
+            else if (sourceChar.ch == QLatin1Char('\"'))
                 text += QLatin1Char('\"');
-            } else if (sourceChar.ch == QLatin1Char('\'')) {
+            else if (sourceChar.ch == QLatin1Char('\''))
                 text += QLatin1Char('\'');
-            } else {
+            else
                 throw TextScannerError(QStringLiteral("Unexpected character after '\\' in string constant."), sourceChar.pos);
-            }
         } else if (sourceChar.ch == QChar::LineFeed || sourceChar.ch == QChar::CarriageReturn) {
             throw TextScannerError(QStringLiteral("Unexpected end of line in string constant."), sourceChar.pos);
         } else {
@@ -230,18 +222,16 @@ Token TextScanner::scanNumber(const SourceChar &firstDigit)
     SourceChar sourceChar;
     for (;;) {
         sourceChar = readChar();
-        if (!sourceChar.ch.isDigit()) {
+        if (!sourceChar.ch.isDigit())
             break;
-        }
         text += sourceChar.ch;
     }
     if (sourceChar.ch == QLatin1Char('.')) {
         text += sourceChar.ch;
         for (;;) {
             sourceChar = readChar();
-            if (!sourceChar.ch.isDigit()) {
+            if (!sourceChar.ch.isDigit())
                 break;
-            }
             text += sourceChar.ch;
         }
         unreadChar(sourceChar);
@@ -261,9 +251,8 @@ Token TextScanner::scanIdentifier(const SourceChar &firstChar)
         if (!sourceChar.ch.isLetterOrNumber() && sourceChar.ch != QLatin1Char('_')) {
             unreadChar(sourceChar);
             QString keyword = text.toLower();
-            if (d->m_keywordToSubtypeMap.contains(keyword)) {
+            if (d->m_keywordToSubtypeMap.contains(keyword))
                 return Token(Token::TokenKeyword, d->m_keywordToSubtypeMap.value(keyword), text, firstChar.pos);
-            }
             return Token(Token::TokenIdentifier, text, firstChar.pos);
         }
         text += sourceChar.ch;

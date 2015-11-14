@@ -31,16 +31,14 @@
 #include "qark/impl/savingrefmap.h"
 
 namespace qark {
-
 namespace impl {
 
 int SavingRefMap::countDanglingReferences()
 {
     int dangling = 0;
     for (MapType::const_iterator it = m_references.begin(); it != m_references.end(); ++it) {
-        if (!it.value().second) {
+        if (!it.value().second)
             ++dangling;
-        }
     }
     return dangling;
 }
@@ -53,9 +51,8 @@ bool SavingRefMap::hasRef(const void *address, const char *typeName)
 bool SavingRefMap::hasDefinedRef(const void *address, const char *typeName)
 {
     MapType::const_iterator it = m_references.find(KeyType(address, typeName));
-    if (it == m_references.end()) {
+    if (it == m_references.end())
         return false;
-    }
     return it.value().second;
 }
 
@@ -64,9 +61,8 @@ ObjectId SavingRefMap::ref(const void *address, const char *typeName, bool defin
     KeyType k = KeyType(address, typeName);
     MapType::iterator it = m_references.find(k);
     if (it != m_references.end()) {
-        if (define) {
+        if (define)
             it.value().second = true;
-        }
         return it.value().first;
     }
     ObjectId id = m_nextRef++;
@@ -74,6 +70,5 @@ ObjectId SavingRefMap::ref(const void *address, const char *typeName, bool defin
     return id;
 }
 
-}
-
-}
+} // namespace impl
+} // namespace qark

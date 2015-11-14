@@ -33,16 +33,13 @@
 
 #include <QGraphicsItem>
 
-
 namespace qmt {
 
 class IWindable;
 
-class PathSelectionItem :
-        public QGraphicsItem
+class PathSelectionItem : public QGraphicsItem
 {
     class GraphicsHandleItem;
-
     friend class GraphicsHandleItem;
 
     enum HandleStatus {
@@ -58,54 +55,33 @@ class PathSelectionItem :
     };
 
 public:
-
     PathSelectionItem(IWindable *windable, QGraphicsItem *parent = 0);
-
     ~PathSelectionItem();
 
-public:
-
     QRectF boundingRect() const;
-
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-
     QPainterPath shape() const;
 
-public:
-
     QSizeF pointSize() const { return m_pointSize; }
-
     void setPointSize(const QSizeF &size);
-
     QList<QPointF> points() const;
-
     void setPoints(const QList<QPointF> &points);
-
     void setSecondarySelected(bool secondarySelected);
 
 protected:
-
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
 
 private:
-
     void update();
-
     void moveHandle(int pointIndex, const QPointF &deltaMove, HandleStatus handleStatus, HandleQualifier handleQualifier);
 
-private:
-
     IWindable *m_windable;
-
     QSizeF m_pointSize;
-
     bool m_isSecondarySelected;
-
     QList<GraphicsHandleItem *> m_handles;
-
     QPointF m_originalHandlePos;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_GRAPHICSPATHSELECTIONITEM_H

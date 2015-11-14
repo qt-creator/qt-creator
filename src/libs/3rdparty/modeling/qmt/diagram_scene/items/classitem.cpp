@@ -60,14 +60,12 @@
 
 #include <algorithm>
 
-
 namespace qmt {
 
 static const qreal MINIMUM_AUTO_WIDTH = 80.0;
 static const qreal MINIMUM_AUTO_HEIGHT = 60.0;
 static const qreal BODY_VERT_BORDER = 4.0;
 static const qreal BODY_HORIZ_BORDER = 4.0;
-
 
 ClassItem::ClassItem(DClass *klass, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : ObjectItem(klass, diagramSceneModel, parent),
@@ -109,9 +107,8 @@ void ClassItem::update()
 
     // custom icon
     if (stereotypeIconDisplay() == StereotypeIcon::DisplayIcon) {
-        if (!m_customIcon) {
+        if (!m_customIcon)
             m_customIcon = new CustomIconItem(diagramSceneModel(), this);
-        }
         m_customIcon->setStereotypeIconId(stereotypeIconId());
         m_customIcon->setBaseSize(stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT));
         m_customIcon->setBrush(style->fillBrush());
@@ -125,9 +122,8 @@ void ClassItem::update()
 
     // shape
     if (!m_customIcon) {
-        if (!m_shape) {
+        if (!m_shape)
             m_shape = new QGraphicsRectItem(this);
-        }
         m_shape->setBrush(style->fillBrush());
         m_shape->setPen(style->outerLinePen());
         m_shape->setZValue(SHAPE_ZVALUE);
@@ -142,9 +138,8 @@ void ClassItem::update()
 
     // namespace
     if (!diagramClass->umlNamespace().isEmpty()) {
-        if (!m_namespace) {
+        if (!m_namespace)
             m_namespace = new QGraphicsSimpleTextItem(this);
-        }
         m_namespace->setFont(style->smallFont());
         m_namespace->setBrush(style->textBrush());
         m_namespace->setText(diagramClass->umlNamespace());
@@ -156,17 +151,15 @@ void ClassItem::update()
 
     DClass::TemplateDisplay templateDisplay = diagramClass->templateDisplay();
     if (templateDisplay == DClass::TemplateSmart) {
-        if (m_customIcon) {
+        if (m_customIcon)
             templateDisplay = DClass::TemplateName;
-        } else {
+        else
             templateDisplay = DClass::TemplateBox;
-        }
     }
 
     // class name
-    if (!m_className) {
+    if (!m_className)
         m_className = new QGraphicsSimpleTextItem(this);
-    }
     m_className->setFont(style->headerFont());
     m_className->setBrush(style->textBrush());
     if (templateDisplay == DClass::TemplateName && !diagramClass->templateParameters().isEmpty()) {
@@ -174,9 +167,8 @@ void ClassItem::update()
         name += QLatin1Char('<');
         bool first = true;
         foreach (const QString &p, diagramClass->templateParameters()) {
-            if (!first) {
+            if (!first)
                 name += QLatin1Char(',');
-            }
             name += p;
             first = false;
         }
@@ -188,9 +180,8 @@ void ClassItem::update()
 
     // context
     if (showContext()) {
-        if (!m_contextLabel) {
+        if (!m_contextLabel)
             m_contextLabel = new ContextLabelItem(this);
-        }
         m_contextLabel->setFont(style->smallFont());
         m_contextLabel->setBrush(style->textBrush());
         m_contextLabel->setContext(object()->context());
@@ -202,9 +193,8 @@ void ClassItem::update()
 
     // attributes separator
     if (m_shape || !m_attributesText.isEmpty() || !m_methodsText.isEmpty()) {
-        if (!m_attributesSeparator) {
+        if (!m_attributesSeparator)
             m_attributesSeparator = new QGraphicsLineItem(this);
-        }
         m_attributesSeparator->setPen(style->innerLinePen());
         m_attributesSeparator->setZValue(SHAPE_DETAILS_ZVALUE);
     } else if (m_attributesSeparator) {
@@ -215,9 +205,8 @@ void ClassItem::update()
 
     // attributes
     if (!m_attributesText.isEmpty()) {
-        if (!m_attributes) {
+        if (!m_attributes)
             m_attributes = new QGraphicsTextItem(this);
-        }
         m_attributes->setFont(style->normalFont());
         //m_attributes->setBrush(style->textBrush());
         m_attributes->setDefaultTextColor(style->textBrush().color());
@@ -230,9 +219,8 @@ void ClassItem::update()
 
     // methods separator
     if (m_shape || !m_attributesText.isEmpty() || !m_methodsText.isEmpty()) {
-        if (!m_methodsSeparator) {
+        if (!m_methodsSeparator)
             m_methodsSeparator = new QGraphicsLineItem(this);
-        }
         m_methodsSeparator->setPen(style->innerLinePen());
         m_methodsSeparator->setZValue(SHAPE_DETAILS_ZVALUE);
     } else if (m_methodsSeparator) {
@@ -243,9 +231,8 @@ void ClassItem::update()
 
     // methods
     if (!m_methodsText.isEmpty()) {
-        if (!m_methods) {
+        if (!m_methods)
             m_methods = new QGraphicsTextItem(this);
-        }
         m_methods->setFont(style->normalFont());
         //m_methods->setBrush(style->textBrush());
         m_methods->setDefaultTextColor(style->textBrush().color());
@@ -258,9 +245,8 @@ void ClassItem::update()
 
     // template parameters
     if (templateDisplay == DClass::TemplateBox && !diagramClass->templateParameters().isEmpty()) {
-        if (!m_templateParameterBox) {
+        if (!m_templateParameterBox)
             m_templateParameterBox = new TemplateParameterBox(this);
-        }
         QPen pen = style->outerLinePen();
         pen.setStyle(Qt::DashLine);
         m_templateParameterBox->setPen(pen);
@@ -293,7 +279,6 @@ void ClassItem::update()
     }
 
     updateAlignmentButtons();
-
     updateGeometry();
 }
 
@@ -338,9 +323,8 @@ void ClassItem::relationDrawn(const QString &id, const QPointF &toScenePos, cons
             }
         } else if (id == QLatin1String("dependency")) {
             DObject *dependantObject = dynamic_cast<DObject *>(targetElement);
-            if (dependantObject) {
+            if (dependantObject)
                 diagramSceneModel()->diagramSceneController()->createDependency(object(), dependantObject, intermediatePoints, diagramSceneModel()->diagram());
-            }
         } else if (id == QLatin1String("association")) {
             DClass *assoziatedClass = dynamic_cast<DClass *>(targetElement);
             if (assoziatedClass) {
@@ -379,9 +363,8 @@ QSizeF ClassItem::calcMinimumGeometry() const
     double width = 0.0;
     double height = 0.0;
 
-    if (m_customIcon) {
+    if (m_customIcon)
         return stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
-    }
 
     height += BODY_VERT_BORDER;
     if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
@@ -400,19 +383,16 @@ QSizeF ClassItem::calcMinimumGeometry() const
         width = std::max(width, m_className->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
         height += m_className->boundingRect().height();
     }
-    if (m_contextLabel) {
+    if (m_contextLabel)
         height += m_contextLabel->height();
-    }
-    if (m_attributesSeparator) {
+    if (m_attributesSeparator)
         height += 8.0;
-    }
     if (m_attributes) {
         width = std::max(width, m_attributes->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
         height += m_attributes->boundingRect().height();
     }
-    if (m_methodsSeparator) {
+    if (m_methodsSeparator)
         height += 8.0;
-    }
     if (m_methods) {
         width = std::max(width, m_methods->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
         height += m_methods->boundingRect().height();
@@ -436,21 +416,17 @@ void ClassItem::updateGeometry()
 
     if (object()->isAutoSized()) {
         if (!m_customIcon) {
-            if (width < MINIMUM_AUTO_WIDTH) {
+            if (width < MINIMUM_AUTO_WIDTH)
                 width = MINIMUM_AUTO_WIDTH;
-            }
-            if (height < MINIMUM_AUTO_HEIGHT) {
+            if (height < MINIMUM_AUTO_HEIGHT)
                 height = MINIMUM_AUTO_HEIGHT;
-            }
         }
     } else {
         QRectF rect = object()->rect();
-        if (rect.width() > width) {
+        if (rect.width() > width)
             width = rect.width();
-        }
-        if (rect.height() > height) {
+        if (rect.height() > height)
             height = rect.height();
-        }
     }
 
     // update sizes and positions
@@ -475,9 +451,8 @@ void ClassItem::updateGeometry()
         y += height;
     }
 
-    if (m_shape) {
+    if (m_shape)
         m_shape->setRect(rect);
-    }
 
     y += BODY_VERT_BORDER;
     if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
@@ -497,11 +472,10 @@ void ClassItem::updateGeometry()
         y += m_className->boundingRect().height();
     }
     if (m_contextLabel) {
-        if (m_customIcon) {
+        if (m_customIcon)
             m_contextLabel->resetMaxWidth();
-        } else {
+        else
             m_contextLabel->setMaxWidth(width - 2 * BODY_HORIZ_BORDER);
-        }
         m_contextLabel->setPos(-m_contextLabel->boundingRect().width() / 2.0, y);
         y += m_contextLabel->boundingRect().height();
     }
@@ -511,11 +485,10 @@ void ClassItem::updateGeometry()
         y += 8.0;
     }
     if (m_attributes) {
-        if (m_customIcon) {
+        if (m_customIcon)
             m_attributes->setPos(-m_attributes->boundingRect().width() / 2.0, y);
-        } else {
+        else
             m_attributes->setPos(left + BODY_HORIZ_BORDER, y);
-        }
         y += m_attributes->boundingRect().height();
     }
     if (m_methodsSeparator) {
@@ -524,11 +497,10 @@ void ClassItem::updateGeometry()
         y += 8.0;
     }
     if (m_methods) {
-        if (m_customIcon) {
+        if (m_customIcon)
             m_methods->setPos(-m_methods->boundingRect().width() / 2.0, y);
-        } else {
+        else
             m_methods->setPos(left + BODY_HORIZ_BORDER, y);
-        }
         y += m_methods->boundingRect().height();
     }
 
@@ -539,22 +511,18 @@ void ClassItem::updateGeometry()
             m_templateParameterBox->setBreakLines(true);
             x = right - m_templateParameterBox->boundingRect().width() * 0.8;
         }
-        if (x < 0) {
+        if (x < 0)
             x = 0;
-        }
         m_templateParameterBox->setPos(x, top - m_templateParameterBox->boundingRect().height() + BODY_VERT_BORDER);
     }
 
     updateSelectionMarkerGeometry(rect);
 
-    if (m_relationStarter) {
+    if (m_relationStarter)
         m_relationStarter->setPos(mapToScene(QPointF(right + 8.0, top)));
-    }
 
     updateAlignmentButtonsGeometry(rect);
-
     updateDepth();
-
 }
 
 void ClassItem::updateMembers(const Style *style)
@@ -582,7 +550,6 @@ void ClassItem::updateMembers(const Style *style)
     bool useGroupVisibility = false;
 
     foreach (const MClassMember &member, dclass->members()) {
-
         switch (member.memberType()) {
         case MClassMember::MemberUndefined:
             QMT_CHECK(false);
@@ -599,9 +566,8 @@ void ClassItem::updateMembers(const Style *style)
             break;
         }
 
-        if (!text->isEmpty()) {
+        if (!text->isEmpty())
             *text += QStringLiteral("<br/>");
-        }
 
         bool addNewline = false;
         bool addSpace = false;
@@ -642,16 +608,14 @@ void ClassItem::updateMembers(const Style *style)
             *currentVisibility = member.visibility();
         }
         if (member.group() != currentGroup) {
-            if (addSpace) {
+            if (addSpace)
                 *text += QStringLiteral(" ");
-            }
             *text += QString(QStringLiteral("[%1]")).arg(member.group());
             addNewline = true;
             *currentGroup = member.group();
         }
-        if (addNewline) {
+        if (addNewline)
             *text += QStringLiteral("<br/>");
-        }
 
         addSpace = false;
         bool haveSignal = false;
@@ -710,33 +674,26 @@ void ClassItem::updateMembers(const Style *style)
             *text += haveIconFonts ? QString(QChar(0xe9cb)) : QStringLiteral("$");
             addSpace = true;
         }
-        if (addSpace) {
+        if (addSpace)
             *text += QStringLiteral(" ");
-        }
-        if (member.properties() & MClassMember::PropertyQinvokable) {
+        if (member.properties() & MClassMember::PropertyQinvokable)
             *text += QStringLiteral("invokable ");
-        }
         if (!member.stereotypes().isEmpty()) {
             *text += StereotypesItem::format(member.stereotypes());
             *text += QStringLiteral(" ");
         }
-        if (member.properties() & MClassMember::PropertyVirtual) {
+        if (member.properties() & MClassMember::PropertyVirtual)
             *text += QStringLiteral("virtual ");
-        }
         *text += member.declaration();
-        if (member.properties() & MClassMember::PropertyConst) {
+        if (member.properties() & MClassMember::PropertyConst)
             *text += QStringLiteral(" const");
-        }
-        if (member.properties() & MClassMember::PropertyOverride) {
+        if (member.properties() & MClassMember::PropertyOverride)
             *text += QStringLiteral(" override");
-        }
-        if (member.properties() & MClassMember::PropertyFinal) {
+        if (member.properties() & MClassMember::PropertyFinal)
             *text += QStringLiteral(" final");
-        }
-        if (member.properties() & MClassMember::PropertyAbstract) {
+        if (member.properties() & MClassMember::PropertyAbstract)
             *text += QStringLiteral(" = 0");
-        }
     }
 }
 
-}
+} // namespace qmt

@@ -58,8 +58,6 @@
 #include <QCursor>
 #include <QMenu>
 
-#include <QDebug>
-
 namespace qmt {
 
 ObjectItem::ObjectItem(DObject *object, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
@@ -112,9 +110,8 @@ void ObjectItem::setPosAndRect(const QPointF &originalPos, const QRectF &origina
     if (newPos != m_object->pos() || newRect != m_object->rect()) {
         m_diagramSceneModel->diagramController()->startUpdateElement(m_object, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
         m_object->setPos(newPos);
-        if (newRect.size() != m_object->rect().size()) {
+        if (newRect.size() != m_object->rect().size())
             m_object->setAutoSized(false);
-        }
         m_object->setRect(newRect);
         m_diagramSceneModel->diagramController()->finishUpdateElement(m_object, m_diagramSceneModel->diagram(), false);
     }
@@ -130,12 +127,10 @@ void ObjectItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, IR
 
     // make sure the new size is at least the minimum size
     QSizeF minimumSize = this->minimumSize();
-    while (rect.width() + horizDelta < minimumSize.width()) {
+    while (rect.width() + horizDelta < minimumSize.width())
         horizDelta += rasterWidth;
-    }
-    while (rect.height() + vertDelta < minimumSize.height()) {
+    while (rect.height() + vertDelta < minimumSize.height())
         vertDelta += rasterHeight;
-    }
 
     double leftDelta = 0.0;
     double rightDelta = 0.0;
@@ -341,9 +336,8 @@ void ObjectItem::updateStereotypes(const QString &stereotypeIconId, StereotypeIc
         stereotypes = m_diagramSceneModel->stereotypeController()->filterStereotypesByIconId(stereotypeIconId, stereotypes);
     }
     if (!stereotypeIconId.isEmpty() && stereotypeDisplay == StereotypeIcon::DisplayDecoration) {
-        if (!m_stereotypeIcon) {
+        if (!m_stereotypeIcon)
             m_stereotypeIcon = new CustomIconItem(m_diagramSceneModel, this);
-        }
         m_stereotypeIcon->setStereotypeIconId(stereotypeIconId);
         m_stereotypeIcon->setBaseSize(QSizeF(m_stereotypeIcon->shapeWidth(), m_stereotypeIcon->shapeHeight()));
         m_stereotypeIcon->setBrush(style->fillBrush());
@@ -354,9 +348,8 @@ void ObjectItem::updateStereotypes(const QString &stereotypeIconId, StereotypeIc
         m_stereotypeIcon = 0;
     }
     if (stereotypeDisplay != StereotypeIcon::DisplayNone && !stereotypes.isEmpty()) {
-        if (!m_stereotypes) {
+        if (!m_stereotypes)
             m_stereotypes = new StereotypesItem(this);
-        }
         m_stereotypes->setFont(style->smallFont());
         m_stereotypes->setBrush(style->textBrush());
         m_stereotypes->setStereotypes(stereotypes);
@@ -375,18 +368,16 @@ QSizeF ObjectItem::stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIco
     qreal height = 0.0;
     if (stereotypeIcon.hasMinWidth() && !stereotypeIcon.hasMinHeight()) {
         width = stereotypeIcon.minWidth();
-        if (stereotypeIcon.sizeLock() == StereotypeIcon::LockHeight || stereotypeIcon.sizeLock() == StereotypeIcon::LockSize) {
+        if (stereotypeIcon.sizeLock() == StereotypeIcon::LockHeight || stereotypeIcon.sizeLock() == StereotypeIcon::LockSize)
             height = stereotypeIcon.minHeight();
-        } else {
+        else
             height = width * stereotypeIcon.height() / stereotypeIcon.width();
-        }
     } else if (!stereotypeIcon.hasMinWidth() && stereotypeIcon.hasMinHeight()) {
         height = stereotypeIcon.minHeight();
-        if (stereotypeIcon.sizeLock() == StereotypeIcon::LockWidth || stereotypeIcon.sizeLock() == StereotypeIcon::LockSize) {
+        if (stereotypeIcon.sizeLock() == StereotypeIcon::LockWidth || stereotypeIcon.sizeLock() == StereotypeIcon::LockSize)
             width = stereotypeIcon.minWidth();
-        } else {
+        else
             width = height * stereotypeIcon.width() / stereotypeIcon.height();
-        }
     } else if (stereotypeIcon.hasMinWidth() && stereotypeIcon.hasMinHeight()) {
         if (stereotypeIcon.sizeLock() == StereotypeIcon::LockRatio) {
             width = stereotypeIcon.minWidth();
@@ -443,9 +434,8 @@ void ObjectItem::updateSelectionMarker(CustomIconItem *customIconItem)
 void ObjectItem::updateSelectionMarker(ResizeFlags resizeFlags)
 {
     if ((isSelected() || isSecondarySelected()) && resizeFlags != ResizeLockedSize) {
-        if (!m_selectionMarker) {
+        if (!m_selectionMarker)
             m_selectionMarker = new RectangularSelectionItem(this, this);
-        }
         switch (resizeFlags) {
         case ResizeUnlocked:
             m_selectionMarker->setFreedom(RectangularSelectionItem::FreedomAny);
@@ -466,9 +456,8 @@ void ObjectItem::updateSelectionMarker(ResizeFlags resizeFlags)
         m_selectionMarker->setSecondarySelected(isSelected() ? false : isSecondarySelected());
         m_selectionMarker->setZValue(SELECTION_MARKER_ZVALUE);
     } else if (m_selectionMarker) {
-        if (m_selectionMarker->scene()) {
+        if (m_selectionMarker->scene())
             m_selectionMarker->scene()->removeItem(m_selectionMarker);
-        }
         delete m_selectionMarker;
         m_selectionMarker = 0;
     }
@@ -476,9 +465,8 @@ void ObjectItem::updateSelectionMarker(ResizeFlags resizeFlags)
 
 void ObjectItem::updateSelectionMarkerGeometry(const QRectF &objectRect)
 {
-    if (m_selectionMarker) {
+    if (m_selectionMarker)
         m_selectionMarker->setRect(objectRect);
-    }
 }
 
 void ObjectItem::updateAlignmentButtons()
@@ -497,16 +485,14 @@ void ObjectItem::updateAlignmentButtons()
         }
     } else {
         if (m_horizontalAlignButtons) {
-            if (m_horizontalAlignButtons->scene()) {
+            if (m_horizontalAlignButtons->scene())
                 m_horizontalAlignButtons->scene()->removeItem(m_horizontalAlignButtons);
-            }
             delete m_horizontalAlignButtons;
             m_horizontalAlignButtons = 0;
         }
         if (m_verticalAlignButtons) {
-            if (m_verticalAlignButtons->scene()) {
+            if (m_verticalAlignButtons->scene())
                 m_verticalAlignButtons->scene()->removeItem(m_verticalAlignButtons);
-            }
             delete m_verticalAlignButtons;
             m_verticalAlignButtons = 0;
         }
@@ -518,16 +504,14 @@ void ObjectItem::updateAlignmentButtonsGeometry(const QRectF &objectRect)
     if (m_horizontalAlignButtons) {
         m_horizontalAlignButtons->clear();
         m_horizontalAlignButtons->setPos(mapToScene(QPointF(0.0, objectRect.top() - AlignButtonsItem::NormalButtonHeight - AlignButtonsItem::VerticalDistanceToObejct)));
-        foreach (const ILatchable::Latch &latch, horizontalLatches(ILatchable::Move, true)) {
+        foreach (const ILatchable::Latch &latch, horizontalLatches(ILatchable::Move, true))
             m_horizontalAlignButtons->addButton(translateLatchTypeToAlignType(latch.m_latchType), latch.m_identifier, mapFromScene(QPointF(latch.m_pos, 0.0)).x());
-        }
     }
     if (m_verticalAlignButtons) {
         m_verticalAlignButtons->clear();
         m_verticalAlignButtons->setPos(mapToScene(QPointF(objectRect.left() - AlignButtonsItem::NormalButtonWidth - AlignButtonsItem::HorizontalDistanceToObject, 0.0)));
-        foreach (const ILatchable::Latch &latch, verticalLatches(ILatchable::Move, true)) {
+        foreach (const ILatchable::Latch &latch, verticalLatches(ILatchable::Move, true))
             m_verticalAlignButtons->addButton(translateLatchTypeToAlignType(latch.m_latchType), latch.m_identifier, mapFromScene(QPointF(0.0, latch.m_pos)).y());
-        }
     }
 }
 
@@ -564,9 +548,8 @@ const Style *ObjectItem::adaptedStyle(const QString &stereotypeIconId)
 {
     QList<const DObject *> collidingObjects;
     foreach (const QGraphicsItem *item, m_diagramSceneModel->collectCollidingObjectItems(this, DiagramSceneModel::CollidingItems)) {
-        if (const ObjectItem *objectItem = dynamic_cast<const ObjectItem *>(item)) {
+        if (const ObjectItem *objectItem = dynamic_cast<const ObjectItem *>(item))
             collidingObjects.append(objectItem->object());
-        }
     }
     QColor baseColor;
     if (!stereotypeIconId.isEmpty()) {
@@ -623,36 +606,31 @@ bool ObjectItem::handleSelectedContextMenuAction(QAction *action)
 
 void ObjectItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton) {
+    if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton)
         m_diagramSceneModel->selectItem(this, event->modifiers() & Qt::ControlModifier);
-    }
-    if (event->button() == Qt::LeftButton) {
+    if (event->button() == Qt::LeftButton)
         m_diagramSceneModel->moveSelectedItems(this, QPointF(0.0, 0.0));
-    }
 }
 
 void ObjectItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (event->buttons() & Qt::LeftButton) {
+    if (event->buttons() & Qt::LeftButton)
         m_diagramSceneModel->moveSelectedItems(this, event->scenePos() - event->lastScenePos());
-    }
 }
 
 void ObjectItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         m_diagramSceneModel->moveSelectedItems(this, event->scenePos() - event->lastScenePos());
-        if (event->scenePos() != event->buttonDownScenePos(Qt::LeftButton)) {
+        if (event->scenePos() != event->buttonDownScenePos(Qt::LeftButton))
             m_diagramSceneModel->alignSelectedItemsPositionOnRaster();
-        }
     }
 }
 
 void ObjectItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (event->buttons() & Qt::LeftButton) {
+    if (event->buttons() & Qt::LeftButton)
         m_diagramSceneModel->onDoubleClickedItem(this);
-    }
 }
 
 void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
@@ -667,12 +645,10 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         menu.addAction(new ContextMenuAction(QObject::tr("Create Diagram"), QStringLiteral("createDiagram"), &menu));
         addSeparator = true;
     }
-    if (extendContextMenu(&menu)) {
+    if (extendContextMenu(&menu))
         addSeparator = true;
-    }
-    if (addSeparator) {
+    if (addSeparator)
         menu.addSeparator();
-    }
     menu.addAction(new ContextMenuAction(QObject::tr("Remove"), QStringLiteral("remove"), QKeySequence(QKeySequence::Delete), &menu));
     menu.addAction(new ContextMenuAction(QObject::tr("Delete"), QStringLiteral("delete"), QKeySequence(Qt::CTRL + Qt::Key_D), &menu));
     //menu.addAction(new ContextMenuAction(QObject::tr("Select in Model Tree"), QStringLiteral("selectInModelTree"), &menu));
@@ -703,15 +679,13 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                 m_diagramSceneModel->diagramSceneController()->elementTasks()->createAndOpenDiagram(m_object, m_diagramSceneModel->diagram());
             } else if (action->id() == QStringLiteral("remove")) {
                 DSelection selection = m_diagramSceneModel->selectedElements();
-                if (selection.isEmpty()) {
+                if (selection.isEmpty())
                     selection.append(m_object->uid(), m_diagramSceneModel->diagram()->uid());
-                }
                 m_diagramSceneModel->diagramController()->deleteElements(selection, m_diagramSceneModel->diagram());
             } else if (action->id() == QStringLiteral("delete")) {
                 DSelection selection = m_diagramSceneModel->selectedElements();
-                if (selection.isEmpty()) {
+                if (selection.isEmpty())
                     selection.append(m_object->uid(), m_diagramSceneModel->diagram()->uid());
-                }
                 m_diagramSceneModel->diagramSceneController()->deleteFromDiagram(selection, m_diagramSceneModel->diagram());
             } else if (action->id() == QStringLiteral("selectInModelTree")) {
                 // TODO implement
@@ -744,15 +718,13 @@ QSizeF ObjectItem::minimumSize(const QSet<QGraphicsItem *> &items) const
     foreach (QGraphicsItem *item, items) {
         if (IResizable *resizable = dynamic_cast<IResizable *>(item)) {
             QSizeF size = resizable->minimumSize();
-            if (size.width() > minimumSize.width()) {
+            if (size.width() > minimumSize.width())
                 minimumSize.setWidth(size.width());
-            }
-            if (size.height() > minimumSize.height()) {
+            if (size.height() > minimumSize.height())
                 minimumSize.setHeight(size.height());
-            }
         }
     }
     return minimumSize;
 }
 
-}
+} // namespace qmt

@@ -35,7 +35,6 @@
 
 #include "qmt/model/mpackage.h"
 
-
 namespace qmt {
 
 NoFileNameException::NoFileNameException()
@@ -43,12 +42,10 @@ NoFileNameException::NoFileNameException()
 {
 }
 
-
 ProjectIsModifiedException::ProjectIsModifiedException()
     : Exception(ProjectController::tr("Project is modified."))
 {
 }
-
 
 ProjectController::ProjectController(QObject *parent)
     : QObject(parent),
@@ -91,12 +88,10 @@ void ProjectController::setModified()
 
 void ProjectController::load()
 {
-    if (isModified()) {
+    if (isModified())
         throw ProjectIsModifiedException();
-    }
-    if (!m_project->hasFileName()) {
+    if (!m_project->hasFileName())
         throw NoFileNameException();
-    }
     ProjectSerializer serializer;
     serializer.load(m_project->fileName(), m_project.data());
     m_isModified = false;
@@ -105,9 +100,8 @@ void ProjectController::load()
 
 void ProjectController::save()
 {
-    if (!m_project->hasFileName()) {
+    if (!m_project->hasFileName())
         throw NoFileNameException();
-    }
     ProjectSerializer serializer;
     serializer.save(m_project->fileName(), m_project.data());
     m_isModified = false;
@@ -120,4 +114,4 @@ void ProjectController::saveAs(const QString &fileName)
     save();
 }
 
-}
+} // namespace qmt

@@ -47,7 +47,6 @@
 #include <QBrush>
 #include <QPen>
 
-
 namespace qmt {
 
 static const qreal MINIMUM_AUTO_WIDTH = 60.0;
@@ -57,7 +56,6 @@ static const qreal FOLD_WIDTH = 15.0;
 static const qreal FOLD_HEIGHT = 15.0;
 static const qreal BODY_HORIZ_BORDER = 4.0;
 static const qreal BODY_VERT_BORDER = 4.0;
-
 
 DiagramItem::DiagramItem(DDiagram *diagram, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : ObjectItem(diagram, diagramSceneModel, parent),
@@ -75,16 +73,14 @@ DiagramItem::~DiagramItem()
 void DiagramItem::update()
 {
     prepareGeometryChange();
-
     updateStereotypeIconDisplay();
 
     const Style *style = adaptedStyle(stereotypeIconId());
 
     // custom icon
     if (stereotypeIconDisplay() == StereotypeIcon::DisplayIcon) {
-        if (!m_customIcon) {
+        if (!m_customIcon)
             m_customIcon = new CustomIconItem(diagramSceneModel(), this);
-        }
         m_customIcon->setStereotypeIconId(stereotypeIconId());
         m_customIcon->setBaseSize(stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT));
         m_customIcon->setBrush(style->fillBrush());
@@ -98,15 +94,13 @@ void DiagramItem::update()
 
     // shape
     if (!m_customIcon) {
-        if (!m_body) {
+        if (!m_body)
             m_body = new QGraphicsPolygonItem(this);
-        }
         m_body->setBrush(style->fillBrush());
         m_body->setPen(style->outerLinePen());
         m_body->setZValue(SHAPE_ZVALUE);
-        if (!m_fold) {
+        if (!m_fold)
             m_fold = new QGraphicsPolygonItem(this);
-        }
         m_fold->setBrush(style->extraFillBrush());
         m_fold->setPen(style->outerLinePen());
         m_fold->setZValue(SHAPE_DETAILS_ZVALUE);
@@ -127,17 +121,14 @@ void DiagramItem::update()
     updateStereotypes(stereotypeIconId(), stereotypeIconDisplay(), style);
 
     // diagram name
-    if (!m_diagramName) {
+    if (!m_diagramName)
         m_diagramName = new QGraphicsSimpleTextItem(this);
-    }
     m_diagramName->setFont(style->headerFont());
     m_diagramName->setBrush(style->textBrush());
     m_diagramName->setText(object()->name());
 
     updateSelectionMarker(m_customIcon);
-
     updateAlignmentButtons();
-
     updateGeometry();
 }
 
@@ -167,9 +158,8 @@ QSizeF DiagramItem::calcMinimumGeometry() const
     double width = MINIMUM_WIDTH;
     double height = 0.0;
 
-    if (m_customIcon) {
+    if (m_customIcon)
         return stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
-    }
 
     height += BODY_VERT_BORDER;
     if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
@@ -205,21 +195,17 @@ void DiagramItem::updateGeometry()
 
     if (object()->isAutoSized()) {
         if (!m_customIcon) {
-            if (width < MINIMUM_AUTO_WIDTH) {
+            if (width < MINIMUM_AUTO_WIDTH)
                 width = MINIMUM_AUTO_WIDTH;
-            }
-            if (height < MINIMUM_AUTO_HEIGHT) {
+            if (height < MINIMUM_AUTO_HEIGHT)
                 height = MINIMUM_AUTO_HEIGHT;
-            }
         }
     } else {
         QRectF rect = object()->rect();
-        if (rect.width() > width) {
+        if (rect.width() > width)
             width = rect.width();
-        }
-        if (rect.height() > height) {
+        if (rect.height() > height)
             height = rect.height();
-        }
     }
 
     // update sizes and positions
@@ -282,11 +268,8 @@ void DiagramItem::updateGeometry()
     }
 
     updateSelectionMarkerGeometry(rect);
-
     updateAlignmentButtonsGeometry(rect);
-
     updateDepth();
-
 }
 
-}
+} // namespace qmt

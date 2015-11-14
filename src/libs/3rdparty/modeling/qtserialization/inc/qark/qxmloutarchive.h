@@ -41,28 +41,21 @@
 #include <QXmlStreamWriter>
 #include <exception>
 
-
 namespace qark {
 
-class QXmlOutArchive :
-        public ArchiveBasics
+class QXmlOutArchive : public ArchiveBasics
 {
 public:
-
-    class UnsupportedForwardReference :
-            public std::exception
+    class UnsupportedForwardReference : public std::exception
     {
     };
 
-    class DanglingReferences :
-            public std::exception
+    class DanglingReferences : public std::exception
     {
     };
 
     static const bool inArchive = false;
     static const bool outArchive = true;
-
-public:
 
     QXmlOutArchive(QXmlStreamWriter &stream)
         : m_stream(stream),
@@ -72,19 +65,15 @@ public:
 
     ~QXmlOutArchive()
     {
-        if (m_savingRefMap.countDanglingReferences() > 0) {
+        if (m_savingRefMap.countDanglingReferences() > 0)
             throw DanglingReferences();
-        }
     }
-
-public:
 
     template<typename T>
     void write(T *p)
     {
-        if (!m_savingRefMap.hasDefinedRef(p)) {
+        if (!m_savingRefMap.hasDefinedRef(p))
             throw UnsupportedForwardReference();
-        }
         write(m_savingRefMap.ref(p).get());
     }
 
@@ -119,8 +108,6 @@ public:
     {
         m_stream.writeCharacters(s);
     }
-
-public:
 
     void beginDocument()
     {
@@ -344,6 +331,6 @@ private:
     bool m_isNextPointerAReference;
 };
 
-}
+} // namespace qark
 
 #endif // QARK_QXMLOUTARCHIVE_H

@@ -55,7 +55,6 @@
 #include "qmt/diagram/dboundary.h"
 #include "qmt/infrastructure/qmtassert.h"
 
-
 namespace qmt {
 
 DiagramSceneModel::CreationVisitor::CreationVisitor(DiagramSceneModel *diagramSceneModel)
@@ -139,8 +138,6 @@ void DiagramSceneModel::CreationVisitor::visitDBoundary(DBoundary *boundary)
     QMT_CHECK(!m_graphicsItem);
     m_graphicsItem = new BoundaryItem(boundary, m_diagramSceneModel);
 }
-
-
 
 DiagramSceneModel::UpdateVisitor::UpdateVisitor(QGraphicsItem *item, DiagramSceneModel *diagramSceneModel, DElement *relatedElement)
     : m_graphicsItem(item),
@@ -289,4 +286,4 @@ void DiagramSceneModel::UpdateVisitor::visitDBoundary(DBoundary *boundary)
     boundaryItem->update();
 }
 
-}
+} // namespace qmt

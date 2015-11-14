@@ -33,11 +33,10 @@
 
 #include <QString>
 
-
 namespace qmt {
 
-class IAlignable {
-
+class IAlignable
+{
 public:
     enum AlignType {
         AlignLeft,
@@ -51,15 +50,11 @@ public:
         AlignSize
     };
 
-public:
-
     virtual ~IAlignable() { }
-
-public:
 
     virtual void align(AlignType alignType, const QString &identifier) = 0;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_ALIGNABLE_H

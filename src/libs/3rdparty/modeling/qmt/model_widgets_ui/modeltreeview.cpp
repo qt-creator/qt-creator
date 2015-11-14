@@ -50,7 +50,6 @@
 #include <QDropEvent>
 #include <QMenu>
 
-
 namespace qmt {
 
 ModelTreeView::ModelTreeView(QWidget *parent)
@@ -81,9 +80,8 @@ QList<QModelIndex> ModelTreeView::selectedSourceModelIndexes() const
 {
     QList<QModelIndex> indexes;
     if (selectionModel()) {
-        foreach (const QModelIndex &index, selectionModel()->selection().indexes()) {
+        foreach (const QModelIndex &index, selectionModel()->selection().indexes())
             indexes.append(m_sortedTreeModel->mapToSource(index));
-        }
     }
     return indexes;
 }
@@ -106,15 +104,13 @@ QModelIndex ModelTreeView::mapToSourceModelIndex(const QModelIndex &index) const
 
 void ModelTreeView::selectFromSourceModelIndex(const QModelIndex &index)
 {
-    if (!index.isValid()) {
+    if (!index.isValid())
         return;
-    }
     QModelIndex sortedIndex = m_sortedTreeModel->mapFromSource(index);
     scrollTo(sortedIndex);
     setCurrentIndex(sortedIndex);
-    if (selectionModel()) {
+    if (selectionModel())
         selectionModel()->select(sortedIndex, QItemSelectionModel::ClearAndSelect);
-    }
 }
 
 void ModelTreeView::startDrag(Qt::DropActions supportedActions)
@@ -130,11 +126,10 @@ void ModelTreeView::startDrag(Qt::DropActions supportedActions)
     QIcon dragIcon;
 
     QModelIndexList indexes;
-    if (selectionModel()) {
+    if (selectionModel())
         indexes = selectedSourceModelIndexes();
-    } else if (currentSourceModelIndex().isValid()) {
+    else if (currentSourceModelIndex().isValid())
         indexes.append(currentSourceModelIndex());
-    }
     if (!indexes.isEmpty()) {
         foreach (const QModelIndex &index, indexes) {
             MElement *element = treeModel->element(index);
@@ -142,9 +137,8 @@ void ModelTreeView::startDrag(Qt::DropActions supportedActions)
                 dataStream << element->uid().toString();
                 if (dragIcon.isNull()) {
                     QIcon icon = treeModel->icon(index);
-                    if (!icon.isNull()) {
+                    if (!icon.isNull())
                         dragIcon = icon;
-                    }
                 }
             }
         }
@@ -153,9 +147,8 @@ void ModelTreeView::startDrag(Qt::DropActions supportedActions)
     QMimeData *mimeData = new QMimeData;
     mimeData->setData(QStringLiteral("text/model-elements"), dragData);
 
-    if (dragIcon.isNull()) {
+    if (dragIcon.isNull())
         dragIcon = QIcon(QStringLiteral(":/modelinglib/48x48/generic.png"));
-    }
 
     QPixmap pixmap(48, 48);
     pixmap = dragIcon.pixmap(48, 48);
@@ -184,9 +177,8 @@ void ModelTreeView::dragMoveEvent(QDragMoveEvent *event)
         TreeModel *treeModel = m_sortedTreeModel->treeModel();
         QMT_CHECK(treeModel);
         MElement *modelElement = treeModel->element(dropSourceModelIndex);
-        if (dynamic_cast<MObject*>(modelElement)) {
+        if (dynamic_cast<MObject*>(modelElement))
             accept = true;
-        }
         if (m_autoDelayIndex == dropIndex) {
             if (m_autoDelayStartTime.elapsed() > 1000) {
                 setExpanded(dropIndex, !isExpanded(dropIndex));
@@ -273,9 +265,8 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
             addSeparator = true;
         }
         if (melement->owner()) {
-            if (addSeparator) {
+            if (addSeparator)
                 menu.addSeparator();
-            }
             menu.addAction(new ContextMenuAction(tr("Delete"), QStringLiteral("delete"), QKeySequence(Qt::CTRL + Qt::Key_D), &menu));
         }
         QAction *selectedAction = menu.exec(event->globalPos());
@@ -296,4 +287,4 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
     }
 }
 
-}
+} // namespace qmt

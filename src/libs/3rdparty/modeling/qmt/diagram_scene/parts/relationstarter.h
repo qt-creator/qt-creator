@@ -37,62 +37,40 @@
 
 #include <QHash>
 
-
 namespace qmt {
 
 class DiagramSceneModel;
 class IRelationable;
 
-
-class RelationStarter :
-        public QGraphicsRectItem
+class RelationStarter : public QGraphicsRectItem
 {
 public:
     RelationStarter(IRelationable *owner, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-
     ~RelationStarter();
 
-public:
-
     QRectF boundingRect() const;
-
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
-
-public:
 
     void addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowItem::Head endHead, ArrowItem::Head startHead = ArrowItem::HeadNone);
 
 protected:
-
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
-
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-
     void keyPressEvent(QKeyEvent *event);
 
 private:
-
     void updateCurrentPreviewArrow(const QPointF &headPoint);
 
-public:
-
     IRelationable *m_owner;
-
     DiagramSceneModel *m_diagramSceneModel;
-
     QList<ArrowItem *> m_arrows;
-
     QHash<ArrowItem *, QString> m_arrowIds;
-
     ArrowItem *m_currentPreviewArrow;
-
     QString m_currentPreviewArrowId;
-
     QList<QPointF> m_currentPreviewArrowIntermediatePoints;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_GRAPHICSRELATIONSTARTER_H

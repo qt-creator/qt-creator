@@ -37,15 +37,12 @@
 #include <QPair>
 #include <typeinfo>
 
-
 namespace qark {
-
 namespace impl {
 
-class SavingRefMap {
-
+class SavingRefMap
+{
 public:
-
     SavingRefMap()
         : m_references(),
           m_nextRef(1)
@@ -73,27 +70,19 @@ public:
     int countDanglingReferences();
 
 private:
-
     bool hasRef(const void *address, const char *typeName);
-
     bool hasDefinedRef(const void *address, const char *typeName);
-
     ObjectId ref(const void *address, const char *typeName, bool define);
-
-private:
 
     typedef QPair<const void *, const char *> KeyType;
     typedef QPair<ObjectId, bool> ValueType;
     typedef QMap<KeyType, ValueType> MapType;
 
-private:
-
     MapType m_references;
     ObjectId m_nextRef;
 };
 
-}
-
-}
+} // namespace impl
+} // namespace qark
 
 #endif // QARK_SAVINGREFMAP_H

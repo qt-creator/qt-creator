@@ -30,7 +30,6 @@
 
 #include "project.h"
 
-
 namespace qmt {
 
 Project::Project()
@@ -61,4 +60,4 @@ void Project::setRootPackage(MPackage *rootPackage)
     m_rootPackage = rootPackage;
 }
 
-}
+} // namespace qmt

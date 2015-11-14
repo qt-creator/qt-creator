@@ -34,14 +34,12 @@
 #include "qmt/controller/container.h"
 #include "qmt/model/melement.h"
 
-
 namespace qmt {
 
-class QMT_EXPORT MContainer :
-        public Container<MElement>
+class QMT_EXPORT MContainer : public Container<MElement>
 {
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MCONTAINER_H

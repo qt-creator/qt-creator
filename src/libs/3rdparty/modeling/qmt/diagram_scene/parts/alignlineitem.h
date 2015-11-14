@@ -35,45 +35,28 @@
 
 namespace qmt {
 
-class AlignLineItem :
-        public QGraphicsItem
+class AlignLineItem : public QGraphicsItem
 {
 public:
-
     enum Direction {
         Horizontal,
         Vertical
     };
 
-public:
-
     AlignLineItem(Direction direction, QGraphicsItem *parent = 0);
-
     ~AlignLineItem();
 
-public:
-
     void setLine(qreal pos);
-
     void setLine(qreal pos, qreal otherPos1, qreal otherPos2);
 
-public:
-
     QRectF boundingRect() const;
-
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
-
-private:
-
     Direction m_direction;
-
     QGraphicsLineItem *m_alignLine;
-
     QGraphicsLineItem *m_highlightLine;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_ALIGNLINEITEM_H

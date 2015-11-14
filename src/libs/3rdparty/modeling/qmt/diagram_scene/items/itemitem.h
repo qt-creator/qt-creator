@@ -41,7 +41,6 @@ class QGraphicsSimpleTextItem;
 class QGraphicsLineItem;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class DiagramSceneModel;
@@ -50,58 +49,33 @@ class CustomIconItem;
 class ContextLabelItem;
 class RelationStarter;
 
-
-class ItemItem :
-        public ObjectItem,
-        public IRelationable
+class ItemItem : public ObjectItem, public IRelationable
 {
 public:
     ItemItem(DItem *item, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-
     ~ItemItem();
-
-public:
 
     void update();
 
-public:
-
     bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const;
-
-public:
 
     QSizeF minimumSize() const;
 
-public:
-
     QList<Latch> horizontalLatches(Action action, bool grabbedItem) const;
-
     QList<Latch> verticalLatches(Action action, bool grabbedItem) const;
 
-public:
-
     QPointF relationStartPos() const;
-
     void relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints);
 
 private:
-
     QSizeF calcMinimumGeometry() const;
-
     void updateGeometry();
 
-private:
-
     CustomIconItem *m_customIcon;
-
     QGraphicsRectItem *m_shape;
-
     QGraphicsSimpleTextItem *m_itemName;
-
     ContextLabelItem *m_contextLabel;
-
     RelationStarter *m_relationStarter;
-
 };
 
 } // namespace qmt

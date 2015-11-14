@@ -35,40 +35,27 @@
 
 namespace qmt {
 
-class QMT_EXPORT MSourceExpansion :
-        public MExpansion
+class QMT_EXPORT MSourceExpansion : public MExpansion
 {
 public:
-
     MSourceExpansion();
-
     MSourceExpansion(const MSourceExpansion &rhs);
-
     ~MSourceExpansion();
 
     MSourceExpansion &operator=(const MSourceExpansion &rhs);
 
-public:
-
     MSourceExpansion *clone(const MElement &rhs) const;
 
-public:
-
     QString sourceId() const { return m_sourceId; }
-
     void setSourceId(const QString &sourceId);
-
     bool isTransient() const { return m_isTransient; }
-
     void setTransient(bool transient);
 
 private:
-
     QString m_sourceId;
-
     bool m_isTransient;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MSOURCEEXPANSION_H

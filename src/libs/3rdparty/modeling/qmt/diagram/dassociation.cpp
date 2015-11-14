@@ -33,7 +33,6 @@
 #include "dvisitor.h"
 #include "dconstvisitor.h"
 
-
 namespace qmt {
 
 DAssociationEnd::DAssociationEnd()
@@ -68,9 +67,8 @@ void DAssociationEnd::setKind(MAssociationEnd::Kind kind)
 
 bool operator==(const DAssociationEnd &lhs, const DAssociationEnd &rhs)
 {
-    if (&lhs == &rhs) {
+    if (&lhs == &rhs)
         return true;
-    }
     return lhs.name() == rhs.name()
             && lhs.cardinality() == rhs.cardinality()
             && lhs.kind() == rhs.kind()
@@ -81,8 +79,6 @@ bool operator!=(const DAssociationEnd &lhs, const DAssociationEnd &rhs)
 {
     return !operator==(lhs, rhs);
 }
-
-
 
 DAssociation::DAssociation()
     : m_associationClassUid(Uid::invalidUid())
@@ -118,4 +114,4 @@ void DAssociation::accept(DConstVisitor *visitor) const
     visitor->visitDAssociation(this);
 }
 
-}
+} // namespace qmt

@@ -33,61 +33,39 @@
 
 #include "mrelation.h"
 
-
 namespace qmt {
 
 class MObject;
 
-
-class QMT_EXPORT MDependency :
-        public MRelation
+class QMT_EXPORT MDependency : public MRelation
 {
 public:
-
     enum Direction {
         AToB,
         BToA,
         Bidirectional
     };
 
-public:
-
     MDependency();
-
     MDependency(const MDependency &rhs);
-
     ~MDependency();
-
-public:
 
     MDependency &operator=(const MDependency &rhs);
 
-public:
-
     Direction direction() const { return m_direction; }
-
     void setDirection(Direction direction);
-
     Uid source() const;
-
     void setSource(const Uid &source);
-
     Uid target() const;
-
     void setTarget(const Uid &target);
 
-public:
-
     virtual void accept(MVisitor *visitor);
-
     virtual void accept(MConstVisitor *visitor) const;
 
 private:
-
     Direction m_direction;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MDEPENDENCY_H

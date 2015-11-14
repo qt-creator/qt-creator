@@ -41,61 +41,37 @@ class ShapePointF;
 class ShapeSizeF;
 class ShapeConstVisitor;
 
-
 class QMT_EXPORT IconShape
 {
     class IconShapePrivate;
 
 public:
-
     IconShape();
-
     IconShape(const IconShape &rhs);
-
     ~IconShape();
-
-public:
 
     IconShape &operator=(const IconShape &rhs);
 
-public:
-
     QSizeF size() const;
-
     void setSize(const QSizeF &size);
 
-public:
-
     void addLine(const ShapePointF &pos1, const ShapePointF &pos2);
-
     void addRect(const ShapePointF &pos, const ShapeSizeF &size);
-
     void addRoundedRect(const ShapePointF &pos, const ShapeSizeF &size, const ShapeValueF &radius);
-
     void addCircle(const ShapePointF &center, const ShapeValueF &radius);
-
     void addEllipse(const ShapePointF &center, const ShapeSizeF &radius);
-
     void addArc(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal spanAngle);
 
     void moveTo(const ShapePointF &pos);
-
     void lineTo(const ShapePointF &pos);
-
     void arcMoveTo(const ShapePointF &center, const ShapeSizeF &radius, qreal angle);
-
     void arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal sweepLength);
-
     void closePath();
-
-public:
 
     void visitShapes(ShapeConstVisitor *visitor) const;
 
 private:
-
     IconShapePrivate *d;
-
 };
 
 } // namespace qmt

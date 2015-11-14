@@ -40,7 +40,6 @@
 #include "qark/serialize.h"
 #include "qark/access.h"
 
-
 namespace qark {
 
 // Uid
@@ -59,7 +58,6 @@ inline void load(Archive &archive, qmt::Uid &uid)
     uid.fromString(s);
 }
 
-
 // Handle
 
 template<class Archive, class T>
@@ -71,7 +69,6 @@ inline void serialize(Archive &archive, qmt::Handle<T> &handle)
             || end;
 }
 
-
 // Handles
 
 template<class Archive, class T>
@@ -82,6 +79,6 @@ inline void serialize(Archive &archive, qmt::Handles<T> &handles)
             || end;
 }
 
-}
+} // namespace qark
 
 #endif // QMT_INFRASTRUCTURESERIALIZER_H

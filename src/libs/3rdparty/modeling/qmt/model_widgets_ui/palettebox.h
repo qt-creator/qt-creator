@@ -37,7 +37,6 @@
 #include <QColor>
 #include <QVector>
 
-
 namespace qmt {
 
 class QMT_EXPORT PaletteBox : public QWidget
@@ -46,45 +45,30 @@ class QMT_EXPORT PaletteBox : public QWidget
 
 public:
     explicit PaletteBox(QWidget *parent = 0);
-
     ~PaletteBox();
 
 signals:
-
     void activated(int index);
 
 public:
-
     QBrush brush(int index) const;
-
     void setBrush(int index, const QBrush &brush);
-
     QPen linePen(int index) const;
-
     void setLinePen(int index, const QPen &pen);
-
     int currentIndex() const { return m_currentIndex; }
 
 public slots:
-
     void clear();
-
     void setCurrentIndex(int index);
 
 protected:
-
     virtual void paintEvent(QPaintEvent *event);
-
     virtual void mousePressEvent(QMouseEvent *event);
-
     virtual void keyPressEvent(QKeyEvent *event);
 
 private:
-
     QVector<QBrush> m_brushes;
-
     QVector<QPen> m_pens;
-
     int m_currentIndex;
 };
 

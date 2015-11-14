@@ -78,4 +78,4 @@ void MSourceExpansion::setTransient(bool transient)
     m_isTransient = transient;
 }
 
-}
+} // namespace qmt

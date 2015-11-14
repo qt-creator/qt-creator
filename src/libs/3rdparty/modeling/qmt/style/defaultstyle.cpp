@@ -65,4 +65,4 @@ DefaultStyle::~DefaultStyle()
 {
 }
 
-}
+} // namespace qmt

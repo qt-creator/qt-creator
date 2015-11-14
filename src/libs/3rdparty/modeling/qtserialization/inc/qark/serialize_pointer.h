@@ -51,11 +51,10 @@ inline void save(Archive &archive, T *p, const Parameters &)
             } else {
                 archive.beginInstance(typeUid(*p));
                 typename registry::TypeRegistry<Archive, T>::TypeInfo typeData = typeInfo<Archive, T>(*p);
-                if (typeData.m_saveFunc == 0) {
+                if (typeData.m_saveFunc == 0)
                     throw UnregisteredType();
-                } else {
+                else
                     typeData.m_saveFunc(archive, p);
-                }
                 archive.endInstance();
             }
         }
@@ -81,18 +80,17 @@ void load(Archive &archive, T *&p, const Parameters &)
             registry::loadNonVirtualPointer<Archive,T>(archive, p);
         } else {
             typename registry::TypeRegistry<Archive, T>::TypeInfo typeData = typeInfo<Archive, T>(refTag.typeName);
-            if (typeData.m_loadFunc == 0) {
+            if (typeData.m_loadFunc == 0)
                 throw UnregisteredType();
-            } else {
+            else
                 typeData.m_loadFunc(archive, p);
-            }
         }
         break;
     }
     archive.readReferenceEndTag(refTag.kind);
 }
 
-}
+} // namespace qark
 
 #endif // QARK_SERIALIZE_POINTER_H
 

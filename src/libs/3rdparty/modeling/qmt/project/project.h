@@ -35,42 +35,30 @@
 
 #include <QString>
 
-
 namespace qmt {
 
 class MPackage;
-
 
 class QMT_EXPORT Project
 {
 public:
     Project();
-
     ~Project();
 
     Uid uid() const { return m_uid; }
-
     void setUid(const Uid &uid);
-
     bool hasFileName() const;
-
     QString fileName() const { return m_fileName; }
-
     void setFileName(const QString &fileName);
-
     MPackage *rootPackage() const { return m_rootPackage; }
-
     void setRootPackage(MPackage *rootPackage);
 
 private:
-
     Uid m_uid;
-
     QString m_fileName;
-
     MPackage *m_rootPackage;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_PROJECT_H

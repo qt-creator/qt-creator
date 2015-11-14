@@ -40,7 +40,6 @@ namespace qmt {
 class Token
 {
 public:
-
     enum Type {
         TokenUndefined,
         TokenEndOfInput,
@@ -54,28 +53,18 @@ public:
         TokenColor
     };
 
-public:
     Token();
     Token(Type type, const QString &text, const SourcePos &sourcePos);
     Token(Type type, int subtype, const QString &text, const SourcePos &sourcePos);
     ~Token();
 
-public:
-
     Type type() const { return m_type; }
-
     void setType(Type type);
-
     int subtype() const { return m_subtype; }
-
     void setSubtype(int subtype);
-
     QString text() const { return m_text; }
-
     void setText(const QString &text);
-
     SourcePos sourcePos() const { return m_sourcePos; }
-
     void setSourcePos(const SourcePos &sourcePos);
 
 private:

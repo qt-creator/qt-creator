@@ -34,63 +34,40 @@
 #include "qmt/model/mconstvisitor.h"
 #include "qmt/infrastructure/qmt_global.h"
 
-
 namespace qmt {
 
 class DElement;
 
-
-class QMT_EXPORT DUpdateVisitor :
-        public MConstVisitor
+class QMT_EXPORT DUpdateVisitor : public MConstVisitor
 {
 public:
     DUpdateVisitor(DElement *target, const MDiagram *diagram, bool checkNeedsUpdate = false);
 
-public:
-
     bool isUpdateNeeded() const { return m_isUpdateNeeded; }
-
     void setCheckNeedsUpdate(bool checkNeedsUpdate);
 
     void visitMElement(const MElement *element);
-
     void visitMObject(const MObject *object);
-
     void visitMPackage(const MPackage *package);
-
     void visitMClass(const MClass *klass);
-
     void visitMComponent(const MComponent *component);
-
     void visitMDiagram(const MDiagram *diagram);
-
     void visitMCanvasDiagram(const MCanvasDiagram *diagram);
-
     void visitMItem(const MItem *item);
-
     void visitMRelation(const MRelation *relation);
-
     void visitMDependency(const MDependency *dependency);
-
     void visitMInheritance(const MInheritance *inheritance);
-
     void visitMAssociation(const MAssociation *association);
 
 private:
-
     bool isUpdating(bool valueChanged);
 
-private:
-
     DElement *m_target;
-
     const MDiagram *m_diagram;
-
     bool m_checkNeedsUpdate;
-
     bool m_isUpdateNeeded;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DUPDATEVISITOR_H

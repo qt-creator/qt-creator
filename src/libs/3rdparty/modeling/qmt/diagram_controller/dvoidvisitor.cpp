@@ -115,8 +115,6 @@ void DVoidVisitor::visitDBoundary(DBoundary *boundary)
     visitDElement(boundary);
 }
 
-
-
 DConstVoidVisitor::DConstVoidVisitor()
 {
 }
@@ -186,5 +184,4 @@ void DConstVoidVisitor::visitDBoundary(const DBoundary *boundary)
     visitDElement(boundary);
 }
 
-}
-
+} // namespace qmt

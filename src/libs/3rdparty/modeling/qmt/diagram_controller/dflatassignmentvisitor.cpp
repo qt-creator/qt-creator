@@ -169,4 +169,4 @@ void DFlatAssignmentVisitor::visitDBoundary(const DBoundary *boundary)
     target->setRect(boundary->rect());
 }
 
-}
+} // namespace qmt

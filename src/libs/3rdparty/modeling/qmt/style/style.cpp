@@ -91,4 +91,4 @@ void Style::setHeaderFont(const QFont &font)
     m_headerFont = font;
 }
 
-}
+} // namespace qmt

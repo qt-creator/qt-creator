@@ -35,7 +35,6 @@
 #include "mvisitor.h"
 #include "mconstvisitor.h"
 
-
 namespace qmt {
 
 MObject::MObject()
@@ -76,9 +75,8 @@ void MObject::setChildren(const Handles<MObject> &children)
 {
     m_children = children;
     foreach (const Handle<MObject> &handle, children) {
-        if (handle.hasTarget()) {
+        if (handle.hasTarget())
             handle.target()->setOwner(this);
-        }
     }
 }
 
@@ -112,9 +110,8 @@ void MObject::removeChild(const Uid &uid)
 {
     QMT_CHECK(m_children.contains(uid));
     MObject *child = m_children.find(uid);
-    if (child) {
+    if (child)
         child->setOwner(0);
-    }
     m_children.remove(uid);
 }
 
@@ -130,9 +127,8 @@ void MObject::decontrolChild(const Uid &uid)
 {
     QMT_CHECK(m_children.contains(uid));
     MObject *child = m_children.find(uid);
-    if (child) {
+    if (child)
         child->setOwner(0);
-    }
     m_children.take(uid);
 }
 
@@ -148,9 +144,8 @@ void MObject::setRelations(const Handles<MRelation> &relations)
 {
     m_relations = relations;
     foreach (const Handle<MRelation> &handle, relations) {
-        if (handle.hasTarget()) {
+        if (handle.hasTarget())
             handle.target()->setOwner(this);
-        }
     }
 }
 
@@ -199,4 +194,4 @@ void MObject::accept(MConstVisitor *visitor) const
     visitor->visitMObject(this);
 }
 
-}
+} // namespace qmt

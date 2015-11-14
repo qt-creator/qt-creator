@@ -33,17 +33,16 @@
 
 namespace qmt {
 
-class IEditable {
+class IEditable
+{
 public:
     ~IEditable() { }
-
-public:
 
     virtual bool isEditable() const = 0;
 
     virtual void edit() = 0;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_EDITABLE_H

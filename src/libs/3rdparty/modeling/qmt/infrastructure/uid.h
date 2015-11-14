@@ -37,32 +37,24 @@
 #include <QUuid>
 #include <QMetaType>
 
-
 namespace qmt {
 
 class QMT_EXPORT Uid
 {
 public:
-
     static const Uid invalidUid() { return Uid(QUuid()); }
 
-public:
     Uid() : m_uuid(QUuid::createUuid()) { }
-
     explicit Uid(const QUuid &uuid) : m_uuid(uuid) { }
 
     bool isValid() const { return !m_uuid.isNull(); }
-
     QUuid get() const { return m_uuid; }
-
     void setUuid(const QUuid &uuid) { m_uuid = uuid; }
 
     void clear() { m_uuid = QUuid(); }
-
     void renew() { m_uuid = QUuid::createUuid(); }
 
     QString toString() const { return m_uuid.toString(); }
-
     void fromString(const QString &s) { m_uuid = QUuid(s); }
 
 private:
@@ -97,7 +89,7 @@ inline QDataStream &operator>>(QDataStream &stream, Uid &uid)
     return stream;
 }
 
-}
+} // namespace qmt
 
 Q_DECLARE_METATYPE(qmt::Uid)
 

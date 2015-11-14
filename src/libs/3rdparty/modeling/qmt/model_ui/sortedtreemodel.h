@@ -36,51 +36,36 @@
 
 #include <QTimer>
 
-
 namespace qmt {
 
 class TreeModel;
 
-
-class QMT_EXPORT SortedTreeModel :
-        public QSortFilterProxyModel
+class QMT_EXPORT SortedTreeModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
 public:
     explicit SortedTreeModel(QObject *parent = 0);
-
     ~SortedTreeModel();
 
-public:
-
     TreeModel *treeModel() const { return m_treeModel; }
-
     void setTreeModel(TreeModel *treeModel);
 
 protected:
-
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 
 private slots:
-
     void onTreeModelRowsInserted(const QModelIndex &parent, int start, int end);
-
     void onDataChanged(const QModelIndex &, const QModelIndex &, const QVector<int> &);
-
     void onDelayedSortTimeout();
 
 private:
-
     void startDelayedSortTimer();
 
-private:
-
     TreeModel *m_treeModel;
-
     QTimer m_delayedSortTimer;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_SORTEDTREEMODEL_H

@@ -34,7 +34,6 @@
 #include "dvisitor.h"
 #include "dconstvisitor.h"
 
-
 namespace qmt {
 
 DInheritance::DInheritance()
@@ -72,4 +71,4 @@ void DInheritance::accept(DConstVisitor *visitor) const
     visitor->visitDInheritance(this);
 }
 
-}
+} // namespace qmt

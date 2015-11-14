@@ -39,14 +39,11 @@
 
 #include <QList>
 
-
 namespace qmt {
 
-class QMT_EXPORT LineShape
-        : public IShape
+class QMT_EXPORT LineShape : public IShape
 {
 public:
-
     LineShape()
     {
     }
@@ -57,34 +54,21 @@ public:
     {
     }
 
-public:
-
     ShapePointF pos1() const { return m_pos1; }
-
     ShapePointF pos2() const { return m_pos2; }
 
-public:
-
     IShape *Clone() const;
-
-public:
-
     void accept(ShapeVisitor *visitor);
-
     void accept(ShapeConstVisitor *visitor) const;
 
 private:
-
     ShapePointF m_pos1;
     ShapePointF m_pos2;
 };
 
-
-class QMT_EXPORT RectShape
-        : public IShape
+class QMT_EXPORT RectShape : public IShape
 {
 public:
-
     RectShape()
     {
     }
@@ -95,34 +79,21 @@ public:
     {
     }
 
-public:
-
     ShapePointF pos() const { return m_pos; }
-
     ShapeSizeF size() const { return m_size; }
 
-public:
-
     IShape *Clone() const;
-
-public:
-
     void accept(ShapeVisitor *visitor);
-
     void accept(ShapeConstVisitor *visitor) const;
 
 private:
-
     ShapePointF m_pos;
     ShapeSizeF m_size;
 };
 
-
-class QMT_EXPORT RoundedRectShape
-        : public IShape
+class QMT_EXPORT RoundedRectShape : public IShape
 {
 public:
-
     RoundedRectShape()
     {
     }
@@ -134,37 +105,23 @@ public:
     {
     }
 
-public:
-
     ShapePointF pos() const { return m_pos; }
-
     ShapeSizeF size() const { return m_size; }
-
     ShapeValueF radius() const { return m_radius; }
 
-public:
-
     IShape *Clone() const;
-
-public:
-
     void accept(ShapeVisitor *visitor);
-
     void accept(ShapeConstVisitor *visitor) const;
 
 private:
-
     ShapePointF m_pos;
     ShapeSizeF m_size;
     ShapeValueF m_radius;
 };
 
-
-class QMT_EXPORT CircleShape
-        : public IShape
+class QMT_EXPORT CircleShape : public IShape
 {
 public:
-
     CircleShape()
     {
     }
@@ -175,31 +132,19 @@ public:
     {
     }
 
-public:
-
     ShapePointF center() const { return m_center; }
-
     ShapeValueF radius() const { return m_radius; }
 
-public:
-
     IShape *Clone() const;
-
-public:
-
     void accept(ShapeVisitor *visitor);
-
     void accept(ShapeConstVisitor *visitor) const;
 
 private:
-
     ShapePointF m_center;
     ShapeValueF m_radius;
 };
 
-
-class QMT_EXPORT EllipseShape
-        : public IShape
+class QMT_EXPORT EllipseShape : public IShape
 {
 public:
     EllipseShape()
@@ -212,31 +157,19 @@ public:
     {
     }
 
-public:
-
     ShapePointF center() const { return m_center; }
-
     ShapeSizeF radius() const { return m_radius; }
 
-public:
-
     IShape *Clone() const;
-
-public:
-
     void accept(ShapeVisitor *visitor);
-
     void accept(ShapeConstVisitor *visitor) const;
 
 private:
-
     ShapePointF m_center;
     ShapeSizeF m_radius;
 };
 
-
-class QMT_EXPORT ArcShape
-        : public IShape
+class QMT_EXPORT ArcShape : public IShape
 {
 public:
     ArcShape()
@@ -251,40 +184,25 @@ public:
     {
     }
 
-public:
-
     ShapePointF center() const { return m_center; }
-
     ShapeSizeF radius() const { return m_radius; }
-
     qreal startAngle() const { return m_startAngle; }
-
     qreal spanAngle() const { return m_spanAngle; }
 
-public:
-
     IShape *Clone() const;
-
-public:
-
     void accept(ShapeVisitor *visitor);
-
     void accept(ShapeConstVisitor *visitor) const;
 
 private:
-
     ShapePointF m_center;
     ShapeSizeF m_radius;
     qreal m_startAngle;
     qreal m_spanAngle;
 };
 
-
-class QMT_EXPORT PathShape
-        : public IShape
+class QMT_EXPORT PathShape : public IShape
 {
 public:
-
     enum ElementType {
         TypeNone,
         TypeMoveto,
@@ -311,43 +229,25 @@ public:
         qreal m_angle2;
     };
 
-public:
     PathShape();
-
     ~PathShape();
-
-public:
 
     QList<Element> elements() const { return m_elements; }
 
-public:
-
     IShape *Clone() const;
-
-public:
-
     void accept(ShapeVisitor *visitor);
-
     void accept(ShapeConstVisitor *visitor) const;
 
-public:
-
     void moveTo(const ShapePointF &pos);
-
     void lineTo(const ShapePointF &pos);
-
     void arcMoveTo(const ShapePointF &center, const ShapeSizeF &radius, qreal angle);
-
     void arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal sweepLength);
-
     void close();
 
 private:
-
     QList<Element> m_elements;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_SHAPES_H

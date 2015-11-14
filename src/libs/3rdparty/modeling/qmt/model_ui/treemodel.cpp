@@ -53,13 +53,10 @@
 #include "qmt/style/stylecontroller.h"
 
 #include <QStandardItem>
-#include <QDebug>
-
 
 namespace qmt {
 
-class TreeModel::ModelItem :
-        public QStandardItem
+class TreeModel::ModelItem : public QStandardItem
 {
 public:
     ModelItem(const QIcon &icon, const QString &text)
@@ -68,17 +65,13 @@ public:
     }
 
     QList<QString> stereotypes() const { return m_stereotypes; }
-
     void setStereotypes(const QList<QString> &stereotypes) { m_stereotypes = stereotypes; }
 
 private:
-
     QList<QString> m_stereotypes;
 };
 
-
-class TreeModel::ItemFactory :
-        public MConstVisitor
+class TreeModel::ItemFactory : public MConstVisitor
 {
 public:
     ItemFactory(TreeModel *treeModel)
@@ -88,11 +81,7 @@ public:
         QMT_CHECK(m_treeModel);
     }
 
-public:
-
     ModelItem *product() const { return m_item; }
-
-public:
 
     void visitMElement(const MElement *element)
     {
@@ -202,16 +191,11 @@ public:
     }
 
 private:
-
     TreeModel *m_treeModel;
-
     ModelItem *m_item;
 };
 
-
-
-class TreeModel::ItemUpdater :
-        public MConstVisitor
+class TreeModel::ItemUpdater : public MConstVisitor
 {
 public:
     ItemUpdater(TreeModel *treeModel, ModelItem *item)
@@ -221,8 +205,6 @@ public:
         QMT_CHECK(m_treeModel);
         QMT_CHECK(m_item);
     }
-
-public:
 
     void visitMElement(const MElement *element)
     {
@@ -302,34 +284,26 @@ public:
     }
 
 private:
-
     void updateObjectLabel(const MObject *object);
-
     void updateRelationLabel(const MRelation *relation);
 
-private:
-
     TreeModel *m_treeModel;
-
     ModelItem *m_item;
 };
 
 void TreeModel::ItemUpdater::updateObjectLabel(const MObject *object)
 {
     QString label = m_treeModel->createObjectLabel(object);
-    if (m_item->text() != label) {
+    if (m_item->text() != label)
         m_item->setText(label);
-    }
 }
 
 void TreeModel::ItemUpdater::updateRelationLabel(const MRelation *relation)
 {
     QString label = m_treeModel->createRelationLabel(relation);
-    if (m_item->text() != label) {
+    if (m_item->text() != label)
         m_item->setText(label);
-    }
 }
-
 
 TreeModel::TreeModel(QObject *parent)
     : QStandardItemModel(parent),
@@ -352,9 +326,8 @@ TreeModel::~TreeModel()
 void TreeModel::setModelController(ModelController *modelController)
 {
     if (m_modelController != modelController) {
-        if (m_modelController) {
+        if (m_modelController)
             disconnect(m_modelController, 0, this, 0);
-        }
         m_modelController = modelController;
         if (m_modelController) {
             connect(m_modelController, SIGNAL(beginResetModel()), this, SLOT(onBeginResetModel()));
@@ -460,9 +433,8 @@ QModelIndex TreeModel::indexOf(const MElement *element) const
 QIcon TreeModel::icon(const QModelIndex &index) const
 {
     QStandardItem *item = itemFromIndex(index);
-    if (item) {
+    if (item)
         return item->icon();
-    }
     return QIcon();
 }
 
@@ -557,9 +529,8 @@ void TreeModel::onBeginRemoveObject(int row, const MObject *parent)
     m_busyState = RemoveElement;
     QMT_CHECK(parent);
     MObject *object = parent->children().at(row);
-    if (object) {
+    if (object)
         removeObjectFromItemMap(object);
-    }
     ModelItem *parentItem = m_objectToItemMap.value(parent);
     QMT_CHECK(parentItem);
     parentItem->removeRow(row);
@@ -579,9 +550,8 @@ void TreeModel::onBeginMoveObject(int formerRow, const MObject *formerOwner)
     m_busyState = MoveElement;
     QMT_CHECK(formerOwner);
     MObject *object = formerOwner->children().at(formerRow);
-    if (object) {
+    if (object)
         removeObjectFromItemMap(object);
-    }
     ModelItem *parentItem = m_objectToItemMap.value(formerOwner);
     QMT_CHECK(parentItem);
     parentItem->removeRow(formerRow);
@@ -716,9 +686,8 @@ void TreeModel::onRelationEndChanged(MRelation *relation, MObject *endObject)
     QMT_CHECK(item);
 
     QString label = createRelationLabel(relation);
-    if (item->text() != label) {
+    if (item->text() != label)
         item->setText(label);
-    }
 
     emit dataChanged(QStandardItemModel::index(row, 0, parentIndex), QStandardItemModel::index(row, 0, parentIndex));
 }
@@ -781,9 +750,8 @@ void TreeModel::removeObjectFromItemMap(const MObject *object)
     m_itemToObjectMap.remove(item);
     m_objectToItemMap.remove(object);
     foreach (const Handle<MObject> &child, object->children()) {
-        if (child.hasTarget()) {
+        if (child.hasTarget())
             removeObjectFromItemMap(child.target());
-        }
     }
 }
 
@@ -793,17 +761,15 @@ QString TreeModel::createObjectLabel(const MObject *object)
 
     if (object->name().isEmpty()) {
         if (const MItem *item = dynamic_cast<const MItem *>(object)) {
-            if (!item->variety().isEmpty()) {
+            if (!item->variety().isEmpty())
                 return QString(QStringLiteral("[%1]")).arg(item->variety());
-            }
         }
         return tr("[unnamed]");
     }
 
     if (const MClass *klass = dynamic_cast<const MClass *>(object)) {
-        if (!klass->umlNamespace().isEmpty()) {
+        if (!klass->umlNamespace().isEmpty())
             return QString(QStringLiteral("%1 [%2]")).arg(klass->name()).arg(klass->umlNamespace());
-        }
     }
     return object->name();
 }
@@ -815,13 +781,11 @@ QString TreeModel::createRelationLabel(const MRelation *relation)
         name += relation->name();
         name += QStringLiteral(": ");
     }
-    if (MObject *endA = m_modelController->findObject(relation->endAUid())) {
+    if (MObject *endA = m_modelController->findObject(relation->endAUid()))
         name += createObjectLabel(endA);
-    }
     name += QStringLiteral(" - ");
-    if (MObject *endB = m_modelController->findObject(relation->endBUid())) {
+    if (MObject *endB = m_modelController->findObject(relation->endBUid()))
         name += createObjectLabel(endB);
-    }
     return name;
 }
 
@@ -832,4 +796,4 @@ QIcon TreeModel::createIcon(StereotypeIcon::Element stereotypeIconElement, Style
                                               QSize(48, 48), QMarginsF(3.0, 2.0, 3.0, 4.0));
 }
 
-}
+} // namespace qmt

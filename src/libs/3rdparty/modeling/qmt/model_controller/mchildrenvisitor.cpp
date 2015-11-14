@@ -55,9 +55,8 @@ void MChildrenVisitor::visitMObject(MObject *object)
 {
     foreach (const Handle<MObject> &handle, object->children()) {
         MObject *child = handle.target();
-        if (child) {
+        if (child)
             child->accept(this);
-        }
     }
     visitMElement(object);
 }
@@ -112,4 +111,4 @@ void MChildrenVisitor::visitMAssociation(MAssociation *association)
     visitMRelation(association);
 }
 
-}
+} // namespace qmt

@@ -39,57 +39,36 @@ namespace qmt {
 
 class DElement;
 
-
-class QMT_EXPORT MDiagram :
-        public MObject
+class QMT_EXPORT MDiagram : public MObject
 {
 public:
     MDiagram();
-
     MDiagram(const MDiagram &rhs);
-
     ~MDiagram();
-
-public:
 
     MDiagram &operator=(const MDiagram &rhs);
 
-public:
-
     const QList<DElement *> &diagramElements() const { return m_elements; }
-
     DElement *findDiagramElement(const Uid &key) const;
-
     void setDiagramElements(const QList<DElement *> &elements);
 
     void addDiagramElement(DElement *element);
-
     void insertDiagramElement(int beforeElement, DElement *element);
-
     void removeDiagramElement(int index);
-
     void removeDiagramElement(DElement *element);
 
     QDateTime lastModified() const { return m_lastModified; }
-
     void setLastModified(const QDateTime &lastModified);
-
     void setLastModifiedToNow();
 
-public:
-
     virtual void accept(MVisitor *visitor);
-
     virtual void accept(MConstVisitor *visitor) const;
 
 private:
-
     QList<DElement *> m_elements;
-
     QDateTime m_lastModified;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MDIAGRAM_H

@@ -33,46 +33,28 @@
 
 #include "dobject.h"
 
-
 namespace qmt {
 
-class QMT_EXPORT DItem :
-        public DObject
+class QMT_EXPORT DItem : public DObject
 {
 public:
-
     DItem();
-
     ~DItem();
 
-public:
-
     QString variety() const { return m_variety; }
-
     void setVariety(const QString &variety);
-
     QString shape() const { return m_shape; }
-
     void setShape(const QString &shape);
-
     bool isShapeEditable() const { return m_isShapeEditable; }
-
     void setShapeEditable(bool shapeEditable);
 
-public:
-
     virtual void accept(DVisitor *visitor);
-
     virtual void accept(DConstVisitor *visitor) const;
 
 private:
-
     QString m_variety;
-
     QString m_shape;
-
     bool m_isShapeEditable;
-
 };
 
 } // namespace qmt

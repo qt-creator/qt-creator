@@ -42,7 +42,6 @@ QT_BEGIN_NAMESPACE
 class QColor;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class ObjectStyleKey;
@@ -50,36 +49,23 @@ class RelationStyleKey;
 class AnnotationStyleKey;
 class BoundaryStyleKey;
 
-
-class QMT_EXPORT DefaultStyleEngine :
-        public StyleEngine
+class QMT_EXPORT DefaultStyleEngine : public StyleEngine
 {
     Q_DISABLE_COPY(DefaultStyleEngine)
 
 public:
-
     DefaultStyleEngine();
-
     ~DefaultStyleEngine();
 
-public:
-
     const Style *applyStyle(const Style *baseStyle, ElementType elementType, const Parameters *parameters);
-
     const Style *applyObjectStyle(const Style *baseStyle, ElementType elementType, const ObjectVisuals &objectVisuals, const Parameters *parameters);
-
     const Style *applyObjectStyle(const Style *baseStyle, const StyledObject &styledObject, const Parameters *parameters);
-
     const Style *applyRelationStyle(const Style *baseStyle, const StyledRelation &styledRelation, const Parameters *parameters);
-
     const Style *applyAnnotationStyle(const Style *baseStyle, const DAnnotation *annotation, const Parameters *parameters);
-
     const Style *applyBoundaryStyle(const Style *baseStyle, const DBoundary *boundary, const Parameters *parameters);
 
 private:
-
     const Style *applyAnnotationStyle(const Style *baseStyle, DAnnotation::VisualRole visualRole, const Parameters *parameters);
-
     const Style *applyBoundaryStyle(const Style *baseStyle, const Parameters *parameters);
 
     ElementType objectType(const DObject *object);
@@ -87,16 +73,10 @@ private:
     bool areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryRole, DObject::VisualSecondaryRole rhsSecondaryRole, DObject::VisualPrimaryRole lhsPrimaryRole, DObject::VisualSecondaryRole lhsSecondaryRols);
 
     QColor baseColor(ElementType elementType, ObjectVisuals objectVisuals);
-
     QColor lineColor(ElementType elementType, const ObjectVisuals &objectVisuals);
-
     QColor fillColor(ElementType elementType, const ObjectVisuals &objectVisuals);
-
     QColor textColor(const DObject *object, int depth);
-
     QColor textColor(ElementType elementType, const ObjectVisuals &objectVisuals);
-
-private:
 
     QHash<ObjectStyleKey, const Style *> m_objectStyleMap;
     QHash<RelationStyleKey, const Style *> m_relationStyleMap;
@@ -104,6 +84,6 @@ private:
     QHash<BoundaryStyleKey, const Style *> m_boundaryStyleMap;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DEFAULTSTYLEENGINE_H

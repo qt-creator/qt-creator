@@ -40,35 +40,24 @@ class StereotypeController;
 class StereotypeIcon;
 class Toolbar;
 
-
 class QMT_EXPORT ConfigController : public QObject
 {
     Q_OBJECT
-
     class ConfigControllerPrivate;
 
 public:
-
     explicit ConfigController(QObject *parent = 0);
-
     ~ConfigController();
 
-public:
-
     void setStereotypeController(StereotypeController *stereotypeController);
-
-public:
 
     void readStereotypeDefinitions(const QString &path);
 
 private slots:
-
     void onStereotypeIconParsed(const StereotypeIcon &stereotypeIcon);
-
     void onToolbarParsed(const Toolbar &toolbar);
 
 private:
-
     ConfigControllerPrivate *d;
 };
 

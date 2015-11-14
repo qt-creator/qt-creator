@@ -45,9 +45,7 @@
 #include "qmt/diagram/dboundary.h"
 #include "qmt/infrastructure/qmtassert.h"
 
-
 namespace qmt {
-
 
 DCloneVisitor::DCloneVisitor()
     : m_cloned(0)
@@ -68,41 +66,36 @@ void DCloneVisitor::visitDObject(const DObject *object)
 
 void DCloneVisitor::visitDPackage(const DPackage *package)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DPackage(*package);
-    }
     visitDObject(package);
 }
 
 void DCloneVisitor::visitDClass(const DClass *klass)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DClass(*klass);
-    }
     visitDObject(klass);
 }
 
 void DCloneVisitor::visitDComponent(const DComponent *component)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DComponent(*component);
-    }
     visitDObject(component);
 }
 
 void DCloneVisitor::visitDDiagram(const DDiagram *diagram)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DDiagram(*diagram);
-    }
     visitDObject(diagram);
 }
 
 void DCloneVisitor::visitDItem(const DItem *item)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DItem(*item);
-    }
     visitDObject(item);
 
 }
@@ -115,44 +108,38 @@ void DCloneVisitor::visitDRelation(const DRelation *relation)
 
 void DCloneVisitor::visitDInheritance(const DInheritance *inheritance)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DInheritance(*inheritance);
-    }
     visitDRelation(inheritance);
 }
 
 void DCloneVisitor::visitDDependency(const DDependency *dependency)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DDependency(*dependency);
-    }
     visitDRelation(dependency);
 }
 
 void DCloneVisitor::visitDAssociation(const DAssociation *association)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DAssociation(*association);
-    }
     visitDRelation(association);
 }
 
 void DCloneVisitor::visitDAnnotation(const DAnnotation *annotation)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DAnnotation(*annotation);
-    }
     visitDElement(annotation);
 }
 
 void DCloneVisitor::visitDBoundary(const DBoundary *boundary)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DBoundary(*boundary);
-    }
     visitDElement(boundary);
 }
-
 
 DCloneDeepVisitor::DCloneDeepVisitor()
     : m_cloned(0)
@@ -173,41 +160,36 @@ void DCloneDeepVisitor::visitDObject(const DObject *object)
 
 void DCloneDeepVisitor::visitDPackage(const DPackage *package)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DPackage(*package);
-    }
     visitDObject(package);
 }
 
 void DCloneDeepVisitor::visitDClass(const DClass *klass)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DClass(*klass);
-    }
     visitDObject(klass);
 }
 
 void DCloneDeepVisitor::visitDComponent(const DComponent *component)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DComponent(*component);
-    }
     visitDObject(component);
 }
 
 void DCloneDeepVisitor::visitDDiagram(const DDiagram *diagram)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DDiagram(*diagram);
-    }
     visitDObject(diagram);
 }
 
 void DCloneDeepVisitor::visitDItem(const DItem *item)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DItem(*item);
-    }
     visitDObject(item);
 }
 
@@ -219,42 +201,37 @@ void DCloneDeepVisitor::visitDRelation(const DRelation *relation)
 
 void DCloneDeepVisitor::visitDInheritance(const DInheritance *inheritance)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DInheritance(*inheritance);
-    }
     visitDRelation(inheritance);
 }
 
 void DCloneDeepVisitor::visitDDependency(const DDependency *dependency)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DDependency(*dependency);
-    }
     visitDRelation(dependency);
 }
 
 void DCloneDeepVisitor::visitDAssociation(const DAssociation *association)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DAssociation(*association);
-    }
     visitDRelation(association);
 }
 
 void DCloneDeepVisitor::visitDAnnotation(const DAnnotation *annotation)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DAnnotation(*annotation);
-    }
     visitDElement(annotation);
 }
 
 void DCloneDeepVisitor::visitDBoundary(const DBoundary *boundary)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new DBoundary(*boundary);
-    }
     visitDElement(boundary);
 }
 
-}
+} // namespace qmt

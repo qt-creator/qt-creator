@@ -33,7 +33,8 @@
 
 namespace qark {
 
-class Flag {
+class Flag
+{
 public:
     typedef unsigned int MaskType;
 
@@ -46,6 +47,6 @@ private:
     MaskType m_mask;
 };
 
-}
+} // namespace qark
 
 #endif // QARK_FLAG_H

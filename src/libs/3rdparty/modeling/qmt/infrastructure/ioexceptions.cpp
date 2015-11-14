@@ -74,5 +74,5 @@ UnknownFileVersion::UnknownFileVersion(int version, const QString &fileName, int
 {
 }
 
-}
+} // namespace qmt
 

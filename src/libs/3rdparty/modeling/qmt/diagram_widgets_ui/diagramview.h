@@ -41,38 +41,25 @@ namespace qmt {
 class DiagramSceneModel;
 class MPackage;
 
-
-class QMT_EXPORT DiagramView :
-        public QGraphicsView
+class QMT_EXPORT DiagramView : public QGraphicsView
 {
 public:
-
     explicit DiagramView(QWidget *parent);
-
     ~DiagramView();
 
-public:
-
     DiagramSceneModel *diagramSceneModel() const;
-
     void setDiagramSceneModel(DiagramSceneModel *diagramSceneModel);
 
 protected:
-
     void dragEnterEvent(QDragEnterEvent *event);
-
     void dragLeaveEvent(QDragLeaveEvent *event);
-
     void dragMoveEvent(QDragMoveEvent *event);
-
     void dropEvent(QDropEvent *event);
 
 private:
-
     QPointer<DiagramSceneModel> m_diagramSceneModel;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DIAGRAMVIEW_H

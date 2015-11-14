@@ -42,13 +42,11 @@
 #include <qdebug.h>
 #include <limits>
 
-
 template <typename T>
 inline int sgn(T val)
 {
     return (T(0) < val) - (val < T(0));
 }
-
 
 namespace qmt {
 
@@ -70,9 +68,8 @@ bool GeometryUtilities::intersect(const QPolygonF &polygon, const QLineF &line, 
         QLineF polygonLine(polygon.at(i), polygon.at(i+1));
         QLineF::IntersectType intersectionType = polygonLine.intersect(line, intersectionPoint);
         if (intersectionType == QLineF::BoundedIntersection) {
-            if (intersectionLine) {
+            if (intersectionLine)
                 *intersectionLine = polygonLine;
-            }
             return true;
         }
     }
@@ -85,7 +82,6 @@ class Candidate
 {
 public:
     Candidate() : third(GeometryUtilities::SideUnspecified) { }
-
     Candidate(const QVector2D &f, const QPointF &s, GeometryUtilities::Side t) : first(f), second(s), third(t) { }
 
     QVector2D first;
@@ -125,9 +121,8 @@ bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, 
 
     QVector2D outsideVector = QVector2D(intersectionVector.y(), -intersectionVector.x());
     double p = QVector2D::dotProduct(directionVector, outsideVector);
-    if (p < 0.0) {
+    if (p < 0.0)
         outsideVector = outsideVector * -1.0;
-    }
 
     double smallestA = -1.0;
     QPointF rectTranslation;
@@ -186,9 +181,8 @@ bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, 
         }
         *horizontalAlignedSide = side;
     }
-    if (smallestA < 0.0) {
+    if (smallestA < 0.0)
         return false;
-    }
     *placement = line.p1() + (directionVector * (smallestA + lineOffset)).toPointF() + (sideVector * (bestSign * distance)).toPointF() - rectTranslation;
     return true;
 }
@@ -198,9 +192,8 @@ double GeometryUtilities::calcAngle(const QLineF &line)
     QVector2D directionVector(line.p2() - line.p1());
     directionVector.normalize();
     double angle = qAcos(directionVector.x()) * 180.0 / 3.1415926535;
-    if (directionVector.y() > 0.0) {
+    if (directionVector.y() > 0.0)
         angle = -angle;
-    }
     return angle;
 }
 
@@ -219,9 +212,8 @@ double GeometryUtilities::calcDistancePointToLine(const QPointF &point, const QL
     QVector2D a(line.p1());
     QVector2D directionVector(line.p2() - line.p1());
     qreal r = -((a - p) & directionVector) / directionVector.lengthSquared();
-    if (r < 0.0 || r > 1.0) {
+    if (r < 0.0 || r > 1.0)
         return std::numeric_limits<float>::quiet_NaN();
-    }
     qreal d = (a + r * directionVector - p).length();
     return d;
 }
@@ -240,17 +232,15 @@ QPointF GeometryUtilities::calcPrimaryAxisDirection(const QLineF &line)
     qreal xAbs = qAbs(line.dx());
     qreal yAbs = qAbs(line.dy());
     if (yAbs > xAbs) {
-        if (line.dy() >= 0.0) {
+        if (line.dy() >= 0.0)
             return QPointF(0.0, 1.0);
-        } else {
+        else
             return QPointF(0.0, -1.0);
-        }
     } else {
-        if (line.dx() >= 0.0) {
+        if (line.dx() >= 0.0)
             return QPointF(1.0, 0.0);
-        } else {
+        else
             return QPointF(-1.0, 0.0);
-        }
     }
 }
 
@@ -259,17 +249,15 @@ QPointF GeometryUtilities::calcSecondaryAxisDirection(const QLineF &line)
     qreal xAbs = qAbs(line.dx());
     qreal yAbs = qAbs(line.dy());
     if (yAbs > xAbs) {
-        if (line.dx() >= 0.0) {
+        if (line.dx() >= 0.0)
             return QPointF(1.0, 0.0);
-        } else {
+        else
             return QPointF(-1.0, 0.0);
-        }
     } else {
-        if (line.dy() >= 0.0) {
+        if (line.dy() >= 0.0)
             return QPointF(0.0, 1.0);
-        } else {
+        else
             return QPointF(0.0, -1.0);
-        }
     }
 }
 
@@ -290,5 +278,5 @@ QSizeF GeometryUtilities::ensureMinimumRasterSize(const QSizeF &size, double ras
     return QSizeF(width, height);
 }
 
-}
+} // namespace qmt
 

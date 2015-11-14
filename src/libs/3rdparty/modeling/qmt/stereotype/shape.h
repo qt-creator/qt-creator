@@ -36,24 +36,16 @@ namespace qmt {
 class ShapeVisitor;
 class ShapeConstVisitor;
 
-
 class IShape
 {
 public:
-
     virtual ~IShape() { }
 
-public:
-
     virtual IShape *Clone() const = 0;
-
-public:
-
     virtual void accept(ShapeVisitor *visitor) = 0;
-
     virtual void accept(ShapeConstVisitor *visitor) const = 0;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_SHAPE_H

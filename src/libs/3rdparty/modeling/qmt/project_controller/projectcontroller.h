@@ -37,61 +37,45 @@
 #include <QObject>
 #include <QString>
 
-
 namespace qmt {
 
 class Project;
 
-
-class QMT_EXPORT NoFileNameException :
-        public Exception
+class QMT_EXPORT NoFileNameException : public Exception
 {
 public:
     NoFileNameException();
 };
 
-class QMT_EXPORT ProjectIsModifiedException :
-        public Exception
+class QMT_EXPORT ProjectIsModifiedException : public Exception
 {
 public:
     ProjectIsModifiedException();
 };
 
-
-class QMT_EXPORT ProjectController :
-        public QObject
+class QMT_EXPORT ProjectController : public QObject
 {
     Q_OBJECT
 
 public:
     explicit ProjectController(QObject *parent = 0);
-
     ~ProjectController();
 
 signals:
-
     void changed();
-
     void fileNameChanged(const QString &fileName);
 
 public:
-
     Project *project() const { return m_project.data(); }
-
     bool isModified() const { return m_isModified; }
 
 public slots:
-
     void newProject(const QString &fileName);
-
     void setFileName(const QString &fileName);
-
     void setModified();
 
     void load();
-
     void save();
-
     void saveAs(const QString &fileName);
 
 private:
@@ -99,6 +83,6 @@ private:
     bool m_isModified;
 };
 
-}
+} // namespace qmt
 
 #endif // PROJECTCONTROLLER_H

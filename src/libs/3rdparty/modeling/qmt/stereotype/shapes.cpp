@@ -184,4 +184,4 @@ void PathShape::close()
     m_elements.append(element);
 }
 
-}
+} // namespace qmt

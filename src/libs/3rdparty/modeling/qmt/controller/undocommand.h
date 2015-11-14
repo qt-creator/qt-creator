@@ -34,42 +34,29 @@
 #include <QUndoCommand>
 #include "qmt/infrastructure/qmt_global.h"
 
-
 namespace qmt {
 
-class QMT_EXPORT UndoCommand :
-        public QUndoCommand
+class QMT_EXPORT UndoCommand : public QUndoCommand
 {
 public:
     explicit UndoCommand(const QString &text);
-
     ~UndoCommand();
 
-public:
-
     bool canRedo() const { return m_canRedo; }
-
     int id() const;
-
     void setDoNotMerge(bool doNotMerge);
 
-public:
-
     bool mergeWith(const QUndoCommand *other);
-
     virtual bool mergeWith(const UndoCommand *other);
 
     void undo();
-
     void redo();
 
 private:
-
     bool m_canRedo;
-
     bool m_doNotMerge;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_UNDOCOMMAND_H

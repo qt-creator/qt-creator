@@ -41,8 +41,7 @@
 
 namespace qmt {
 
-class AlignButtonsItem::AlignButtonItem :
-        public QGraphicsRectItem
+class AlignButtonsItem::AlignButtonItem : public QGraphicsRectItem
 {
 public:
     AlignButtonItem(IAlignable::AlignType alignType, const QString &identifier, IAlignable *alignable, QGraphicsItem *parent)
@@ -56,11 +55,7 @@ public:
         setPen(QPen(QColor(64, 64, 64)));
     }
 
-public:
-
     QString identifier() const { return m_identifier; }
-
-public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
     {
@@ -82,12 +77,9 @@ public:
 
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     {
-        if (contains(event->pos())) {
+        if (contains(event->pos()))
             m_alignable->align(m_alignType, m_identifier);
-        }
     }
-
-public:
 
     void setPixmap(const QPixmap &pixmap)
     {
@@ -97,17 +89,11 @@ public:
     }
 
 private:
-
     IAlignable::AlignType m_alignType;
-
     QString m_identifier;
-
     IAlignable *m_alignable;
-
     QGraphicsPixmapItem *m_pixmapItem;
-
 };
-
 
 AlignButtonsItem::AlignButtonsItem(IAlignable *alignable, QGraphicsItem *parent)
     : QGraphicsItem(parent),
@@ -193,4 +179,4 @@ void AlignButtonsItem::addButton(IAlignable::AlignType alignType, const QString 
     m_alignItems.append(item);
 }
 
-}
+} // namespace qmt

@@ -40,15 +40,11 @@
 namespace qark {
 
 QARK_SERIALIZE_ENUM(qmt::DObject::VisualPrimaryRole)
-
 QARK_SERIALIZE_ENUM(qmt::DObject::VisualSecondaryRole)
-
 QARK_SERIALIZE_ENUM(qmt::DObject::StereotypeDisplay)
-
 QARK_SERIALIZE_ENUM(qmt::DClass::TemplateDisplay)
-
 QARK_SERIALIZE_ENUM(qmt::DAnnotation::VisualRole)
 
-}
+} // namespace qark
 
 #endif // QMT_DIAGRAMSERIALIZER_H

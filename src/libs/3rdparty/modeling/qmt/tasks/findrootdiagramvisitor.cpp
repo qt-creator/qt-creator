@@ -60,13 +60,11 @@ void FindRootDiagramVisitor::visitMObject(MObject *object)
     foreach(const Handle<MObject> &child, object->children()) {
         if (child.hasTarget()) {
             child.target()->accept(this);
-            if (m_diagram) {
+            if (m_diagram)
                 return;
-            }
         }
     }
     visitMElement(object);
 }
 
-
-}
+} // namespace qmt

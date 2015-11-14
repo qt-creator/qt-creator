@@ -39,33 +39,23 @@ namespace qmt {
 
 class DiagramsManager;
 
-class QMT_EXPORT SceneInspector :
-        public QObject,
-        public ISceneInspector
+class QMT_EXPORT SceneInspector : public QObject, public ISceneInspector
 {
 public:
     explicit SceneInspector(QObject *parent = 0);
     ~SceneInspector();
 
-public:
-
     void setDiagramsManager(DiagramsManager *diagramsManager);
 
-public:
-
     QSizeF rasterSize() const;
-
     QSizeF minimalSize(const DElement *element, const MDiagram *diagram) const;
-
     IMoveable *moveable(const DElement *element, const MDiagram *diagram) const;
-
     IResizable *resizable(const DElement *element, const MDiagram *diagram) const;
 
 private:
-
     DiagramsManager *m_diagramsManager;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_SCENEINSPECTOR_H

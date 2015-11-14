@@ -33,7 +33,6 @@
 #include "mvisitor.h"
 #include "mconstvisitor.h"
 
-
 namespace qmt {
 
 MAssociationEnd::MAssociationEnd()
@@ -93,7 +92,6 @@ bool operator==(const MAssociationEnd &lhs, const MAssociationEnd &rhs)
             && lhs.isNavigable() == rhs.isNavigable();
 }
 
-
 MAssociation::MAssociation()
     : MRelation(),
       m_associationClassUid(Uid::invalidUid())
@@ -129,4 +127,4 @@ void MAssociation::accept(MConstVisitor *visitor) const
     visitor->visitMAssociation(this);
 }
 
-}
+} // namespace qmt

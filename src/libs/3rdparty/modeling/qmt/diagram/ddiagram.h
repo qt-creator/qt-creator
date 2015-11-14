@@ -35,20 +35,15 @@
 
 namespace qmt {
 
-class QMT_EXPORT DDiagram :
-        public DObject
+class QMT_EXPORT DDiagram : public DObject
 {
 public:
     DDiagram();
 
-public:
-
     virtual void accept(DVisitor *visitor);
-
     virtual void accept(DConstVisitor *visitor) const;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DDIAGRAM_H

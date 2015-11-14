@@ -104,4 +104,4 @@ void DAnnotation::accept(DConstVisitor *visitor) const
     visitor->visitDAnnotation(this);
 }
 
-}
+} // namespace qmt

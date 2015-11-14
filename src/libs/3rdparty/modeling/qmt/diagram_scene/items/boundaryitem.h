@@ -38,14 +38,12 @@
 #include "qmt/diagram_scene/capabilities/selectable.h"
 #include "qmt/diagram_scene/capabilities/editable.h"
 
-
 namespace qmt {
 
 class DBoundary;
 class DiagramSceneModel;
 class RectangularSelectionItem;
 class Style;
-
 
 class BoundaryItem :
         public QGraphicsItem,
@@ -58,110 +56,62 @@ class BoundaryItem :
 
 public:
     BoundaryItem(DBoundary *boundary, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-
     ~BoundaryItem();
 
-public:
-
     DBoundary *boundary() const { return m_boundary; }
-
     DiagramSceneModel *diagramSceneModel() const { return m_diagramSceneModel; }
 
-public:
-
     QRectF boundingRect() const;
-
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-
-public:
 
     virtual void update();
 
-public:
-
     QPointF pos() const;
-
     QRectF rect() const;
-
     QSizeF minimumSize() const;
-
     void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta);
-
     void alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide, double rasterWidth, double rasterHeight);
 
-public:
-
     void moveDelta(const QPointF &delta);
-
     void alignItemPositionToRaster(double rasterWidth, double rasterHeight);
 
-public:
-
     bool isSecondarySelected() const;
-
     void setSecondarySelected(bool secondarySelected);
-
     bool isFocusSelected() const;
-
     void setFocusSelected(bool focusSelected);
 
-public:
-
     bool isEditable() const;
-
     void edit();
 
 protected:
-
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
-
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
-protected:
-
     void updateSelectionMarker();
-
     void updateSelectionMarkerGeometry(const QRectF &boundaryRect);
-
     const Style *adaptedStyle();
-
     bool sceneEventFilter(QGraphicsItem *watched, QEvent *event);
 
 private slots:
-
     void onContentsChanged();
 
 private:
-
     QSizeF calcMinimumGeometry() const;
-
     void updateGeometry();
 
-private:
-
     DBoundary *m_boundary;
-
     DiagramSceneModel *m_diagramSceneModel;
-
     bool m_isSecondarySelected;
-
     bool m_isFocusSelected;
-
     RectangularSelectionItem *m_selectionMarker;
-
     QGraphicsRectItem *m_borderItem;
-
     QGraphicsRectItem *m_noTextItem;
-
     BoundaryTextItem *m_textItem;
-
     bool m_isUpdating;
-
     bool m_isChanged;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_BOUNDARYITEM_H

@@ -40,7 +40,6 @@ QT_BEGIN_NAMESPACE
 class QGraphicsSimpleTextItem;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class Uid;
@@ -50,7 +49,6 @@ class ArrowItem;
 class StereotypesItem;
 class PathSelectionItem;
 class Style;
-
 
 class RelationItem :
         public QGraphicsItem,
@@ -62,94 +60,54 @@ class RelationItem :
 
 public:
     RelationItem(DRelation *relation, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-
     ~RelationItem();
-
-public:
 
     DRelation *relation() const { return m_relation; }
 
-public:
-
     QRectF boundingRect() const;
-
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-
     QPainterPath shape() const;
 
-public:
-
     void moveDelta(const QPointF &delta);
-
     void alignItemPositionToRaster(double rasterWidth, double rasterHeight);
 
-public:
-
     bool isSecondarySelected() const;
-
     void setSecondarySelected(bool secondarySelected);
-
     bool isFocusSelected() const;
-
     void setFocusSelected(bool focusSelected);
 
-public:
-
     QPointF handlePos(int index);
-
     void insertHandle(int beforeIndex, const QPointF &pos);
-
     void deleteHandle(int index);
-
     void setHandlePos(int index, const QPointF &pos);
-
     void alignHandleToRaster(int index, double rasterWidth, double rasterHeight);
-
-public:
 
     virtual void update();
 
 protected:
-
     virtual void update(const Style *style);
 
-protected:
-
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
-
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
 private:
-
     const Style *adaptedStyle();
-
     QPointF calcEndPoint(const Uid &end, const Uid &otherEnd, int nearestIntermediatePointIndex);
-
     QPointF calcEndPoint(const Uid &end, const QPointF &otherEndPos, int nearestIntermediatePointIndex);
-
-private:
 
     DRelation *m_relation;
 
 protected:
-
     DiagramSceneModel *m_diagramSceneModel;
-
     bool m_isSecondarySelected;
-
     bool m_isFocusSelected;
-
     ArrowItem *m_arrow;
-
     QGraphicsSimpleTextItem *m_name;
-
     StereotypesItem *m_stereotypes;
-
     PathSelectionItem *m_selectionHandles;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_GRAPHICSRELATIONITEM_H

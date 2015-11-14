@@ -45,7 +45,6 @@
 
 #include <type_traits>
 
-
 // qark is (Q)t(Ar)chiving(K)it
 namespace qark {
 
@@ -479,6 +478,6 @@ typename std::enable_if<Archive::inArchive, Archive &>::type operator||(Archive 
     return archive >> ref;
 }
 
-}
+} // namespace qark
 
 #endif // QARK_SERIALIZE_H

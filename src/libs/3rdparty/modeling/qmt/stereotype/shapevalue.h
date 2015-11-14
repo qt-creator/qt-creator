@@ -36,13 +36,11 @@
 #include <QPointF>
 #include <QSizeF>
 
-
 namespace qmt {
 
-class QMT_EXPORT ShapeValueF {
-
+class QMT_EXPORT ShapeValueF
+{
 public:
-
     enum Origin {
         OriginSmart,
         OriginTop,
@@ -61,8 +59,6 @@ public:
         UnitPercentage
     };
 
-public:
-
     ShapeValueF()
         : m_value(0.0),
           m_unit(UnitRelative),
@@ -77,41 +73,26 @@ public:
     {
     }
 
-public:
-
     qreal value() const { return m_value; }
-
     void setValue(qreal value) { m_value = value; }
-
     Unit unit() const { return m_unit; }
-
     void setUnit(Unit unit) { m_unit = unit; }
-
     Origin origin() const { return m_origin; }
-
     void setOrigin(Origin origin) { m_origin = origin; }
 
-public:
-
     qreal mapTo(qreal origin, qreal size) const;
-
     qreal mapScaledTo(qreal scaledOrigin, qreal originalSize, qreal actualSize) const;
-
     qreal mapScaledTo(qreal scaledOrigin, qreal originalSize, qreal baseSize, qreal actualSize) const;
 
 private:
-
     qreal m_value;
-
     Unit m_unit;
-
     Origin m_origin;
 };
 
-
-class QMT_EXPORT ShapePointF {
+class QMT_EXPORT ShapePointF
+{
 public:
-
     ShapePointF()
     {
     }
@@ -122,35 +103,23 @@ public:
     {
     }
 
-public:
-
     ShapeValueF x() const { return m_x; }
-
     void setX(const ShapeValueF &x) { m_x = x; }
-
     ShapeValueF y() const { return m_y; }
-
     void setY(const ShapeValueF &y) { m_y = y; }
 
-public:
-
     QPointF mapTo(const QPointF &origin, const QSizeF &size) const;
-
     QPointF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &actualSize) const;
-
     QPointF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize, const QSizeF &actualSize) const;
 
 private:
-
     ShapeValueF m_x;
-
     ShapeValueF m_y;
 };
 
-
-class QMT_EXPORT ShapeSizeF {
+class QMT_EXPORT ShapeSizeF
+{
 public:
-
     ShapeSizeF()
     {
     }
@@ -161,28 +130,17 @@ public:
     {
     }
 
-public:
-
     ShapeValueF width() const { return m_width; }
-
     void setWidth(const ShapeValueF &width) { m_width = width; }
-
     ShapeValueF height() const { return m_height; }
-
     void setHeight(const ShapeValueF &height) { m_height = height; }
 
-public:
-
     QSizeF mapTo(const QPointF &origin, const QSizeF &size) const;
-
     QSizeF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &actualSize) const;
-
     QSizeF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize, const QSizeF &actualSize) const;
 
 private:
-
     ShapeValueF m_width;
-
     ShapeValueF m_height;
 };
 

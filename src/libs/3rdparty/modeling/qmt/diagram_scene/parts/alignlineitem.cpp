@@ -84,4 +84,4 @@ void AlignLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     Q_UNUSED(widget);
 }
 
-}
+} // namespace qmt

@@ -37,55 +37,35 @@
 
 #include <QMarginsF>
 
-
 namespace qmt {
 
 class Toolbar;
 class Style;
 
-class QMT_EXPORT StereotypeController :
-        public QObject
+class QMT_EXPORT StereotypeController : public QObject
 {
     Q_OBJECT
-
     class StereotypeControllerPrivate;
 
 public:
     explicit StereotypeController(QObject *parent = 0);
-
     ~StereotypeController();
 
-signals:
-
-public:
-
     QList<StereotypeIcon> stereotypeIcons() const;
-
     QList<Toolbar> toolbars() const;
-
     QList<QString> knownStereotypes(StereotypeIcon::Element stereotypeElement) const;
 
-public:
-
     QString findStereotypeIconId(StereotypeIcon::Element element, const QList<QString> &stereotypes) const;
-
     QList<QString> filterStereotypesByIconId(const QString &stereotypeIconId, const QList<QString> &stereotypes) const;
-
     StereotypeIcon findStereotypeIcon(const QString &stereotypeIconId);
-
     QIcon createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes, const QString &defaultIconPath,
                      const Style *style, const QSize &size, const QMarginsF &margins);
 
-public:
-
     void addStereotypeIcon(const StereotypeIcon &stereotypeIcon);
-
     void addToolbar(const Toolbar &toolbar);
 
 private:
-
     StereotypeControllerPrivate *d;
-
 };
 
 } // namespace qmt

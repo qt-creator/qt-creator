@@ -42,7 +42,6 @@
 #include "qmt/model/mdiagram.h"
 #include "qmt/model/mcanvasdiagram.h"
 #include "qmt/model/mitem.h"
-
 #include "qmt/model/mrelation.h"
 #include "qmt/model/mdependency.h"
 #include "qmt/model/massociation.h"
@@ -59,7 +58,6 @@
 // namespace qualifiers in typenames within xml file (which breaks xml syntax)
 using namespace qmt;
 
-
 namespace qark {
 
 // MExpansion
@@ -74,7 +72,6 @@ inline void Access<Archive, MExpansion>::serialize(Archive &archive, MExpansion 
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MExpansion)
-
 
 // MSourceExpansion
 
@@ -94,7 +91,6 @@ inline void Access<Archive, MSourceExpansion>::serialize(Archive &archive, MSour
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MSourceExpansion)
 
-
 // MElement
 
 QARK_REGISTER_TYPE_NAME(MElement, "MElement")
@@ -112,7 +108,6 @@ inline void Access<Archive, MElement>::serialize(Archive &archive, MElement &ele
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MElement)
-
 
 // MObject
 
@@ -133,7 +128,6 @@ inline void Access<Archive, MObject>::serialize(Archive &archive, MObject &objec
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MObject)
 
-
 // MPackage
 
 QARK_REGISTER_TYPE_NAME(MPackage, "MPackage")
@@ -150,7 +144,6 @@ inline void Access<Archive, MPackage>::serialize(Archive &archive, MPackage &pac
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MPackage)
-
 
 // MClass
 
@@ -171,7 +164,6 @@ inline void Access<Archive, MClass>::serialize(Archive &archive, MClass &klass)
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MClass)
-
 
 // MClassMember
 
@@ -194,7 +186,6 @@ inline void Access<Archive, MClassMember>::serialize(Archive &archive, MClassMem
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MClassMember)
 
-
 // MComponent
 
 QARK_REGISTER_TYPE_NAME(MComponent, "MComponent")
@@ -211,7 +202,6 @@ inline void Access<Archive, MComponent>::serialize(Archive &archive, MComponent 
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MComponent)
-
 
 // MDiagram
 
@@ -232,7 +222,6 @@ inline void Access<Archive, MDiagram>::serialize(Archive &archive, MDiagram &dia
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MDiagram)
 
-
 // MCanvasDiagram
 
 QARK_REGISTER_TYPE_NAME(MCanvasDiagram, "MCanvasDiagram")
@@ -250,7 +239,6 @@ inline void Access<Archive, MCanvasDiagram>::serialize(Archive &archive, MCanvas
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MCanvasDiagram)
-
 
 // MItem
 
@@ -272,7 +260,6 @@ inline void Access<Archive, MItem>::serialize(Archive &archive, MItem &item)
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MItem)
 
-
 // MRelation
 
 QARK_REGISTER_TYPE_NAME(MRelation, "MRelation")
@@ -292,7 +279,6 @@ inline void Access<Archive, MRelation>::serialize(Archive &archive, MRelation &r
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MRelation)
 
-
 // MInheritance
 
 QARK_REGISTER_TYPE_NAME(MInheritance, "MInheritance")
@@ -309,7 +295,6 @@ inline void Access<Archive, MInheritance>::serialize(Archive &archive, MInherita
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MInheritance)
-
 
 // MDependency
 
@@ -329,7 +314,6 @@ inline void Access<Archive, MDependency>::serialize(Archive &archive, MDependenc
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MDependency)
 
-
 // MAssociation
 
 QARK_REGISTER_TYPE_NAME(MAssociationEnd, "MAssociationEnd")
@@ -345,7 +329,6 @@ inline void Access<Archive, MAssociationEnd>::serialize(Archive &archive, MAssoc
             || attr(QStringLiteral("kind"), associationEnd, &MAssociationEnd::kind, &MAssociationEnd::setKind)
             || end;
 }
-
 
 QARK_REGISTER_TYPE_NAME(MAssociation, "MAssociation")
 QARK_REGISTER_DERIVED_CLASS(QXmlInArchive, QXmlOutArchive, MAssociation, MElement)
@@ -365,4 +348,4 @@ inline void Access<Archive, MAssociation>::serialize(Archive &archive, MAssociat
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MAssociation)
 
-}
+} // namespace qark

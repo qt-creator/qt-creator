@@ -37,20 +37,17 @@ QT_BEGIN_NAMESPACE
 class QGraphicsPathItem;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class Style;
 
-class ArrowItem :
-        public QGraphicsItem
+class ArrowItem : public QGraphicsItem
 {
     class GraphicsPathItem;
     class GraphicsHeadItem;
     class GraphicsShaftItem;
 
 public:
-
     enum Shaft {
         ShaftSolid,
         ShaftDashed
@@ -67,81 +64,46 @@ public:
         HeadFilledDiamondFilledTriangle
     };
 
-public:
-
     ArrowItem(QGraphicsItem *parent = 0);
-
     ArrowItem(const ArrowItem &rhs, QGraphicsItem *parent = 0);
-
     ~ArrowItem();
 
-public:
-
     void setShaft(Shaft shaft);
-
     void setArrowSize(double arrowSize);
-
     void setDiamondSize(double diamondSize);
-
     void setStartHead(Head head);
-
     void setEndHead(Head head);
-
     void setPoints(const QList<QPointF> &points);
 
-public:
-
     QRectF boundingRect() const;
-
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-
     QPainterPath shape() const;
 
-public:
-
     QPointF calcPointAtPercent(double percentage) const;
-
     QLineF firstLineSegment() const;
-
     QLineF lastLineSegment() const;
-
     double startHeadLength() const;
-
     double endHeadLength() const;
 
     void update(const Style *style);
 
 private:
-
     void updateShaft(const Style *style);
-
     void updateHead(GraphicsHeadItem **headItem, Head head, const Style *style);
-
     void updateHeadGeometry(GraphicsHeadItem **headItem, const QPointF &pos, const QPointF &otherPos);
-
     void updateGeometry();
 
-private:
-
     Shaft m_shaft;
-
     GraphicsShaftItem *m_shaftItem;
-
     double m_arrowSize;
-
     double m_diamondSize;
-
     Head m_startHead;
-
     GraphicsHeadItem *m_startHeadItem;
-
     Head m_endHead;
-
     GraphicsHeadItem *m_endHeadItem;
-
     QList<QPointF> m_points;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_GRAPHICSARROWITEM_H

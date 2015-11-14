@@ -42,7 +42,6 @@
 #include <QDropEvent>
 #include <QMimeData>
 
-
 namespace qmt {
 
 DiagramView::DiagramView(QWidget *parent)
@@ -80,9 +79,8 @@ void DiagramView::dragEnterEvent(QDragEnterEvent *event)
             QString key;
             dataStream >> key;
             if (!key.isEmpty()) {
-                if (m_diagramSceneModel->diagramSceneController()->isAddingAllowed(Uid(key), m_diagramSceneModel->diagram())) {
+                if (m_diagramSceneModel->diagramSceneController()->isAddingAllowed(Uid(key), m_diagramSceneModel->diagram()))
                     accept = true;
-                }
             }
         }
         event->setAccepted(accept);
@@ -122,9 +120,8 @@ void DiagramView::dropEvent(QDropEvent *event)
             QString key;
             dataStream >> key;
             if (!key.isEmpty()) {
-                if (m_diagramSceneModel->diagramSceneController()->isAddingAllowed(Uid(key), m_diagramSceneModel->diagram())) {
+                if (m_diagramSceneModel->diagramSceneController()->isAddingAllowed(Uid(key), m_diagramSceneModel->diagram()))
                     m_diagramSceneModel->diagramSceneController()->addExistingModelElement(Uid(key), mapToScene(event->pos()), m_diagramSceneModel->diagram());
-                }
             }
         }
         event->accept();
@@ -146,4 +143,4 @@ void DiagramView::dropEvent(QDropEvent *event)
     }
 }
 
-}
+} // namespace qmt

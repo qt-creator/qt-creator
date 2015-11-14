@@ -36,24 +36,17 @@
 
 namespace qmt {
 
-class StereotypesItem :
-        public QGraphicsSimpleTextItem
+class StereotypesItem : public QGraphicsSimpleTextItem
 {
 public:
     StereotypesItem(QGraphicsItem *parent = 0);
-
     ~StereotypesItem();
-
-public:
 
     void setStereotypes(const QList<QString> &stereotypes);
 
-public:
-
     static QString format(const QList<QString> &stereotypes);
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_GRAPHICSSTEREOTYPESITEM_H

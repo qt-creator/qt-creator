@@ -35,31 +35,21 @@
 
 namespace qmt {
 
-class QMT_EXPORT FindDiagramVisitor :
-        public MVoidConstVisitor
+class QMT_EXPORT FindDiagramVisitor : public MVoidConstVisitor
 {
 public:
-
     FindDiagramVisitor();
-
     ~FindDiagramVisitor();
-
-public:
 
     const MDiagram *diagram() const { return m_diagram; }
 
-public:
-
     void visitMObject(const MObject *object);
-
     void visitMDiagram(const MDiagram *diagram);
 
 private:
-
     const MDiagram *m_diagram;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_FINDDIAGRAMVISITOR_H

@@ -183,9 +183,8 @@ void DocumentController::copyDiagram(const MDiagram *diagram)
 
 void DocumentController::pasteIntoModel(MObject *modelObject)
 {
-    if (modelObject) {
+    if (modelObject)
         m_modelController->pasteElements(modelObject, *m_modelClipboard);
-    }
 }
 
 void DocumentController::pasteIntoDiagram(MDiagram *diagram)
@@ -243,11 +242,10 @@ MComponent *DocumentController::createNewComponent(MPackage *parent)
 MCanvasDiagram *DocumentController::createNewCanvasDiagram(MPackage *parent)
 {
     MCanvasDiagram *newDiagram = new MCanvasDiagram();
-    if (!m_diagramSceneController->findDiagramBySearchId(parent, parent->name())) {
+    if (!m_diagramSceneController->findDiagramBySearchId(parent, parent->name()))
         newDiagram->setName(parent->name());
-    } else {
+    else
         newDiagram->setName(tr("New Diagram"));
-    }
     m_modelController->addObject(parent, newDiagram);
     return newDiagram;
 }
@@ -266,9 +264,8 @@ MDiagram *DocumentController::findOrCreateRootDiagram()
     if (!rootDiagram) {
         rootDiagram = createNewCanvasDiagram(m_modelController->rootPackage());
         m_modelController->startUpdateObject(rootDiagram);
-        if (m_projectController->project()->hasFileName()) {
+        if (m_projectController->project()->hasFileName())
            rootDiagram->setName(NameController::convertFileNameToElementName(m_projectController->project()->fileName()));
-        }
         m_modelController->finishUpdateObject(rootDiagram, false);
     }
     return rootDiagram;
@@ -301,4 +298,4 @@ void DocumentController::loadProject(const QString &fileName)
     m_modelController->setRootPackage(m_projectController->project()->rootPackage());
 }
 
-}
+} // namespace qmt

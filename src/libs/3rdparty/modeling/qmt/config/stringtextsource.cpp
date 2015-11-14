@@ -67,9 +67,8 @@ SourceChar StringTextSource::readNextChar()
     QMT_CHECK(m_lineNumber >= 0);
     QMT_CHECK(m_columnNumber >= 0);
 
-    if (m_index >= m_text.length()) {
+    if (m_index >= m_text.length())
         return SourceChar(QChar(), SourcePos(m_sourceId, m_lineNumber, m_columnNumber));
-    }
 
     SourcePos pos(m_sourceId, m_lineNumber, m_columnNumber);
     QChar ch(m_text.at(m_index));

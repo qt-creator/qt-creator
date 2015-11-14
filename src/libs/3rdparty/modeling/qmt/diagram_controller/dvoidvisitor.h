@@ -35,77 +35,48 @@
 #include "qmt/diagram/dconstvisitor.h"
 #include "qmt/infrastructure/qmt_global.h"
 
-
 namespace qmt {
 
-class QMT_EXPORT DVoidVisitor :
-        public DVisitor
+class QMT_EXPORT DVoidVisitor : public DVisitor
 {
 public:
     DVoidVisitor();
 
     void visitDElement(DElement *element);
-
     void visitDObject(DObject *object);
-
     void visitDPackage(DPackage *package);
-
     void visitDClass(DClass *klass);
-
     void visitDComponent(DComponent *component);
-
     void visitDDiagram(DDiagram *diagram);
-
     void visitDItem(DItem *item);
-
     void visitDRelation(DRelation *relation);
-
     void visitDInheritance(DInheritance *inheritance);
-
     void visitDDependency(DDependency *dependency);
-
     void visitDAssociation(DAssociation *association);
-
     void visitDAnnotation(DAnnotation *annotation);
-
     void visitDBoundary(DBoundary *boundary);
-
 };
 
-class QMT_EXPORT DConstVoidVisitor :
-        public DConstVisitor
+class QMT_EXPORT DConstVoidVisitor : public DConstVisitor
 {
 public:
     DConstVoidVisitor();
 
     void visitDElement(const DElement *element);
-
     void visitDObject(const DObject *object);
-
     void visitDPackage(const DPackage *package);
-
     void visitDClass(const DClass *klass);
-
     void visitDComponent(const DComponent *component);
-
     void visitDDiagram(const DDiagram *diagram);
-
     void visitDItem(const DItem *item);
-
     void visitDRelation(const DRelation *relation);
-
     void visitDInheritance(const DInheritance *inheritance);
-
     void visitDDependency(const DDependency *dependency);
-
     void visitDAssociation(const DAssociation *association);
-
     void visitDAnnotation(const DAnnotation *annotation);
-
     void visitDBoundary(const DBoundary *boundary);
-
 };
 
-}
+} // namespace qmt
 
 #endif // DVOIDVISITOR_H

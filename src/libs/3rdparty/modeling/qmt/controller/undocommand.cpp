@@ -58,12 +58,10 @@ void UndoCommand::setDoNotMerge(bool doNotMerge)
 bool UndoCommand::mergeWith(const QUndoCommand *other)
 {
     const UndoCommand *otherCommand = dynamic_cast<const UndoCommand *>(other);
-    if (!otherCommand) {
+    if (!otherCommand)
         return false;
-    }
-    if (otherCommand->m_doNotMerge) {
+    if (otherCommand->m_doNotMerge)
         return false;
-    }
     return mergeWith(otherCommand);
 }
 
@@ -86,4 +84,4 @@ void UndoCommand::redo()
     m_canRedo = false;
 }
 
-}
+} // namespace qmt

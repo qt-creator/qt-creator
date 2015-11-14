@@ -33,21 +33,15 @@
 
 #include "style.h"
 
-
 namespace qmt {
 
-class QMT_EXPORT DefaultStyle :
-        public Style
+class QMT_EXPORT DefaultStyle :  public Style
 {
 public:
     DefaultStyle();
-
     ~DefaultStyle();
-
-public:
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DEFAULTSTYLE_H

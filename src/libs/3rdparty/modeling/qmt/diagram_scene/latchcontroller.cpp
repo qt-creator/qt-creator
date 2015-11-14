@@ -62,13 +62,11 @@ LatchController::LatchController(QObject *parent)
 
 LatchController::~LatchController()
 {
-    if (m_verticalAlignLine->scene()) {
+    if (m_verticalAlignLine->scene())
         m_verticalAlignLine->scene()->removeItem(m_verticalAlignLine);
-    }
     delete m_verticalAlignLine;
-    if (m_horizontalAlignLine->scene()) {
+    if (m_horizontalAlignLine->scene())
         m_horizontalAlignLine->scene()->removeItem(m_horizontalAlignLine);
-    }
     delete m_horizontalAlignLine;
 }
 
@@ -115,14 +113,12 @@ void LatchController::mouseMoveEventLatching(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    if (!m_diagramSceneModel->focusItem()) {
+    if (!m_diagramSceneModel->focusItem())
         return;
-    }
 
     ILatchable *palpedLatchable = dynamic_cast<ILatchable *>(m_diagramSceneModel->focusItem());
-    if (!palpedLatchable) {
+    if (!palpedLatchable)
         return;
-    }
 
     ILatchable::Action horizAction = ILatchable::Move;
     ILatchable::Action vertAction = ILatchable::Move;
@@ -276,4 +272,4 @@ void LatchController::mouseReleaseEventLatching(QGraphicsSceneMouseEvent *event)
     m_verticalAlignLine->setVisible(false);
 }
 
-}
+} // namespace qmt

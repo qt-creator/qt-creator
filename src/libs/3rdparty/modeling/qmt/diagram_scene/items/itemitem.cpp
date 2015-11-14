@@ -54,12 +54,10 @@
 
 #include <algorithm>
 
-
 namespace qmt {
 
 static const qreal BODY_VERT_BORDER = 4.0;
 static const qreal BODY_HORIZ_BORDER = 4.0;
-
 
 ItemItem::ItemItem(DItem *item, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : ObjectItem(item, diagramSceneModel, parent),
@@ -78,7 +76,6 @@ ItemItem::~ItemItem()
 void ItemItem::update()
 {
     prepareGeometryChange();
-
     updateStereotypeIconDisplay();
 
     DItem *diagramItem = dynamic_cast<DItem *>(object());
@@ -88,9 +85,8 @@ void ItemItem::update()
     const Style *style = adaptedStyle(shapeIconId());
 
     if (!shapeIconId().isEmpty()) {
-        if (!m_customIcon) {
+        if (!m_customIcon)
             m_customIcon = new CustomIconItem(diagramSceneModel(), this);
-        }
         m_customIcon->setStereotypeIconId(shapeIconId());
         m_customIcon->setBaseSize(stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT));
         m_customIcon->setBrush(style->fillBrush());
@@ -104,9 +100,8 @@ void ItemItem::update()
 
     // shape
     if (!m_customIcon) {
-        if (!m_shape) {
+        if (!m_shape)
             m_shape = new QGraphicsRectItem(this);
-        }
         m_shape->setBrush(style->fillBrush());
         m_shape->setPen(style->outerLinePen());
         m_shape->setZValue(SHAPE_ZVALUE);
@@ -122,18 +117,16 @@ void ItemItem::update()
     updateStereotypes(stereotypeIconId(), stereotypeIconDisplay(), adaptedStyle(stereotypeIconId()));
 
     // component name
-    if (!m_itemName) {
+    if (!m_itemName)
         m_itemName = new QGraphicsSimpleTextItem(this);
-    }
     m_itemName->setFont(style->headerFont());
     m_itemName->setBrush(style->textBrush());
     m_itemName->setText(object()->name());
 
     // context
     if (showContext()) {
-        if (!m_contextLabel) {
+        if (!m_contextLabel)
             m_contextLabel = new ContextLabelItem(this);
-        }
         m_contextLabel->setFont(style->smallFont());
         m_contextLabel->setBrush(style->textBrush());
         m_contextLabel->setContext(object()->context());
@@ -154,15 +147,13 @@ void ItemItem::update()
             m_relationStarter->addArrow(QStringLiteral("dependency"), ArrowItem::ShaftDashed, ArrowItem::HeadOpen);
         }
     } else if (m_relationStarter) {
-        if (m_relationStarter->scene()) {
+        if (m_relationStarter->scene())
             m_relationStarter->scene()->removeItem(m_relationStarter);
-        }
         delete m_relationStarter;
         m_relationStarter = 0;
     }
 
     updateAlignmentButtons();
-
     updateGeometry();
 }
 
@@ -208,9 +199,8 @@ void ItemItem::relationDrawn(const QString &id, const QPointF &toScenePos, const
     if (targetElement) {
        if (id == QStringLiteral("dependency")) {
             DObject *dependantObject = dynamic_cast<DObject *>(targetElement);
-            if (dependantObject) {
+            if (dependantObject)
                 diagramSceneModel()->diagramSceneController()->createDependency(object(), dependantObject, intermediatePoints, diagramSceneModel()->diagram());
-            }
         }
     }
 }
@@ -220,9 +210,8 @@ QSizeF ItemItem::calcMinimumGeometry() const
     double width = 0.0;
     double height = 0.0;
 
-    if (m_customIcon) {
+    if (m_customIcon)
         return stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
-    }
 
     height += BODY_VERT_BORDER;
     if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
@@ -237,9 +226,8 @@ QSizeF ItemItem::calcMinimumGeometry() const
         width = std::max(width, m_itemName->boundingRect().width());
         height += m_itemName->boundingRect().height();
     }
-    if (m_contextLabel) {
+    if (m_contextLabel)
         height += m_contextLabel->height();
-    }
     height += BODY_VERT_BORDER;
 
     width = BODY_HORIZ_BORDER + width + BODY_HORIZ_BORDER;
@@ -263,12 +251,10 @@ void ItemItem::updateGeometry()
         // nothing
     } else {
         QRectF rect = object()->rect();
-        if (rect.width() > width) {
+        if (rect.width() > width)
             width = rect.width();
-        }
-        if (rect.height() > height) {
+        if (rect.height() > height)
             height = rect.height();
-        }
     }
 
     // update sizes and positions
@@ -293,9 +279,8 @@ void ItemItem::updateGeometry()
         y += height;
     }
 
-    if (m_shape) {
+    if (m_shape)
         m_shape->setRect(rect);
-    }
 
     y += BODY_VERT_BORDER;
     if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
@@ -323,12 +308,10 @@ void ItemItem::updateGeometry()
 
     updateSelectionMarkerGeometry(rect);
 
-    if (m_relationStarter) {
+    if (m_relationStarter)
         m_relationStarter->setPos(mapToScene(QPointF(right + 8.0, top)));
-    }
 
     updateAlignmentButtonsGeometry(rect);
-
     updateDepth();
 }
 

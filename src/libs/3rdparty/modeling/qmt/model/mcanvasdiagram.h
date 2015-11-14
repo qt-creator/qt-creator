@@ -33,25 +33,18 @@
 
 #include "mdiagram.h"
 
-
 namespace qmt {
 
-class QMT_EXPORT MCanvasDiagram :
-        public MDiagram
+class QMT_EXPORT MCanvasDiagram : public MDiagram
 {
 public:
     MCanvasDiagram();
-
     ~MCanvasDiagram();
 
-public:
-
     virtual void accept(MVisitor *visitor);
-
     virtual void accept(MConstVisitor *visitor) const;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MCANVASDIAGRAM_H

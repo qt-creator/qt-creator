@@ -40,9 +40,6 @@
 
 #include "qmt/diagram/delement.h"
 
-#include <qdebug.h>
-
-
 namespace qmt {
 
 PropertiesView::PropertiesView(QObject *parent)
@@ -63,9 +60,8 @@ PropertiesView::~PropertiesView()
 void PropertiesView::setModelController(ModelController *modelController)
 {
     if (m_modelController != modelController) {
-        if (m_modelController) {
+        if (m_modelController)
             disconnect(m_modelController, 0, this, 0);
-        }
         m_modelController = modelController;
         if (m_modelController) {
             connect(m_modelController, SIGNAL(beginResetModel()), this, SLOT(onBeginResetModel()));
@@ -174,9 +170,8 @@ QWidget *PropertiesView::widget() const
 
 void PropertiesView::editSelectedElement()
 {
-    if (m_selectedModelElements.size() == 1 || (m_selectedDiagramElements.size() == 1 && m_selectedDiagram)) {
+    if (m_selectedModelElements.size() == 1 || (m_selectedDiagramElements.size() == 1 && m_selectedDiagram))
         m_mview->edit();
-    }
 }
 
 void PropertiesView::onBeginResetModel()
@@ -197,9 +192,8 @@ void PropertiesView::onBeginUpdateObject(int row, const MObject *parent)
 void PropertiesView::onEndUpdateObject(int row, const MObject *parent)
 {
     MObject *mobject = m_modelController->object(row, parent);
-    if (mobject && m_selectedModelElements.contains(mobject)) {
+    if (mobject && m_selectedModelElements.contains(mobject))
         m_mview->update(m_selectedModelElements);
-    }
 }
 
 void PropertiesView::onBeginInsertObject(int row, const MObject *parent)
@@ -217,9 +211,8 @@ void PropertiesView::onEndInsertObject(int row, const MObject *parent)
 void PropertiesView::onBeginRemoveObject(int row, const MObject *parent)
 {
     MObject *mobject = m_modelController->object(row, parent);
-    if (mobject && m_selectedModelElements.contains(mobject)) {
+    if (mobject && m_selectedModelElements.contains(mobject))
         clearSelection();
-    }
 }
 
 void PropertiesView::onEndRemoveObject(int row, const MObject *parent)
@@ -237,9 +230,8 @@ void PropertiesView::onBeginMoveObject(int formerRow, const MObject *formerOwner
 void PropertiesView::onEndMoveObject(int row, const MObject *owner)
 {
     MObject *mobject = m_modelController->object(row, owner);
-    if (mobject && m_selectedModelElements.contains(mobject)) {
+    if (mobject && m_selectedModelElements.contains(mobject))
         m_mview->update(m_selectedModelElements);
-    }
 }
 
 void PropertiesView::onBeginUpdateRelation(int row, const MObject *parent)
@@ -251,9 +243,8 @@ void PropertiesView::onBeginUpdateRelation(int row, const MObject *parent)
 void PropertiesView::onEndUpdateRelation(int row, const MObject *parent)
 {
     MRelation *mrelation = parent->relations().at(row);
-    if (mrelation && m_selectedModelElements.contains(mrelation)) {
+    if (mrelation && m_selectedModelElements.contains(mrelation))
         m_mview->update(m_selectedModelElements);
-    }
 }
 
 void PropertiesView::onBeginInsertRelation(int row, const MObject *parent)
@@ -271,9 +262,8 @@ void PropertiesView::onEndInsertRelation(int row, const MObject *parent)
 void PropertiesView::onBeginRemoveRelation(int row, const MObject *parent)
 {
     MRelation *mrelation = parent->relations().at(row);
-    if (mrelation && m_selectedModelElements.contains(mrelation)) {
+    if (mrelation && m_selectedModelElements.contains(mrelation))
         clearSelection();
-    }
 }
 
 void PropertiesView::onEndRemoveRelation(int row, const MObject *parent)
@@ -291,17 +281,15 @@ void PropertiesView::onBeginMoveRelation(int formerRow, const MObject *formerOwn
 void PropertiesView::onEndMoveRelation(int row, const MObject *owner)
 {
     MRelation *mrelation = owner->relations().at(row);
-    if (mrelation && m_selectedModelElements.contains(mrelation)) {
+    if (mrelation && m_selectedModelElements.contains(mrelation))
         m_mview->update(m_selectedModelElements);
-    }
 }
 
 void PropertiesView::onRelationEndChanged(MRelation *relation, MObject *endObject)
 {
     Q_UNUSED(endObject);
-    if (relation && m_selectedModelElements.contains(relation)) {
+    if (relation && m_selectedModelElements.contains(relation))
         m_mview->update(m_selectedModelElements);
-    }
 }
 
 void PropertiesView::onBeginResetAllDiagrams()
@@ -320,9 +308,8 @@ void PropertiesView::onBeginResetDiagram(const MDiagram *diagram)
 
 void PropertiesView::onEndResetDiagram(const MDiagram *diagram)
 {
-    if (diagram == m_selectedDiagram && m_selectedDiagramElements.size() > 0) {
+    if (diagram == m_selectedDiagram && m_selectedDiagramElements.size() > 0)
         m_mview->update(m_selectedDiagramElements, m_selectedDiagram);
-    }
 }
 
 void PropertiesView::onBeginUpdateElement(int row, const MDiagram *diagram)
@@ -335,9 +322,8 @@ void PropertiesView::onEndUpdateElement(int row, const MDiagram *diagram)
 {
     if (diagram == m_selectedDiagram) {
         DElement *delement = diagram->diagramElements().at(row);
-        if (m_selectedDiagramElements.contains(delement)) {
+        if (m_selectedDiagramElements.contains(delement))
             m_mview->update(m_selectedDiagramElements, m_selectedDiagram);
-        }
     }
 }
 
@@ -357,9 +343,8 @@ void PropertiesView::onBeginRemoveElement(int row, const MDiagram *diagram)
 {
     if (diagram == m_selectedDiagram) {
         DElement *delement = diagram->diagramElements().at(row);
-        if (m_selectedDiagramElements.contains(delement)) {
+        if (m_selectedDiagramElements.contains(delement))
             clearSelection();
-        }
     }
 }
 
@@ -413,4 +398,4 @@ void PropertiesView::endUpdate(DElement *diagramElement, bool cancelled)
     m_diagramController->finishUpdateElement(diagramElement, m_selectedDiagram, cancelled);
 }
 
-}
+} // namespace qmt

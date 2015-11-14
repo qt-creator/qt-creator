@@ -41,59 +41,34 @@ namespace qmt {
 class ModelController;
 class StereotypeController;
 
-class StereotypeDisplayVisitor :
-        public DConstVoidVisitor
+class StereotypeDisplayVisitor : public DConstVoidVisitor
 {
 public:
-
     StereotypeDisplayVisitor();
-
     ~StereotypeDisplayVisitor();
 
-public:
-
     void setModelController(ModelController *modelController);
-
     void setStereotypeController(StereotypeController *stereotypeController);
-
     DObject::StereotypeDisplay stereotypeDisplay() const { return m_stereotypeDisplay; }
-
     StereotypeIcon::Display stereotypeIconDisplay() const;
-
     QString stereotypeIconId() const { return m_stereotypeIconId; }
-
     QString shapeIconId() const { return m_shapeIconId; }
 
-public:
-
     void visitDObject(const DObject *object);
-
     void visitDPackage(const DPackage *package);
-
     void visitDClass(const DClass *klass);
-
     void visitDComponent(const DComponent *component);
-
     void visitDDiagram(const DDiagram *diagram);
-
     void visitDItem(const DItem *item);
 
 private:
-
     ModelController *m_modelController;
-
     StereotypeController *m_stereotypeController;
-
     DObject::StereotypeDisplay m_stereotypeDisplay;
-
     QString m_stereotypeIconId;
-
     QString m_shapeIconId;
-
     StereotypeIcon::Element m_stereotypeIconElement;
-
     DObject::StereotypeDisplay m_stereotypeSmartDisplay;
-
 };
 
 } // namespace qmt

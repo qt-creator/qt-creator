@@ -37,96 +37,57 @@
 
 namespace qmt {
 
-class QMT_EXPORT DiagramSceneModel::CreationVisitor :
-        public DVisitor
+class QMT_EXPORT DiagramSceneModel::CreationVisitor : public DVisitor
 {
 public:
-
     CreationVisitor(DiagramSceneModel *diagramSceneModel);
-
-public:
 
     QGraphicsItem *createdGraphicsItem() const { return m_graphicsItem; }
 
-public:
-
     void visitDElement(DElement *element);
-
     void visitDObject(DObject *object);
-
     void visitDPackage(DPackage *package);
-
     void visitDClass(DClass *klass);
-
     void visitDComponent(DComponent *component);
-
     void visitDDiagram(DDiagram *diagram);
-
     void visitDItem(DItem *item);
-
     void visitDRelation(DRelation *relation);
-
     void visitDInheritance(DInheritance *inheritance);
-
     void visitDDependency(DDependency *dependency);
-
     void visitDAssociation(DAssociation *association);
-
     void visitDAnnotation(DAnnotation *annotation);
-
     void visitDBoundary(DBoundary *boundary);
 
 private:
-
     DiagramSceneModel *m_diagramSceneModel;
-
     QGraphicsItem *m_graphicsItem;
 };
 
-class DiagramSceneModel::UpdateVisitor :
-        public DVisitor
+class DiagramSceneModel::UpdateVisitor : public DVisitor
 {
 public:
-
     UpdateVisitor(QGraphicsItem *item, DiagramSceneModel *diagramSceneModel, DElement *relatedElement = 0);
 
-public:
-
     void visitDElement(DElement *element);
-
     void visitDObject(DObject *object);
-
     void visitDPackage(DPackage *package);
-
     void visitDClass(DClass *klass);
-
     void visitDComponent(DComponent *component);
-
     void visitDDiagram(DDiagram *diagram);
-
     void visitDItem(DItem *item);
-
     void visitDRelation(DRelation *relation);
-
     void visitDInheritance(DInheritance *inheritance);
-
     void visitDDependency(DDependency *dependency);
-
     void visitDAssociation(DAssociation *association);
-
     void visitDAnnotation(DAnnotation *annotation);
-
     void visitDBoundary(DBoundary *boundary);
 
 private:
-
     QGraphicsItem *m_graphicsItem;
-
     DiagramSceneModel *m_diagramSceneModel;
-
     DElement *m_relatedElement;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DIAGRAMSCENEMODELITEMVISITORS_H

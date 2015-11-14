@@ -38,51 +38,34 @@ QT_BEGIN_NAMESPACE
 class QUndoStack;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class UndoCommand;
 
-
-class QMT_EXPORT UndoController :
-        public QObject
+class QMT_EXPORT UndoController : public QObject
 {
     Q_OBJECT
 
 public:
-
     explicit UndoController(QObject *parent = 0);
-
     ~UndoController();
-
-signals:
-
-public:
 
     QUndoStack *undoStack() const { return m_undoStack; }
 
 public slots:
-
     void push(UndoCommand *cmd);
-
     void beginMergeSequence(const QString &text);
-
     void endMergeSequence();
 
 public:
-
     void reset();
-
     void doNotMerge();
 
 private:
-
     QUndoStack *m_undoStack;
-
     bool m_doNotMerge;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_UNDOCONTROLLER_H

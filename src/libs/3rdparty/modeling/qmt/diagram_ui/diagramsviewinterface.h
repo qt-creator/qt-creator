@@ -36,22 +36,17 @@ namespace qmt {
 class MDiagram;
 class DiagramSceneModel;
 
-
-class DiagramsViewInterface {
+class DiagramsViewInterface
+{
 public:
     virtual ~DiagramsViewInterface() { }
 
-public:
-
     virtual void openDiagram(MDiagram *) = 0;
-
     virtual void closeDiagram(const MDiagram *) = 0;
-
     virtual void closeAllDiagrams() = 0;
-
     virtual void onDiagramRenamed(const MDiagram *) = 0;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DIAGRAMSVIEWINTERFACE_H

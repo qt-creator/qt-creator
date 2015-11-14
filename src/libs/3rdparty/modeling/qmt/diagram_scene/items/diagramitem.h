@@ -33,52 +33,34 @@
 
 #include "objectitem.h"
 
-
 namespace qmt {
 
 class DDiagram;
 class DiagramSceneModel;
 class CustomIconItem;
 
-
-class DiagramItem :
-        public ObjectItem
+class DiagramItem : public ObjectItem
 {
 public:
     explicit DiagramItem(DDiagram *diagram, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-
     ~DiagramItem();
-
-public:
 
     virtual void update();
 
-public:
-
     bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const;
-
-public:
 
     QSizeF minimumSize() const;
 
 private:
-
     QSizeF calcMinimumGeometry() const;
-
     void updateGeometry();
 
-private:
-
     CustomIconItem *m_customIcon;
-
     QGraphicsPolygonItem *m_body;
-
     QGraphicsPolygonItem *m_fold;
-
     QGraphicsSimpleTextItem *m_diagramName;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_GRAPHICSDIAGRAMITEM_H

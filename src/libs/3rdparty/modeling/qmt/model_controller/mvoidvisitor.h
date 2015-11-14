@@ -35,73 +35,46 @@
 #include "qmt/model/mconstvisitor.h"
 #include "qmt/infrastructure/qmt_global.h"
 
-
 namespace qmt {
 
-class QMT_EXPORT MVoidVisitor :
-        public MVisitor
+class QMT_EXPORT MVoidVisitor : public MVisitor
 {
 public:
     MVoidVisitor();
 
     void visitMElement(MElement *element);
-
     void visitMObject(MObject *object);
-
     void visitMPackage(MPackage *package);
-
     void visitMClass(MClass *klass);
-
     void visitMComponent(MComponent *component);
-
     void visitMDiagram(MDiagram *diagram);
-
     void visitMCanvasDiagram(MCanvasDiagram *diagram);
-
     void visitMItem(MItem *item);
-
     void visitMRelation(MRelation *relation);
-
     void visitMDependency(MDependency *dependency);
-
     void visitMInheritance(MInheritance *inheritance);
-
     void visitMAssociation(MAssociation *association);
-
 };
 
-class QMT_EXPORT MVoidConstVisitor :
-        public MConstVisitor
+class QMT_EXPORT MVoidConstVisitor : public MConstVisitor
 {
 public:
     MVoidConstVisitor();
 
     void visitMElement(const MElement *element);
-
     void visitMObject(const MObject *object);
-
     void visitMPackage(const MPackage *package);
-
     void visitMClass(const MClass *klass);
-
     void visitMComponent(const MComponent *component);
-
     void visitMDiagram(const MDiagram *diagram);
-
     void visitMCanvasDiagram(const MCanvasDiagram *diagram);
-
     void visitMItem(const MItem *item);
-
     void visitMRelation(const MRelation *relation);
-
     void visitMDependency(const MDependency *dependency);
-
     void visitMInheritance(const MInheritance *inheritance);
-
     void visitMAssociation(const MAssociation *association);
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MVOIDVISITOR_H

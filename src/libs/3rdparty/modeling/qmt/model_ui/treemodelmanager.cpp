@@ -67,9 +67,8 @@ bool TreeModelManager::isRootPackageSelected() const
 {
     foreach (const QModelIndex &index, m_modelTreeView->selectedSourceModelIndexes()) {
         MObject *object = dynamic_cast<MObject *>(m_treeModel->element(index));
-        if (object && !object->owner()) {
+        if (object && !object->owner())
             return true;
-        }
     }
     return false;
 }
@@ -79,9 +78,8 @@ MObject *TreeModelManager::selectedObject() const
     MObject *object = 0;
     if (m_modelTreeView->currentSourceModelIndex().isValid()) {
         MElement *element = m_treeModel->element(m_modelTreeView->currentSourceModelIndex());
-        if (element) {
+        if (element)
             object = dynamic_cast<MObject *>(element);
-        }
     }
     return object;
 }
@@ -96,9 +94,8 @@ MPackage *TreeModelManager::selectedPackage() const
             return package;
         } else if (MObject *object = dynamic_cast<MObject *>(element)) {
             package = dynamic_cast<MPackage *>(object->owner());
-            if (package) {
+            if (package)
                 return package;
-            }
         }
     }
     return m_treeModel->modelController()->rootPackage();
@@ -109,13 +106,12 @@ MSelection TreeModelManager::selectedObjects() const
     MSelection modelSelection;
     foreach (const QModelIndex &index, m_modelTreeView->selectedSourceModelIndexes()) {
         MElement *element = m_treeModel->element(index);
-        if (MObject *object = dynamic_cast<MObject *>(element)) {
+        if (MObject *object = dynamic_cast<MObject *>(element))
             modelSelection.append(object->uid(), m_treeModel->modelController()->ownerKey(object));
-        } else if (MRelation *relation = dynamic_cast<MRelation *>(element)) {
+        else if (MRelation *relation = dynamic_cast<MRelation *>(element))
             modelSelection.append(relation->uid(), m_treeModel->modelController()->ownerKey(relation));
-        }
     }
     return modelSelection;
 }
 
-}
+} // namespace qmt

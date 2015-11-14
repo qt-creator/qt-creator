@@ -40,7 +40,6 @@
 #include <QRectF>
 #include <QDateTime>
 
-
 #define QARK_BASIC_SAVELOAD(TYPE) \
     template<class Archive> \
     inline void save(Archive &archive, TYPE v, const Parameters &) \
@@ -52,7 +51,6 @@
     { \
         archive.read(&v); \
     }
-
 
 namespace qark {
 
@@ -76,7 +74,6 @@ QARK_BASIC_SAVELOAD(QString)
 
 #undef QARK_BASIC_SAVELOAD
 
-
 // QPointF
 
 template<class Archive>
@@ -90,11 +87,9 @@ inline void load(Archive &archive, QPointF &point, const Parameters &)
 {
     QString s;
     archive.read(&s);
-    if (QStringParser(s).parse(QStringLiteral("x:%1;y:%2")).arg(point, &QPointF::setX).arg(point, &QPointF::setY).failed()) {
+    if (QStringParser(s).parse(QStringLiteral("x:%1;y:%2")).arg(point, &QPointF::setX).arg(point, &QPointF::setY).failed())
         throw typename Archive::FileFormatException();
-    }
 }
-
 
 // QRectF
 
@@ -109,11 +104,9 @@ inline void load(Archive &archive, QRectF &point, const Parameters &)
 {
     QString s;
     archive.read(&s);
-    if (QStringParser(s).parse(QStringLiteral("x:%1;y:%2;w:%3;h:%4")).arg(point, &QRectF::setX).arg(point, &QRectF::setY).arg(point, &QRectF::setWidth).arg(point, &QRectF::setHeight).failed()) {
+    if (QStringParser(s).parse(QStringLiteral("x:%1;y:%2;w:%3;h:%4")).arg(point, &QRectF::setX).arg(point, &QRectF::setY).arg(point, &QRectF::setWidth).arg(point, &QRectF::setHeight).failed())
         throw typename Archive::FileFormatException();
-    }
 }
-
 
 // QDateTime
 
@@ -131,6 +124,6 @@ inline void load(Archive &archive, QDateTime &dateTime, const Parameters &)
     dateTime = QDateTime::fromMSecsSinceEpoch(t);
 }
 
-}
+} // namespace qark
 
 #endif // QARK_SERIALIZE_BASIC_H

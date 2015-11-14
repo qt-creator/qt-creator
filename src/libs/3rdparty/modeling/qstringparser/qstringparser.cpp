@@ -36,7 +36,6 @@
 // some Q Types: QColor (named, hex rgb)
 // introduce public type ParseState which can be got from Parser and gives some info like error state, error index etc
 
-
 QStringParser::QStringParser(const QString &source)
     : m_source(source)
 {
@@ -50,7 +49,6 @@ QStringParser::Parser QStringParser::parse(const QString &pattern)
 {
     return Parser(m_source, pattern);
 }
-
 
 QStringParser::Parser::Parser(const QString &source, const QString &pattern)
     : m_source(source),
@@ -76,21 +74,18 @@ bool QStringParser::Parser::scan(int *i, int *index)
 {
     *i = 0;
     int sign = 1;
-    while (*index < m_source.length() && m_source.at(*index).isSpace()) {
+    while (*index < m_source.length() && m_source.at(*index).isSpace())
         ++(*index);
-    }
-    if (*index >= m_source.length()) {
+    if (*index >= m_source.length())
         return false;
-    }
     if (m_source.at(*index) == QLatin1Char('+')) {
         ++(*index);
     } else if (m_source.at(*index) == QLatin1Char('-')) {
         sign = -1;
         ++(*index);
     }
-    if (*index >= m_source.length() || !m_source.at(*index).isDigit()) {
+    if (*index >= m_source.length() || !m_source.at(*index).isDigit())
         return false;
-    }
     while (*index < m_source.length() && m_source.at(*index).isDigit()) {
         *i = *i * 10 + m_source.at(*index).digitValue();
         ++(*index);
@@ -103,46 +98,37 @@ bool QStringParser::Parser::scan(double *d, int *index)
 {
     int startIndex = *index;
     // skip whitespaces
-    while (*index < m_source.length() && m_source.at(*index).isSpace()) {
+    while (*index < m_source.length() && m_source.at(*index).isSpace())
         ++(*index);
-    }
-    if (*index >= m_source.length()) {
+    if (*index >= m_source.length())
         return false;
-    }
     // sign
-    if (m_source.at(*index) == QLatin1Char('+')) {
+    if (m_source.at(*index) == QLatin1Char('+'))
         ++(*index);
-    } else if (m_source.at(*index) == QLatin1Char('-')) {
+    else if (m_source.at(*index) == QLatin1Char('-'))
         ++(*index);
-    }
     // int
-    while (*index < m_source.length() && m_source.at(*index).isDigit()) {
+    while (*index < m_source.length() && m_source.at(*index).isDigit())
         ++(*index);
-    }
     // point
-    if (*index < m_source.length() && m_source.at(*index) == QLatin1Char('.')) {
+    if (*index < m_source.length() && m_source.at(*index) == QLatin1Char('.'))
         ++(*index);
-    }
     // int
-    while (*index < m_source.length() && m_source.at(*index).isDigit()) {
+    while (*index < m_source.length() && m_source.at(*index).isDigit())
         ++(*index);
-    }
     // exponent
     if (*index < m_source.length() && m_source.at(*index).toLower() == QLatin1Char('e')) {
         ++(*index);
-        if (*index >= m_source.length()) {
+        if (*index >= m_source.length())
             return false;
-        }
         // sign
-        if (m_source.at(*index) == QLatin1Char('+')) {
+        if (m_source.at(*index) == QLatin1Char('+'))
             ++(*index);
-        } else if (m_source.at(*index) == QLatin1Char('-')) {
+        else if (m_source.at(*index) == QLatin1Char('-'))
             ++(*index);
-        }
         // int
-        while (*index < m_source.length() && m_source.at(*index).isDigit()) {
+        while (*index < m_source.length() && m_source.at(*index).isDigit())
             ++(*index);
-        }
     }
     bool ok = false;
     *d = m_source.mid(startIndex, *index - startIndex).toDouble(&ok);
@@ -204,13 +190,12 @@ void QStringParser::Parser::evaluate()
                         return;
                     }
                     // skip spaces in m_pattern
-                    while (p < m_pattern.length() && m_pattern.at(p).isSpace()) {
+                    while (p < m_pattern.length() && m_pattern.at(p).isSpace())
                         ++p;
-                    }
+
                     // skip spaces in m_source
-                    while (i < m_source.length() && m_source.at(i).isSpace()) {
+                    while (i < m_source.length() && m_source.at(i).isSpace())
                         ++i;
-                    }
                 } else if (i >= m_source.length() || m_source.at(i) != m_pattern.at(p)) {
                     m_evaluationFailed = true;
                     return;

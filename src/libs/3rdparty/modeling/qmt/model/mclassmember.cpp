@@ -112,4 +112,4 @@ bool operator==(const MClassMember &lhs, const MClassMember &rhs)
     return lhs.uid() == rhs.uid();
 }
 
-}
+} // namespace qmt

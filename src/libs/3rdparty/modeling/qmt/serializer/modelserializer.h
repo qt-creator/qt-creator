@@ -43,11 +43,9 @@ namespace qark {
 QARK_SERIALIZE_ENUM(qmt::MClassMember::MemberType)
 QARK_SERIALIZE_ENUM(qmt::MClassMember::Property)
 QARK_SERIALIZE_ENUM(qmt::MClassMember::Visibility)
-
 QARK_SERIALIZE_ENUM(qmt::MDependency::Direction)
-
 QARK_SERIALIZE_ENUM(qmt::MAssociationEnd::Kind)
 
-}
+} // namespace qark
 
 #endif // QMT_MODELSERIALIZER_H

@@ -56,4 +56,4 @@ void Toolbar::setTools(const QList<Toolbar::Tool> &tools)
     m_tools = tools;
 }
 
-}
+} // namespace qmt

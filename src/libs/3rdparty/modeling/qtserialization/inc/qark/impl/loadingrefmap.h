@@ -36,12 +36,11 @@
 #include <QMap>
 
 namespace qark {
-
 namespace impl {
 
-class LoadingRefMap {
+class LoadingRefMap
+{
 public:
-
     bool hasObject(const ObjectId &id)
     {
         return m_references.find(id) != m_references.end();
@@ -60,18 +59,14 @@ public:
     }
 
 private:
-
     typedef ObjectId KeyType;
     typedef void *ValueType;
     typedef QMap<KeyType, ValueType> MapType;
 
-private:
-
     MapType m_references;
 };
 
-}
-
-}
+} // namespace impl
+} // namespace qark
 
 #endif // QARK_LOADINGREFMAP_H

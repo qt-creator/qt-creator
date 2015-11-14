@@ -88,11 +88,10 @@ void PaletteBox::clear()
 void PaletteBox::setCurrentIndex(int index)
 {
     if (m_currentIndex != index) {
-        if (index >= 0 && index < m_brushes.size()) {
+        if (index >= 0 && index < m_brushes.size())
             m_currentIndex = index;
-        } else {
+        else
             m_currentIndex = -1;
-        }
         update();
     }
 }
@@ -133,9 +132,8 @@ void PaletteBox::mousePressEvent(QMouseEvent *event)
     int i = static_cast<int>((event->x() / w));
     QMT_CHECK(i >= 0 && i < m_brushes.size());
     setCurrentIndex(i);
-    if (m_currentIndex >= 0 && m_currentIndex < m_brushes.size()) {
+    if (m_currentIndex >= 0 && m_currentIndex < m_brushes.size())
         emit activated(m_currentIndex);
-    }
 }
 
 void PaletteBox::keyPressEvent(QKeyEvent *event)
@@ -143,25 +141,22 @@ void PaletteBox::keyPressEvent(QKeyEvent *event)
     bool isKnownKey = false;
     switch (event->key()) {
     case Qt::Key_Left:
-        if (m_currentIndex <= 0) {
+        if (m_currentIndex <= 0)
             setCurrentIndex((m_brushes.size() - 1));
-        } else {
+        else
             setCurrentIndex(m_currentIndex - 1);
-        }
         isKnownKey = true;
         break;
     case Qt::Key_Right:
-        if (m_currentIndex < 0 || m_currentIndex >= m_brushes.size() - 1) {
+        if (m_currentIndex < 0 || m_currentIndex >= m_brushes.size() - 1)
             setCurrentIndex(0);
-        } else {
+        else
             setCurrentIndex(m_currentIndex + 1);
-        }
         isKnownKey = true;
         break;
     }
-    if (isKnownKey && m_currentIndex >= 0 && m_currentIndex < m_brushes.size()) {
+    if (isKnownKey && m_currentIndex >= 0 && m_currentIndex < m_brushes.size())
         emit activated(m_currentIndex);
-    }
 }
 
 } // namespace qmt

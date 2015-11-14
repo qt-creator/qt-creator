@@ -44,50 +44,31 @@ class PathShape;
 class ShapeVisitor
 {
 public:
-
     ~ShapeVisitor() { }
 
-public:
-
     virtual void visitLine(LineShape *shapeLine) = 0;
-
     virtual void visitRect(RectShape *shapeRect) = 0;
-
     virtual void visitRoundedRect(RoundedRectShape *shapeRoundedRect) = 0;
-
     virtual void visitCircle(CircleShape *shapeCircle) = 0;
-
     virtual void visitEllipse(EllipseShape *shapeEllipse) = 0;
-
     virtual void visitArc(ArcShape *shapeArc) = 0;
-
     virtual void visitPath(PathShape *shapePath) = 0;
 };
-
 
 class ShapeConstVisitor
 {
 public:
-
     ~ShapeConstVisitor() { }
 
-public:
-
     virtual void visitLine(const LineShape *shapeLine) = 0;
-
     virtual void visitRect(const RectShape *shapeRect) = 0;
-
     virtual void visitRoundedRect(const RoundedRectShape *shapeRoundedRect) = 0;
-
     virtual void visitCircle(const CircleShape *shapeCircle) = 0;
-
     virtual void visitEllipse(const EllipseShape *shapeEllipse) = 0;
-
     virtual void visitArc(const ArcShape *shapeArc) = 0;
-
     virtual void visitPath(const PathShape *shapePath) = 0;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_SHAPEVISITOR_H

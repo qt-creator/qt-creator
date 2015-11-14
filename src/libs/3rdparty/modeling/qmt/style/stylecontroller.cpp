@@ -36,11 +36,9 @@
 
 #include <QHash>
 
-
 namespace qmt {
 
-class StyleController::Parameters :
-        public StyleEngine::Parameters
+class StyleController::Parameters : public StyleEngine::Parameters
 {
 public:
     Parameters(StyleController *styleController)
@@ -53,11 +51,8 @@ public:
     }
 
 private:
-
     StyleController *m_styleController;
-
 };
-
 
 StyleController::StyleController(QObject *parent)
     : QObject(parent),
@@ -118,4 +113,4 @@ const Style *StyleController::relationStarterStyle()
     return m_relationStarterStyle.data();
 }
 
-}
+} // namespace qmt

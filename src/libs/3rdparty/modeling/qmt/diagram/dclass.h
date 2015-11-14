@@ -36,70 +36,44 @@
 
 #include <QSet>
 
-
 namespace qmt {
 
-class QMT_EXPORT DClass :
-        public DObject
+class QMT_EXPORT DClass : public DObject
 {
 public:
-
     enum TemplateDisplay {
         TemplateSmart,
         TemplateBox,
         TemplateName
     };
 
-public:
     DClass();
 
-public:
-
     QString umlNamespace() const { return m_umlNamespace; }
-
     void setUmlNamespace(const QString &umlNamespace);
-
     QList<QString> templateParameters() const { return m_templateParameters; }
-
     void setTemplateParameters(const QList<QString> &templateParameters);
-
     QList<MClassMember> members() const { return m_members; }
-
     void setMembers(const QList<MClassMember> &members);
-
     QSet<Uid> visibleMembers() const { return m_visibleMembers; }
-
     void setVisibleMembers(const QSet<Uid> &visibleMembers);
-
     TemplateDisplay templateDisplay() const { return m_templateDisplay; }
-
     void setTemplateDisplay(TemplateDisplay templateDisplay);
-
     bool showAllMembers() const { return m_showAllMembers; }
-
     void setShowAllMembers(bool showAllMembers);
 
-public:
-
     virtual void accept(DVisitor *visitor);
-
     virtual void accept(DConstVisitor *visitor) const;
 
 private:
-
     QString m_umlNamespace;
-
     QList<QString> m_templateParameters;
-
     QList<MClassMember> m_members;
-
     QSet<Uid> m_visibleMembers;
-
     TemplateDisplay m_templateDisplay;
-
     bool m_showAllMembers;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DCLASS_H

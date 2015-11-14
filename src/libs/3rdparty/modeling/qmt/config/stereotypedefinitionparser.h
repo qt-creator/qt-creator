@@ -36,7 +36,6 @@
 
 #include "sourcepos.h"
 
-
 namespace qmt {
 
 class ITextSource;
@@ -45,16 +44,11 @@ class StereotypeIcon;
 class Toolbar;
 class ShapeValueF;
 
-class QMT_EXPORT StereotypeDefinitionParserError :
-        public Exception
+class QMT_EXPORT StereotypeDefinitionParserError : public Exception
 {
 public:
-
     StereotypeDefinitionParserError(const QString &errorMsg, const SourcePos &sourcePos);
-
     ~StereotypeDefinitionParserError();
-
-public:
 
     SourcePos sourcePos() const { return m_sourcePos; }
 
@@ -62,94 +56,62 @@ private:
     SourcePos m_sourcePos;
 };
 
-
 class QMT_EXPORT StereotypeDefinitionParser : public QObject
 {
     Q_OBJECT
-
     class StereotypeDefinitionParserPrivate;
-
     class IconCommandParameter;
 
 public:
-
     explicit StereotypeDefinitionParser(QObject *parent = 0);
-
     ~StereotypeDefinitionParser();
 
 signals:
-
     void iconParsed(const StereotypeIcon &stereotypeIcon);
-
     void toolbarParsed(const Toolbar &toolbar);
 
 public:
-
     void parse(ITextSource *source);
 
 private:
-
     void parseFile();
-
     void parseIcon();
-
     void parseIconProperties(StereotypeIcon *stereotypeIcon);
-
     void parseToolbar();
-
     void parseToolbarProperties(Toolbar *toolbar);
 
     QString parseStringProperty();
-
     int parseIntProperty();
-
     qreal parseFloatProperty();
-
     QString parseIdentifierProperty();
-
     QList<QString> parseIdentifierListProperty();
-
     bool parseBoolProperty();
-
     QColor parseColorProperty();
 
     void parseIconCommands(StereotypeIcon *stereotypeIcon);
-
     QList<ShapeValueF> parseIconCommandParameters(const QList<IconCommandParameter> &parameters);
 
     void parseToolbarCommands(Toolbar *toolbar);
 
     QString parseStringExpression();
-
     qreal parseFloatExpression();
-
     int parseIntExpression();
-
     QString parseIdentifierExpression();
-
     bool parseBoolExpression();
-
     QColor parseColorExpression();
 
     Token readNextToken();
 
     qreal expectAbsoluteValue(const ShapeValueF &value, const SourcePos &sourcePos);
-
     void expectSemicolonOrEndOfLine();
-
     bool nextIsComma();
-
     void expectOperator(int op, const QString &opName);
-
     void expectComma();
-
     void expectColon();
-
-private:
 
     StereotypeDefinitionParserPrivate *d;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_STEREOTYPEDEFINITIONPARSER_H

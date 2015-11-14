@@ -62,4 +62,4 @@ void FindDiagramVisitor::visitMDiagram(const MDiagram *diagram)
     m_diagram = diagram;
 }
 
-}
+} // namespace qmt

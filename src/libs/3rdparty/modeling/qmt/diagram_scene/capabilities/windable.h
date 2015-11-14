@@ -37,25 +37,20 @@ QT_BEGIN_NAMESPACE
 class QPointF;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
-class IWindable {
+class IWindable
+{
 public:
-
     virtual ~IWindable() { }
 
     virtual QPointF handlePos(int index) = 0;
-
     virtual void insertHandle(int beforeIndex, const QPointF &pos) = 0;
-
     virtual void deleteHandle(int index) = 0;
-
     virtual void setHandlePos(int index, const QPointF &pos) = 0;
-
     virtual void alignHandleToRaster(int index, double rasterWidth, double rasterHeight) = 0;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_WINDABLE_H

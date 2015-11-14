@@ -44,7 +44,6 @@ QT_BEGIN_NAMESPACE
 class QIcon;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class MElement;
@@ -55,9 +54,7 @@ class ModelController;
 class StereotypeController;
 class StyleController;
 
-
-class QMT_EXPORT TreeModel :
-        public QStandardItemModel
+class QMT_EXPORT TreeModel : public QStandardItemModel
 {
     Q_OBJECT
 
@@ -66,7 +63,6 @@ class QMT_EXPORT TreeModel :
     class ItemUpdater;
 
 public:
-
     enum ItemType {
         Package,
         Diagram,
@@ -78,96 +74,54 @@ public:
         RoleItemType = Qt::UserRole + 1
     };
 
-public:
     explicit TreeModel(QObject *parent = 0);
-
     ~TreeModel();
 
-public:
-
     ModelController *modelController() const { return m_modelController; }
-
     void setModelController(ModelController *modelController);
-
     StereotypeController *stereotypeController() const { return m_stereotypeController; }
-
     void setStereotypeController(StereotypeController *stereotypeController);
-
     StyleController *styleController() const { return m_styleController; }
-
     void setStyleController(StyleController *styleController);
 
     MElement *element(const QModelIndex &index) const;
-
     QModelIndex indexOf(const MElement *element) const;
-
     QIcon icon(const QModelIndex &index) const;
 
-public:
-
     Qt::DropActions supportedDropActions() const;
-
     QStringList mimeTypes() const;
 
 private slots:
-
     void onBeginResetModel();
-
     void onEndResetModel();
-
     void onBeginUpdateObject(int row, const MObject *parent);
-
     void onEndUpdateObject(int row, const MObject *parent);
-
     void onBeginInsertObject(int row, const MObject *parent);
-
     void onEndInsertObject(int row, const MObject *parent);
-
     void onBeginRemoveObject(int row, const MObject *parent);
-
     void onEndRemoveObject(int row, const MObject *parent);
-
     void onBeginMoveObject(int formerRow, const MObject *formerOwner);
-
     void onEndMoveObject(int row, const MObject *owner);
-
     void onBeginUpdateRelation(int row, const MObject *parent);
-
     void onEndUpdateRelation(int row, const MObject *parent);
-
     void onBeginInsertRelation(int row, const MObject *parent);
-
     void onEndInsertRelation(int row, const MObject *parent);
-
     void onBeginRemoveRelation(int row, const MObject *parent);
-
     void onEndRemoveRelation(int row, const MObject *parent);
-
     void onBeginMoveRelation(int formerRow, const MObject *formerOwner);
-
     void onEndMoveRelation(int row, const MObject *owner);
-
     void onRelationEndChanged(MRelation *relation, MObject *endObject);
-
     void onModelDataChanged(const QModelIndex &topleft, const QModelIndex &bottomright);
 
 private:
-
     void clear();
-
     ModelItem *createItem(const MElement *element);
-
     void createChildren(const MObject *parentObject, ModelItem *parentItem);
-
     void removeObjectFromItemMap(const MObject *object);
-
     QString createObjectLabel(const MObject *object);
-
     QString createRelationLabel(const MRelation *relation);
-
     QIcon createIcon(StereotypeIcon::Element stereotypeIconElement, StyleEngine::ElementType styleElementType, const QStringList &stereotypes, const QString &defaultIconPath);
 
-private:
     enum Busy {
         NotBusy,
         ResetModel,
@@ -185,23 +139,15 @@ private:
         MoveRelation
     };
 
-private:
-
     ModelController *m_modelController;
-
     StereotypeController *m_stereotypeController;
-
     StyleController *m_styleController;
-
     ModelItem *m_rootItem;
-
     QHash<const MObject *, ModelItem *> m_objectToItemMap;
-
     QHash<ModelItem *, const MObject *> m_itemToObjectMap;
-
     Busy m_busyState;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_TREEMODEL_H

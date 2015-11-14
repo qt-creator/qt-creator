@@ -34,17 +34,14 @@
 #include "qmt/controller/references.h"
 #include "qmt/infrastructure/qmt_global.h"
 
-
 namespace qmt {
 
 class MElement;
 
-
-class QMT_EXPORT MReferences :
-        public References<MElement>
+class QMT_EXPORT MReferences : public References<MElement>
 {
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MREFERENCES_H

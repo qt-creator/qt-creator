@@ -45,8 +45,6 @@
 #include <QBrush>
 #include <QVector2D>
 #include <QPair>
-#include <qdebug.h>
-
 
 namespace qmt {
 
@@ -85,9 +83,8 @@ void AssociationItem::updateEndLabels(const DAssociationEnd &end, const DAssocia
     Q_UNUSED(end);
 
     if (!otherEnd.name().isEmpty()) {
-        if (!*endName) {
+        if (!*endName)
             *endName = new QGraphicsSimpleTextItem(this);
-        }
         (*endName)->setFont(style->smallFont());
         (*endName)->setBrush(style->textBrush());
         (*endName)->setText(otherEnd.name());
@@ -98,9 +95,8 @@ void AssociationItem::updateEndLabels(const DAssociationEnd &end, const DAssocia
     }
 
     if (!otherEnd.cardinality().isEmpty()) {
-        if (!*endCardinality) {
+        if (!*endCardinality)
             *endCardinality = new QGraphicsSimpleTextItem(this);
-        }
         (*endCardinality)->setFont(style->smallFont());
         (*endCardinality)->setBrush(style->textBrush());
         (*endCardinality)->setText(otherEnd.cardinality());
@@ -120,27 +116,21 @@ void AssociationItem::placeEndLabels(const QLineF &lineSegment, QGraphicsItem *e
 
     double angle = GeometryUtilities::calcAngle(lineSegment);
     if (angle >= -5 && angle <= 5) {
-        if (endName) {
+        if (endName)
             endName->setPos(lineSegment.p1() + headOffset + sideOffset);
-        }
-        if (endCardinality) {
+        if (endCardinality)
             endCardinality->setPos(lineSegment.p1() + headOffset - sideOffset - endCardinality->boundingRect().bottomLeft());
-        }
     } else if (angle <= -175 || angle >= 175) {
-        if (endName) {
+        if (endName)
             endName->setPos(lineSegment.p1() - headOffset + sideOffset - endName->boundingRect().topRight());
-        }
-        if (endCardinality) {
+        if (endCardinality)
             endCardinality->setPos(lineSegment.p1() - headOffset - sideOffset - endCardinality->boundingRect().bottomRight());
-        }
     } else {
         QRectF rect;
-        if (endCardinality) {
+        if (endCardinality)
             rect = endCardinality->boundingRect();
-        }
-        if (endName) {
+        if (endName)
             rect = rect.united(endName->boundingRect().translated(rect.bottomLeft()));
-        }
 
         QPointF rectPlacement;
         GeometryUtilities::Side alignedSide = GeometryUtilities::SideUnspecified;
@@ -150,9 +140,8 @@ void AssociationItem::placeEndLabels(const QLineF &lineSegment, QGraphicsItem *e
             QLineF intersectionLine;
 
             if (objectItem->intersectShapeWithLine(GeometryUtilities::stretch(lineSegment.translated(pos()), 2.0, 0.0), &intersectionPoint, &intersectionLine)) {
-                if (!GeometryUtilities::placeRectAtLine(rect, lineSegment, HEAD_OFFSET, SIDE_OFFSET, intersectionLine, &rectPlacement, &alignedSide)) {
+                if (!GeometryUtilities::placeRectAtLine(rect, lineSegment, HEAD_OFFSET, SIDE_OFFSET, intersectionLine, &rectPlacement, &alignedSide))
                     rectPlacement = intersectionPoint;
-                }
             } else {
                 rectPlacement = lineSegment.p1();
             }
@@ -161,21 +150,19 @@ void AssociationItem::placeEndLabels(const QLineF &lineSegment, QGraphicsItem *e
         }
 
         if (endCardinality) {
-            if (alignedSide == GeometryUtilities::SideRight) {
+            if (alignedSide == GeometryUtilities::SideRight)
                 endCardinality->setPos(rectPlacement + QPointF(rect.width() - endCardinality->boundingRect().width(), 0.0));
-            } else {
+            else
                 endCardinality->setPos(rectPlacement);
-            }
             rectPlacement += endCardinality->boundingRect().bottomLeft();
         }
         if (endName) {
-            if (alignedSide == GeometryUtilities::SideRight) {
+            if (alignedSide == GeometryUtilities::SideRight)
                 endName->setPos(rectPlacement + QPointF(rect.width() - endName->boundingRect().width(), 0.0));
-            } else {
+            else
                 endName->setPos(rectPlacement);
-            }
         }
     }
 }
 
-}
+} // namespace qmt

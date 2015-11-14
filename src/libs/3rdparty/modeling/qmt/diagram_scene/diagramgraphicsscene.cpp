@@ -32,9 +32,6 @@
 
 #include "diagramscenemodel.h"
 
-#include <QDebug>
-
-
 namespace qmt {
 
 DiagramGraphicsScene::DiagramGraphicsScene(DiagramSceneModel *diagramSceneModel, QObject *parent)
@@ -141,4 +138,4 @@ void DiagramGraphicsScene::inputMethodEvent(QInputMethodEvent *event)
     QGraphicsScene::inputMethodEvent(event);
 }
 
-}
+} // namespace qmt

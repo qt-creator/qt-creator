@@ -49,4 +49,4 @@ ContextMenuAction::~ContextMenuAction()
 {
 }
 
-}
+} // namespace qmt

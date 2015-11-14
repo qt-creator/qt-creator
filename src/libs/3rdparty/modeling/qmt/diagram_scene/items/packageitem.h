@@ -35,12 +35,10 @@
 
 #include "qmt/diagram_scene/capabilities/relationable.h"
 
-
 QT_BEGIN_NAMESPACE
 class QGraphicsPolygonItem;
 class QGraphicsSimpleTextItem;
 QT_END_NAMESPACE
-
 
 namespace qmt {
 
@@ -50,62 +48,37 @@ class CustomIconItem;
 class ContextLabelItem;
 class RelationStarter;
 
-
-class PackageItem :
-        public ObjectItem,
-        public IRelationable
+class PackageItem : public ObjectItem, public IRelationable
 {
     class ShapeGeometry;
 
 public:
     PackageItem(DPackage *package, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-
     ~PackageItem();
-
-public:
 
     void update();
 
-public:
-
     bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const;
-
-public:
 
     virtual QSizeF minimumSize() const;
 
-public:
-
     QList<Latch> horizontalLatches(Action action, bool grabbedItem) const;
-
     QList<Latch> verticalLatches(Action action, bool grabbedItem) const;
 
-public:
-
     QPointF relationStartPos() const;
-
     void relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints);
 
 private:
-
     ShapeGeometry calcMinimumGeometry() const;
-
     void updateGeometry();
 
-private:
-
     CustomIconItem *m_customIcon;
-
     QGraphicsPolygonItem *m_shape;
-
     QGraphicsSimpleTextItem *m_packageName;
-
     ContextLabelItem *m_contextLabel;
-
     RelationStarter *m_relationStarter;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_GRAPHICSPACKAGEITEM_H

@@ -34,7 +34,6 @@
 #include "palettebox.h"
 
 #include "qmt/model_ui/stereotypescontroller.h"
-
 #include "qmt/model_controller/modelcontroller.h"
 
 #include "qmt/model/melement.h"
@@ -66,9 +65,7 @@
 
 // TODO move into better place
 #include "qmt/diagram_scene/items/stereotypedisplayvisitor.h"
-
 #include "qmt/stereotype/stereotypecontroller.h"
-
 #include "qmt/style/stylecontroller.h"
 #include "qmt/style/style.h"
 #include "qmt/style/objectvisuals.h"
@@ -81,7 +78,6 @@
 #include <QComboBox>
 #include <QCheckBox>
 #include <QPainter>
-
 
 //#define SHOW_DEBUG_PROPERTIES
 
@@ -287,7 +283,6 @@ static DAnnotation::VisualRole translateIndexToAnnotationVisualRole(int index)
     return map[index];
 }
 
-
 PropertiesView::MView::MView(PropertiesView *propertiesView)
     : m_propertiesView(propertiesView),
       m_diagram(0),
@@ -403,9 +398,8 @@ void PropertiesView::MView::visitMElement(const MElement *element)
         if (haveSameValue(m_modelElements, &MElement::stereotypes, &stereotypeList)) {
             QString stereotypes = m_stereotypesController->toString(stereotypeList);
             m_stereotypeComboBox->setEnabled(true);
-            if (stereotypes != m_stereotypeComboBox->currentText()) {
+            if (stereotypes != m_stereotypeComboBox->currentText())
                 m_stereotypeComboBox->setCurrentText(stereotypes);
-            }
         } else {
             m_stereotypeComboBox->clear();
             m_stereotypeComboBox->setEnabled(false);
@@ -432,15 +426,13 @@ void PropertiesView::MView::visitMObject(const MObject *object)
         connect(m_elementNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(onObjectNameChanged(QString)));
     }
     if (isSingleSelection) {
-        if (object->name() != m_elementNameLineEdit->text() && !m_elementNameLineEdit->hasFocus()) {
+        if (object->name() != m_elementNameLineEdit->text() && !m_elementNameLineEdit->hasFocus())
             m_elementNameLineEdit->setText(object->name());
-        }
     } else {
         m_elementNameLineEdit->clear();
     }
-    if (m_elementNameLineEdit->isEnabled() != isSingleSelection) {
+    if (m_elementNameLineEdit->isEnabled() != isSingleSelection)
         m_elementNameLineEdit->setEnabled(isSingleSelection);
-    }
 
 #ifdef SHOW_DEBUG_PROPERTIES
     if (m_childrenLabel == 0) {
@@ -458,11 +450,10 @@ void PropertiesView::MView::visitMObject(const MObject *object)
 
 void PropertiesView::MView::visitMPackage(const MPackage *package)
 {
-    if (m_modelElements.size() == 1 && !package->owner()) {
+    if (m_modelElements.size() == 1 && !package->owner())
         setTitle<MPackage>(m_modelElements, tr("Model"), tr("Models"));
-    } else {
+    else
         setTitle<MPackage>(m_modelElements, tr("Package"), tr("Packages"));
-    }
     visitMObject(package);
 }
 
@@ -481,9 +472,8 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
         QString umlNamespace;
         if (haveSameValue(m_modelElements, &MClass::umlNamespace, &umlNamespace)) {
             m_namespaceLineEdit->setEnabled(true);
-            if (umlNamespace != m_namespaceLineEdit->text()) {
+            if (umlNamespace != m_namespaceLineEdit->text())
                 m_namespaceLineEdit->setText(umlNamespace);
-            }
         } else {
             m_namespaceLineEdit->clear();
             m_namespaceLineEdit->setEnabled(false);
@@ -497,16 +487,14 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
     if (isSingleSelection) {
         if (!m_templateParametersLineEdit->hasFocus()) {
             QList<QString> templateParameters = splitTemplateParameters(m_templateParametersLineEdit->text());
-            if (klass->templateParameters() != templateParameters) {
+            if (klass->templateParameters() != templateParameters)
                 m_templateParametersLineEdit->setText(formatTemplateParameters(klass->templateParameters()));
-            }
         }
     } else {
         m_templateParametersLineEdit->clear();
     }
-    if (m_templateParametersLineEdit->isEnabled() != isSingleSelection) {
+    if (m_templateParametersLineEdit->isEnabled() != isSingleSelection)
         m_templateParametersLineEdit->setEnabled(isSingleSelection);
-    }
     if (m_classMembersStatusLabel == 0) {
         QMT_CHECK(!m_classMembersParseButton);
         m_classMembersStatusLabel = new QLabel(m_topWidget);
@@ -519,9 +507,8 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
         m_topLayout->addRow(QStringLiteral(""), layout);
         connect(m_classMembersParseButton, SIGNAL(clicked()), this, SLOT(onParseClassMembers()));
     }
-    if (m_classMembersParseButton->isEnabled() != isSingleSelection) {
+    if (m_classMembersParseButton->isEnabled() != isSingleSelection)
         m_classMembersParseButton->setEnabled(isSingleSelection);
-    }
     if (m_classMembersEdit == 0) {
         m_classMembersEdit = new ClassMembersEdit(m_topWidget);
         m_classMembersEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
@@ -530,15 +517,13 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
         connect(m_classMembersEdit, SIGNAL(statusChanged(bool)), this, SLOT(onClassMembersStatusChanged(bool)));
     }
     if (isSingleSelection) {
-        if (klass->members() != m_classMembersEdit->members() && !m_classMembersEdit->hasFocus()) {
+        if (klass->members() != m_classMembersEdit->members() && !m_classMembersEdit->hasFocus())
             m_classMembersEdit->setMembers(klass->members());
-        }
     } else {
         m_classMembersEdit->clear();
     }
-    if (m_classMembersEdit->isEnabled() != isSingleSelection) {
+    if (m_classMembersEdit->isEnabled() != isSingleSelection)
         m_classMembersEdit->setEnabled(isSingleSelection);
-    }
 }
 
 void PropertiesView::MView::visitMComponent(const MComponent *component)
@@ -579,15 +564,13 @@ void PropertiesView::MView::visitMItem(const MItem *item)
             connect(m_itemVarietyEdit, SIGNAL(textChanged(QString)), this, SLOT(onItemVarietyChanged(QString)));
         }
         if (isSingleSelection) {
-            if (item->variety() != m_itemVarietyEdit->text() && !m_itemVarietyEdit->hasFocus()) {
+            if (item->variety() != m_itemVarietyEdit->text() && !m_itemVarietyEdit->hasFocus())
                 m_itemVarietyEdit->setText(item->variety());
-            }
         } else {
             m_itemVarietyEdit->clear();
         }
-        if (m_itemVarietyEdit->isEnabled() != isSingleSelection) {
+        if (m_itemVarietyEdit->isEnabled() != isSingleSelection)
             m_itemVarietyEdit->setEnabled(isSingleSelection);
-        }
     }
 }
 
@@ -602,15 +585,13 @@ void PropertiesView::MView::visitMRelation(const MRelation *relation)
         connect(m_elementNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(onRelationNameChanged(QString)));
     }
     if (isSingleSelection) {
-        if (relation->name() != m_elementNameLineEdit->text() && !m_elementNameLineEdit->hasFocus()) {
+        if (relation->name() != m_elementNameLineEdit->text() && !m_elementNameLineEdit->hasFocus())
             m_elementNameLineEdit->setText(relation->name());
-        }
     } else {
         m_elementNameLineEdit->clear();
     }
-    if (m_elementNameLineEdit->isEnabled() != isSingleSelection) {
+    if (m_elementNameLineEdit->isEnabled() != isSingleSelection)
         m_elementNameLineEdit->setEnabled(isSingleSelection);
-    }
     MObject *endAObject = m_propertiesView->modelController()->findObject(relation->endAUid());
     QMT_CHECK(endAObject);
     setEndAName(tr("End A: %1").arg(endAObject->name()));
@@ -639,9 +620,8 @@ void PropertiesView::MView::visitMDependency(const MDependency *dependency)
     } else {
         m_directionSelector->setCurrentIndex(-1);
     }
-    if (m_directionSelector->isEnabled() != isSingleSelection) {
+    if (m_directionSelector->isEnabled() != isSingleSelection)
         m_directionSelector->setEnabled(isSingleSelection);
-    }
 }
 
 void PropertiesView::MView::visitMInheritance(const MInheritance *inheritance)
@@ -671,45 +651,39 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         connect(m_endAEndName, SIGNAL(textChanged(QString)), this, SLOT(onAssociationEndANameChanged(QString)));
     }
     if (isSingleSelection) {
-        if (association->endA().name() != m_endAEndName->text() && !m_endAEndName->hasFocus()) {
+        if (association->endA().name() != m_endAEndName->text() && !m_endAEndName->hasFocus())
             m_endAEndName->setText(association->endA().name());
-        }
     } else {
         m_endAEndName->clear();
     }
-    if (m_endAEndName->isEnabled() != isSingleSelection) {
+    if (m_endAEndName->isEnabled() != isSingleSelection)
         m_endAEndName->setEnabled(isSingleSelection);
-    }
     if (m_endACardinality == 0) {
         m_endACardinality = new QLineEdit(m_topWidget);
         m_topLayout->addRow(tr("Cardinality:"), m_endACardinality);
         connect(m_endACardinality, SIGNAL(textChanged(QString)), this, SLOT(onAssociationEndACardinalityChanged(QString)));
     }
     if (isSingleSelection) {
-        if (association->endA().cardinality() != m_endACardinality->text() && !m_endACardinality->hasFocus()) {
+        if (association->endA().cardinality() != m_endACardinality->text() && !m_endACardinality->hasFocus())
             m_endACardinality->setText(association->endA().cardinality());
-        }
     } else {
         m_endACardinality->clear();
     }
-    if (m_endACardinality->isEnabled() != isSingleSelection) {
+    if (m_endACardinality->isEnabled() != isSingleSelection)
         m_endACardinality->setEnabled(isSingleSelection);
-    }
     if (m_endANavigable == 0) {
         m_endANavigable = new QCheckBox(tr("Navigable"), m_topWidget);
         m_topLayout->addRow(QString(), m_endANavigable);
         connect(m_endANavigable, SIGNAL(clicked(bool)), this, SLOT(onAssociationEndANavigableChanged(bool)));
     }
     if (isSingleSelection) {
-        if (association->endA().isNavigable() != m_endANavigable->isChecked()) {
+        if (association->endA().isNavigable() != m_endANavigable->isChecked())
             m_endANavigable->setChecked(association->endA().isNavigable());
-        }
     } else {
         m_endANavigable->setChecked(false);
     }
-    if (m_endANavigable->isEnabled() != isSingleSelection) {
+    if (m_endANavigable->isEnabled() != isSingleSelection)
         m_endANavigable->setEnabled(isSingleSelection);
-    }
     if (m_endAKind == 0) {
         m_endAKind = new QComboBox(m_topWidget);
         m_endAKind->addItems(QStringList() << tr("Association") << tr("Aggregation") << tr("Composition"));
@@ -724,9 +698,8 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     } else {
         m_endAKind->setCurrentIndex(-1);
     }
-    if (m_endAKind->isEnabled() != isSingleSelection) {
+    if (m_endAKind->isEnabled() != isSingleSelection)
         m_endAKind->setEnabled(isSingleSelection);
-    }
 
     if (m_endBLabel == 0) {
         m_endBLabel = new QLabel(QStringLiteral("<b>") + m_endBName + QStringLiteral("</b>"));
@@ -738,45 +711,39 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         connect(m_endBEndName, SIGNAL(textChanged(QString)), this, SLOT(onAssociationEndBNameChanged(QString)));
     }
     if (isSingleSelection) {
-        if (association->endB().name() != m_endBEndName->text() && !m_endBEndName->hasFocus()) {
+        if (association->endB().name() != m_endBEndName->text() && !m_endBEndName->hasFocus())
             m_endBEndName->setText(association->endB().name());
-        }
     } else {
         m_endBEndName->clear();
     }
-    if (m_endBEndName->isEnabled() != isSingleSelection) {
+    if (m_endBEndName->isEnabled() != isSingleSelection)
         m_endBEndName->setEnabled(isSingleSelection);
-    }
     if (m_endBCardinality == 0) {
         m_endBCardinality = new QLineEdit(m_topWidget);
         m_topLayout->addRow(tr("Cardinality:"), m_endBCardinality);
         connect(m_endBCardinality, SIGNAL(textChanged(QString)), this, SLOT(onAssociationEndBCardinalityChanged(QString)));
     }
     if (isSingleSelection) {
-        if (association->endB().cardinality() != m_endBCardinality->text() && !m_endBCardinality->hasFocus()) {
+        if (association->endB().cardinality() != m_endBCardinality->text() && !m_endBCardinality->hasFocus())
             m_endBCardinality->setText(association->endB().cardinality());
-        }
     } else {
         m_endBCardinality->clear();
     }
-    if (m_endBCardinality->isEnabled() != isSingleSelection) {
+    if (m_endBCardinality->isEnabled() != isSingleSelection)
         m_endBCardinality->setEnabled(isSingleSelection);
-    }
     if (m_endBNavigable == 0) {
         m_endBNavigable = new QCheckBox(tr("Navigable"), m_topWidget);
         m_topLayout->addRow(QString(), m_endBNavigable);
         connect(m_endBNavigable, SIGNAL(clicked(bool)), this, SLOT(onAssociationEndBNavigableChanged(bool)));
     }
     if (isSingleSelection) {
-        if (association->endB().isNavigable() != m_endBNavigable->isChecked()) {
+        if (association->endB().isNavigable() != m_endBNavigable->isChecked())
             m_endBNavigable->setChecked(association->endB().isNavigable());
-        }
     } else {
         m_endBNavigable->setChecked(false);
     }
-    if (m_endBNavigable->isEnabled() != isSingleSelection) {
+    if (m_endBNavigable->isEnabled() != isSingleSelection)
         m_endBNavigable->setEnabled(isSingleSelection);
-    }
     if (m_endBKind == 0) {
         m_endBKind = new QComboBox(m_topWidget);
         m_endBKind->addItems(QStringList() << tr("Association") << tr("Aggregation") << tr("Composition"));
@@ -791,9 +758,8 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     } else {
         m_endBKind->setCurrentIndex(-1);
     }
-    if (m_endBKind->isEnabled() != isSingleSelection) {
+    if (m_endBKind->isEnabled() != isSingleSelection)
         m_endBKind->setEnabled(isSingleSelection);
-    }
 }
 
 void PropertiesView::MView::visitDElement(const DElement *element)
@@ -840,11 +806,10 @@ void PropertiesView::MView::visitDObject(const DObject *object)
     }
     if (!m_autoSizedCheckbox->hasFocus()) {
         bool autoSized;
-        if (haveSameValue(m_diagramElements, &DObject::isAutoSized, &autoSized)) {
+        if (haveSameValue(m_diagramElements, &DObject::isAutoSized, &autoSized))
             m_autoSizedCheckbox->setChecked(autoSized);
-        } else {
+        else
             m_autoSizedCheckbox->setChecked(false);
-        }
     }
     if (m_visualPrimaryRoleSelector == 0) {
         m_visualPrimaryRoleSelector = new PaletteBox(m_topWidget);
@@ -869,11 +834,10 @@ void PropertiesView::MView::visitDObject(const DObject *object)
         }
         setPrimaryRolePalette(m_styleElementType, DObject::PrimaryRoleNormal, baseColor);
         DObject::VisualPrimaryRole visualPrimaryRole;
-        if (haveSameValue(m_diagramElements, &DObject::visualPrimaryRole, &visualPrimaryRole)) {
+        if (haveSameValue(m_diagramElements, &DObject::visualPrimaryRole, &visualPrimaryRole))
             m_visualPrimaryRoleSelector->setCurrentIndex(translateVisualPrimaryRoleToIndex(visualPrimaryRole));
-        } else {
+        else
             m_visualPrimaryRoleSelector->setCurrentIndex(-1);
-        }
     }
     if (m_visualSecondaryRoleSelector == 0) {
         m_visualSecondaryRoleSelector = new QComboBox(m_topWidget);
@@ -885,11 +849,10 @@ void PropertiesView::MView::visitDObject(const DObject *object)
     }
     if (!m_visualSecondaryRoleSelector->hasFocus()) {
         DObject::VisualSecondaryRole visualSecondaryRole;
-        if (haveSameValue(m_diagramElements, &DObject::visualSecondaryRole, &visualSecondaryRole)) {
+        if (haveSameValue(m_diagramElements, &DObject::visualSecondaryRole, &visualSecondaryRole))
             m_visualSecondaryRoleSelector->setCurrentIndex(translateVisualSecondaryRoleToIndex(visualSecondaryRole));
-        } else {
+        else
             m_visualSecondaryRoleSelector->setCurrentIndex(-1);
-        }
     }
     if (m_visualEmphasizedCheckbox == 0) {
         m_visualEmphasizedCheckbox = new QCheckBox(tr("Emphasized"), m_topWidget);
@@ -898,11 +861,10 @@ void PropertiesView::MView::visitDObject(const DObject *object)
     }
     if (!m_visualEmphasizedCheckbox->hasFocus()) {
         bool emphasized;
-        if (haveSameValue(m_diagramElements, &DObject::isVisualEmphasized, &emphasized)) {
+        if (haveSameValue(m_diagramElements, &DObject::isVisualEmphasized, &emphasized))
             m_visualEmphasizedCheckbox->setChecked(emphasized);
-        } else {
+        else
             m_visualEmphasizedCheckbox->setChecked(false);
-        }
     }
     if (m_stereotypeDisplaySelector == 0) {
         m_stereotypeDisplaySelector = new QComboBox(m_topWidget);
@@ -913,11 +875,10 @@ void PropertiesView::MView::visitDObject(const DObject *object)
     }
     if (!m_stereotypeDisplaySelector->hasFocus()) {
         DObject::StereotypeDisplay stereotypeDisplay;
-        if (haveSameValue(m_diagramElements, &DObject::stereotypeDisplay, &stereotypeDisplay)) {
+        if (haveSameValue(m_diagramElements, &DObject::stereotypeDisplay, &stereotypeDisplay))
             m_stereotypeDisplaySelector->setCurrentIndex(translateStereotypeDisplayToIndex(stereotypeDisplay));
-        } else {
+        else
             m_stereotypeDisplaySelector->setCurrentIndex(-1);
-        }
     }
 #ifdef SHOW_DEBUG_PROPERTIES
     if (m_depthLabel == 0) {
@@ -950,11 +911,10 @@ void PropertiesView::MView::visitDClass(const DClass *klass)
     }
     if (!m_templateDisplaySelector->hasFocus()) {
         DClass::TemplateDisplay templateDisplay;
-        if (haveSameValue(m_diagramElements, &DClass::templateDisplay, &templateDisplay)) {
+        if (haveSameValue(m_diagramElements, &DClass::templateDisplay, &templateDisplay))
             m_templateDisplaySelector->setCurrentIndex(translateTemplateDisplayToIndex(templateDisplay));
-        } else {
+        else
             m_templateDisplaySelector->setCurrentIndex(-1);
-        }
     }
     if (m_showAllMembersCheckbox == 0) {
         m_showAllMembersCheckbox = new QCheckBox(tr("Show members"), m_topWidget);
@@ -963,11 +923,10 @@ void PropertiesView::MView::visitDClass(const DClass *klass)
     }
     if (!m_showAllMembersCheckbox->hasFocus()) {
         bool showAllMembers;
-        if (haveSameValue(m_diagramElements, &DClass::showAllMembers, &showAllMembers)) {
+        if (haveSameValue(m_diagramElements, &DClass::showAllMembers, &showAllMembers))
             m_showAllMembersCheckbox->setChecked(showAllMembers);
-        } else {
+        else
             m_showAllMembersCheckbox->setChecked(false);
-        }
     }
 }
 
@@ -984,11 +943,10 @@ void PropertiesView::MView::visitDComponent(const DComponent *component)
     }
     if (!m_plainShapeCheckbox->hasFocus()) {
         bool plainShape;
-        if (haveSameValue(m_diagramElements, &DComponent::isPlainShape, &plainShape)) {
+        if (haveSameValue(m_diagramElements, &DComponent::isPlainShape, &plainShape))
             m_plainShapeCheckbox->setChecked(plainShape);
-        } else {
+        else
             m_plainShapeCheckbox->setChecked(false);
-        }
     }
 }
 
@@ -1014,15 +972,13 @@ void PropertiesView::MView::visitDItem(const DItem *item)
             connect(m_itemShapeEdit, SIGNAL(textChanged(QString)), this, SLOT(onItemShapeChanged(QString)));
         }
         if (isSingleSelection) {
-            if (item->shape() != m_itemShapeEdit->text() && !m_itemShapeEdit->hasFocus()) {
+            if (item->shape() != m_itemShapeEdit->text() && !m_itemShapeEdit->hasFocus())
                 m_itemShapeEdit->setText(item->shape());
-            }
         } else {
             m_itemShapeEdit->clear();
         }
-        if (m_itemShapeEdit->isEnabled() != isSingleSelection) {
+        if (m_itemShapeEdit->isEnabled() != isSingleSelection)
             m_itemShapeEdit->setEnabled(isSingleSelection);
-        }
     }
 }
 
@@ -1060,11 +1016,10 @@ void PropertiesView::MView::visitDAnnotation(const DAnnotation *annotation)
     }
     if (!m_annotationAutoWidthCheckbox->hasFocus()) {
         bool autoSized;
-        if (haveSameValue(m_diagramElements, &DAnnotation::isAutoSized, &autoSized)) {
+        if (haveSameValue(m_diagramElements, &DAnnotation::isAutoSized, &autoSized))
             m_annotationAutoWidthCheckbox->setChecked(autoSized);
-        } else {
+        else
             m_annotationAutoWidthCheckbox->setChecked(false);
-        }
     }
     if (m_annotationVisualRoleSelector == 0) {
         m_annotationVisualRoleSelector = new QComboBox(m_topWidget);
@@ -1074,11 +1029,10 @@ void PropertiesView::MView::visitDAnnotation(const DAnnotation *annotation)
     }
     if (!m_annotationVisualRoleSelector->hasFocus()) {
         DAnnotation::VisualRole visualRole;
-        if (haveSameValue(m_diagramElements, &DAnnotation::visualRole, &visualRole)) {
+        if (haveSameValue(m_diagramElements, &DAnnotation::visualRole, &visualRole))
             m_annotationVisualRoleSelector->setCurrentIndex(translateAnnotationVisualRoleToIndex(visualRole));
-        } else {
+        else
             m_annotationVisualRoleSelector->setCurrentIndex(-1);
-        }
     }
 }
 
@@ -1112,11 +1066,10 @@ void PropertiesView::MView::onTemplateParametersChanged(const QString &templateP
 
 void PropertiesView::MView::onClassMembersStatusChanged(bool valid)
 {
-    if (valid) {
+    if (valid)
         m_classMembersStatusLabel->clear();
-    } else {
+    else
         m_classMembersStatusLabel->setText(tr("<font color=red>Invalid syntax!</font>"));
-    }
 }
 
 void PropertiesView::MView::onParseClassMembers()
@@ -1260,9 +1213,8 @@ void PropertiesView::MView::prepare()
         m_topLayout->addRow(m_classNameLabel);
     }
     QString title(QStringLiteral("<b>") + m_propertiesTitle + QStringLiteral("</b>"));
-    if (m_classNameLabel->text() != title) {
+    if (m_classNameLabel->text() != title)
         m_classNameLabel->setText(title);
-    }
 }
 
 template<class T, class V>
@@ -1270,11 +1222,10 @@ void PropertiesView::MView::setTitle(const QList<V *> &elements, const QString &
 {
     QList<T *> filtered = filter<T>(elements);
     if (filtered.size() == elements.size()) {
-        if (elements.size() == 1) {
+        if (elements.size() == 1)
             m_propertiesTitle = singularTitle;
-        } else {
+        else
             m_propertiesTitle = pluralTitle;
-        }
     } else {
         m_propertiesTitle = tr("Multi-Selection");
     }
@@ -1294,9 +1245,8 @@ void PropertiesView::MView::setTitle(const MItem *item, const QList<V *> &elemen
                         m_propertiesTitle = stereotypeIcon.title();
                     }
                 }
-                if (m_propertiesTitle.isEmpty()) {
+                if (m_propertiesTitle.isEmpty())
                     m_propertiesTitle = singularTitle;
-                }
             } else {
                 m_propertiesTitle = pluralTitle;
             }
@@ -1308,16 +1258,14 @@ void PropertiesView::MView::setTitle(const MItem *item, const QList<V *> &elemen
 
 void PropertiesView::MView::setStereotypeIconElement(StereotypeIcon::Element stereotypeElement)
 {
-    if (m_stereotypeElement == StereotypeIcon::ElementAny) {
+    if (m_stereotypeElement == StereotypeIcon::ElementAny)
         m_stereotypeElement = stereotypeElement;
-    }
 }
 
 void PropertiesView::MView::setStyleElementType(StyleEngine::ElementType elementType)
 {
-    if (m_styleElementType == StyleEngine::TypeOther) {
+    if (m_styleElementType == StyleEngine::TypeOther)
         m_styleElementType = elementType;
-    }
 }
 
 void PropertiesView::MView::setPrimaryRolePalette(StyleEngine::ElementType elementType, DObject::VisualPrimaryRole visualPrimaryRole, const QColor &baseColor)
@@ -1330,16 +1278,14 @@ void PropertiesView::MView::setPrimaryRolePalette(StyleEngine::ElementType eleme
 
 void PropertiesView::MView::setEndAName(const QString &endAName)
 {
-    if (m_endAName.isEmpty()) {
+    if (m_endAName.isEmpty())
         m_endAName = endAName;
-    }
 }
 
 void PropertiesView::MView::setEndBName(const QString &endBName)
 {
-    if (m_endBName.isEmpty()) {
+    if (m_endBName.isEmpty())
         m_endBName = endBName;
-    }
 }
 
 QList<QString> PropertiesView::MView::splitTemplateParameters(const QString &templateParameters)
@@ -1347,9 +1293,8 @@ QList<QString> PropertiesView::MView::splitTemplateParameters(const QString &tem
     QList<QString> templateParametersList;
     foreach (const QString &parameter, templateParameters.split(QLatin1Char(','))) {
         const QString &p = parameter.trimmed();
-        if (!p.isEmpty()) {
+        if (!p.isEmpty())
             templateParametersList.append(p);
-        }
     }
     return templateParametersList;
 }
@@ -1359,9 +1304,8 @@ QString PropertiesView::MView::formatTemplateParameters(const QList<QString> &te
     QString templateParamters;
     bool first = true;
     foreach (const QString &parameter, templateParametersList) {
-        if (!first) {
+        if (!first)
             templateParamters += QStringLiteral(", ");
-        }
         templateParamters += parameter;
         first = false;
     }
@@ -1374,9 +1318,8 @@ QList<T *> PropertiesView::MView::filter(const QList<V *> &elements)
     QList<T *> filtered;
     foreach (V *element, elements) {
         T *t = dynamic_cast<T *>(element);
-        if (t) {
+        if (t)
             filtered.append(t);
-        }
     }
     return filtered;
 }
@@ -1393,18 +1336,15 @@ bool PropertiesView::MView::haveSameValue(const QList<BASE *> &baseElements, V (
             candidate = ((*element).*getter)();
             haveCandidate = true;
         } else {
-            if (candidate != ((*element).*getter)()) {
+            if (candidate != ((*element).*getter)())
                 return false;
-            }
         }
     }
     QMT_CHECK(haveCandidate);
-    if (!haveCandidate) {
+    if (!haveCandidate)
         return false;
-    }
-    if (value) {
+    if (value)
         *value = candidate;
-    }
     return true;
 }
 
@@ -1472,4 +1412,4 @@ void PropertiesView::MView::assignEmbeddedModelElement(const QList<BASE *> &base
     }
 }
 
-}
+} // namespace qmt

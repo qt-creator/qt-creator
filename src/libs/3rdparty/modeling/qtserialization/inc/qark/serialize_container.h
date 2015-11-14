@@ -40,16 +40,14 @@ namespace qark {
 
 static Flag ENFORCE_REFERENCED_ITEMS;
 
-
 // QList
 
 template<class Archive, class T>
 inline void save(Archive &archive, const QList<T> &list, const Parameters &)
 {
     archive << tag("qlist");
-    foreach (const T &t, list) {
+    foreach (const T &t, list)
         archive << attr(QStringLiteral("item"), t);
-    }
     archive << end;
 }
 
@@ -58,13 +56,11 @@ inline void save(Archive &archive, const QList<T *> &list, const Parameters &par
 {
     archive << tag("qlist");
     if (parameters.hasFlag(ENFORCE_REFERENCED_ITEMS)) {
-        foreach (const T *t, list) {
+        foreach (const T *t, list)
             archive << ref(QStringLiteral("item"), t);
-        }
     } else {
-        foreach (const T *t, list) {
+        foreach (const T *t, list)
             archive << attr(QStringLiteral("item"), t);
-        }
     }
     archive << end;
 }
@@ -91,16 +87,14 @@ inline void load(Archive &archive, QList<T *> &list, const Parameters &parameter
     archive >> end;
 }
 
-
 // QSet
 
 template<class Archive, class T>
 inline void save(Archive &archive, const QSet<T> &set, const Parameters &)
 {
     archive << tag("qset");
-    foreach (const T &t, set) {
+    foreach (const T &t, set)
         archive << attr(QStringLiteral("item"), t);
-    }
     archive << end;
 }
 
@@ -109,13 +103,11 @@ inline void save(Archive &archive, const QSet<T *> &set, const Parameters &param
 {
     archive << tag("qset");
     if (parameters.hasFlag(ENFORCE_REFERENCED_ITEMS)) {
-        foreach (const T *t, set) {
+        foreach (const T *t, set)
             archive << ref(QStringLiteral("item"), t);
-        }
     } else {
-        foreach (const T *t, set) {
+        foreach (const T *t, set)
             archive << attr(QStringLiteral("item"), t);
-        }
     }
     archive << end;
 }
@@ -127,7 +119,7 @@ void insertIntoSet(QSet<T> &set, const T &t) {
     set.insert(t);
 }
 
-}
+} // namespace impl
 
 template<class Archive, class T>
 inline void load(Archive &archive, QSet<T> &set, const Parameters &)
@@ -141,21 +133,20 @@ template<class Archive, class T>
 inline void load(Archive &archive, QSet<T *> &set, const Parameters &parameters)
 {
     archive >> tag(QStringLiteral("qset"));
-    if (parameters.hasFlag(ENFORCE_REFERENCED_ITEMS)) {
+    if (parameters.hasFlag(ENFORCE_REFERENCED_ITEMS))
         archive >> ref(QStringLiteral("item"), set, &impl::insertIntoSet<T *>);
-    } else {
+    else
         archive >> attr<QSet<T *>, T * const &>(QStringLiteral("item"), set, &impl::insertIntoSet<T *>);
-    }
     archive >> end;
 }
-
 
 // QHash
 
 namespace impl {
 
 template<typename KEY, typename VALUE>
-class KeyValuePair {
+class KeyValuePair
+{
 public:
     KeyValuePair() { }
     explicit KeyValuePair(const KEY &key, const VALUE &value) : m_key(key), m_value(value) { }
@@ -164,7 +155,7 @@ public:
     VALUE m_value;
 };
 
-}
+} // namespace impl
 
 template<class Archive, class KEY, class VALUE>
 inline void save(Archive &archive, const impl::KeyValuePair<KEY, VALUE> &pair, const Parameters &)
@@ -203,7 +194,7 @@ inline void keyValuePairInsert(QHash<KEY, VALUE> &hash, const KeyValuePair<KEY, 
     hash.insert(pair.m_key, pair.m_value);
 }
 
-}
+} // namespace impl
 
 template<class Archive, class KEY, class VALUE>
 inline void load(Archive &archive, QHash<KEY, VALUE> &hash, const Parameters &)
@@ -213,6 +204,6 @@ inline void load(Archive &archive, QHash<KEY, VALUE> &hash, const Parameters &)
     archive >> end;
 }
 
-}
+} // namespace qark
 
 #endif // QARK_SERIALIZE_CONTAINER_H

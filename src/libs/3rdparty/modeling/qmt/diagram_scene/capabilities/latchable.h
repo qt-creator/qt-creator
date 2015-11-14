@@ -35,9 +35,9 @@
 
 namespace qmt {
 
-class ILatchable {
+class ILatchable
+{
 public:
-
     enum Action {
         Move,
         ResizeLeft,
@@ -83,16 +83,12 @@ public:
         QString m_identifier;
     };
 
-public:
-
     virtual ~ILatchable() { }
 
     virtual QList<Latch> horizontalLatches(Action action, bool grabbedItem) const = 0;
-
     virtual QList<Latch> verticalLatches(Action action, bool grabbedItem) const = 0;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_LATCHABLE_H

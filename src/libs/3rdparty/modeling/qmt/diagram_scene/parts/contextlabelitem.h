@@ -35,36 +35,24 @@
 
 namespace qmt {
 
-class ContextLabelItem :
-        public QGraphicsSimpleTextItem
+class ContextLabelItem : public QGraphicsSimpleTextItem
 {
 public:
-
     ContextLabelItem(QGraphicsItem *parent = 0);
-
     ~ContextLabelItem();
 
-public:
-
     void setMaxWidth(double maxWidth);
-
     void resetMaxWidth();
-
     void setContext(const QString &context);
-
     double height() const;
 
 private:
-
     void update();
 
-private:
-
     double m_maxWidth;
-
     QString m_context;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_CONTEXTLABELITEM_H

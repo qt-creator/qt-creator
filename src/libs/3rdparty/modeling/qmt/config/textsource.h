@@ -35,7 +35,6 @@
 
 #include <QChar>
 
-
 namespace qmt {
 
 class SourceChar
@@ -55,13 +54,11 @@ public:
 class ITextSource
 {
 public:
-
     virtual ~ITextSource() { }
 
     virtual SourceChar readNextChar() = 0;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_TEXTSOURCE_H

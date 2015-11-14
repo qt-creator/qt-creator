@@ -42,7 +42,6 @@
 
 #include <QDebug>
 
-
 namespace qmt {
 
 class ConfigController::ConfigControllerPrivate

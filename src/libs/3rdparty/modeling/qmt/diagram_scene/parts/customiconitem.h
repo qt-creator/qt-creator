@@ -39,60 +39,35 @@
 #include <QBrush>
 #include <QPen>
 
-
 namespace qmt {
 
 class DiagramSceneModel;
 
-
-class CustomIconItem :
-        public QGraphicsItem
+class CustomIconItem : public QGraphicsItem
 {
-
 public:
-
     CustomIconItem(DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-
     ~CustomIconItem();
 
-public:
-
     void setStereotypeIconId(const QString &stereotypeIconId);
-
     void setBaseSize(const QSizeF &baseSize);
-
     void setActualSize(const QSizeF &actualSize);
-
     void setBrush(const QBrush &brush);
-
     void setPen(const QPen &pen);
-
     StereotypeIcon stereotypeIcon() const { return m_stereotypeIcon; }
-
     double shapeWidth() const;
-
     double shapeHeight() const;
 
-public:
-
     QRectF boundingRect() const;
-
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
 private:
-
     DiagramSceneModel *m_diagramSceneModel;
-
     QString m_stereotypeIconId;
-
     StereotypeIcon m_stereotypeIcon;
-
     QSizeF m_baseSize;
-
     QSizeF m_actualSize;
-
     QBrush m_brush;
-
     QPen m_pen;
 };
 

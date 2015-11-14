@@ -55,7 +55,6 @@
 #include "qmt/model/mdependency.h"
 #include "qmt/model/minheritance.h"
 
-
 namespace qmt {
 
 DFactory::DFactory()
@@ -155,4 +154,4 @@ void DFactory::visitMAssociation(const MAssociation *association)
     visitMRelation(association);
 }
 
-}
+} // namespace qmt

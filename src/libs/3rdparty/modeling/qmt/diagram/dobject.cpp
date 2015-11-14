@@ -158,4 +158,4 @@ void DObject::accept(DConstVisitor *visitor) const
     visitor->visitDObject(this);
 }
 
-}
+} // namespace qmt

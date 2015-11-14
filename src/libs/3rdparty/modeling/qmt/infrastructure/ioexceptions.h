@@ -33,24 +33,20 @@
 
 #include "exceptions.h"
 
-
 namespace qmt {
 
-class IOException :
-        public Exception
+class IOException : public Exception
 {
 public:
     explicit IOException(const QString &errorMsg);
 };
 
-class FileIOException :
-        public IOException
+class FileIOException : public IOException
 {
 public:
     explicit FileIOException(const QString &errorMsg, const QString &fileName = QString::null, int lineNumber = -1);
 
     QString fileName() const { return m_fileName; }
-
     int lineNumber() const { return m_lineNumber; }
 
 private:
@@ -58,48 +54,42 @@ private:
     int m_lineNumber;
 };
 
-class FileNotFoundException :
-        public FileIOException
+class FileNotFoundException : public FileIOException
 {
 public:
     explicit FileNotFoundException(const QString &fileName);
 };
 
-class FileCreationException :
-        public FileIOException
+class FileCreationException : public FileIOException
 {
 public:
     explicit FileCreationException(const QString &fileName);
 };
 
-class FileWriteError :
-        public FileIOException
+class FileWriteError : public FileIOException
 {
 public:
     explicit FileWriteError(const QString &fileName, int lineNumber = -1);
 };
 
-class FileReadError :
-        public FileIOException
+class FileReadError : public FileIOException
 {
 public:
     explicit FileReadError(const QString &fileName, int lineNumber = -1);
 };
 
-class IllegalXmlFile :
-        public FileIOException
+class IllegalXmlFile : public FileIOException
 {
 public:
     IllegalXmlFile(const QString &fileName, int lineNumber = -1);
 };
 
-class UnknownFileVersion :
-        public FileIOException
+class UnknownFileVersion : public FileIOException
 {
 public:
     UnknownFileVersion(int version, const QString &fileName, int lineNumber = -1);
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_IOEXCEPTIONS_H

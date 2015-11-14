@@ -49,7 +49,6 @@
 #include "qmt/diagram_scene/diagramsceneconstants.h"
 #include "qmt/tasks/isceneinspector.h"
 
-
 namespace qmt {
 
 AlignOnRasterVisitor::AlignOnRasterVisitor()
@@ -88,13 +87,11 @@ void AlignOnRasterVisitor::visitDElement(DElement *element)
 void AlignOnRasterVisitor::visitDObject(DObject *object)
 {
     IResizable *resizable = m_sceneInspector->resizable(object, m_diagram);
-    if (resizable) {
+    if (resizable)
         resizable->alignItemSizeToRaster(IResizable::SideRightOrBottom, IResizable::SideRightOrBottom, 2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
-    }
     IMoveable *moveable = m_sceneInspector->moveable(object, m_diagram);
-    if (moveable) {
+    if (moveable)
         moveable->alignItemPositionToRaster(RASTER_WIDTH, RASTER_HEIGHT);
-    }
 }
 
 void AlignOnRasterVisitor::visitDPackage(DPackage *package)
@@ -145,21 +142,18 @@ void AlignOnRasterVisitor::visitDAssociation(DAssociation *association)
 void AlignOnRasterVisitor::visitDAnnotation(DAnnotation *annotation)
 {
     IMoveable *moveable = m_sceneInspector->moveable(annotation, m_diagram);
-    if (moveable) {
+    if (moveable)
         moveable->alignItemPositionToRaster(RASTER_WIDTH, RASTER_HEIGHT);
-    }
 }
 
 void AlignOnRasterVisitor::visitDBoundary(DBoundary *boundary)
 {
     IResizable *resizable = m_sceneInspector->resizable(boundary, m_diagram);
-    if (resizable) {
+    if (resizable)
         resizable->alignItemSizeToRaster(IResizable::SideRightOrBottom, IResizable::SideRightOrBottom, 2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
-    }
     IMoveable *moveable = m_sceneInspector->moveable(boundary, m_diagram);
-    if (moveable) {
+    if (moveable)
         moveable->alignItemPositionToRaster(RASTER_WIDTH, RASTER_HEIGHT);
-    }
 }
 
-}
+} // namespace qmt

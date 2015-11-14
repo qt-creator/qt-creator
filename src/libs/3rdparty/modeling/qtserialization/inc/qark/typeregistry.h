@@ -42,43 +42,34 @@
 #include <QString>
 #include <QHash>
 
-
 namespace qark {
 
-class UnregisteredType :
-        public std::exception
+class UnregisteredType : public std::exception
 {
 };
 
-class AbstractType :
-        public std::exception
+class AbstractType : public std::exception
 {
 };
-
 
 namespace registry {
 
 // we use a template to allow definition of static variables in header
 template<int N>
-class TypeNameMaps {
+class TypeNameMaps
+{
 public:
-
     typedef QHash<QString, QString> MapType;
 
-public:
-
     static MapType &nameToUidMap() { return *typeidNameToUidMap; }
-
     static MapType &uidToNameMap() { return *typeidUidToNameMap; }
 
 #if !defined(QT_NO_DEBUG)
     static bool hasNameToUidMap() { return typeidNameToUidMap != 0; }
-
     static bool hasUidToNameMap() { return typeidUidToNameMap != 0; }
 #endif
 
 protected:
-
     static void init()
     {
         static bool initialized = false;
@@ -93,9 +84,7 @@ protected:
     }
 
 private:
-
     static MapType *typeidNameToUidMap;
-
     static MapType *typeidUidToNameMap;
 };
 
@@ -105,19 +94,13 @@ typename TypeNameMaps<N>::MapType *TypeNameMaps<N>::typeidNameToUidMap;
 template<int N>
 typename TypeNameMaps<N>::MapType *TypeNameMaps<N>::typeidUidToNameMap;
 
-
 template<class T>
-class TypeNameRegistry :
-        public TypeNameMaps<0>
+class TypeNameRegistry : public TypeNameMaps<0>
 {
-
     typedef TypeNameMaps<0> Base;
-
-private:
 
     static int staticInit;
 
-private:
     static int init(const QString &name)
     {
         Base::init();
@@ -129,16 +112,13 @@ private:
     }
 };
 
-
-
 template<class Archive, class BASE>
-class TypeRegistry {
+class TypeRegistry
+{
 public:
-
     class TypeInfo
     {
     public:
-
         typedef Archive &(*SaveFuncType)(Archive &, BASE * const &p);
         typedef Archive &(*LoadFuncType)(Archive &, BASE * &p);
 
@@ -165,8 +145,6 @@ public:
 
     typedef QHash<QString, TypeInfo> MapType;
 
-public:
-
     static MapType &map() { return *m_map; }
 
 #if !defined(QT_NO_DEBUG)
@@ -174,7 +152,6 @@ public:
 #endif
 
 protected:
-
     static void init() {
         static bool initialized = false;
         static MapType theMap;
@@ -186,30 +163,21 @@ protected:
     }
 
 private:
-
     static MapType *m_map;
 };
 
 template<class Archive, class BASE>
 typename TypeRegistry<Archive, BASE>::MapType *TypeRegistry<Archive,BASE>::m_map;
 
-
 template<class Archive, class BASE, class DERIVED>
-class DerivedTypeRegistry :
-        public TypeRegistry<Archive, BASE>
+class DerivedTypeRegistry : public TypeRegistry<Archive, BASE>
 {
-
     typedef TypeRegistry<Archive, BASE> Base;
-
     typedef Archive &(*SaveFuncType)(Archive &, BASE * const &);
-
     typedef Archive &(*LoadFuncType)(Archive &, BASE * &);
-
-private:
 
     static int staticInit;
 
-private:
     static int init(SaveFuncType sfunc, LoadFuncType lfunc)
     {
         Base::init();
@@ -263,7 +231,7 @@ inline QString flattenTypename(const char *typeName)
     return QString(QLatin1String(typeName)).replace(QChar(QLatin1Char(':')), QLatin1String("-"));
 }
 
-}
+} // namespace registry
 
 template<class T>
 QString typeUid()
@@ -312,8 +280,7 @@ typename registry::TypeRegistry<Archive,T>::TypeInfo typeInfo(const QString &uid
     return registry::TypeRegistry<Archive,T>::map().value(registry::TypeNameRegistry<T>::uidToNameMap().value(uid));
 }
 
-}
-
+} // namespace qark
 
 #define QARK_TYPE_STRING(T) #T
 

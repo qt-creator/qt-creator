@@ -33,36 +33,24 @@
 
 #include "drelation.h"
 
-
 namespace qmt {
 
 class DClass;
 
-
-class QMT_EXPORT DInheritance :
-        public DRelation
+class QMT_EXPORT DInheritance : public DRelation
 {
 public:
     DInheritance();
 
-public:
-
     Uid derived() const;
-
     void setDerived(const Uid &derived);
-
     Uid base() const;
-
     void setBase(const Uid &base);
 
-public:
-
     virtual void accept(DVisitor *visitor);
-
     virtual void accept(DConstVisitor *visitor) const;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DINHERITANCE_H

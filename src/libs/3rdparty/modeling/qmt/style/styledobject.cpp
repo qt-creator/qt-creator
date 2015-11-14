@@ -43,4 +43,4 @@ StyledObject::~StyledObject()
 {
 }
 
-}
+} // namespace qmt

@@ -37,21 +37,15 @@
 #include <QList>
 #include <QHash>
 
-
 namespace qmt {
 
 template<typename T>
 class Handles
 {
 public:
-
     typedef QList<Handle<T> > value_type;
-
     typedef typename value_type::iterator iterator;
-
     typedef typename value_type::const_iterator const_iterator;
-
-public:
 
     explicit Handles(bool takeOwnership = false) : m_takesOwnership(takeOwnership) { }
 
@@ -65,9 +59,8 @@ public:
         : m_handleList(rhs.m_handleList),
           m_takesOwnership(takeOwnership)
     {
-        if (m_takesOwnership && rhs.m_takesOwnership) {
+        if (m_takesOwnership && rhs.m_takesOwnership)
             const_cast<Handles<T> &>(rhs).m_handleList.clear();
-        }
     }
 
     ~Handles()
@@ -75,33 +68,25 @@ public:
         reset();
     }
 
-public:
-
     Handles<T> operator=(const Handles<T> &rhs)
     {
         if (this != &rhs) {
             m_handleList = rhs.m_handleList;
-            if (m_takesOwnership && rhs.m_takesOwnership) {
+            if (m_takesOwnership && rhs.m_takesOwnership)
                 const_cast<Handles<T> &>(rhs).m_handleList.clear();
-            }
         }
         return *this;
     }
 
-public:
-
     bool takesOwnership() const { return m_takesOwnership; }
-
     bool isEmpty() const { return m_handleList.empty(); }
-
     int size() const { return m_handleList.size(); }
 
     bool contains(const Uid &uid) const
     {
         foreach (const Handle<T> &handle, m_handleList) {
-            if (handle.uid() == uid) {
+            if (handle.uid() == uid)
                 return true;
-            }
         }
         return false;
     }
@@ -115,9 +100,8 @@ public:
     T *find(const Uid &uid) const
     {
         foreach (const Handle<T> &handle, m_handleList) {
-            if (handle.uid() == uid) {
+            if (handle.uid() == uid)
                 return handle.target();
-            }
         }
         return 0;
     }
@@ -138,9 +122,8 @@ public:
     {
         int index = 0;
         foreach (const Handle<T> &handle, m_handleList) {
-            if (handle.uid() == uid) {
+            if (handle.uid() == uid)
                 return index;
-            }
             ++index;
         }
         return -1;
@@ -151,8 +134,6 @@ public:
         QMT_CHECK(t);
         return indexOf(t->uid());
     }
-
-public:
 
     const value_type &get() const { return m_handleList; }
 
@@ -171,23 +152,16 @@ public:
     void reset()
     {
         if (m_takesOwnership) {
-            foreach (const Handle<T> &handle, m_handleList) {
+            foreach (const Handle<T> &handle, m_handleList)
                 delete handle.target();
-            }
         }
         m_handleList.clear();
     }
 
-public:
     iterator begin() { return m_handleList.begin(); }
-
     iterator end() { return m_handleList.end(); }
-
     const_iterator begin() const { return m_handleList.begin(); }
-
     const_iterator end() const { return m_handleList.end(); }
-
-public:
 
     void add(const Uid &uid)
     {
@@ -258,9 +232,7 @@ public:
     }
 
 private:
-
     value_type m_handleList;
-
     bool m_takesOwnership;
 };
 
@@ -273,6 +245,6 @@ bool operator==(const Handles<T> &lhs, const Handles<T> &rhs)
 template<typename T>
 bool operator!=(const Handles<T> &lhs, const Handles<T> &rhs) { return !(lhs == rhs); }
 
-}
+} // namespace qmt
 
 #endif // QMT_HANDLES_H

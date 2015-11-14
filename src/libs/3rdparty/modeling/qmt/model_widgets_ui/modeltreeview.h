@@ -37,74 +37,48 @@
 
 #include <QTime>
 
-
 namespace qmt {
 
 class SortedTreeModel;
 class IElementTasks;
 
-
-class QMT_EXPORT ModelTreeView :
-        public QTreeView,
-        public ModelTreeViewInterface
+class QMT_EXPORT ModelTreeView : public QTreeView, public ModelTreeViewInterface
 {
     Q_OBJECT
 
 public:
-
     explicit ModelTreeView(QWidget *parent = 0);
-
     ~ModelTreeView();
 
 signals:
-
     void treeViewActivated();
 
 public:
-
     QModelIndex currentSourceModelIndex() const;
-
     QList<QModelIndex> selectedSourceModelIndexes() const;
 
-public:
-
     void setTreeModel(SortedTreeModel *model);
-
     void setElementTasks(IElementTasks *elementTasks);
 
-public:
-
     QModelIndex mapToSourceModelIndex(const QModelIndex &index) const;
-
     void selectFromSourceModelIndex(const QModelIndex &index);
 
 protected:
-
     void startDrag(Qt::DropActions supportedActions);
-
     void dragEnterEvent(QDragEnterEvent *event);
-
     void dragMoveEvent(QDragMoveEvent *event);
-
     void dragLeaveEvent(QDragLeaveEvent *event);
-
     void dropEvent(QDropEvent *event);
-
     void focusInEvent(QFocusEvent *event);
-
     void contextMenuEvent(QContextMenuEvent *event);
 
 private:
-
     SortedTreeModel *m_sortedTreeModel;
-
     IElementTasks *m_elementTasks;
-
     QModelIndex m_autoDelayIndex;
-
     QTime m_autoDelayStartTime;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MODELTREEVIEW_H

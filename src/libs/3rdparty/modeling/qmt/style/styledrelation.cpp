@@ -37,12 +37,10 @@ StyledRelation::StyledRelation(const DRelation *relation, const DObject *endA, c
       m_endA(endA),
       m_endB(endB)
 {
-
 }
 
 StyledRelation::~StyledRelation()
 {
-
 }
 
-}
+} // namespace qmt

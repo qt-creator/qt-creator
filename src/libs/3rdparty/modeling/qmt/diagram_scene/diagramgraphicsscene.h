@@ -34,69 +34,45 @@
 #include <QGraphicsScene>
 #include "qmt/infrastructure/qmt_global.h"
 
-
 namespace qmt {
 
 class DiagramSceneModel;
 
-class QMT_EXPORT DiagramGraphicsScene :
-        public QGraphicsScene
+class QMT_EXPORT DiagramGraphicsScene : public QGraphicsScene
 {
     Q_OBJECT
 
 public:
     DiagramGraphicsScene(DiagramSceneModel *diagramSceneModel, QObject *parent = 0);
-
     ~DiagramGraphicsScene();
 
 signals:
-
     void sceneActivated();
 
 protected:
-
     bool event(QEvent *event);
-
     bool eventFilter(QObject *watched, QEvent *event);
-
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-
     void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
-
     void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
-
     void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
-
     void dropEvent(QGraphicsSceneDragDropEvent *event);
-
     void focusInEvent(QFocusEvent *event);
-
     void focusOutEvent(QFocusEvent *event);
-
     void helpEvent(QGraphicsSceneHelpEvent *event);
-
     void keyPressEvent(QKeyEvent *event);
-
     void keyReleaseEvent(QKeyEvent *event);
-
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
-
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
-
     void wheelEvent(QGraphicsSceneWheelEvent *event);
-
     void inputMethodEvent(QInputMethodEvent *event);
 
 private:
-
     DiagramSceneModel *m_diagramSceneModel;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DIAGRAMGRAPHICSSCENE_H

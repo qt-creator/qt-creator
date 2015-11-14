@@ -60,4 +60,4 @@ void Selection::append(const Uid &elementKey, const Uid &ownerKey)
     append(Index(elementKey, ownerKey));
 }
 
-}
+} // namespace qmt

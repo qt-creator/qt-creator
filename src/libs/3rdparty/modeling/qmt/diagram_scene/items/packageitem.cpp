@@ -51,7 +51,6 @@
 
 #include <algorithm>
 
-
 namespace qmt {
 
 static const qreal TAB_HORIZ_BORDER = 4.0;
@@ -62,7 +61,6 @@ static const qreal BODY_HORIZ_BORDER = 4.0;
 static const qreal BODY_MIN_HEIGHT = 24.0;
 static const qreal MINIMUM_AUTO_WIDTH = 100.0;
 static const qreal MINIMUM_AUTO_HEIGHT = 70.0;
-
 
 class PackageItem::ShapeGeometry
 {
@@ -76,7 +74,6 @@ public:
     QSizeF m_minimumSize;
     QSizeF m_minimumTabSize;
 };
-
 
 PackageItem::PackageItem(DPackage *package, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : ObjectItem(package, diagramSceneModel, parent),
@@ -95,16 +92,14 @@ PackageItem::~PackageItem()
 void PackageItem::update()
 {
     prepareGeometryChange();
-
     updateStereotypeIconDisplay();
 
     const Style *style = adaptedStyle(stereotypeIconId());
 
     // custom icon
     if (stereotypeIconDisplay() == StereotypeIcon::DisplayIcon) {
-        if (!m_customIcon) {
+        if (!m_customIcon)
             m_customIcon = new CustomIconItem(diagramSceneModel(), this);
-        }
         m_customIcon->setStereotypeIconId(stereotypeIconId());
         m_customIcon->setBaseSize(stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT));
         m_customIcon->setBrush(style->fillBrush());
@@ -118,9 +113,8 @@ void PackageItem::update()
 
     // shape
     if (!m_customIcon) {
-        if (!m_shape) {
+        if (!m_shape)
             m_shape = new QGraphicsPolygonItem(this);
-        }
         m_shape->setBrush(style->fillBrush());
         m_shape->setPen(style->outerLinePen());
         m_shape->setZValue(SHAPE_ZVALUE);
@@ -134,18 +128,16 @@ void PackageItem::update()
     updateStereotypes(stereotypeIconId(), stereotypeIconDisplay(), style);
 
     // package name
-    if (!m_packageName) {
+    if (!m_packageName)
         m_packageName = new QGraphicsSimpleTextItem(this);
-    }
     m_packageName->setBrush(style->textBrush());
     m_packageName->setFont(style->headerFont());
     m_packageName->setText(object()->name());
 
     // context
     if (showContext()) {
-        if (!m_contextLabel) {
+        if (!m_contextLabel)
             m_contextLabel = new ContextLabelItem(this);
-        }
         m_contextLabel->setFont(style->smallFont());
         m_contextLabel->setBrush(style->textBrush());
         m_contextLabel->setContext(object()->context());
@@ -172,7 +164,6 @@ void PackageItem::update()
     }
 
     updateAlignmentButtons();
-
     updateGeometry();
 }
 
@@ -223,9 +214,8 @@ void PackageItem::relationDrawn(const QString &id, const QPointF &toScenePos, co
     if (targetElement) {
         if (id == QStringLiteral("dependency")) {
             DObject *dependantObject = dynamic_cast<DObject *>(targetElement);
-            if (dependantObject) {
+            if (dependantObject)
                 diagramSceneModel()->diagramSceneController()->createDependency(object(), dependantObject, intermediatePoints, diagramSceneModel()->diagram());
-            }
         }
     }
 }
@@ -237,9 +227,8 @@ PackageItem::ShapeGeometry PackageItem::calcMinimumGeometry() const
     double tabHeight = 0.0;
     double tabWidth = 0.0;
 
-    if (m_customIcon) {
+    if (m_customIcon)
         return ShapeGeometry(stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT), QSizeF(tabWidth, tabHeight));
-    }
 
     double bodyHeight = 0.0;
     double bodyWidth = 0.0;
@@ -262,9 +251,8 @@ PackageItem::ShapeGeometry PackageItem::calcMinimumGeometry() const
         bodyWidth = std::max(bodyWidth, stereotypeIconItem->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
         bodyHeight += stereotypeIconItem->boundingRect().height();
     }
-    if (m_contextLabel) {
+    if (m_contextLabel)
         bodyHeight += m_contextLabel->height();
-    }
     bodyHeight += BODY_VERT_BORDER;
     bodyHeight = std::max(bodyHeight, BODY_MIN_HEIGHT);
     width = std::max(width, bodyWidth);
@@ -287,21 +275,17 @@ void PackageItem::updateGeometry()
     // calc width and height
     if (object()->isAutoSized()) {
         if (!m_customIcon) {
-            if (width < MINIMUM_AUTO_WIDTH) {
+            if (width < MINIMUM_AUTO_WIDTH)
                 width = MINIMUM_AUTO_WIDTH;
-            }
-            if (height < MINIMUM_AUTO_HEIGHT) {
+            if (height < MINIMUM_AUTO_HEIGHT)
                 height = MINIMUM_AUTO_HEIGHT;
-            }
         }
     } else {
         QRectF rect = object()->rect();
-        if (rect.width() > width) {
+        if (rect.width() > width)
             width = rect.width();
-        }
-        if (rect.height() > height) {
+        if (rect.height() > height)
             height = rect.height();
-        }
     }
 
     // update sizes and positions
@@ -372,13 +356,11 @@ void PackageItem::updateGeometry()
 
     updateSelectionMarkerGeometry(rect);
 
-    if (m_relationStarter) {
+    if (m_relationStarter)
         m_relationStarter->setPos(mapToScene(QPointF(right + 8.0, top)));
-    }
 
     updateAlignmentButtonsGeometry(rect);
-
     updateDepth();
 }
 
-}
+} // namespace qmt

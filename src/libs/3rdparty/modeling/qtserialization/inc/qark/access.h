@@ -34,7 +34,8 @@
 namespace qark {
 
 template<class Archive, class T>
-class Access {
+class Access
+{
 public:
     static void save(Archive &archive, const T &t)
     {
@@ -85,7 +86,7 @@ void serializeHelper(Archive &archive, T &t)
     serialize(archive, t);
 }
 
-}
+} // namespace qark
 
 #define QARK_ACCESS(TYPE) \
     template<class Archive> \
@@ -107,6 +108,5 @@ void serializeHelper(Archive &archive, T &t)
 #define QARK_ACCESS_SPECIALIZE(INARCHIVE, OUTARCHIVE, TYPE) \
     template class Access<INARCHIVE, TYPE>; \
     template class Access<OUTARCHIVE, TYPE>;
-
 
 #endif // QARK_ACCESS_H

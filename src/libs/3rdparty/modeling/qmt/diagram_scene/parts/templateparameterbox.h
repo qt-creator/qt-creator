@@ -35,36 +35,23 @@
 
 namespace qmt {
 
-class TemplateParameterBox :
-        public QGraphicsRectItem
+class TemplateParameterBox : public QGraphicsRectItem
 {
 public:
     TemplateParameterBox(QGraphicsItem *parent = 0);
-
     ~TemplateParameterBox();
 
-public:
-
     void setFont(const QFont &font);
-
     void setTextBrush(const QBrush &brush);
-
     void setTemplateParameters(const QList<QString> &templateParameters);
-
     void setBreakLines(bool breakLines);
 
 private:
-
     void updateText();
-
     void update();
 
-private:
-
     QList<QString> m_templateParameters;
-
     bool m_breakLines;
-
     QGraphicsSimpleTextItem *m_parametersText;
 };
 

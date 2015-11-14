@@ -37,18 +37,17 @@ QT_BEGIN_NAMESPACE
 class QPointF;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
-class IMoveable {
+class IMoveable
+{
 public:
     virtual ~IMoveable() { }
 
     virtual void moveDelta(const QPointF &delta) = 0;
-
     virtual void alignItemPositionToRaster(double rasterWidth, double rasterHeight) = 0;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MOVEABLE_H

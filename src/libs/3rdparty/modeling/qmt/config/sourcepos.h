@@ -38,21 +38,13 @@ namespace qmt {
 class QMT_EXPORT SourcePos
 {
 public:
-
     SourcePos();
-
     SourcePos(int sourceId, int lineNumber, int columnNumber = -1);
 
-public:
-
     bool isValid() const { return m_sourceId >= 0 && m_lineNumber >= 0; }
-
     int sourceId() const { return m_sourceId; }
-
     int lineNumber() const { return m_lineNumber; }
-
     bool hasColumnNumber() const { return m_columnNumber >= 0; }
-
     int columnNumber() const { return m_columnNumber; }
 
 private:

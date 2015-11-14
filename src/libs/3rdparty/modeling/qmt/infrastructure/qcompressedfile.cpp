@@ -77,16 +77,14 @@ qint64 QCompressedDevice::readData(char *data, qint64 maxlen)
     if (m_bytesInBuffer == 0) {
         QByteArray compressedBuffer;
         int compressedLen = 0;
-        if (m_targetDevice->read(reinterpret_cast<char *>(&compressedLen), sizeof(int)) != sizeof(int)) {
+        if (m_targetDevice->read(reinterpret_cast<char *>(&compressedLen), sizeof(int)) != sizeof(int))
             return -1;
-        }
         compressedBuffer.resize(compressedLen);
         qint64 compressedBytes = m_targetDevice->read(compressedBuffer.data(), compressedLen);
         m_buffer = qUncompress((const uchar *) compressedBuffer.data(), compressedBytes);
         m_bytesInBuffer = m_buffer.size();
-        if (m_bytesInBuffer == 0) {
+        if (m_bytesInBuffer == 0)
             return 0;
-        }
         m_indexInBuffer = 0;
     }
     qint64 n = std::min(maxlen, m_bytesInBuffer);
@@ -106,12 +104,10 @@ qint64 QCompressedDevice::writeData(const char *data, qint64 len)
     if (m_buffer.size() > 1024*1024) {
         QByteArray compressedBuffer = qCompress(m_buffer);
         int compressedLen = static_cast<int>(compressedBuffer.size());
-        if (m_targetDevice->write(reinterpret_cast<const char *>(&compressedLen), sizeof(int)) != sizeof(int)) {
+        if (m_targetDevice->write(reinterpret_cast<const char *>(&compressedLen), sizeof(int)) != sizeof(int))
             return -1;
-        }
-        if (m_targetDevice->write(compressedBuffer.data(), compressedLen) != compressedBuffer.size()) {
+        if (m_targetDevice->write(compressedBuffer.data(), compressedLen) != compressedBuffer.size())
             return -1;
-        }
         m_buffer.clear();
     }
     return len;
@@ -124,12 +120,11 @@ qint64 QCompressedDevice::flush()
         QMT_CHECK(m_targetDevice->openMode() == QIODevice::WriteOnly);
         QByteArray compressedBuffer = qCompress(m_buffer);
         int compressedLen = static_cast<int>(compressedBuffer.size());
-        if (m_targetDevice->write(reinterpret_cast<const char *>(&compressedLen), sizeof(int)) != sizeof(int)) {
+        if (m_targetDevice->write(reinterpret_cast<const char *>(&compressedLen), sizeof(int)) != sizeof(int))
             return -1;
-        }
         return m_targetDevice->write(compressedBuffer.data(), compressedLen);
     }
     return 0;
 }
 
-}
+} // namespace qmt

@@ -34,31 +34,18 @@
 #include "mobject.h"
 #include "qmt/infrastructure/handles.h"
 
-
 namespace qmt {
 
-class MAssociation;
-
-
-class QMT_EXPORT MPackage :
-        public MObject
+class QMT_EXPORT MPackage : public MObject
 {
 public:
-
     MPackage();
-
     ~MPackage();
 
-public:
-
     virtual void accept(MVisitor *visitor);
-
     virtual void accept(MConstVisitor *visitor) const;
-
-private:
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MPACKAGE_H

@@ -36,38 +36,25 @@
 
 namespace qmt {
 
-class QMT_EXPORT MChildrenVisitor :
-        public MVisitor
+class QMT_EXPORT MChildrenVisitor : public MVisitor
 {
 public:
     MChildrenVisitor();
 
     void visitMElement(MElement *element);
-
     void visitMObject(MObject *object);
-
     void visitMPackage(MPackage *package);
-
     void visitMClass(MClass *klass);
-
     void visitMComponent(MComponent *component);
-
     void visitMDiagram(MDiagram *diagram);
-
     void visitMCanvasDiagram(MCanvasDiagram *diagram);
-
     void visitMItem(MItem *item);
-
     void visitMRelation(MRelation *relation);
-
     void visitMDependency(MDependency *dependency);
-
     void visitMInheritance(MInheritance *inheritance);
-
     void visitMAssociation(MAssociation *association);
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MCHILDRENVISITOR_H

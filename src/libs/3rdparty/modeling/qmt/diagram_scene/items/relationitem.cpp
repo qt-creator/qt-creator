@@ -57,11 +57,9 @@
 #include <QPen>
 #include <QPainter>
 
-
 namespace qmt {
 
-class RelationItem::ArrowConfigurator :
-        public DConstVoidVisitor
+class RelationItem::ArrowConfigurator : public DConstVoidVisitor
 {
 public:
     ArrowConfigurator(DiagramSceneModel *diagramSceneModel, ArrowItem *arrow, const QList<QPointF> &points)
@@ -171,14 +169,10 @@ public:
     }
 
 private:
-
     DiagramSceneModel *m_diagramSceneModel;
-
     ArrowItem *m_arrow;
-
     QList<QPointF> m_points;
 };
-
 
 RelationItem::RelationItem(DRelation *relation, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : QGraphicsItem(parent),
@@ -222,18 +216,14 @@ QPainterPath RelationItem::shape() const
 {
     QPainterPath path;
     path.setFillRule(Qt::WindingFill);
-    if (m_arrow) {
+    if (m_arrow)
         path.addPath(m_arrow->shape().translated(m_arrow->pos()));
-    }
-    if (m_name) {
+    if (m_name)
         path.addPath(m_name->shape().translated(m_name->pos()));
-    }
-    if (m_stereotypes) {
+    if (m_stereotypes)
         path.addPath(m_stereotypes->shape().translated(m_stereotypes->pos()));
-    }
-    if (m_selectionHandles) {
+    if (m_selectionHandles)
         path.addPath(m_selectionHandles->shape().translated(m_selectionHandles->pos()));
-    }
     return path;
 }
 
@@ -241,9 +231,8 @@ void RelationItem::moveDelta(const QPointF &delta)
 {
     m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
     QList<DRelation::IntermediatePoint> points;
-    foreach (const DRelation::IntermediatePoint &point, m_relation->intermediatePoints()) {
+    foreach (const DRelation::IntermediatePoint &point, m_relation->intermediatePoints())
         points << DRelation::IntermediatePoint(point.pos() + delta);
-    }
     m_relation->setIntermediatePoints(points);
     m_diagramSceneModel->diagramController()->finishUpdateElement(m_relation, m_diagramSceneModel->diagram(), false);
 }
@@ -374,9 +363,8 @@ void RelationItem::update()
 
     const Style *style = adaptedStyle();
 
-    if (!m_arrow) {
+    if (!m_arrow)
         m_arrow = new ArrowItem(this);
-    }
 
     update(style);
 }
@@ -390,9 +378,8 @@ void RelationItem::update(const Style *style)
 
     QList<QPointF> points;
     points << (endAPos - endAPos);
-    foreach (const DRelation::IntermediatePoint &point, m_relation->intermediatePoints()) {
+    foreach (const DRelation::IntermediatePoint &point, m_relation->intermediatePoints())
         points << (point.pos() - endAPos);
-    }
     points << (endBPos - endAPos);
 
     ArrowConfigurator visitor(m_diagramSceneModel, m_arrow, points);
@@ -400,9 +387,8 @@ void RelationItem::update(const Style *style)
     m_arrow->update(style);
 
     if (!m_relation->name().isEmpty()) {
-        if (!m_name) {
+        if (!m_name)
             m_name = new QGraphicsSimpleTextItem(this);
-        }
         m_name->setFont(style->smallFont());
         m_name->setBrush(style->textBrush());
         m_name->setText(m_relation->name());
@@ -414,9 +400,8 @@ void RelationItem::update(const Style *style)
     }
 
     if (!m_relation->stereotypes().isEmpty()) {
-        if (!m_stereotypes) {
+        if (!m_stereotypes)
             m_stereotypes = new StereotypesItem(this);
-        }
         m_stereotypes->setFont(style->smallFont());
         m_stereotypes->setBrush(style->textBrush());
         m_stereotypes->setStereotypes(m_relation->stereotypes());
@@ -428,15 +413,13 @@ void RelationItem::update(const Style *style)
     }
 
     if (isSelected() || isSecondarySelected()) {
-        if (!m_selectionHandles) {
+        if (!m_selectionHandles)
             m_selectionHandles = new PathSelectionItem(this, this);
-        }
         m_selectionHandles->setPoints(points);
         m_selectionHandles->setSecondarySelected(isSelected() ? false : isSecondarySelected());
     } else if (m_selectionHandles) {
-        if (m_selectionHandles->scene()) {
+        if (m_selectionHandles->scene())
             m_selectionHandles->scene()->removeItem(m_selectionHandles);
-        }
         delete m_selectionHandles;
         m_selectionHandles = 0;
     }
@@ -446,9 +429,8 @@ void RelationItem::update(const Style *style)
 
 void RelationItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton) {
+    if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton)
         m_diagramSceneModel->selectItem(this, event->modifiers() & Qt::ControlModifier);
-    }
 }
 
 void RelationItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -518,16 +500,14 @@ QPointF RelationItem::calcEndPoint(const Uid &end, const QPointF &otherEndPos, i
                 ok = endObjectItem->intersectShapeWithLine(projectedLine, &endPos);
             }
         }
-        if (!ok) {
+        if (!ok)
             ok = endObjectItem->intersectShapeWithLine(directLine, &endPos);
-        }
-        if (!ok) {
+        if (!ok)
             endPos = endItem->pos();
-        }
     } else {
         endPos = endItem->pos();
     }
     return endPos;
 }
 
-}
+} // namespace qmt

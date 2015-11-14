@@ -39,34 +39,25 @@ QT_BEGIN_NAMESPACE
 class QXmlStreamWriter;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class Project;
 
-
 class QMT_EXPORT ProjectSerializer
 {
 public:
-
     ProjectSerializer();
-
     ~ProjectSerializer();
 
-public:
-
     void save(const QString &fileName, const Project *project);
-
     QByteArray save(const Project *project);
-
     void load(const QString &fileName, Project *project);
 
 private:
-
     void write(QXmlStreamWriter *writer, const Project *project);
 
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_PROJECTSERIALIZER_H

@@ -46,7 +46,6 @@
 #include "qmt/diagram/delement.h"
 #include "qmt/diagram_controller/dclonevisitor.h"
 
-
 namespace qmt {
 
 MCloneVisitor::MCloneVisitor()
@@ -68,25 +67,22 @@ void MCloneVisitor::visitMObject(const MObject *object)
 
 void MCloneVisitor::visitMPackage(const MPackage *package)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MPackage(*package);
-    }
     visitMObject(package);
 }
 
 void MCloneVisitor::visitMClass(const MClass *klass)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MClass(*klass);
-    }
     visitMObject(klass);
 }
 
 void MCloneVisitor::visitMComponent(const MComponent *component)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MComponent(*component);
-    }
     visitMObject(component);
 }
 
@@ -106,17 +102,15 @@ void MCloneVisitor::visitMDiagram(const MDiagram *diagram)
 
 void MCloneVisitor::visitMCanvasDiagram(const MCanvasDiagram *diagram)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MCanvasDiagram(*diagram);
-    }
     visitMDiagram(diagram);
 }
 
 void MCloneVisitor::visitMItem(const MItem *item)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MItem(*item);
-    }
     visitMObject(item);
 }
 
@@ -128,28 +122,24 @@ void MCloneVisitor::visitMRelation(const MRelation *relation)
 
 void MCloneVisitor::visitMDependency(const MDependency *dependency)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MDependency(*dependency);
-    }
     visitMRelation(dependency);
 }
 
 void MCloneVisitor::visitMInheritance(const MInheritance *inheritance)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MInheritance(*inheritance);
-    }
     visitMRelation(inheritance);
 }
 
 void MCloneVisitor::visitMAssociation(const MAssociation *association)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MAssociation(*association);
-    }
     visitMRelation(association);
 }
-
 
 MCloneDeepVisitor::MCloneDeepVisitor()
     : m_cloned(0)
@@ -194,25 +184,22 @@ void MCloneDeepVisitor::visitMObject(const MObject *object)
 
 void MCloneDeepVisitor::visitMPackage(const MPackage *package)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MPackage(*package);
-    }
     visitMObject(package);
 }
 
 void MCloneDeepVisitor::visitMClass(const MClass *klass)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MClass(*klass);
-    }
     visitMObject(klass);
 }
 
 void MCloneDeepVisitor::visitMComponent(const MComponent *component)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MComponent(*component);
-    }
     visitMObject(component);
 }
 
@@ -232,17 +219,15 @@ void MCloneDeepVisitor::visitMDiagram(const MDiagram *diagram)
 
 void MCloneDeepVisitor::visitMCanvasDiagram(const MCanvasDiagram *diagram)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MCanvasDiagram(*diagram);
-    }
     visitMDiagram(diagram);
 }
 
 void MCloneDeepVisitor::visitMItem(const MItem *item)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MItem(*item);
-    }
     visitMObject(item);
 }
 
@@ -258,26 +243,23 @@ void MCloneDeepVisitor::visitMRelation(const MRelation *relation)
 
 void MCloneDeepVisitor::visitMDependency(const MDependency *dependency)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MDependency(*dependency);
-    }
     visitMRelation(dependency);
 }
 
 void MCloneDeepVisitor::visitMInheritance(const MInheritance *inheritance)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MInheritance(*inheritance);
-    }
     visitMRelation(inheritance);
 }
 
 void MCloneDeepVisitor::visitMAssociation(const MAssociation *association)
 {
-    if (!m_cloned) {
+    if (!m_cloned)
         m_cloned = new MAssociation(*association);
-    }
     visitMRelation(association);
 }
 
-}
+} // namespace qmt

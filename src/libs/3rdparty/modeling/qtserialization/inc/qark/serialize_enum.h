@@ -83,6 +83,6 @@ inline void load(Archive &archive, QFlags<T> &flags, const Parameters &)
     flags = QFlags<T>(i);
 }
 
-}
+} // namespace qark
 
 #endif // QARK_SERIALIZE_ENUM_H

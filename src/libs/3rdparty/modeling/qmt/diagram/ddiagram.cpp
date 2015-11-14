@@ -33,7 +33,6 @@
 #include "dvisitor.h"
 #include "dconstvisitor.h"
 
-
 namespace qmt {
 
 DDiagram::DDiagram()
@@ -50,4 +49,4 @@ void DDiagram::accept(DConstVisitor *visitor) const
     visitor->visitDDiagram(this);
 }
 
-}
+} // namespace qmt

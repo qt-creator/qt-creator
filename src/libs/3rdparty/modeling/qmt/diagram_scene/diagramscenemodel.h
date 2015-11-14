@@ -45,7 +45,6 @@ class QGraphicsScene;
 class QGraphicsSceneMouseEvent;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class DiagramGraphicsScene;
@@ -61,8 +60,7 @@ class MDiagram;
 class DElement;
 class DObject;
 
-class QMT_EXPORT DiagramSceneModel :
-        public QObject
+class QMT_EXPORT DiagramSceneModel : public QObject
 {
     Q_OBJECT
 
@@ -74,167 +72,92 @@ class QMT_EXPORT DiagramSceneModel :
     friend class DiagramGraphicsScene;
 
 public:
-
     enum CollidingMode {
         CollidingInnerItems,
         CollidingItems,
         CollidingOuterItems
     };
 
-
-public:
-
     DiagramSceneModel(QObject *parent = 0);
-
     ~DiagramSceneModel();
 
 signals:
-
     void diagramSceneActivated(const MDiagram *diagram);
-
     void selectionHasChanged(const MDiagram *diagram);
 
 public:
-
     DiagramController *diagramController() const { return m_diagramController; }
-
     void setDiagramController(DiagramController *diagramController);
-
     DiagramSceneController *diagramSceneController() const { return m_diagramSceneController; }
-
     void setDiagramSceneController(DiagramSceneController *diagramSceneController);
-
     StyleController *styleController() const { return m_styleController; }
-
     void setStyleController(StyleController *styleController);
-
     StereotypeController *stereotypeController() const { return m_stereotypeController; }
-
     void setStereotypeController(StereotypeController *stereotypeController);
-
     MDiagram *diagram() const { return m_diagram; }
-
     void setDiagram(MDiagram *diagram);
-
     QGraphicsScene *graphicsScene() const;
 
-public:
-
     bool hasSelection() const;
-
     bool hasMultiObjectsSelection() const;
-
     DSelection selectedElements() const;
-
     DElement *findTopmostElement(const QPointF &scenePos) const;
 
-public:
-
     QList<QGraphicsItem *> graphicsItems() const { return m_graphicsItems; }
-
     QGraphicsItem *graphicsItem(DElement *element) const;
-
     QGraphicsItem *graphicsItem(const Uid &uid) const;
-
     QGraphicsItem *focusItem() const { return m_focusItem; }
-
     bool isSelectedItem(QGraphicsItem *item) const;
-
     QSet<QGraphicsItem *> selectedItems() const { return m_selectedItems; }
-
     DElement *element(QGraphicsItem *item) const;
-
     bool isElementEditable(const DElement *element) const;
 
-public:
-
     void selectAllElements();
-
     void selectElement(DElement *element);
-
     void editElement(DElement *element);
-
     void copyToClipboard();
-
     bool exportPng(const QString &fileName);
-
     void exportPdf(const QString &fileName);
 
-public:
-
     void selectItem(QGraphicsItem *item, bool multiSelect);
-
     void moveSelectedItems(QGraphicsItem *grabbedItem, const QPointF &delta);
-
     void alignSelectedItemsPositionOnRaster();
-
     void onDoubleClickedItem(QGraphicsItem *item);
-
     QList<QGraphicsItem *> collectCollidingObjectItems(const QGraphicsItem *item, CollidingMode collidingMode) const;
 
 private:
-
     void sceneActivated();
-
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
-
     void mousePressEventReparenting(QGraphicsSceneMouseEvent *event);
-
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-
     void mouseMoveEventReparenting(QGraphicsSceneMouseEvent *event);
-
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-
     void mouseReleaseEventReparenting(QGraphicsSceneMouseEvent *event);
 
 private slots:
-
     void onBeginResetAllDiagrams();
-
     void onEndResetAllDiagrams();
-
     void onBeginResetDiagram(const MDiagram *diagram);
-
     void onEndResetDiagram(const MDiagram *diagram);
-
     void onBeginUpdateElement(int row, const MDiagram *diagram);
-
     void onEndUpdateElement(int row, const MDiagram *diagram);
-
     void onBeginInsertElement(int row, const MDiagram *diagram);
-
     void onEndInsertElement(int row, const MDiagram *diagram);
-
     void onBeginRemoveElement(int row, const MDiagram *diagram);
-
     void onEndRemoveElement(int row, const MDiagram *diagram);
-
-private slots:
 
     void onSelectionChanged();
 
 private:
-
     void clearGraphicsScene();
-
     void removeExtraSceneItems();
-
     void addExtraSceneItems();
-
     QGraphicsItem *createGraphicsItem(DElement *element);
-
     void updateGraphicsItem(QGraphicsItem *item, DElement *element);
-
     void deleteGraphicsItem(QGraphicsItem *item, DElement *element);
-
     void updateFocusItem(const QSet<QGraphicsItem *> &selectedItems);
-
     void unsetFocusItem();
-
     bool isInFrontOf(const QGraphicsItem *frontItem, const QGraphicsItem *backItem);
-
-private:
 
     enum Busy {
         NotBusy,
@@ -244,39 +167,23 @@ private:
         RemoveElement
     };
 
-private:
-
     DiagramController *m_diagramController;
-
     DiagramSceneController *m_diagramSceneController;
-
     StyleController *m_styleController;
-
     StereotypeController *m_stereotypeController;
-
     MDiagram *m_diagram;
-
     DiagramGraphicsScene *m_graphicsScene;
-
     LatchController *m_latchController;
-
     QList<QGraphicsItem *> m_graphicsItems;
-
     QHash<const QGraphicsItem *, DElement *> m_itemToElementMap;
-
     QHash<const DElement *, QGraphicsItem *> m_elementToItemMap;
-
     QSet<QGraphicsItem *> m_selectedItems;
-
     QSet<QGraphicsItem *> m_secondarySelectedItems;
-
     Busy m_busyState;
-
     OriginItem *m_originItem;
-
     QGraphicsItem *m_focusItem;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DIAGRAMSCENEMODEL_H

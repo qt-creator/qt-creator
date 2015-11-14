@@ -118,9 +118,8 @@ void RelationStarter::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void RelationStarter::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (!m_currentPreviewArrow) {
+    if (!m_currentPreviewArrow)
         return;
-    }
     updateCurrentPreviewArrow(mapToScene(event->pos()));
 }
 
@@ -137,9 +136,8 @@ void RelationStarter::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void RelationStarter::keyPressEvent(QKeyEvent *event)
 {
-    if (!m_currentPreviewArrow) {
+    if (!m_currentPreviewArrow)
         return;
-    }
     if (event->key() == Qt::Key_Shift) {
         QPointF p = m_currentPreviewArrow->lastLineSegment().p1();
         if (m_currentPreviewArrowIntermediatePoints.isEmpty() || m_currentPreviewArrowIntermediatePoints.last() != p) {
@@ -162,4 +160,4 @@ void RelationStarter::updateCurrentPreviewArrow(const QPointF &headPoint)
     m_currentPreviewArrow->update(m_diagramSceneModel->styleController()->relationStarterStyle());
 }
 
-}
+} // namespace qmt

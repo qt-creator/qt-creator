@@ -37,46 +37,31 @@ QT_BEGIN_NAMESPACE
 class QGraphicsSimpleTextItem;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class DAssociation;
 class DAssociationEnd;
 
-
-class AssociationItem :
-        public RelationItem
+class AssociationItem : public RelationItem
 {
 public:
-
     AssociationItem(DAssociation *association, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-
     ~AssociationItem();
 
 protected:
-
     virtual void update(const Style *style);
 
 private:
-
     void updateEndLabels(const DAssociationEnd &end, const DAssociationEnd &otherEnd, QGraphicsSimpleTextItem **endName, QGraphicsSimpleTextItem **endCardinality, const Style *style);
-
     void placeEndLabels(const QLineF &lineSegment, QGraphicsItem *endName, QGraphicsItem *endCardinality, QGraphicsItem *endItem, double headLength);
 
-private:
-
     DAssociation *m_association;
-
     QGraphicsSimpleTextItem *m_endAName;
-
     QGraphicsSimpleTextItem *m_endACardinality;
-
     QGraphicsSimpleTextItem *m_endBName;
-
     QGraphicsSimpleTextItem *m_endBCardinality;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_GRAPHICSASSOCIATIONITEM_H

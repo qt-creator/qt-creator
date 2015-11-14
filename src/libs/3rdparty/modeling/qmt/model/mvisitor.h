@@ -54,31 +54,19 @@ public:
     virtual ~MVisitor() { }
 
     virtual void visitMElement(MElement *element) = 0;
-
     virtual void visitMObject(MObject *object) = 0;
-
     virtual void visitMPackage(MPackage *package) = 0;
-
     virtual void visitMClass(MClass *klass) = 0;
-
     virtual void visitMComponent(MComponent *component) = 0;
-
     virtual void visitMDiagram(MDiagram *diagram) = 0;
-
     virtual void visitMCanvasDiagram(MCanvasDiagram *diagram) = 0;
-
     virtual void visitMItem(MItem *item) = 0;
-
     virtual void visitMRelation(MRelation *relation) = 0;
-
     virtual void visitMDependency(MDependency *dependency) = 0;
-
     virtual void visitMInheritance(MInheritance *inheritance) = 0;
-
     virtual void visitMAssociation(MAssociation *association) = 0;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MVISITOR_H

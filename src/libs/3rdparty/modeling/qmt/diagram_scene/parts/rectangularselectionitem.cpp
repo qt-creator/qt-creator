@@ -40,14 +40,11 @@
 #include <QPen>
 #include <qmath.h>
 
-
 namespace qmt {
 
-class RectangularSelectionItem::GraphicsHandleItem :
-        public QGraphicsRectItem
+class RectangularSelectionItem::GraphicsHandleItem : public QGraphicsRectItem
 {
 public:
-
     GraphicsHandleItem(Handle handle, RectangularSelectionItem *parent)
         : QGraphicsRectItem(parent),
           m_owner(parent),
@@ -65,7 +62,6 @@ public:
             if (secondarySelected) {
                 setPen(QPen(Qt::lightGray));
                 setBrush(Qt::NoBrush);
-
             } else {
                 setPen(QPen(Qt::black));
                 setBrush(QBrush(Qt::black));
@@ -74,43 +70,33 @@ public:
     }
 
 protected:
-
     void mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
         m_startPos = mapToScene(event->pos());
-        if (!m_isSecondarySelected) {
+        if (!m_isSecondarySelected)
             m_owner->moveHandle(m_handle, QPointF(0.0, 0.0), Press, None);
-        }
     }
 
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     {
         QPointF pos = mapToScene(event->pos()) - m_startPos;
-        if (!m_isSecondarySelected) {
+        if (!m_isSecondarySelected)
             m_owner->moveHandle(m_handle, pos, Move, None);
-        }
-
     }
 
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     {
         QPointF pos = mapToScene(event->pos()) - m_startPos;
-        if (!m_isSecondarySelected) {
+        if (!m_isSecondarySelected)
             m_owner->moveHandle(m_handle, pos, Release, None);
-        }
     }
 
 private:
-
     RectangularSelectionItem *m_owner;
-
     Handle m_handle;
-
     bool m_isSecondarySelected;
-
     QPointF m_startPos;
 };
-
 
 RectangularSelectionItem::RectangularSelectionItem(IResizable *itemResizer, QGraphicsItem *parent)
     : QGraphicsItem(parent),
@@ -185,9 +171,8 @@ void RectangularSelectionItem::update()
     prepareGeometryChange();
 
     for (int i = 0; i <= 7; ++i) {
-        if (!m_points[i]) {
+        if (!m_points[i])
             m_points[i] = new GraphicsHandleItem((Handle) i, this);
-        }
         m_points[i]->setRect(-m_pointSize.width() / 2.0, -m_pointSize.height() / 2.0, m_pointSize.width(), m_pointSize.height());
         bool visible = false;
         switch ((Handle) i) {
@@ -231,19 +216,16 @@ void RectangularSelectionItem::update()
     m_points[7]->setPos(pos() + m_rect.bottomRight());
 
     if (m_showBorder) {
-        if (!m_borderItem) {
+        if (!m_borderItem)
             m_borderItem = new QGraphicsRectItem(this);
-        }
         m_borderItem->setRect(m_rect);
-        if (m_isSecondarySelected) {
+        if (m_isSecondarySelected)
             m_borderItem->setPen(QPen(QBrush(Qt::lightGray), 0.0, Qt::DashDotLine));
-        } else {
+        else
             m_borderItem->setPen(QPen(QBrush(Qt::black), 0.0, Qt::DashDotLine));
-        }
     } else if (m_borderItem) {
-        if (m_borderItem->scene()) {
+        if (m_borderItem->scene())
             m_borderItem->scene()->removeItem(m_borderItem);
-        }
         delete m_borderItem;
         m_borderItem = 0;
     }
@@ -285,12 +267,10 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
         moveable = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
         break;
     }
-    if (!moveable) {
+    if (!moveable)
         return;
-    }
 
     QSizeF minimumSize = m_itemResizer->minimumSize();
-
     QPointF topLeftDelta;
     QPointF bottomRightDelta;
 
@@ -301,11 +281,10 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
         qreal deltaLength = qSqrt(deltaMove.x() * deltaMove.x() + deltaMove.y() * deltaMove.y());
         switch (handle) {
         case HandleTopLeft:
-            if (deltaMove.x() > 0 && deltaMove.y() > 0) {
+            if (deltaMove.x() > 0 && deltaMove.y() > 0)
                 topLeftDelta = v * deltaLength;
-            } else if (deltaMove.x() < 0 && deltaMove.y() < 0) {
+            else if (deltaMove.x() < 0 && deltaMove.y() < 0)
                 topLeftDelta = -(v * deltaLength);
-            }
             break;
         case HandleTop:
             QMT_CHECK(false);
@@ -338,11 +317,10 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
             QMT_CHECK(false);
             break;
         case HandleBottomRight:
-            if (deltaMove.x() > 0 && deltaMove.y() > 0) {
+            if (deltaMove.x() > 0 && deltaMove.y() > 0)
                 bottomRightDelta = v * deltaLength;
-            } else if (deltaMove.x() < 0 && deltaMove.y() < 0) {
+            else if (deltaMove.x() < 0 && deltaMove.y() < 0)
                 bottomRightDelta = -(v * deltaLength);
-            }
             break;
         }
     } else {
@@ -384,9 +362,8 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
     case HandleTopLeft:
     case HandleLeft:
     case HandleBottomLeft:
-        if (sizeDelta.width() > 0.0) {
+        if (sizeDelta.width() > 0.0)
             topLeftDelta.setX(topLeftDelta.x() - sizeDelta.width());
-        }
         break;
     case HandleTop:
     case HandleBottom:
@@ -394,9 +371,8 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
     case HandleTopRight:
     case HandleRight:
     case HandleBottomRight:
-        if (sizeDelta.width() > 0.0) {
+        if (sizeDelta.width() > 0.0)
             bottomRightDelta.setX(bottomRightDelta.x() + sizeDelta.width());
-        }
         break;
     }
 
@@ -405,9 +381,8 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
     case HandleTopLeft:
     case HandleTop:
     case HandleTopRight:
-        if (sizeDelta.height() > 0.0) {
+        if (sizeDelta.height() > 0.0)
             topLeftDelta.setY(topLeftDelta.y() - sizeDelta.height());
-        }
         break;
     case HandleLeft:
     case HandleRight:
@@ -415,9 +390,8 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
     case HandleBottomLeft:
     case HandleBottom:
     case HandleBottomRight:
-        if (sizeDelta.height() > 0.0) {
+        if (sizeDelta.height() > 0.0)
             bottomRightDelta.setY(bottomRightDelta.y() + sizeDelta.height());
-        }
         break;
     }
 
@@ -462,4 +436,4 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
     }
 }
 
-}
+} // namespace qmt

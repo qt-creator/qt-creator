@@ -35,46 +35,30 @@
 
 #include "qmt/model/mdependency.h"
 
-
 namespace qmt {
 
 class DObject;
 
-
-class QMT_EXPORT DDependency :
-        public DRelation
+class QMT_EXPORT DDependency : public DRelation
 {
 public:
     DDependency();
-
     ~DDependency();
 
-public:
-
     Uid source() const;
-
     void setSource(const Uid &source);
-
     Uid target() const;
-
     void setTarget(const Uid &target);
-
     MDependency::Direction direction() const { return m_direction; }
-
     void setDirection(MDependency::Direction direction);
 
-public:
-
     virtual void accept(DVisitor *visitor);
-
     virtual void accept(DConstVisitor *visitor) const;
 
 private:
-
     MDependency::Direction m_direction;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DDEPENDENCY_H

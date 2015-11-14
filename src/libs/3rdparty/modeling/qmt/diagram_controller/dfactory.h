@@ -34,53 +34,34 @@
 #include "qmt/model/mconstvisitor.h"
 #include "qmt/infrastructure/qmt_global.h"
 
-#include <qglobal.h>
-
 namespace qmt {
 
 class DElement;
 
-class QMT_EXPORT DFactory :
-        public MConstVisitor
+class QMT_EXPORT DFactory : public MConstVisitor
 {
 public:
     DFactory();
 
-public:
-
     DElement *product() const { return m_product; }
 
-public:
-
     void visitMElement(const MElement *element);
-
     void visitMObject(const MObject *object);
-
     void visitMPackage(const MPackage *package);
-
     void visitMClass(const MClass *klass);
-
     void visitMComponent(const MComponent *component);
-
     void visitMDiagram(const MDiagram *diagram);
-
     void visitMCanvasDiagram(const MCanvasDiagram *diagram);
-
     void visitMItem(const MItem *item);
-
     void visitMRelation(const MRelation *relation);
-
     void visitMDependency(const MDependency *dependency);
-
     void visitMInheritance(const MInheritance *inheritance);
-
     void visitMAssociation(const MAssociation *association);
 
 private:
-
     DElement *m_product;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DFACTORY_H

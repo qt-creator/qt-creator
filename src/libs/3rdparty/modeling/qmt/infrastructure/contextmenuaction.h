@@ -35,26 +35,19 @@
 
 namespace qmt {
 
-class ContextMenuAction :
-        public QAction
+class ContextMenuAction : public QAction
 {
 public:
-
     ContextMenuAction(const QString &label, const QString &id, QObject *parent = 0);
-
     ContextMenuAction(const QString &label, const QString &id, const QKeySequence &shortcut, QObject *parent = 0);
-
     ~ContextMenuAction();
-
-public:
 
     QString id() const { return m_id; }
 
 private:
-
     QString m_id;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_CONTEXTMENUACTION_H

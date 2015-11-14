@@ -53,9 +53,8 @@ QString StereotypesItem::format(const QList<QString> &stereotypes)
         text = QString::fromUtf8("«");
         bool first = true;
         foreach (const QString &stereotype, stereotypes) {
-            if (!first) {
+            if (!first)
                 text += QStringLiteral(", ");
-            }
             text += stereotype;
             first = false;
         }
@@ -64,4 +63,4 @@ QString StereotypesItem::format(const QList<QString> &stereotypes)
     return text;
 }
 
-}
+} // namespace qmt

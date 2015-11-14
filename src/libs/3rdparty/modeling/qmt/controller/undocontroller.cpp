@@ -74,4 +74,4 @@ void UndoController::doNotMerge()
     m_doNotMerge = true;
 }
 
-}
+} // namespace qmt

@@ -30,7 +30,6 @@
 
 #include "exceptions.h"
 
-
 namespace qmt {
 
 Exception::Exception(const QString &errorMessage)
@@ -38,11 +37,9 @@ Exception::Exception(const QString &errorMessage)
 {
 }
 
-
-
 NullPointerException::NullPointerException()
     : Exception(QStringLiteral("unacceptable null object"))
 {
 }
 
-}
+} // namespace qmt

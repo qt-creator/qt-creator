@@ -34,66 +34,42 @@
 #include "qmt/diagram/dvisitor.h"
 #include "qmt/infrastructure/qmt_global.h"
 
-
 namespace qmt {
 
 class DiagramController;
 class ISceneInspector;
 class MDiagram;
 
-class QMT_EXPORT AlignOnRasterVisitor :
-        public DVisitor
+class QMT_EXPORT AlignOnRasterVisitor : public DVisitor
 {
 public:
     AlignOnRasterVisitor();
     ~AlignOnRasterVisitor();
 
-public:
-
     void setDiagramController(DiagramController *diagramController);
-
     void setSceneInspector(ISceneInspector *sceneInspector);
-
     void setDiagram(MDiagram *diagram);
 
-public:
-
     void visitDElement(DElement *element);
-
     void visitDObject(DObject *object);
-
     void visitDPackage(DPackage *package);
-
     void visitDClass(DClass *klass);
-
     void visitDComponent(DComponent *component);
-
     void visitDDiagram(DDiagram *diagram);
-
     void visitDItem(DItem *item);
-
     void visitDRelation(DRelation *relation);
-
     void visitDInheritance(DInheritance *inheritance);
-
     void visitDDependency(DDependency *dependency);
-
     void visitDAssociation(DAssociation *association);
-
     void visitDAnnotation(DAnnotation *annotation);
-
     void visitDBoundary(DBoundary *boundary);
 
 private:
-
     DiagramController *m_diagramController;
-
     ISceneInspector *m_sceneInspector;
-
     MDiagram *m_diagram;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_ALIGNONRASTERVISITOR_H

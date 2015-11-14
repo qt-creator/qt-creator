@@ -54,7 +54,6 @@
 
 #include <algorithm>
 
-
 namespace qmt {
 
 static const qreal RECT_HEIGHT = 15.0;
@@ -64,7 +63,6 @@ static const qreal RECT_Y_DISTANCE = 10.0;
 static const qreal LOWER_RECT_MIN_Y = 10.0;
 static const qreal BODY_VERT_BORDER = 4.0;
 static const qreal BODY_HORIZ_BORDER = 4.0;
-
 
 ComponentItem::ComponentItem(DComponent *component, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : ObjectItem(component, diagramSceneModel, parent),
@@ -85,16 +83,14 @@ ComponentItem::~ComponentItem()
 void ComponentItem::update()
 {
     prepareGeometryChange();
-
     updateStereotypeIconDisplay();
 
     const Style *style = adaptedStyle(stereotypeIconId());
 
     // custom icon
     if (stereotypeIconDisplay() == StereotypeIcon::DisplayIcon) {
-        if (!m_customIcon) {
+        if (!m_customIcon)
             m_customIcon = new CustomIconItem(diagramSceneModel(), this);
-        }
         m_customIcon->setStereotypeIconId(stereotypeIconId());
         m_customIcon->setBaseSize(stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT));
         m_customIcon->setBrush(style->fillBrush());
@@ -109,22 +105,19 @@ void ComponentItem::update()
     // shape
     bool deleteRects = false;
     if (!m_customIcon) {
-        if (!m_shape) {
+        if (!m_shape)
             m_shape = new QGraphicsRectItem(this);
-        }
         m_shape->setBrush(style->fillBrush());
         m_shape->setPen(style->outerLinePen());
         m_shape->setZValue(SHAPE_ZVALUE);
         if (!hasPlainShape()) {
-            if (!m_upperRect) {
+            if (!m_upperRect)
                 m_upperRect = new QGraphicsRectItem(this);
-            }
             m_upperRect->setBrush(style->fillBrush());
             m_upperRect->setPen(style->outerLinePen());
             m_upperRect->setZValue(SHAPE_DETAILS_ZVALUE);
-            if (!m_lowerRect) {
+            if (!m_lowerRect)
                 m_lowerRect = new QGraphicsRectItem(this);
-            }
             m_lowerRect->setBrush(style->fillBrush());
             m_lowerRect->setPen(style->outerLinePen());
             m_lowerRect->setZValue(SHAPE_DETAILS_ZVALUE);
@@ -156,18 +149,16 @@ void ComponentItem::update()
     updateStereotypes(stereotypeIconId(), stereotypeIconDisplay(), style);
 
     // component name
-    if (!m_componentName) {
+    if (!m_componentName)
         m_componentName = new QGraphicsSimpleTextItem(this);
-    }
     m_componentName->setFont(style->headerFont());
     m_componentName->setBrush(style->textBrush());
     m_componentName->setText(object()->name());
 
     // context
     if (showContext()) {
-        if (!m_contextLabel) {
+        if (!m_contextLabel)
             m_contextLabel = new ContextLabelItem(this);
-        }
         m_contextLabel->setFont(style->smallFont());
         m_contextLabel->setBrush(style->textBrush());
         m_contextLabel->setContext(object()->context());
@@ -188,15 +179,13 @@ void ComponentItem::update()
             m_relationStarter->addArrow(QStringLiteral("dependency"), ArrowItem::ShaftDashed, ArrowItem::HeadOpen);
         }
     } else if (m_relationStarter) {
-        if (m_relationStarter->scene()) {
+        if (m_relationStarter->scene())
             m_relationStarter->scene()->removeItem(m_relationStarter);
-        }
         delete m_relationStarter;
         m_relationStarter = 0;
     }
 
     updateAlignmentButtons();
-
     updateGeometry();
 }
 
@@ -208,7 +197,7 @@ bool ComponentItem::intersectShapeWithLine(const QLineF &line, QPointF *intersec
         QRectF rect = object()->rect();
         rect.translate(object()->pos());
         polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
-    } else if (hasPlainShape()){
+    } else if (hasPlainShape()) {
         QRectF rect = object()->rect();
         rect.translate(object()->pos());
         polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
@@ -254,9 +243,8 @@ void ComponentItem::relationDrawn(const QString &id, const QPointF &toScenePos, 
     if (targetElement) {
        if (id == QStringLiteral("dependency")) {
             DObject *dependantObject = dynamic_cast<DObject *>(targetElement);
-            if (dependantObject) {
+            if (dependantObject)
                 diagramSceneModel()->diagramSceneController()->createDependency(object(), dependantObject, intermediatePoints, diagramSceneModel()->diagram());
-            }
         }
     }
 }
@@ -273,9 +261,8 @@ QSizeF ComponentItem::calcMinimumGeometry() const
     double width = 0.0;
     double height = 0.0;
 
-    if (m_customIcon) {
+    if (m_customIcon)
         return stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
-    }
 
     height += BODY_VERT_BORDER;
     if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
@@ -290,17 +277,15 @@ QSizeF ComponentItem::calcMinimumGeometry() const
         width = std::max(width, m_componentName->boundingRect().width());
         height += m_componentName->boundingRect().height();
     }
-    if (m_contextLabel) {
+    if (m_contextLabel)
         height += m_contextLabel->height();
-    }
     height += BODY_VERT_BORDER;
 
     if (!hasPlainShape()) {
         width = RECT_WIDTH * 0.5 + BODY_HORIZ_BORDER + width + BODY_HORIZ_BORDER + RECT_WIDTH * 0.5;
         double minHeight = UPPER_RECT_Y + RECT_HEIGHT + RECT_Y_DISTANCE + RECT_HEIGHT + LOWER_RECT_MIN_Y;
-        if (height < minHeight) {
+        if (height < minHeight)
             height = minHeight;
-        }
     } else {
         width = BODY_HORIZ_BORDER + width + BODY_HORIZ_BORDER;
     }
@@ -324,12 +309,10 @@ void ComponentItem::updateGeometry()
         // nothing
     } else {
         QRectF rect = object()->rect();
-        if (rect.width() > width) {
+        if (rect.width() > width)
             width = rect.width();
-        }
-        if (rect.height() > height) {
+        if (rect.height() > height)
             height = rect.height();
-        }
     }
 
     // update sizes and positions
@@ -354,9 +337,8 @@ void ComponentItem::updateGeometry()
         y += height;
     }
 
-    if (m_shape) {
+    if (m_shape)
         m_shape->setRect(rect);
-    }
 
     if (m_upperRect) {
         QRectF upperRect(0, 0, RECT_WIDTH, RECT_HEIGHT);
@@ -396,13 +378,11 @@ void ComponentItem::updateGeometry()
 
     updateSelectionMarkerGeometry(rect);
 
-    if (m_relationStarter) {
+    if (m_relationStarter)
         m_relationStarter->setPos(mapToScene(QPointF(right + 8.0, top)));
-    }
 
     updateAlignmentButtonsGeometry(rect);
-
     updateDepth();
 }
 
-}
+} // namespace qmt

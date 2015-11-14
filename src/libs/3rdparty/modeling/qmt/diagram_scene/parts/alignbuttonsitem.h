@@ -39,15 +39,11 @@ namespace qmt {
 
 class IAlignable;
 
-
-class AlignButtonsItem :
-        public QGraphicsItem
+class AlignButtonsItem : public QGraphicsItem
 {
-
     class AlignButtonItem;
 
 public:
-
     enum {
         NormalPixmapWidth = 14,
         NormalPixmapHeight = NormalPixmapWidth,
@@ -58,32 +54,20 @@ public:
         VerticalDistanceToObejct = HorizontalDistanceToObject
     };
 
-public:
-
     AlignButtonsItem(IAlignable *alignable, QGraphicsItem *parent = 0);
-
     ~AlignButtonsItem();
 
-public:
-
     QRectF boundingRect() const;
-
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
-public:
-
     void clear();
-
     void addButton(IAlignable::AlignType alignType, const QString &identifier, qreal pos);
 
 private:
-
     IAlignable *m_alignable;
-
     QList<AlignButtonItem *> m_alignItems;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_ALIGNBUTTONSITEM_H

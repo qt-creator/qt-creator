@@ -38,11 +38,9 @@
 
 namespace qmt {
 
-class QMT_EXPORT DAnnotation :
-        public DElement
+class QMT_EXPORT DAnnotation : public DElement
 {
 public:
-
     enum VisualRole {
         RoleNormal,
         RoleTitle,
@@ -52,62 +50,35 @@ public:
         RoleFootnote
     };
 
-public:
-
     DAnnotation();
-
     DAnnotation(const DAnnotation &);
-
     ~DAnnotation();
-
-public:
 
     DAnnotation &operator=(const DAnnotation &);
 
-public:
-
     Uid modelUid() const { return Uid::invalidUid(); }
-
     QString text() const { return m_text; }
-
     void setText(const QString &text);
-
     QPointF pos() const { return m_pos; }
-
     void setPos(const QPointF &pos);
-
     QRectF rect() const { return m_rect; }
-
     void setRect(const QRectF &rect);
-
     VisualRole visualRole() const { return m_visualRole; }
-
     void setVisualRole(VisualRole visualRole);
-
     bool isAutoSized() const { return m_isAutoSized; }
-
     void setAutoSized(bool autoSized);
 
-public:
-
     virtual void accept(DVisitor *visitor);
-
     virtual void accept(DConstVisitor *visitor) const;
 
 private:
-
     QString m_text;
-
     QPointF m_pos;
-
     QRectF m_rect;
-
     VisualRole m_visualRole;
-
     bool m_isAutoSized;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DANNOTATION_H

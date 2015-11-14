@@ -88,4 +88,4 @@ void DBoundary::accept(DConstVisitor *visitor) const
     visitor->visitDBoundary(this);
 }
 
-}
+} // namespace qmt

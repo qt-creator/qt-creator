@@ -54,7 +54,6 @@ class QCheckBox;
 class QFrame;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class StereotypesController;
@@ -62,168 +61,91 @@ class MClassMember;
 class ClassMembersEdit;
 class PaletteBox;
 
-
-class QMT_EXPORT PropertiesView::MView :
-        public QObject,
-        public MConstVisitor,
-        public DConstVisitor
+class QMT_EXPORT PropertiesView::MView : public QObject, public MConstVisitor, public DConstVisitor
 {
     Q_OBJECT
 
 public:
-
     MView(PropertiesView *propertiesView);
-
     ~MView();
-
-public:
 
     QWidget *topLevelWidget() const { return m_topWidget; }
 
-public:
-
     void visitMElement(const MElement *element);
-
     void visitMObject(const MObject *object);
-
     void visitMPackage(const MPackage *package);
-
     void visitMClass(const MClass *klass);
-
     void visitMComponent(const MComponent *component);
-
     void visitMDiagram(const MDiagram *diagram);
-
     void visitMCanvasDiagram(const MCanvasDiagram *diagram);
-
     void visitMItem(const MItem *item);
-
     void visitMRelation(const MRelation *relation);
-
     void visitMDependency(const MDependency *dependency);
-
     void visitMInheritance(const MInheritance *inheritance);
-
     void visitMAssociation(const MAssociation *association);
 
-public:
-
     void visitDElement(const DElement *element);
-
     void visitDObject(const DObject *object);
-
     void visitDPackage(const DPackage *package);
-
     void visitDClass(const DClass *klass);
-
     void visitDComponent(const DComponent *component);
-
     void visitDDiagram(const DDiagram *diagram);
-
     void visitDItem(const DItem *item);
-
     void visitDRelation(const DRelation *relation);
-
     void visitDInheritance(const DInheritance *inheritance);
-
     void visitDDependency(const DDependency *dependency);
-
     void visitDAssociation(const DAssociation *association);
-
     void visitDAnnotation(const DAnnotation *annotation);
-
     void visitDBoundary(const DBoundary *boundary);
 
-public:
-
     void update(QList<MElement *> &modelElements);
-
     void update(QList<DElement *> &diagramElements, MDiagram *diagram);
-
     void edit();
 
 private slots:
-
     void onStereotypesChanged(const QString &stereotypes);
-
     void onObjectNameChanged(const QString &name);
-
     void onNamespaceChanged(const QString &umlNamespace);
-
     void onTemplateParametersChanged(const QString &templateParameters);
-
     void onClassMembersStatusChanged(bool valid);
-
     void onParseClassMembers();
-
     void onClassMembersChanged(QList<MClassMember> &classMembers);
-
     void onItemVarietyChanged(const QString &variety);
-
     void onRelationNameChanged(const QString &name);
-
     void onDependencyDirectionChanged(int directionIndex);
-
     void onAssociationEndANameChanged(const QString &name);
-
     void onAssociationEndACardinalityChanged(const QString &cardinality);
-
     void onAssociationEndANavigableChanged(bool navigable);
-
     void onAssociationEndAKindChanged(int kindIndex);
-
     void onAssociationEndBNameChanged(const QString &name);
-
     void onAssociationEndBCardinalityChanged(const QString &cardinality);
-
     void onAssociationEndBNavigableChanged(bool navigable);
-
     void onAssociationEndBKindChanged(int kindIndex);
-
     void onAutoSizedChanged(bool autoSized);
-
     void onVisualPrimaryRoleChanged(int visualRoleIndex);
-
     void onVisualSecondaryRoleChanged(int visualRoleIndex);
-
     void onVisualEmphasizedChanged(bool visualEmphasized);
-
     void onStereotypeDisplayChanged(int stereotypeDisplayIndex);
-
     void onTemplateDisplayChanged(int templateDisplayIndex);
-
     void onShowAllMembersChanged(bool showAllMembers);
-
     void onPlainShapeChanged(bool plainShape);
-
     void onItemShapeChanged(const QString &shape);
-
     void onAutoWidthChanged(bool autoWidthed);
-
     void onAnnotationVisualRoleChanged(int visualRoleIndex);
 
 private:
-
     void prepare();
-
     template<class T, class V>
     void setTitle(const QList<V *> &elements, const QString &singularTitle, const QString &pluralTitle);
-
     template<class T, class V>
     void setTitle(const MItem *item, const QList<V *> &elements, const QString &singularTitle, const QString &pluralTitle);
-
     void setStereotypeIconElement(StereotypeIcon::Element stereotypeElement);
-
     void setStyleElementType(StyleEngine::ElementType elementType);
-
     void setPrimaryRolePalette(StyleEngine::ElementType elementType, DObject::VisualPrimaryRole visualPrimaryRole, const QColor &baseColor);
-
     void setEndAName(const QString &endAName);
-
     void setEndBName(const QString &endBName);
 
     QList<QString> splitTemplateParameters(const QString &templateParameters);
-
     QString formatTemplateParameters(const QList<QString> &templateParametersList);
 
     enum SelectionType {
@@ -233,32 +155,22 @@ private:
 
     template<class T, class V>
     QList<T *> filter(const QList<V *> &elements);
-
     template<class T, class V, class BASE>
     bool haveSameValue(const QList<BASE *> &baseElements, V (T::*getter)() const, V *value);
-
     template<class T, class V, class BASE>
     void assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, V (T::*getter)() const, void (T::*setter)(const V &));
-
     template<class T, class V, class BASE>
     void assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, V (T::*getter)() const, void (T::*setter)(V));
-
     template<class T, class E, class V, class BASE>
     void assignEmbeddedModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, E (T::*getter)() const, void (T::*setter)(const E &), V (E::*vGetter)() const, void (E::*vSetter)(const V &));
-
     template<class T, class E, class V, class BASE>
     void assignEmbeddedModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, E (T::*getter)() const, void (T::*setter)(const E &), V (E::*vGetter)() const, void (E::*vSetter)(V));
 
-private:
     PropertiesView *m_propertiesView;
-
     QList<MElement *> m_modelElements;
-
     QList<DElement *> m_diagramElements;
     MDiagram *m_diagram;
-
     StereotypesController *m_stereotypesController;
-
     QWidget *m_topWidget;
     QFormLayout *m_topLayout;
     QString m_propertiesTitle;
@@ -321,6 +233,6 @@ private:
     QComboBox *m_annotationVisualRoleSelector;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_PROPERTIESVIEWMVIEW_H

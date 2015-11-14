@@ -33,7 +33,6 @@
 
 #include <QString>
 
-
 namespace qmt {
 
 class Exception
@@ -42,21 +41,18 @@ public:
     Exception(const QString &errorMessage);
 
     QString errorMessage() const { return m_errorMessage; }
-
     void setErrorMessage(const QString &errorMessage) { m_errorMessage = errorMessage; }
 
 private:
     QString m_errorMessage;
 };
 
-
-class NullPointerException :
-        public Exception
+class NullPointerException : public Exception
 {
 public:
     NullPointerException();
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_EXCEPTIONS_H

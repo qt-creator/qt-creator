@@ -81,6 +81,6 @@ public:
     virtual void createAndOpenDiagram(const DElement *, const MDiagram *) = 0;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_IELEMENTTASKS_H

@@ -40,34 +40,21 @@ template<class T>
 class Handle
 {
 public:
-
     Handle() : m_target(0) { }
-
     explicit Handle(const Uid &uid) : m_uid(uid), m_target(0) { }
-
     explicit Handle(T *t) : m_uid(t ? t->uid() : Uid()), m_target(t) { }
-
     Handle(const Handle &rhs) : m_uid(rhs.m_uid), m_target(rhs.m_target) { }
-
     template<class U>
     Handle(const Handle<U> &rhs) : m_uid(rhs.uid()), m_target(rhs.target()) { }
 
-public:
-
     bool isNull() const { return !m_uid.isValid(); }
-
     bool hasTarget() const { return m_target != 0; }
-
     Uid uid() const { return m_uid; }
-
     T *target() const { return m_target; }
-
     void setUid(const Uid &uid) { QMT_CHECK(m_target != 0 ? (m_target->uid() == uid) : true); m_uid = uid; }
-
     void setTarget(T *t) { m_uid = t ? t->uid() : Uid(); m_target = t; }
 
     void clear() { m_uid = Uid(); m_target = 0; }
-
     void clearTarget() { m_target = 0; }
 
 private:
@@ -96,12 +83,11 @@ Handle<T> makeHandle(T *t)
 template<class T, class U>
 Handle<T> handle_dynamic_cast(const Handle<U> &handle)
 {
-    if (!handle.hasTarget()) {
+    if (!handle.hasTarget())
         return Handle<T>(handle.uid());
-    }
     return Handle<T>(dynamic_cast<T *>(handle.target()));
 }
 
-}
+} // namespace qmt
 
 #endif // QMT_HANDLE_H

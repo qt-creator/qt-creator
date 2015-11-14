@@ -39,17 +39,13 @@
 #include <QPointF>
 #include <QRectF>
 
-
 namespace qmt {
 
 class MObject;
 
-
-class QMT_EXPORT DObject :
-        public DElement
+class QMT_EXPORT DObject : public DElement
 {
 public:
-
     enum VisualPrimaryRole {
         PrimaryRoleNormal,
         DeprecatedPrimaryRoleLighter,
@@ -79,100 +75,55 @@ public:
         StereotypeSmart
     };
 
-public:
     DObject();
-
     DObject(const DObject &);
-
     ~DObject();
-
-public:
 
     DObject &operator=(const DObject &rhs);
 
-public:
-
     Uid modelUid() const { return m_modelUid; }
-
     void setModelUid(const Uid &uid);
-
     QList<QString> stereotypes() const { return m_stereotypes; }
-
     void setStereotypes(const QList<QString> &stereotypes);
-
     QString context() const { return m_context; }
-
     void setContext(const QString &context);
-
     QString name() const { return m_name; }
-
     void setName(const QString &name);
-
     QPointF pos() const { return m_pos; }
-
     void setPos(const QPointF &pos);
-
     QRectF rect() const { return m_rect; }
-
     void setRect(const QRectF &rect);
-
     int depth() const { return m_depth; }
-
     void setDepth(int depth);
-
     VisualPrimaryRole visualPrimaryRole() const { return m_visualPrimaryRole; }
-
     void setVisualPrimaryRole(VisualPrimaryRole visualPrimaryRole);
-
     VisualSecondaryRole visualSecondaryRole() const { return m_visualSecondaryRole; }
-
     void setVisualSecondaryRole(VisualSecondaryRole visualSecondaryRole);
-
     StereotypeDisplay stereotypeDisplay() const { return m_stereotypeDisplay; }
-
     void setStereotypeDisplay(StereotypeDisplay stereotypeDisplay);
-
     bool isAutoSized() const { return m_isAutoSized; }
-
     void setAutoSized(bool autoSized);
-
     bool isVisualEmphasized() const { return m_isVisualEmphasized; }
-
     void setVisualEmphasized(bool visualEmphasized);
 
-public:
-
     virtual void accept(DVisitor *visitor);
-
     virtual void accept(DConstVisitor *visitor) const;
 
 private:
-
     Uid m_modelUid;
-
     QList<QString> m_stereotypes;
-
     QString m_context;
-
     QString m_name;
-
     QPointF m_pos;
-
     QRectF m_rect;
-
     int m_depth;
-
     VisualPrimaryRole m_visualPrimaryRole;
-
     VisualSecondaryRole m_visualSecondaryRole;
-
     StereotypeDisplay m_stereotypeDisplay;
-
     bool m_isAutoSized;
-
     bool m_isVisualEmphasized;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DOBJECT_H

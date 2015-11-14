@@ -40,7 +40,6 @@
 #include "qmt/model/minheritance.h"
 #include "qmt/model/massociation.h"
 
-
 namespace qmt {
 
 // TODO may flat assignment visitor use operator=() ?
@@ -134,4 +133,4 @@ void MFlatAssignmentVisitor::visitMAssociation(const MAssociation *association)
     targetAssociation->setEndB(association->endB());
 }
 
-}
+} // namespace qmt

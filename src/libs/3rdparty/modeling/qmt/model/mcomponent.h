@@ -33,27 +33,18 @@
 
 #include "mobject.h"
 
-
 namespace qmt {
 
-class QMT_EXPORT MComponent :
-        public MObject
+class QMT_EXPORT MComponent : public MObject
 {
 public:
-
     MComponent();
-
     ~MComponent();
 
-public:
-
     virtual void accept(MVisitor *visitor);
-
     virtual void accept(MConstVisitor *visitor) const;
-
 };
 
-}
-
+} // namespace qmt
 
 #endif // QMT_MCOMPONENT_H

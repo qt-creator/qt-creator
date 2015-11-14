@@ -33,7 +33,6 @@
 #include "mvisitor.h"
 #include "mconstvisitor.h"
 
-
 namespace qmt {
 
 MCanvasDiagram::MCanvasDiagram()
@@ -54,5 +53,4 @@ void MCanvasDiagram::accept(MConstVisitor *visitor) const
     visitor->visitMCanvasDiagram(this);
 }
 
-}
-
+} // namespace qmt

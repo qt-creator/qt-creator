@@ -37,7 +37,6 @@ QT_BEGIN_NAMESPACE
 class QSizeF;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class MDiagram;
@@ -45,22 +44,17 @@ class DElement;
 class IMoveable;
 class IResizable;
 
-class ISceneInspector {
+class ISceneInspector
+{
 public:
     ~ISceneInspector() { }
 
-public:
-
     virtual QSizeF rasterSize() const = 0;
-
     virtual QSizeF minimalSize(const DElement *element, const MDiagram *diagram) const = 0;
-
     virtual IMoveable *moveable(const DElement *element, const MDiagram *diagram) const = 0;
-
     virtual IResizable *resizable(const DElement *element, const MDiagram *diagram) const = 0;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_ISCENEINSPECTOR_H

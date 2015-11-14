@@ -33,14 +33,12 @@
 
 #include "qmt/controller/selection.h"
 
-
 namespace qmt {
 
-class QMT_EXPORT MSelection :
-        public Selection
+class QMT_EXPORT MSelection : public Selection
 {
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MSELECTION_H

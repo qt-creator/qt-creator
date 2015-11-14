@@ -39,7 +39,6 @@
 #include <QPointer>
 #include <QHash>
 
-
 namespace qmt {
 
 class MDiagram;
@@ -48,59 +47,40 @@ class DiagramView;
 class DiagramSceneModel;
 class DiagramsManager;
 
-
-class QMT_EXPORT DiagramsView :
-        public QTabWidget,
-        public DiagramsViewInterface
+class QMT_EXPORT DiagramsView : public QTabWidget, public DiagramsViewInterface
 {
     Q_OBJECT
 
 public:
     explicit DiagramsView(QWidget *parent = 0);
-
     ~DiagramsView();
 
 signals:
-
     void currentDiagramChanged(const MDiagram *diagram);
-
     void diagramCloseRequested(const MDiagram *diagram);
-
     void someDiagramOpened(bool);
 
 public:
-
     void setDiagramsManager(DiagramsManager *diagramsManager);
 
 public slots:
-
     void openDiagram(MDiagram *diagram);
-
     void closeDiagram(const MDiagram *diagram);
-
     void closeAllDiagrams();
-
     void onDiagramRenamed(const MDiagram *diagram);
 
 private slots:
-
     void onCurrentChanged(int tabIndex);
-
     void onTabCloseRequested(int tabIndex);
 
 private:
-
     MDiagram *diagram(int tabIndex) const;
-
     MDiagram *diagram(DiagramView * diagramView) const;
 
-private:
-
     DiagramsManager *m_diagramsManager;
-
     QHash<Uid, DiagramView *> m_diagramViews;
 };
 
-}
+} // namespace qmt
 
 #endif // DIAGRAMSVIEW_H

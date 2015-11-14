@@ -37,19 +37,17 @@ QT_BEGIN_NAMESPACE
 class QModelIndex;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
-class ModelTreeViewInterface {
+class ModelTreeViewInterface
+{
 public:
-
     virtual ~ModelTreeViewInterface() { }
 
     virtual QModelIndex currentSourceModelIndex() const = 0;
-
     virtual QList<QModelIndex> selectedSourceModelIndexes() const = 0;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_MODELTREEVIEWINTERFACE_H

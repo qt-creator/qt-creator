@@ -54,7 +54,6 @@ StereotypeDisplayVisitor::StereotypeDisplayVisitor()
 
 StereotypeDisplayVisitor::~StereotypeDisplayVisitor()
 {
-
 }
 
 void StereotypeDisplayVisitor::setModelController(ModelController *modelController)
@@ -113,12 +112,10 @@ void StereotypeDisplayVisitor::visitDObject(const DObject *object)
             break;
         }
     }
-    if (stereotypeDisplay == DObject::StereotypeSmart) {
+    if (stereotypeDisplay == DObject::StereotypeSmart)
         stereotypeDisplay = DObject::StereotypeLabel;
-    }
-    if (stereotypeDisplay == DObject::StereotypeIcon && m_shapeIconId.isEmpty()) {
+    if (stereotypeDisplay == DObject::StereotypeIcon && m_shapeIconId.isEmpty())
         m_shapeIconId = m_stereotypeIconId;
-    }
     m_stereotypeDisplay = stereotypeDisplay;
 }
 
@@ -134,9 +131,8 @@ void StereotypeDisplayVisitor::visitDClass(const DClass *klass)
     m_stereotypeIconElement = StereotypeIcon::ElementClass;
     MClass *modelKlass = m_modelController->findObject<MClass>(klass->modelUid());
     bool hasMembers = false;
-    if (!modelKlass->members().isEmpty() && klass->showAllMembers()) {
+    if (!modelKlass->members().isEmpty() && klass->showAllMembers())
         hasMembers = true;
-    }
     m_stereotypeSmartDisplay = hasMembers ? DObject::StereotypeDecoration : DObject::StereotypeIcon;
     visitDObject(klass);
 }
@@ -160,12 +156,10 @@ void StereotypeDisplayVisitor::visitDItem(const DItem *item)
     m_stereotypeIconElement = StereotypeIcon::ElementItem;
     m_stereotypeSmartDisplay = DObject::StereotypeIcon;
     visitDObject(item);
-    if (m_stereotypeIconId.isEmpty() && !item->shape().isEmpty()) {
+    if (m_stereotypeIconId.isEmpty() && !item->shape().isEmpty())
         m_shapeIconId = m_stereotypeController->findStereotypeIconId(StereotypeIcon::ElementItem, QStringList() << item->shape());
-    }
-    if (m_shapeIconId.isEmpty() && !item->variety().isEmpty()) {
+    if (m_shapeIconId.isEmpty() && !item->variety().isEmpty())
         m_shapeIconId = m_stereotypeController->findStereotypeIconId(StereotypeIcon::ElementItem, QStringList() << item->variety());
-    }
 }
 
 } // namespace qmt

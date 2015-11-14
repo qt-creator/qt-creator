@@ -39,9 +39,7 @@ template<class T>
 class Container
 {
 protected:
-
     Container() { }
-
     Container(const Container<T> &rhs)
         : m_elements(rhs.m_elements)
     {
@@ -49,13 +47,10 @@ protected:
     }
 
 public:
-
     ~Container()
     {
         qDeleteAll(m_elements);
     }
-
-public:
 
     Container &operator=(const Container<T> &rhs)
     {
@@ -67,12 +62,8 @@ public:
         return *this;
     }
 
-public:
-
     bool isEmpty() const { return m_elements.empty(); }
-
     int size() const { return m_elements.size(); }
-
     QList<T *> elements() const { return m_elements; }
 
     QList<T *> takeElements() const
@@ -100,10 +91,9 @@ public:
     }
 
 private:
-
     mutable QList<T *> m_elements;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_CONTAINER_H

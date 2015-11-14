@@ -174,4 +174,4 @@ void VoidElementTasks::createAndOpenDiagram(const DElement *, const MDiagram *)
 {
 }
 
-}
+} // namespace qmt

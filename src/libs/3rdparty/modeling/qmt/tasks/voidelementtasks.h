@@ -36,14 +36,11 @@
 
 namespace qmt {
 
-class QMT_EXPORT VoidElementTasks :
-        public IElementTasks
+class QMT_EXPORT VoidElementTasks : public IElementTasks
 {
 public:
     VoidElementTasks();
     ~VoidElementTasks();
-
-public:
 
     void openElement(const MElement *);
     void openElement(const DElement *, const MDiagram *);
@@ -83,6 +80,6 @@ public:
     void createAndOpenDiagram(const qmt::DElement *, const qmt::MDiagram *);
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_VOIDELEMENTTASKS_H

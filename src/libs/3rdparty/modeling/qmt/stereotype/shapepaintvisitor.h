@@ -38,84 +38,51 @@
 #include <QPointF>
 #include <QSizeF>
 
-
 namespace qmt {
 
-class QMT_EXPORT ShapePaintVisitor
-        : public ShapeConstVisitor {
+class QMT_EXPORT ShapePaintVisitor : public ShapeConstVisitor
+{
 public:
-
     ShapePaintVisitor(QPainter *painter, const QPointF &scaledOrigin, const QSizeF &originalSize,
                       const QSizeF &baseSize, const QSizeF &size);
 
-public:
-
     void visitLine(const LineShape *shapeLine);
-
     void visitRect(const RectShape *shapeRect);
-
     void visitRoundedRect(const RoundedRectShape *shapeRoundedRect);
-
     void visitCircle(const CircleShape *shapeCircle);
-
     void visitEllipse(const EllipseShape *shapeEllipse);
-
     void visitArc(const ArcShape *shapeArc);
-
     void visitPath(const PathShape *shapePath);
 
 private:
-
     QPainter *m_painter;
-
     QPointF m_scaledOrigin;
-
     QSizeF m_originalSize;
-
     QSizeF m_baseSize;
-
     QSizeF m_size;
-
 };
 
-
-class QMT_EXPORT ShapeSizeVisitor
-        : public ShapeConstVisitor {
+class QMT_EXPORT ShapeSizeVisitor : public ShapeConstVisitor
+{
 public:
-
     ShapeSizeVisitor(const QPointF &scaledOrigin, const QSizeF &originalSize,
                      const QSizeF &baseSize, const QSizeF &size);
 
-public:
-
     QRectF boundingRect() const { return m_boundingRect; }
 
-public:
-
     void visitLine(const LineShape *shapeLine);
-
     void visitRect(const RectShape *shapeRect);
-
     void visitRoundedRect(const RoundedRectShape *shapeRoundedRect);
-
     void visitCircle(const CircleShape *shapeCircle);
-
     void visitEllipse(const EllipseShape *shapeEllipse);
-
     void visitArc(const ArcShape *shapeArc);
-
     void visitPath(const PathShape *shapePath);
 
 private:
-
     QPointF m_scaledOrigin;
-
     QSizeF m_originalSize;
-
     QSizeF m_baseSize;
-
     QSizeF m_size;
-
     QRectF m_boundingRect;
 };
 

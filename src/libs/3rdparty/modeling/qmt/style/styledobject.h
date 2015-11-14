@@ -39,31 +39,22 @@ namespace qmt {
 
 class DObject;
 
-
 class QMT_EXPORT StyledObject
 {
 public:
     StyledObject(const DObject *object, const ObjectVisuals &objectVisuals, const QList<const DObject *> &collidingObjects);
-
     ~StyledObject();
 
-public:
-
     const DObject *object() const { return m_object; }
-
     ObjectVisuals objectVisuals() const { return m_objectVisuals; }
-
     QList<const DObject *> collidingObjects() const { return m_collidingObjects; }
 
 private:
-
     const DObject *m_object;
-
     ObjectVisuals m_objectVisuals;
-
     QList<const DObject *> m_collidingObjects;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_ STYLEDOBJECT_H

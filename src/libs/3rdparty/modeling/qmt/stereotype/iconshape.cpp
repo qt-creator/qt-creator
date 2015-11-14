@@ -38,14 +38,12 @@
 #include <QList>
 #include <QPainter>
 
-
 template<class T>
 QList<T *> CloneAll(const QList<T *> &rhs)
 {
     QList<T *> result;
-    foreach (T *t, rhs) {
+    foreach (T *t, rhs)
         result.append(t != 0 ? t->Clone() : 0);
-    }
     return result;
 }
 
@@ -85,16 +83,14 @@ public:
 PathShape *IconShape::IconShapePrivate::activePath()
 {
     PathShape *pathShape = 0;
-    if (m_shapes.count() > 0) {
+    if (m_shapes.count() > 0)
         pathShape = dynamic_cast<PathShape *>(m_shapes.last());
-    }
     if (pathShape == 0) {
         pathShape = new PathShape();
         m_shapes.append(pathShape);
     }
     return pathShape;
 }
-
 
 IconShape::IconShape()
     : d(new IconShapePrivate)
@@ -113,9 +109,8 @@ IconShape::~IconShape()
 
 IconShape &IconShape::operator=(const IconShape &rhs)
 {
-    if (this != &rhs) {
+    if (this != &rhs)
         *d = *rhs.d;
-    }
     return *this;
 }
 
@@ -176,9 +171,8 @@ void IconShape::closePath()
 
 void IconShape::visitShapes(ShapeConstVisitor *visitor) const
 {
-    foreach (IShape *p, d->m_shapes) {
+    foreach (IShape *p, d->m_shapes)
         p->accept(visitor);
-    }
 }
 
 } // namespace qmt

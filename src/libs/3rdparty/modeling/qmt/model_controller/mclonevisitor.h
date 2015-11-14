@@ -38,8 +38,7 @@
 
 namespace qmt {
 
-class QMT_EXPORT MCloneVisitor :
-        public MConstVisitor
+class QMT_EXPORT MCloneVisitor : public MConstVisitor
 {
 public:
     MCloneVisitor();
@@ -47,35 +46,23 @@ public:
     MElement *cloned() const { return m_cloned; }
 
     void visitMElement(const MElement *element);
-
     void visitMObject(const MObject *object);
-
     void visitMPackage(const MPackage *package);
-
     void visitMClass(const MClass *klass);
-
     void visitMComponent(const MComponent *component);
-
     void visitMDiagram(const MDiagram *diagram);
-
     void visitMCanvasDiagram(const MCanvasDiagram *diagram);
-
     void visitMItem(const MItem *item);
-
     void visitMRelation(const MRelation *relation);
-
     void visitMDependency(const MDependency *dependency);
-
     void visitMInheritance(const MInheritance *inheritance);
-
     void visitMAssociation(const MAssociation *association);
 
 private:
     MElement *m_cloned;
 };
 
-class QMT_EXPORT MCloneDeepVisitor :
-        public MConstVisitor
+class QMT_EXPORT MCloneDeepVisitor : public MConstVisitor
 {
 public:
     MCloneDeepVisitor();
@@ -83,34 +70,22 @@ public:
     MElement *cloned() const { return m_cloned; }
 
     void visitMElement(const MElement *element);
-
     void visitMObject(const MObject *object);
-
     void visitMPackage(const MPackage *package);
-
     void visitMClass(const MClass *klass);
-
     void visitMComponent(const MComponent *component);
-
     void visitMDiagram(const MDiagram *diagram);
-
     void visitMCanvasDiagram(const MCanvasDiagram *diagram);
-
     void visitMItem(const MItem *item);
-
     void visitMRelation(const MRelation *relation);
-
     void visitMDependency(const MDependency *dependency);
-
     void visitMInheritance(const MInheritance *inheritance);
-
     void visitMAssociation(const MAssociation *association);
 
 private:
     MElement *m_cloned;
 };
 
-}
-
+} // namespace qmt
 
 #endif // QMT_CLONEVISITOR_H

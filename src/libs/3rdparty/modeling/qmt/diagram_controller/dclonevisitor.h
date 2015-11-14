@@ -34,91 +34,58 @@
 #include "qmt/diagram/dconstvisitor.h"
 #include "qmt/infrastructure/qmt_global.h"
 
-#include <qglobal.h>
-
 namespace qmt {
 
-class QMT_EXPORT DCloneVisitor :
-        public DConstVisitor
+class QMT_EXPORT DCloneVisitor : public DConstVisitor
 {
 public:
     DCloneVisitor();
 
-public:
     DElement *cloned() const { return m_cloned; }
 
     void visitDElement(const DElement *element);
-
     void visitDObject(const DObject *object);
-
     void visitDPackage(const DPackage *package);
-
     void visitDClass(const DClass *klass);
-
     void visitDComponent(const DComponent *component);
-
     void visitDDiagram(const DDiagram *diagram);
-
     void visitDItem(const DItem *item);
-
     void visitDRelation(const DRelation *relation);
-
     void visitDInheritance(const DInheritance *inheritance);
-
     void visitDDependency(const DDependency *dependency);
-
     void visitDAssociation(const DAssociation *association);
-
     void visitDAnnotation(const DAnnotation *annotation);
-
     void visitDBoundary(const DBoundary *boundary);
 
 private:
-
     DElement *m_cloned;
 };
 
-
-class QMT_EXPORT DCloneDeepVisitor :
-        public DConstVisitor
+class QMT_EXPORT DCloneDeepVisitor : public DConstVisitor
 {
 public:
     DCloneDeepVisitor();
 
-public:
     DElement *cloned() const { return m_cloned; }
 
     void visitDElement(const DElement *element);
-
     void visitDObject(const DObject *object);
-
     void visitDPackage(const DPackage *package);
-
     void visitDClass(const DClass *klass);
-
     void visitDComponent(const DComponent *component);
-
     void visitDDiagram(const DDiagram *diagram);
-
     void visitDItem(const DItem *item);
-
     void visitDRelation(const DRelation *relation);
-
     void visitDInheritance(const DInheritance *inheritance);
-
     void visitDDependency(const DDependency *dependency);
-
     void visitDAssociation(const DAssociation *association);
-
     void visitDAnnotation(const DAnnotation *annotation);
-
     void visitDBoundary(const DBoundary *boundary);
 
 private:
-
     DElement *m_cloned;
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_DCLONEVISITOR_H

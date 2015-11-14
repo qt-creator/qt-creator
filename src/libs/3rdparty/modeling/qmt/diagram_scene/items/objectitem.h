@@ -46,7 +46,6 @@ QT_BEGIN_NAMESPACE
 class QAction;
 QT_END_NAMESPACE
 
-
 namespace qmt {
 
 class DObject;
@@ -56,7 +55,6 @@ class CustomIconItem;
 class RectangularSelectionItem;
 class AlignButtonsItem;
 class Style;
-
 
 // typical z-values for graphic items
 static const int SHAPE_ZVALUE = -100; // the filled background of the shape
@@ -73,7 +71,6 @@ class ObjectItem :
         public IAlignable
 {
 protected:
-
     enum ResizeFlags {
         ResizeUnlocked,
         ResizeLockedSize,
@@ -83,153 +80,85 @@ protected:
     };
 
 public:
-
     ObjectItem(DObject *object, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-
     ~ObjectItem();
 
-public:
-
     DObject *object() const { return m_object; }
-
     DiagramSceneModel *diagramSceneModel() const { return m_diagramSceneModel; }
 
-public:
-
     QRectF boundingRect() const;
-
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-
-public:
 
     virtual void update() = 0;
 
-public:
-
     bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const = 0;
 
-public:
-
     QPointF pos() const;
-
     QRectF rect() const;
-
     QSizeF minimumSize() const = 0;
-
     void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta);
-
     void alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide, double rasterWidth, double rasterHeight);
 
-public:
-
     void moveDelta(const QPointF &delta);
-
     void alignItemPositionToRaster(double rasterWidth, double rasterHeight);
 
-public:
-
     bool isSecondarySelected() const;
-
     void setSecondarySelected(bool secondarySelected);
-
     bool isFocusSelected() const;
-
     void setFocusSelected(bool focusSelected);
 
-public:
-
     QList<Latch> horizontalLatches(Action action, bool grabbedItem) const;
-
     QList<Latch> verticalLatches(Action action, bool grabbedItem) const;
-
-public:
 
     void align(AlignType alignType, const QString &identifier);
 
 protected:
-
     void updateStereotypeIconDisplay();
-
     QString stereotypeIconId() const { return m_stereotypeIconId; }
-
     QString shapeIconId() const { return m_shapeIconId; }
-
     StereotypeIcon::Display stereotypeIconDisplay() const { return m_stereotypeIconDisplay; }
-
     void updateStereotypes(const QString &stereotypeIconId, StereotypeIcon::Display stereotypeDisplay, const Style *style);
-
     StereotypesItem *stereotypesItem() const { return m_stereotypes; }
-
     CustomIconItem *stereotypeIconItem() const { return m_stereotypeIcon; }
-
     QSizeF stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon, qreal minimumWidth, qreal minimumHeight) const;
 
     void updateDepth();
-
     void updateSelectionMarker(CustomIconItem *customIconItem);
-
     void updateSelectionMarker(ResizeFlags resizeFlags);
-
     void updateSelectionMarkerGeometry(const QRectF &objectRect);
-
     void updateAlignmentButtons();
-
     void updateAlignmentButtonsGeometry(const QRectF &objectRect);
 
     IAlignable::AlignType translateLatchTypeToAlignType(ILatchable::LatchType latchType);
-
     const Style *adaptedStyle(const QString &stereotypeIconId);
-
     bool showContext() const;
 
     virtual bool extendContextMenu(QMenu *menu);
-
     virtual bool handleSelectedContextMenuAction(QAction *action);
 
-protected:
-
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
-
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
-
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
 private:
-
     QSizeF minimumSize(const QSet<QGraphicsItem *> &items) const;
 
-private:
-
     DObject *m_object;
-
     DiagramSceneModel *m_diagramSceneModel;
-
     bool m_isSecondarySelected;
-
     bool m_isFocusSelected;
-
     QString m_stereotypeIconId;
-
     QString m_shapeIconId;
-
     StereotypeIcon::Display m_stereotypeIconDisplay;
-
     StereotypesItem *m_stereotypes;
-
     CustomIconItem *m_stereotypeIcon;
-
     RectangularSelectionItem *m_selectionMarker;
-
     AlignButtonsItem *m_horizontalAlignButtons;
-
     AlignButtonsItem *m_verticalAlignButtons;
-
 };
 
-}
+} // namespace qmt
 
 #endif // QMT_OBJECTITEM_H
