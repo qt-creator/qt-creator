@@ -102,11 +102,16 @@ public:
     void removeElement(DElement *element, MDiagram *diagram);
 
     DElement *findElement(const Uid &key, const MDiagram *diagram) const;
+
     template<class T>
-    T *findElement(const Uid &key, const MDiagram *diagram) const { return dynamic_cast<T *>(findElement(key, diagram)); }
+    T *findElement(const Uid &key, const MDiagram *diagram) const
+    {
+        return dynamic_cast<T *>(findElement(key, diagram));
+    }
 
     bool hasDelegate(const MElement *modelElement, const MDiagram *diagram) const;
     DElement *findDelegate(const MElement *modelElement, const MDiagram *diagram) const;
+
     template<class T>
     T *findDelegate(const MElement *modelElement, const MDiagram *diagram) const
     {
@@ -142,7 +147,8 @@ private slots:
     void onEndMoveRelation(int row, const MObject *owner);
 
 private:
-    void deleteElements(const DSelection &diagramSelection, MDiagram *diagram, const QString &commandLabel);
+    void deleteElements(const DSelection &diagramSelection, MDiagram *diagram,
+                        const QString &commandLabel);
 
     DElement *findElementOnAnyDiagram(const Uid &uid);
 

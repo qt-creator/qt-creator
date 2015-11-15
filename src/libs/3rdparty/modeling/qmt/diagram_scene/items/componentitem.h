@@ -52,12 +52,14 @@ class RelationStarter;
 class ComponentItem : public ObjectItem, public IRelationable
 {
 public:
-    ComponentItem(DComponent *component, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    ComponentItem(DComponent *component, DiagramSceneModel *diagramSceneModel,
+                  QGraphicsItem *parent = 0);
     ~ComponentItem();
 
     void update();
 
-    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const;
+    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint,
+                                QLineF *intersectionLine) const;
 
     QSizeF minimumSize() const;
 
@@ -65,7 +67,8 @@ public:
     QList<Latch> verticalLatches(Action action, bool grabbedItem) const;
 
     QPointF relationStartPos() const;
-    void relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints);
+    void relationDrawn(const QString &id, const QPointF &toScenePos, const
+                       QList<QPointF> &intermediatePoints);
 
 private:
     bool hasPlainShape() const;

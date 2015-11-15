@@ -55,11 +55,14 @@ public:
     QList<Toolbar> toolbars() const;
     QList<QString> knownStereotypes(StereotypeIcon::Element stereotypeElement) const;
 
-    QString findStereotypeIconId(StereotypeIcon::Element element, const QList<QString> &stereotypes) const;
-    QList<QString> filterStereotypesByIconId(const QString &stereotypeIconId, const QList<QString> &stereotypes) const;
+    QString findStereotypeIconId(StereotypeIcon::Element element,
+                                 const QList<QString> &stereotypes) const;
+    QList<QString> filterStereotypesByIconId(const QString &stereotypeIconId,
+                                             const QList<QString> &stereotypes) const;
     StereotypeIcon findStereotypeIcon(const QString &stereotypeIconId);
-    QIcon createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes, const QString &defaultIconPath,
-                     const Style *style, const QSize &size, const QMarginsF &margins);
+    QIcon createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes,
+                     const QString &defaultIconPath, const Style *style,
+                     const QSize &size, const QMarginsF &margins);
 
     void addStereotypeIcon(const StereotypeIcon &stereotypeIcon);
     void addToolbar(const Toolbar &toolbar);

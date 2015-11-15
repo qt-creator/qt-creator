@@ -136,12 +136,16 @@ private slots:
 private:
     void prepare();
     template<class T, class V>
-    void setTitle(const QList<V *> &elements, const QString &singularTitle, const QString &pluralTitle);
+    void setTitle(const QList<V *> &elements, const QString &singularTitle,
+                  const QString &pluralTitle);
     template<class T, class V>
-    void setTitle(const MItem *item, const QList<V *> &elements, const QString &singularTitle, const QString &pluralTitle);
+    void setTitle(const MItem *item, const QList<V *> &elements,
+                  const QString &singularTitle, const QString &pluralTitle);
     void setStereotypeIconElement(StereotypeIcon::Element stereotypeElement);
     void setStyleElementType(StyleEngine::ElementType elementType);
-    void setPrimaryRolePalette(StyleEngine::ElementType elementType, DObject::VisualPrimaryRole visualPrimaryRole, const QColor &baseColor);
+    void setPrimaryRolePalette(StyleEngine::ElementType elementType,
+                               DObject::VisualPrimaryRole visualPrimaryRole,
+                               const QColor &baseColor);
     void setEndAName(const QString &endAName);
     void setEndBName(const QString &endBName);
 
@@ -158,13 +162,21 @@ private:
     template<class T, class V, class BASE>
     bool haveSameValue(const QList<BASE *> &baseElements, V (T::*getter)() const, V *value);
     template<class T, class V, class BASE>
-    void assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, V (T::*getter)() const, void (T::*setter)(const V &));
+    void assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType,
+                            const V &value, V (T::*getter)() const, void (T::*setter)(const V &));
     template<class T, class V, class BASE>
-    void assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, V (T::*getter)() const, void (T::*setter)(V));
+    void assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType,
+                            const V &value, V (T::*getter)() const, void (T::*setter)(V));
     template<class T, class E, class V, class BASE>
-    void assignEmbeddedModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, E (T::*getter)() const, void (T::*setter)(const E &), V (E::*vGetter)() const, void (E::*vSetter)(const V &));
+    void assignEmbeddedModelElement(const QList<BASE *> &baseElements, SelectionType selectionType,
+                                    const V &value, E (T::*getter)() const,
+                                    void (T::*setter)(const E &),
+                                    V (E::*vGetter)() const, void (E::*vSetter)(const V &));
     template<class T, class E, class V, class BASE>
-    void assignEmbeddedModelElement(const QList<BASE *> &baseElements, SelectionType selectionType, const V &value, E (T::*getter)() const, void (T::*setter)(const E &), V (E::*vGetter)() const, void (E::*vSetter)(V));
+    void assignEmbeddedModelElement(const QList<BASE *> &baseElements, SelectionType selectionType,
+                                    const V &value, E (T::*getter)() const,
+                                    void (T::*setter)(const E &),
+                                    V (E::*vGetter)() const, void (E::*vSetter)(V));
 
     PropertiesView *m_propertiesView;
     QList<MElement *> m_modelElements;

@@ -45,7 +45,8 @@ class IIntersectionable
 public:
     virtual ~IIntersectionable() { }
 
-    virtual bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine = 0) const = 0;
+    virtual bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint,
+                                        QLineF *intersectionLine = 0) const = 0;
 };
 
 } // namespace qmt

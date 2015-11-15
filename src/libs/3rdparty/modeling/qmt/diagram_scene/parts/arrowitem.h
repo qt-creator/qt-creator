@@ -90,7 +90,8 @@ public:
 private:
     void updateShaft(const Style *style);
     void updateHead(GraphicsHeadItem **headItem, Head head, const Style *style);
-    void updateHeadGeometry(GraphicsHeadItem **headItem, const QPointF &pos, const QPointF &otherPos);
+    void updateHeadGeometry(GraphicsHeadItem **headItem, const QPointF &pos,
+                            const QPointF &otherPos);
     void updateGeometry();
 
     Shaft m_shaft;

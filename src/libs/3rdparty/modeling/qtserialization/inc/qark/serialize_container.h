@@ -136,7 +136,8 @@ inline void load(Archive &archive, QSet<T *> &set, const Parameters &parameters)
     if (parameters.hasFlag(ENFORCE_REFERENCED_ITEMS))
         archive >> ref(QStringLiteral("item"), set, &impl::insertIntoSet<T *>);
     else
-        archive >> attr<QSet<T *>, T * const &>(QStringLiteral("item"), set, &impl::insertIntoSet<T *>);
+        archive >> attr<QSet<T *>, T * const &>(QStringLiteral("item"), set,
+                                                &impl::insertIntoSet<T *>);
     archive >> end;
 }
 

@@ -60,12 +60,14 @@ public:
 
     void update();
 
-    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const;
+    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint,
+                                QLineF *intersectionLine) const;
 
     QSizeF minimumSize() const;
 
     QPointF relationStartPos() const;
-    void relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints);
+    void relationDrawn(const QString &id, const QPointF &toScenePos,
+                       const QList<QPointF> &intermediatePoints);
 
 protected:
     bool extendContextMenu(QMenu *menu);

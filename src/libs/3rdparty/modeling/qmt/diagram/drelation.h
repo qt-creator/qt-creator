@@ -81,7 +81,11 @@ private:
 };
 
 bool operator==(const DRelation::IntermediatePoint &lhs, const DRelation::IntermediatePoint &rhs);
-inline bool operator!=(const DRelation::IntermediatePoint &lhs, const DRelation::IntermediatePoint &rhs) { return !(lhs == rhs); }
+inline bool operator!=(const DRelation::IntermediatePoint &lhs,
+                       const DRelation::IntermediatePoint &rhs)
+{
+    return !(lhs == rhs);
+}
 
 } // namespace qmt
 

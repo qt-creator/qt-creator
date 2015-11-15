@@ -100,7 +100,8 @@ public:
 
 private:
     void update();
-    void moveHandle(Handle handle, const QPointF &deltaMove, HandleStatus handleStatus, HandleQualifier handleQualifier);
+    void moveHandle(Handle handle, const QPointF &deltaMove, HandleStatus handleStatus,
+                    HandleQualifier handleQualifier);
 
     IResizable *m_itemResizer;
     QRectF m_rect;

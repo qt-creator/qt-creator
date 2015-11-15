@@ -55,7 +55,8 @@ class AnnotationItem :
     class AnnotationTextItem;
 
 public:
-    AnnotationItem(DAnnotation *annotation, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    AnnotationItem(DAnnotation *annotation, DiagramSceneModel *diagramSceneModel,
+                   QGraphicsItem *parent = 0);
     ~AnnotationItem();
 
     DAnnotation *annotation() const { return m_annotation; }
@@ -70,8 +71,10 @@ public:
     QRectF rect() const;
     QSizeF minimumSize() const;
 
-    void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta);
-    void alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide, double rasterWidth, double rasterHeight);
+    void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect,
+                       const QPointF &topLeftDelta, const QPointF &bottomRightDelta);
+    void alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide,
+                               double rasterWidth, double rasterHeight);
 
     void moveDelta(const QPointF &delta);
     void alignItemPositionToRaster(double rasterWidth, double rasterHeight);

@@ -45,13 +45,15 @@ class IRelationable;
 class RelationStarter : public QGraphicsRectItem
 {
 public:
-    RelationStarter(IRelationable *owner, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    RelationStarter(IRelationable *owner, DiagramSceneModel *diagramSceneModel,
+                    QGraphicsItem *parent = 0);
     ~RelationStarter();
 
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
-    void addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowItem::Head endHead, ArrowItem::Head startHead = ArrowItem::HeadNone);
+    void addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowItem::Head endHead,
+                  ArrowItem::Head startHead = ArrowItem::HeadNone);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);

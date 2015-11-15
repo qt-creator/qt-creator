@@ -91,13 +91,16 @@ public:
 
     virtual void update() = 0;
 
-    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const = 0;
+    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint,
+                                QLineF *intersectionLine) const = 0;
 
     QPointF pos() const;
     QRectF rect() const;
     QSizeF minimumSize() const = 0;
-    void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta);
-    void alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide, double rasterWidth, double rasterHeight);
+    void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect,
+                       const QPointF &topLeftDelta, const QPointF &bottomRightDelta);
+    void alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide,
+                               double rasterWidth, double rasterHeight);
 
     void moveDelta(const QPointF &delta);
     void alignItemPositionToRaster(double rasterWidth, double rasterHeight);
@@ -117,10 +120,12 @@ protected:
     QString stereotypeIconId() const { return m_stereotypeIconId; }
     QString shapeIconId() const { return m_shapeIconId; }
     StereotypeIcon::Display stereotypeIconDisplay() const { return m_stereotypeIconDisplay; }
-    void updateStereotypes(const QString &stereotypeIconId, StereotypeIcon::Display stereotypeDisplay, const Style *style);
+    void updateStereotypes(const QString &stereotypeIconId,
+                           StereotypeIcon::Display stereotypeDisplay, const Style *style);
     StereotypesItem *stereotypesItem() const { return m_stereotypes; }
     CustomIconItem *stereotypeIconItem() const { return m_stereotypeIcon; }
-    QSizeF stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon, qreal minimumWidth, qreal minimumHeight) const;
+    QSizeF stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon, qreal minimumWidth,
+                                     qreal minimumHeight) const;
 
     void updateDepth();
     void updateSelectionMarker(CustomIconItem *customIconItem);

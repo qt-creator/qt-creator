@@ -59,7 +59,8 @@ class RelationItem :
     class ArrowConfigurator;
 
 public:
-    RelationItem(DRelation *relation, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    RelationItem(DRelation *relation, DiagramSceneModel *diagramSceneModel,
+                 QGraphicsItem *parent = 0);
     ~RelationItem();
 
     DRelation *relation() const { return m_relation; }
@@ -94,7 +95,8 @@ protected:
 private:
     const Style *adaptedStyle();
     QPointF calcEndPoint(const Uid &end, const Uid &otherEnd, int nearestIntermediatePointIndex);
-    QPointF calcEndPoint(const Uid &end, const QPointF &otherEndPos, int nearestIntermediatePointIndex);
+    QPointF calcEndPoint(const Uid &end, const QPointF &otherEndPos,
+                         int nearestIntermediatePointIndex);
 
     DRelation *m_relation;
 

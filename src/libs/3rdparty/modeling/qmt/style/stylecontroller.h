@@ -60,7 +60,8 @@ public:
     void setSuppressGradients(bool suppressGradients);
 
     const Style *adaptStyle(StyleEngine::ElementType elementType);
-    const Style *adaptObjectStyle(StyleEngine::ElementType elementType, const ObjectVisuals &objectVisuals);
+    const Style *adaptObjectStyle(StyleEngine::ElementType elementType,
+                                  const ObjectVisuals &objectVisuals);
     const Style *adaptObjectStyle(const StyledObject &object);
     const Style *adaptRelationStyle(const StyledRelation &relation);
     const Style *adaptAnnotationStyle(const DAnnotation *annotation);

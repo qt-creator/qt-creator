@@ -68,7 +68,8 @@ public:
         {
         }
 
-        Latch(LatchType latchType, qreal pos, qreal otherPos1, qreal otherPos2, const QString &identifier)
+        Latch(LatchType latchType, qreal pos, qreal otherPos1, qreal otherPos2,
+              const QString &identifier)
             : m_latchType(latchType),
               m_pos(pos),
               m_otherPos1(otherPos1),

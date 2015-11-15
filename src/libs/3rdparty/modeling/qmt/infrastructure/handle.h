@@ -51,10 +51,25 @@ public:
     bool hasTarget() const { return m_target != 0; }
     Uid uid() const { return m_uid; }
     T *target() const { return m_target; }
-    void setUid(const Uid &uid) { QMT_CHECK(m_target != 0 ? (m_target->uid() == uid) : true); m_uid = uid; }
-    void setTarget(T *t) { m_uid = t ? t->uid() : Uid(); m_target = t; }
 
-    void clear() { m_uid = Uid(); m_target = 0; }
+    void setUid(const Uid &uid)
+    {
+        QMT_CHECK(m_target != 0 ? (m_target->uid() == uid) : true);
+        m_uid = uid;
+    }
+
+    void setTarget(T *t)
+    {
+        m_uid = t ? t->uid() : Uid();
+        m_target = t;
+    }
+
+    void clear()
+    {
+        m_uid = Uid();
+        m_target = 0;
+    }
+
     void clearTarget() { m_target = 0; }
 
 private:

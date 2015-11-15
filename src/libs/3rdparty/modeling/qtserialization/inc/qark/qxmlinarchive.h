@@ -457,7 +457,12 @@ public:
     class ReferenceTag
     {
     public:
-        explicit ReferenceTag(ReferenceKind k = Nullpointer, const QString &string = QLatin1String("")) : kind(k), typeName(string) { }
+        explicit ReferenceTag(ReferenceKind k = Nullpointer,
+                              const QString &string = QLatin1String(""))
+            : kind(k),
+              typeName(string)
+        {
+        }
 
         ReferenceKind kind;
         QString typeName;
@@ -523,7 +528,9 @@ private:
                 return;
             } else {
                 bool foundTag = false;
-                for (Node::ChildrenType::const_iterator it = node->children().begin(); it != node->children().end(); ++it) {
+                for (Node::ChildrenType::const_iterator it = node->children().begin();
+                     it != node->children().end(); ++it)
+                {
                     if ((*it)->qualifiedName() == xmlTag.m_tagName) {
                         foundTag = true;
                         (*it)->accept(*this, xmlTag);
@@ -829,7 +836,8 @@ QXmlInArchive::XmlTag QXmlInArchive::readTag()
                         throw FileFormatException();
                     xmlTag.m_id = impl::ObjectId(id);
                 } else {
-                    xmlTag.m_attributes.insert(attribute.name().toString(), attribute.value().toString());
+                    xmlTag.m_attributes.insert(attribute.name().toString(),
+                                               attribute.value().toString());
                 }
             }
 

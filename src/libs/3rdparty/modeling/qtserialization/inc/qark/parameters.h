@@ -51,7 +51,13 @@ public:
     void setFlag(const Flag &flag) { m_flags |= flag.mask(); }
     void clearFlag(const Flag &flag) { m_flags &= ~flag.mask(); }
     bool hasFlag(const Flag &flag) const { return (m_flags & flag.mask()) != 0; }
-    bool takeFlag(const Flag &flag) { bool f = (m_flags & flag.mask()) != 0; m_flags &= ~flag.mask(); return f; }
+
+    bool takeFlag(const Flag &flag)
+    {
+        bool f = (m_flags & flag.mask()) != 0;
+        m_flags &= ~flag.mask();
+        return f;
+    }
 
 private:
     Flag::MaskType m_flags;

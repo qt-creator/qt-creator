@@ -115,13 +115,15 @@ inline Archive &operator>>(Archive &archive, const Tag &tag)
 }
 
 template<class Archive>
-typename std::enable_if<Archive::outArchive, Archive &>::type operator||(Archive &archive, const Tag &tag)
+typename std::enable_if<Archive::outArchive, Archive &>::type operator||(
+        Archive &archive, const Tag &tag)
 {
     return archive << tag;
 }
 
 template<class Archive>
-typename std::enable_if<Archive::inArchive, Archive &>::type operator||(Archive &archive, const Tag &tag)
+typename std::enable_if<Archive::inArchive, Archive &>::type operator||(
+        Archive &archive, const Tag &tag)
 {
     return archive >> tag;
 }
@@ -141,13 +143,15 @@ inline Archive &operator>>(Archive &archive, const Object<T> &object)
 }
 
 template<class Archive, class T>
-typename std::enable_if<Archive::outArchive, Archive &>::type operator||(Archive &archive, const Object<T> &object)
+typename std::enable_if<Archive::outArchive, Archive &>::type operator||(
+        Archive &archive, const Object<T> &object)
 {
     return archive << object;
 }
 
 template<class Archive, class T>
-typename std::enable_if<Archive::inArchive, Archive &>::type operator||(Archive &archive, const Object<T> &object)
+typename std::enable_if<Archive::inArchive, Archive &>::type operator||(
+        Archive &archive, const Object<T> &object)
 {
     return archive >> object;
 }
@@ -167,13 +171,15 @@ inline Archive &operator>>(Archive &archive, const End &end)
 }
 
 template<class Archive>
-typename std::enable_if<Archive::outArchive, Archive &>::type operator||(Archive &archive, const End &end)
+typename std::enable_if<Archive::outArchive, Archive &>::type operator||(
+        Archive &archive, const End &end)
 {
     return archive << end;
 }
 
 template<class Archive>
-typename std::enable_if<Archive::inArchive, Archive &>::type operator||(Archive &archive, const End &end)
+typename std::enable_if<Archive::inArchive, Archive &>::type operator||(
+        Archive &archive, const End &end)
 {
     return archive >> end;
 }
@@ -195,13 +201,15 @@ Archive &operator>>(Archive &archive, const Base<T, U> &base)
 }
 
 template<class Archive, class T, class U>
-typename std::enable_if<Archive::outArchive, Archive &>::type operator||(Archive &archive, const Base<T, U> &base)
+typename std::enable_if<Archive::outArchive, Archive &>::type operator||(
+        Archive &archive, const Base<T, U> &base)
 {
     return archive << base;
 }
 
 template<class Archive, class T, class U>
-typename std::enable_if<Archive::inArchive, Archive &>::type operator||(Archive &archive, const Base<T, U> &base)
+typename std::enable_if<Archive::inArchive, Archive &>::type operator||(
+        Archive &archive, const Base<T, U> &base)
 {
     return archive >> base;
 }
@@ -223,13 +231,15 @@ Archive &operator>>(Archive &archive, const Attr<T> &attr)
 }
 
 template<class Archive, typename T>
-typename std::enable_if<Archive::outArchive, Archive &>::type operator||(Archive &archive, const Attr<T> &attr)
+typename std::enable_if<Archive::outArchive, Archive &>::type operator||(
+        Archive &archive, const Attr<T> &attr)
 {
     return archive << attr;
 }
 
 template<class Archive, typename T>
-typename std::enable_if<Archive::inArchive, Archive &>::type operator||(Archive &archive, const Attr<T> &attr)
+typename std::enable_if<Archive::inArchive, Archive &>::type operator||(
+        Archive &archive, const Attr<T> &attr)
 {
     return archive >> attr;
 }
@@ -295,13 +305,15 @@ Archive &operator>>(Archive &archive, const GetterSetterAttr<U, T, V> &attr)
 }
 
 template<class Archive, class U, typename T, typename V>
-typename std::enable_if<Archive::outArchive, Archive &>::type operator||(Archive &archive, const GetterSetterAttr<U, T, V> &attr)
+typename std::enable_if<Archive::outArchive, Archive &>::type operator||(
+        Archive &archive, const GetterSetterAttr<U, T, V> &attr)
 {
     return archive << attr;
 }
 
 template<class Archive, class U, typename T, typename V>
-typename std::enable_if<Archive::inArchive, Archive &>::type operator||(Archive &archive, const GetterSetterAttr<U, T, V> &attr)
+typename std::enable_if<Archive::inArchive, Archive &>::type operator||(
+        Archive &archive, const GetterSetterAttr<U, T, V> &attr)
 {
     return archive >> attr;
 }
@@ -339,13 +351,15 @@ Archive &operator>>(Archive &archive, const GetSetFuncAttr<U, T, V> &attr)
 }
 
 template<class Archive, class U, typename T, typename V>
-typename std::enable_if<Archive::outArchive, Archive &>::type operator||(Archive &archive, const GetSetFuncAttr<U, T, V> &attr)
+typename std::enable_if<Archive::outArchive, Archive &>::type operator||(
+        Archive &archive, const GetSetFuncAttr<U, T, V> &attr)
 {
     return archive << attr;
 }
 
 template<class Archive, class U, typename T, typename V>
-typename std::enable_if<Archive::inArchive, Archive &>::type operator||(Archive &archive, const GetSetFuncAttr<U, T, V> &attr)
+typename std::enable_if<Archive::inArchive, Archive &>::type operator||(
+        Archive &archive, const GetSetFuncAttr<U, T, V> &attr)
 {
     return archive >> attr;
 }
@@ -376,7 +390,8 @@ Archive &operator>>(Archive &archive, const Ref<T> &ref)
 }
 
 template<class Archive, typename T>
-typename std::enable_if<Archive::outArchive, Archive &>::type operator||(Archive &archive, const Ref<T *> &ref)
+typename std::enable_if<Archive::outArchive, Archive &>::type operator||(
+        Archive &archive, const Ref<T *> &ref)
 {
     archive.beginReference(ref);
     save(archive, *ref.value(), ref.parameters());
@@ -385,7 +400,8 @@ typename std::enable_if<Archive::outArchive, Archive &>::type operator||(Archive
 }
 
 template<class Archive, typename T>
-typename std::enable_if<Archive::inArchive, Archive &>::type operator||(Archive &archive, const Ref<T> &ref)
+typename std::enable_if<Archive::inArchive, Archive &>::type operator||(
+        Archive &archive, const Ref<T> &ref)
 {
     return archive >> ref;
 }
@@ -423,13 +439,15 @@ Archive &operator>>(Archive &archive, const GetterSetterRef<U, T, V> &ref)
 }
 
 template<class Archive, class U, typename T, typename V>
-typename std::enable_if<Archive::outArchive, Archive &>::type operator||(Archive &archive, const GetterSetterRef<U, T, V> &ref)
+typename std::enable_if<Archive::outArchive, Archive &>::type operator||(
+        Archive &archive, const GetterSetterRef<U, T, V> &ref)
 {
     return archive << ref;
 }
 
 template<class Archive, class U, typename T, typename V>
-typename std::enable_if<Archive::inArchive, Archive &>::type operator||(Archive &archive, const GetterSetterRef<U, T, V> &ref)
+typename std::enable_if<Archive::inArchive, Archive &>::type operator||(
+        Archive &archive, const GetterSetterRef<U, T, V> &ref)
 {
     return archive >> ref;
 }
@@ -467,13 +485,15 @@ Archive &operator>>(Archive &archive, const GetSetFuncRef<U, T, V> &ref)
 }
 
 template<class Archive, class U, typename T, typename V>
-typename std::enable_if<Archive::outArchive, Archive &>::type operator||(Archive &archive, const GetSetFuncRef<U, T, V> &ref)
+typename std::enable_if<Archive::outArchive, Archive &>::type operator||(
+        Archive &archive, const GetSetFuncRef<U, T, V> &ref)
 {
     return archive << ref;
 }
 
 template<class Archive, class U, typename T, typename V>
-typename std::enable_if<Archive::inArchive, Archive &>::type operator||(Archive &archive, const GetSetFuncRef<U, T, V> &ref)
+typename std::enable_if<Archive::inArchive, Archive &>::type operator||(
+        Archive &archive, const GetSetFuncRef<U, T, V> &ref)
 {
     return archive >> ref;
 }

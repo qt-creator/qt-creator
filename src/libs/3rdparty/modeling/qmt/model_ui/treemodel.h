@@ -120,7 +120,9 @@ private:
     void removeObjectFromItemMap(const MObject *object);
     QString createObjectLabel(const MObject *object);
     QString createRelationLabel(const MRelation *relation);
-    QIcon createIcon(StereotypeIcon::Element stereotypeIconElement, StyleEngine::ElementType styleElementType, const QStringList &stereotypes, const QString &defaultIconPath);
+    QIcon createIcon(StereotypeIcon::Element stereotypeIconElement,
+                     StyleEngine::ElementType styleElementType, const QStringList &stereotypes,
+                     const QString &defaultIconPath);
 
     enum Busy {
         NotBusy,

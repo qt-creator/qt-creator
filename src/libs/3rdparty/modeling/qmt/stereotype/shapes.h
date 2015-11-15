@@ -241,7 +241,8 @@ public:
     void moveTo(const ShapePointF &pos);
     void lineTo(const ShapePointF &pos);
     void arcMoveTo(const ShapePointF &center, const ShapeSizeF &radius, qreal angle);
-    void arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal sweepLength);
+    void arcTo(const ShapePointF &center, const ShapeSizeF &radius,
+               qreal startAngle, qreal sweepLength);
     void close();
 
 private:

@@ -70,12 +70,19 @@ public:
 
     virtual ~StyleEngine() { }
 
-    virtual const Style *applyStyle(const Style *baseStyle, ElementType elementType, const Parameters *) = 0;
-    virtual const Style *applyObjectStyle(const Style *baseStyle, ElementType elementType, const ObjectVisuals &objectVisuals, const Parameters *parameters) = 0;
-    virtual const Style *applyObjectStyle(const Style *baseStyle, const StyledObject &, const Parameters *) = 0;
-    virtual const Style *applyRelationStyle(const Style *baseStyle, const StyledRelation &, const Parameters *) = 0;
-    virtual const Style *applyAnnotationStyle(const Style *baseStyle, const DAnnotation *, const Parameters *) = 0;
-    virtual const Style *applyBoundaryStyle(const Style *baseStyle, const DBoundary *, const Parameters *) = 0;
+    virtual const Style *applyStyle(const Style *baseStyle, ElementType elementType,
+                                    const Parameters *) = 0;
+    virtual const Style *applyObjectStyle(const Style *baseStyle, ElementType elementType,
+                                          const ObjectVisuals &objectVisuals,
+                                          const Parameters *parameters) = 0;
+    virtual const Style *applyObjectStyle(const Style *baseStyle, const StyledObject &,
+                                          const Parameters *) = 0;
+    virtual const Style *applyRelationStyle(const Style *baseStyle, const StyledRelation &,
+                                            const Parameters *) = 0;
+    virtual const Style *applyAnnotationStyle(const Style *baseStyle, const DAnnotation *,
+                                              const Parameters *) = 0;
+    virtual const Style *applyBoundaryStyle(const Style *baseStyle, const DBoundary *,
+                                            const Parameters *) = 0;
 };
 
 } // namespace qmt

@@ -72,7 +72,10 @@ private:
 };
 
 bool operator==(const MAssociationEnd &lhs, const MAssociationEnd &rhs);
-inline bool operator!=(const MAssociationEnd &lhs, const MAssociationEnd &rhs) { return !(lhs == rhs); }
+inline bool operator!=(const MAssociationEnd &lhs, const MAssociationEnd &rhs)
+{
+    return !(lhs == rhs);
+}
 
 class QMT_EXPORT MAssociation : public MRelation
 {

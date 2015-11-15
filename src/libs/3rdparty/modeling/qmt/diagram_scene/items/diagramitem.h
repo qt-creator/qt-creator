@@ -42,12 +42,14 @@ class CustomIconItem;
 class DiagramItem : public ObjectItem
 {
 public:
-    explicit DiagramItem(DDiagram *diagram, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    explicit DiagramItem(DDiagram *diagram, DiagramSceneModel *diagramSceneModel,
+                         QGraphicsItem *parent = 0);
     ~DiagramItem();
 
     virtual void update();
 
-    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const;
+    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint,
+                                QLineF *intersectionLine) const;
 
     QSizeF minimumSize() const;
 

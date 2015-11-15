@@ -99,7 +99,8 @@ Base<BASE, DERIVED> base(DERIVED &obj)
 template<class BASE, class DERIVED>
 Base<BASE, DERIVED> base(DERIVED &obj, const Parameters &parameters)
 {
-    return Base<BASE, DERIVED>(QString(QStringLiteral("base-%1")).arg(typeUid<BASE>()), obj, parameters);
+    return Base<BASE, DERIVED>(QString(QStringLiteral("base-%1")).arg(typeUid<BASE>()),
+                               obj, parameters);
 }
 
 } // namespace qark

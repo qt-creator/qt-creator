@@ -57,7 +57,8 @@ public:
 
     void update();
 
-    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const;
+    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint,
+                                QLineF *intersectionLine) const;
 
     QSizeF minimumSize() const;
 
@@ -65,7 +66,8 @@ public:
     QList<Latch> verticalLatches(Action action, bool grabbedItem) const;
 
     QPointF relationStartPos() const;
-    void relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints);
+    void relationDrawn(const QString &id, const QPointF &toScenePos,
+                       const QList<QPointF> &intermediatePoints);
 
 private:
     QSizeF calcMinimumGeometry() const;

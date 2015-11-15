@@ -73,7 +73,8 @@ protected:
 
 private:
     void update();
-    void moveHandle(int pointIndex, const QPointF &deltaMove, HandleStatus handleStatus, HandleQualifier handleQualifier);
+    void moveHandle(int pointIndex, const QPointF &deltaMove, HandleStatus handleStatus,
+                    HandleQualifier handleQualifier);
 
     IWindable *m_windable;
     QSizeF m_pointSize;

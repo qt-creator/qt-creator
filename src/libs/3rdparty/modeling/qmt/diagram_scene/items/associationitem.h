@@ -45,15 +45,20 @@ class DAssociationEnd;
 class AssociationItem : public RelationItem
 {
 public:
-    AssociationItem(DAssociation *association, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    AssociationItem(DAssociation *association, DiagramSceneModel *diagramSceneModel,
+                    QGraphicsItem *parent = 0);
     ~AssociationItem();
 
 protected:
     virtual void update(const Style *style);
 
 private:
-    void updateEndLabels(const DAssociationEnd &end, const DAssociationEnd &otherEnd, QGraphicsSimpleTextItem **endName, QGraphicsSimpleTextItem **endCardinality, const Style *style);
-    void placeEndLabels(const QLineF &lineSegment, QGraphicsItem *endName, QGraphicsItem *endCardinality, QGraphicsItem *endItem, double headLength);
+    void updateEndLabels(const DAssociationEnd &end, const DAssociationEnd &otherEnd,
+                         QGraphicsSimpleTextItem **endName,
+                         QGraphicsSimpleTextItem **endCardinality, const Style *style);
+    void placeEndLabels(const QLineF &lineSegment, QGraphicsItem *endName,
+                        QGraphicsItem *endCardinality,
+                        QGraphicsItem *endItem, double headLength);
 
     DAssociation *m_association;
     QGraphicsSimpleTextItem *m_endAName;

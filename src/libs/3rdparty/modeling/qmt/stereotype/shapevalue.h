@@ -82,7 +82,8 @@ public:
 
     qreal mapTo(qreal origin, qreal size) const;
     qreal mapScaledTo(qreal scaledOrigin, qreal originalSize, qreal actualSize) const;
-    qreal mapScaledTo(qreal scaledOrigin, qreal originalSize, qreal baseSize, qreal actualSize) const;
+    qreal mapScaledTo(qreal scaledOrigin, qreal originalSize, qreal baseSize,
+                      qreal actualSize) const;
 
 private:
     qreal m_value;
@@ -109,8 +110,10 @@ public:
     void setY(const ShapeValueF &y) { m_y = y; }
 
     QPointF mapTo(const QPointF &origin, const QSizeF &size) const;
-    QPointF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &actualSize) const;
-    QPointF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize, const QSizeF &actualSize) const;
+    QPointF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize,
+                        const QSizeF &actualSize) const;
+    QPointF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize,
+                        const QSizeF &baseSize, const QSizeF &actualSize) const;
 
 private:
     ShapeValueF m_x;
@@ -136,8 +139,10 @@ public:
     void setHeight(const ShapeValueF &height) { m_height = height; }
 
     QSizeF mapTo(const QPointF &origin, const QSizeF &size) const;
-    QSizeF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &actualSize) const;
-    QSizeF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize, const QSizeF &actualSize) const;
+    QSizeF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize,
+                       const QSizeF &actualSize) const;
+    QSizeF mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize,
+                       const QSizeF &baseSize, const QSizeF &actualSize) const;
 
 private:
     ShapeValueF m_width;

@@ -123,7 +123,8 @@ public:
     void moveSelectedItems(QGraphicsItem *grabbedItem, const QPointF &delta);
     void alignSelectedItemsPositionOnRaster();
     void onDoubleClickedItem(QGraphicsItem *item);
-    QList<QGraphicsItem *> collectCollidingObjectItems(const QGraphicsItem *item, CollidingMode collidingMode) const;
+    QList<QGraphicsItem *> collectCollidingObjectItems(const QGraphicsItem *item,
+                                                       CollidingMode collidingMode) const;
 
 private:
     void sceneActivated();

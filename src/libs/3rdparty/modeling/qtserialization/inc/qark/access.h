@@ -100,7 +100,10 @@ void serializeHelper(Archive &archive, T &t)
     template<class Archive> \
     class Access<Archive, TYPE> { \
     public: \
-        static inline void save(Archive &archive, const TYPE &t) { serializeHelper(archive, const_cast<TYPE &>(t)); } \
+        static inline void save(Archive &archive, const TYPE &t) \
+        { \
+            serializeHelper(archive, const_cast<TYPE &>(t)); \
+        } \
         static inline void load(Archive &archive, TYPE &t) { serializeHelper(archive, t); } \
         static inline void serialize(Archive &archive, TYPE &); \
     };

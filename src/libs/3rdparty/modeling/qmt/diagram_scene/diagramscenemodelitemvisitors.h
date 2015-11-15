@@ -66,7 +66,8 @@ private:
 class DiagramSceneModel::UpdateVisitor : public DVisitor
 {
 public:
-    UpdateVisitor(QGraphicsItem *item, DiagramSceneModel *diagramSceneModel, DElement *relatedElement = 0);
+    UpdateVisitor(QGraphicsItem *item, DiagramSceneModel *diagramSceneModel,
+                  DElement *relatedElement = 0);
 
     void visitDElement(DElement *element);
     void visitDObject(DObject *object);

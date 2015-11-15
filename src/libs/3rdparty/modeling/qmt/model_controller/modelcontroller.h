@@ -153,8 +153,8 @@ private:
     MReferences simplify(const MSelection &modelSelection);
 
     void verifyModelIntegrity() const;
-    void verifyModelIntegrity(const MObject *object, QHash<Uid, const MObject *> *objectsMap, QHash<Uid,
-                              const MRelation *> *relationsMap,
+    void verifyModelIntegrity(const MObject *object, QHash<Uid, const MObject *> *objectsMap,
+                              QHash<Uid, const MRelation *> *relationsMap,
                               QMultiHash<Uid, MRelation *> *objectRelationsMap) const;
 
     MPackage *m_rootPackage;

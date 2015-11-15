@@ -39,7 +39,8 @@ class ContextMenuAction : public QAction
 {
 public:
     ContextMenuAction(const QString &label, const QString &id, QObject *parent = 0);
-    ContextMenuAction(const QString &label, const QString &id, const QKeySequence &shortcut, QObject *parent = 0);
+    ContextMenuAction(const QString &label, const QString &id, const QKeySequence &shortcut,
+                      QObject *parent = 0);
     ~ContextMenuAction();
 
     QString id() const { return m_id; }

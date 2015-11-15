@@ -42,7 +42,8 @@ class DObject;
 class QMT_EXPORT StyledObject
 {
 public:
-    StyledObject(const DObject *object, const ObjectVisuals &objectVisuals, const QList<const DObject *> &collidingObjects);
+    StyledObject(const DObject *object, const ObjectVisuals &objectVisuals,
+                 const QList<const DObject *> &collidingObjects);
     ~StyledObject();
 
     const DObject *object() const { return m_object; }

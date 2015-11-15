@@ -60,12 +60,14 @@ public:
     void addRoundedRect(const ShapePointF &pos, const ShapeSizeF &size, const ShapeValueF &radius);
     void addCircle(const ShapePointF &center, const ShapeValueF &radius);
     void addEllipse(const ShapePointF &center, const ShapeSizeF &radius);
-    void addArc(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal spanAngle);
+    void addArc(const ShapePointF &center, const ShapeSizeF &radius,
+                qreal startAngle, qreal spanAngle);
 
     void moveTo(const ShapePointF &pos);
     void lineTo(const ShapePointF &pos);
     void arcMoveTo(const ShapePointF &center, const ShapeSizeF &radius, qreal angle);
-    void arcTo(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal sweepLength);
+    void arcTo(const ShapePointF &center, const ShapeSizeF &radius,
+               qreal startAngle, qreal sweepLength);
     void closePath();
 
     void visitShapes(ShapeConstVisitor *visitor) const;
