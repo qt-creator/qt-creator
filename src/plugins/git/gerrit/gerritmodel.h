@@ -71,16 +71,14 @@ public:
 class GerritChange
 {
 public:
-    GerritChange() : number(0), depth(-1) {}
-
     bool isValid() const { return number && !url.isEmpty() && !project.isEmpty(); }
     QString filterString() const;
     QStringList gitFetchArguments(const QSharedPointer<GerritParameters> &p) const;
 
     QString url;
-    int number;
-    int dependsOnNumber;
-    int neededByNumber;
+    int number = 0;
+    int dependsOnNumber = 0;
+    int neededByNumber = 0;
     QString title;
     QString owner;
     QString email;
@@ -89,7 +87,7 @@ public:
     QString status;
     QDateTime lastUpdated;
     GerritPatchSet currentPatchSet;
-    int depth;
+    int depth = -1;
 };
 
 typedef QSharedPointer<GerritChange> GerritChangePtr;
