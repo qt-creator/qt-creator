@@ -83,14 +83,16 @@ QPointF ShapePointF::mapTo(const QPointF &origin, const QSizeF &size) const
     return QPointF(x, y);
 }
 
-QPointF ShapePointF::mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &actualSize) const
+QPointF ShapePointF::mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize,
+                                 const QSizeF &actualSize) const
 {
     qreal x = m_x.mapScaledTo(scaledOrigin.x(), originalSize.width(), actualSize.width());
     qreal y = m_y.mapScaledTo(scaledOrigin.y(), originalSize.height(), actualSize.height());
     return QPointF(x, y);
 }
 
-QPointF ShapePointF::mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize, const QSizeF &actualSize) const
+QPointF ShapePointF::mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize,
+                                 const QSizeF &actualSize) const
 {
     qreal x = m_x.mapScaledTo(scaledOrigin.x(), originalSize.width(), baseSize.width(), actualSize.width());
     qreal y = m_y.mapScaledTo(scaledOrigin.y(), originalSize.height(), baseSize.height(), actualSize.height());
@@ -111,7 +113,8 @@ QSizeF ShapeSizeF::mapScaledTo(const QPointF &scaledOrigin, const QSizeF &origin
     return QSizeF(w, h);
 }
 
-QSizeF ShapeSizeF::mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize, const QSizeF &actualSize) const
+QSizeF ShapeSizeF::mapScaledTo(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize,
+                               const QSizeF &actualSize) const
 {
     qreal w = m_width.mapScaledTo(scaledOrigin.x(), originalSize.width(), baseSize.width(), actualSize.width());
     qreal h = m_height.mapScaledTo(scaledOrigin.y(), originalSize.height(), baseSize.height(), actualSize.height());

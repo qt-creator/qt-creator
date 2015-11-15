@@ -34,7 +34,8 @@
 
 namespace qmt {
 
-ShapePaintVisitor::ShapePaintVisitor(QPainter *painter, const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize, const QSizeF &size)
+ShapePaintVisitor::ShapePaintVisitor(QPainter *painter, const QPointF &scaledOrigin, const QSizeF &originalSize,
+                                     const QSizeF &baseSize, const QSizeF &size)
     : m_painter(painter),
       m_scaledOrigin(scaledOrigin),
       m_originalSize(originalSize),
@@ -145,7 +146,8 @@ void ShapePaintVisitor::visitPath(const PathShape *shapePath)
     m_painter->restore();
 }
 
-ShapeSizeVisitor::ShapeSizeVisitor(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize, const QSizeF &size)
+ShapeSizeVisitor::ShapeSizeVisitor(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize,
+                                   const QSizeF &size)
     : m_scaledOrigin(scaledOrigin),
       m_originalSize(originalSize),
       m_baseSize(baseSize),

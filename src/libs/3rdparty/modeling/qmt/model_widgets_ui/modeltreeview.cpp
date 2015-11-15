@@ -218,7 +218,7 @@ void ModelTreeView::dropEvent(QDropEvent *event)
                         MElement *modelElement = treeModel->modelController()->findElement(Uid(key));
                         if (modelElement) {
                             if (MObject *modelObject = dynamic_cast<MObject*>(modelElement)) {
-                                if (MPackage *targetModelPackage = dynamic_cast<MPackage*>(targetModelObject)) {
+                                if (MPackage *targetModelPackage = dynamic_cast<MPackage *>(targetModelObject)) {
                                     treeModel->modelController()->moveObject(targetModelPackage, modelObject);
                                 } else if ((targetModelPackage = dynamic_cast<MPackage *>(targetModelObject->owner()))) {
                                     treeModel->modelController()->moveObject(targetModelPackage, modelObject);
@@ -267,7 +267,8 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
         if (melement->owner()) {
             if (addSeparator)
                 menu.addSeparator();
-            menu.addAction(new ContextMenuAction(tr("Delete"), QStringLiteral("delete"), QKeySequence(Qt::CTRL + Qt::Key_D), &menu));
+            menu.addAction(new ContextMenuAction(tr("Delete"), QStringLiteral("delete"),
+                                                 QKeySequence(Qt::CTRL + Qt::Key_D), &menu));
         }
         QAction *selectedAction = menu.exec(event->globalPos());
         if (selectedAction) {

@@ -78,7 +78,8 @@ void RelationStarter::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     painter->restore();
 }
 
-void RelationStarter::addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowItem::Head endHead, ArrowItem::Head startHead)
+void RelationStarter::addArrow(const QString &id, ArrowItem::Shaft shaft,
+                               ArrowItem::Head endHead, ArrowItem::Head startHead)
 {
     QMT_CHECK(!id.isEmpty());
     prepareGeometryChange();
@@ -126,7 +127,8 @@ void RelationStarter::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 void RelationStarter::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (m_currentPreviewArrow) {
-        m_owner->relationDrawn(m_currentPreviewArrowId, mapToScene(event->pos()), m_currentPreviewArrowIntermediatePoints);
+        m_owner->relationDrawn(m_currentPreviewArrowId, mapToScene(event->pos()),
+                               m_currentPreviewArrowIntermediatePoints);
         m_currentPreviewArrow->scene()->removeItem(m_currentPreviewArrow);
         delete m_currentPreviewArrow;
         m_currentPreviewArrow = 0;

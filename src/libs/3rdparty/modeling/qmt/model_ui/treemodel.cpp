@@ -110,7 +110,8 @@ public:
     {
         QMT_CHECK(!m_item);
 
-        QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementClass, StyleEngine::TypeClass, klass->stereotypes(), QStringLiteral(":/modelinglib/48x48/class.png"));
+        QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementClass, StyleEngine::TypeClass, klass->stereotypes(),
+                                             QStringLiteral(":/modelinglib/48x48/class.png"));
         m_item = new ModelItem(icon, m_treeModel->createObjectLabel(klass));
         m_item->setData(TreeModel::Element, TreeModel::RoleItemType);
         m_item->setStereotypes(klass->stereotypes());
@@ -121,7 +122,9 @@ public:
     {
         QMT_CHECK(!m_item);
 
-        QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementComponent, StyleEngine::TypeComponent, component->stereotypes(), QStringLiteral(":/modelinglib/48x48/component.png"));
+        QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementComponent, StyleEngine::TypeComponent,
+                                             component->stereotypes(),
+                                             QStringLiteral(":/modelinglib/48x48/component.png"));
         m_item = new ModelItem(icon, m_treeModel->createObjectLabel(component));
         m_item->setData(TreeModel::Element, TreeModel::RoleItemType);
         m_item->setStereotypes(component->stereotypes());
@@ -148,7 +151,8 @@ public:
         QMT_CHECK(!m_item);
 
         QList<QString> stereotypes = item->stereotypes() << item->variety();
-        QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementItem, StyleEngine::TypeItem, stereotypes, QStringLiteral(":/modelinglib/48x48/item.png"));
+        QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementItem, StyleEngine::TypeItem, stereotypes,
+                                             QStringLiteral(":/modelinglib/48x48/item.png"));
         m_item = new ModelItem(icon, m_treeModel->createObjectLabel(item));
         m_item->setData(TreeModel::Element, TreeModel::RoleItemType);
         m_item->setStereotypes(stereotypes);
@@ -225,7 +229,8 @@ public:
     void visitMClass(const MClass *klass)
     {
         if (klass->stereotypes() != m_item->stereotypes()) {
-            QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementClass, StyleEngine::TypeClass, klass->stereotypes(), QStringLiteral(":/modelinglib/48x48/class.png"));
+            QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementClass, StyleEngine::TypeClass,
+                                                 klass->stereotypes(), QStringLiteral(":/modelinglib/48x48/class.png"));
             m_item->setIcon(icon);
             m_item->setStereotypes(klass->stereotypes());
         }
@@ -235,7 +240,9 @@ public:
     void visitMComponent(const MComponent *component)
     {
         if (component->stereotypes() != m_item->stereotypes()) {
-            QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementComponent, StyleEngine::TypeComponent, component->stereotypes(), QStringLiteral(":/modelinglib/48x48/component.png"));
+            QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementComponent, StyleEngine::TypeComponent,
+                                                 component->stereotypes(),
+                                                 QStringLiteral(":/modelinglib/48x48/component.png"));
             m_item->setIcon(icon);
             m_item->setStereotypes(component->stereotypes());
         }
@@ -256,7 +263,8 @@ public:
     {
         QList<QString> stereotypes = item->stereotypes() << item->variety();
         if (stereotypes != m_item->stereotypes()) {
-            QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementItem, StyleEngine::TypeItem, stereotypes, QStringLiteral(":/modelinglib/48x48/item.png"));
+            QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementItem, StyleEngine::TypeItem, stereotypes,
+                                                 QStringLiteral(":/modelinglib/48x48/item.png"));
             m_item->setIcon(icon);
             m_item->setStereotypes(stereotypes);
         }
@@ -313,7 +321,8 @@ TreeModel::TreeModel(QObject *parent)
       m_rootItem(0),
       m_busyState(NotBusy)
 {
-    connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onModelDataChanged(QModelIndex,QModelIndex)));
+    connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(onModelDataChanged(QModelIndex,QModelIndex)));
 }
 
 TreeModel::~TreeModel()
@@ -333,25 +342,42 @@ void TreeModel::setModelController(ModelController *modelController)
             connect(m_modelController, SIGNAL(beginResetModel()), this, SLOT(onBeginResetModel()));
             connect(m_modelController, SIGNAL(endResetModel()), this, SLOT(onEndResetModel()));
 
-            connect(m_modelController, SIGNAL(beginInsertObject(int,const MObject*)), this, SLOT(onBeginInsertObject(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endInsertObject(int,const MObject*)), this, SLOT(onEndInsertObject(int,const MObject*)));
-            connect(m_modelController, SIGNAL(beginUpdateObject(int,const MObject*)), this, SLOT(onBeginUpdateObject(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endUpdateObject(int,const MObject*)), this, SLOT(onEndUpdateObject(int,const MObject*)));
-            connect(m_modelController, SIGNAL(beginRemoveObject(int,const MObject*)), this, SLOT(onBeginRemoveObject(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endRemoveObject(int,const MObject*)), this, SLOT(onEndRemoveObject(int,const MObject*)));
-            connect(m_modelController, SIGNAL(beginMoveObject(int,const MObject*)), this, SLOT(onBeginMoveObject(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endMoveObject(int,const MObject*)), this, SLOT(onEndMoveObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginInsertObject(int,const MObject*)),
+                    this, SLOT(onBeginInsertObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endInsertObject(int,const MObject*)),
+                    this, SLOT(onEndInsertObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginUpdateObject(int,const MObject*)),
+                    this, SLOT(onBeginUpdateObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endUpdateObject(int,const MObject*)),
+                    this, SLOT(onEndUpdateObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginRemoveObject(int,const MObject*)),
+                    this, SLOT(onBeginRemoveObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endRemoveObject(int,const MObject*)),
+                    this, SLOT(onEndRemoveObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginMoveObject(int,const MObject*)),
+                    this, SLOT(onBeginMoveObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endMoveObject(int,const MObject*)),
+                    this, SLOT(onEndMoveObject(int,const MObject*)));
 
-            connect(m_modelController, SIGNAL(beginInsertRelation(int,const MObject*)), this, SLOT(onBeginInsertRelation(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endInsertRelation(int,const MObject*)), this, SLOT(onEndInsertRelation(int,const MObject*)));
-            connect(m_modelController, SIGNAL(beginUpdateRelation(int,const MObject*)), this, SLOT(onBeginUpdateRelation(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endUpdateRelation(int,const MObject*)), this, SLOT(onEndUpdateRelation(int,const MObject*)));
-            connect(m_modelController, SIGNAL(beginRemoveRelation(int,const MObject*)), this, SLOT(onBeginRemoveRelation(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endRemoveRelation(int,const MObject*)), this, SLOT(onEndRemoveRelation(int,const MObject*)));
-            connect(m_modelController, SIGNAL(beginMoveRelation(int,const MObject*)), this, SLOT(onBeginMoveRelation(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endMoveRelation(int,const MObject*)), this, SLOT(onEndMoveRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginInsertRelation(int,const MObject*)),
+                    this, SLOT(onBeginInsertRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endInsertRelation(int,const MObject*)),
+                    this, SLOT(onEndInsertRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginUpdateRelation(int,const MObject*)),
+                    this, SLOT(onBeginUpdateRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endUpdateRelation(int,const MObject*)),
+                    this, SLOT(onEndUpdateRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginRemoveRelation(int,const MObject*)),
+                    this, SLOT(onBeginRemoveRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endRemoveRelation(int,const MObject*)),
+                    this, SLOT(onEndRemoveRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginMoveRelation(int,const MObject*)),
+                    this, SLOT(onBeginMoveRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endMoveRelation(int,const MObject*)),
+                    this, SLOT(onEndMoveRelation(int,const MObject*)));
 
-            connect(m_modelController, SIGNAL(relationEndChanged(MRelation*,MObject*)), this, SLOT(onRelationEndChanged(MRelation*,MObject*)));
+            connect(m_modelController, SIGNAL(relationEndChanged(MRelation*,MObject*)),
+                    this, SLOT(onRelationEndChanged(MRelation*,MObject*)));
         }
     }
 }
@@ -789,7 +815,8 @@ QString TreeModel::createRelationLabel(const MRelation *relation)
     return name;
 }
 
-QIcon TreeModel::createIcon(StereotypeIcon::Element stereotypeIconElement, StyleEngine::ElementType styleElementType, const QStringList &stereotypes, const QString &defaultIconPath)
+QIcon TreeModel::createIcon(StereotypeIcon::Element stereotypeIconElement, StyleEngine::ElementType styleElementType,
+                            const QStringList &stereotypes, const QString &defaultIconPath)
 {
     const Style *style = m_styleController->adaptStyle(styleElementType);
     return m_stereotypeController->createIcon(stereotypeIconElement, stereotypes, defaultIconPath, style,

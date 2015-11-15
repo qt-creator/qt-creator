@@ -139,14 +139,22 @@ void DiagramSceneModel::setDiagramController(DiagramController *diagramControlle
     if (diagramController) {
         connect(m_diagramController, SIGNAL(beginResetAllDiagrams()), this, SLOT(onBeginResetAllDiagrams()));
         connect(m_diagramController, SIGNAL(endResetAllDiagrams()), this, SLOT(onEndResetAllDiagrams()));
-        connect(m_diagramController, SIGNAL(beginResetDiagram(const MDiagram*)), this, SLOT(onBeginResetDiagram(const MDiagram*)));
-        connect(m_diagramController, SIGNAL(endResetDiagram(const MDiagram*)), this, SLOT(onEndResetDiagram(const MDiagram*)));
-        connect(m_diagramController, SIGNAL(beginUpdateElement(int,const MDiagram*)), this, SLOT(onBeginUpdateElement(int,const MDiagram*)));
-        connect(m_diagramController, SIGNAL(endUpdateElement(int,const MDiagram*)), this, SLOT(onEndUpdateElement(int,const MDiagram*)));
-        connect(m_diagramController, SIGNAL(beginInsertElement(int,const MDiagram*)), this, SLOT(onBeginInsertElement(int,const MDiagram*)));
-        connect(m_diagramController, SIGNAL(endInsertElement(int,const MDiagram*)), this, SLOT(onEndInsertElement(int,const MDiagram*)));
-        connect(m_diagramController, SIGNAL(beginRemoveElement(int,const MDiagram*)), this, SLOT(onBeginRemoveElement(int,const MDiagram*)));
-        connect(m_diagramController, SIGNAL(endRemoveElement(int,const MDiagram*)), this, SLOT(onEndRemoveElement(int,const MDiagram*)));
+        connect(m_diagramController, SIGNAL(beginResetDiagram(const MDiagram*)),
+                this, SLOT(onBeginResetDiagram(const MDiagram*)));
+        connect(m_diagramController, SIGNAL(endResetDiagram(const MDiagram*)),
+                this, SLOT(onEndResetDiagram(const MDiagram*)));
+        connect(m_diagramController, SIGNAL(beginUpdateElement(int,const MDiagram*)),
+                this, SLOT(onBeginUpdateElement(int,const MDiagram*)));
+        connect(m_diagramController, SIGNAL(endUpdateElement(int,const MDiagram*)),
+                this, SLOT(onEndUpdateElement(int,const MDiagram*)));
+        connect(m_diagramController, SIGNAL(beginInsertElement(int,const MDiagram*)),
+                this, SLOT(onBeginInsertElement(int,const MDiagram*)));
+        connect(m_diagramController, SIGNAL(endInsertElement(int,const MDiagram*)),
+                this, SLOT(onEndInsertElement(int,const MDiagram*)));
+        connect(m_diagramController, SIGNAL(beginRemoveElement(int,const MDiagram*)),
+                this, SLOT(onBeginRemoveElement(int,const MDiagram*)));
+        connect(m_diagramController, SIGNAL(endRemoveElement(int,const MDiagram*)),
+                this, SLOT(onEndRemoveElement(int,const MDiagram*)));
     }
 }
 
@@ -299,7 +307,8 @@ void DiagramSceneModel::copyToClipboard()
         painter.setRenderHint(QPainter::Antialiasing);
         m_graphicsScene->render(&painter,
                                 QRectF(border, border,
-                                       painter.device()->width() - 2 * border, painter.device()->height() - 2 * border),
+                                       painter.device()->width() - 2 * border,
+                                       painter.device()->height() - 2 * border),
                                 sceneBoundingRect);
         painter.end();
         mimeData->setImageData(image);
@@ -326,7 +335,8 @@ void DiagramSceneModel::copyToClipboard()
         pdfPainter.begin(&pdfWriter);
         m_graphicsScene->render(&pdfPainter,
                                 QRectF(border, border,
-                                       pdfPainter.device()->width() - 2 * border, pdfPainter.device()->height() - 2 * border),
+                                       pdfPainter.device()->width() - 2 * border,
+                                       pdfPainter.device()->height() - 2 * border),
                                 sceneBoundingRect);
         pdfPainter.end();
         pdfBuffer.close();
@@ -347,7 +357,8 @@ void DiagramSceneModel::copyToClipboard()
         svgPainter.setRenderHint(QPainter::Antialiasing);
         m_graphicsScene->render(&svgPainter,
                                 QRectF(border, border,
-                                       painter.device()->width() - 2 * border, painter.device()->height() - 2 * border),
+                                       painter.device()->width() - 2 * border,
+                                       painter.device()->height() - 2 * border),
                                 sceneBoundingRect);
         svgPainter.end();
         mimeData->setData(QStringLiteral("image/svg+xml"), svgBuffer.buffer());
@@ -385,7 +396,8 @@ bool DiagramSceneModel::exportPng(const QString &fileName)
     painter.setRenderHint(QPainter::Antialiasing);
     m_graphicsScene->render(&painter,
                             QRectF(border, border,
-                                   painter.device()->width() - 2 * border, painter.device()->height() - 2 * border),
+                                   painter.device()->width() - 2 * border,
+                                   painter.device()->height() - 2 * border),
                             sceneBoundingRect);
     painter.end();
 
@@ -417,7 +429,8 @@ void DiagramSceneModel::exportPdf(const QString &fileName)
     pdfPainter.begin(&pdfWriter);
     m_graphicsScene->render(&pdfPainter,
                             QRectF(border, border,
-                                   pdfPainter.device()->width() - 2 * border, pdfPainter.device()->height() - 2 * border),
+                                   pdfPainter.device()->width() - 2 * border,
+                                   pdfPainter.device()->height() - 2 * border),
                             sceneBoundingRect);
     pdfPainter.end();
 
@@ -474,7 +487,8 @@ void DiagramSceneModel::onDoubleClickedItem(QGraphicsItem *item)
         m_diagramSceneController->elementTasks()->openElement(element, m_diagram);
 }
 
-QList<QGraphicsItem *> DiagramSceneModel::collectCollidingObjectItems(const QGraphicsItem *item, CollidingMode collidingMode) const
+QList<QGraphicsItem *> DiagramSceneModel::collectCollidingObjectItems(const QGraphicsItem *item,
+                                                                      CollidingMode collidingMode) const
 {
     QList<QGraphicsItem *> collidingItems;
 

@@ -43,8 +43,10 @@ SortedTreeModel::SortedTreeModel(QObject *parent)
     m_delayedSortTimer.setSingleShot(true);
     connect(&m_delayedSortTimer, SIGNAL(timeout()), this, SLOT(onDelayedSortTimeout()));
 
-    connect(this, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onTreeModelRowsInserted(QModelIndex,int,int)));
-    connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), this, SLOT(onDataChanged(QModelIndex,QModelIndex,QVector<int>)));
+    connect(this, SIGNAL(rowsInserted(QModelIndex,int,int)),
+            this, SLOT(onTreeModelRowsInserted(QModelIndex,int,int)));
+    connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+            this, SLOT(onDataChanged(QModelIndex,QModelIndex,QVector<int>)));
 }
 
 SortedTreeModel::~SortedTreeModel()
@@ -60,8 +62,8 @@ void SortedTreeModel::setTreeModel(TreeModel *treeModel)
 
 bool SortedTreeModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    TreeModel::ItemType leftItemType = (TreeModel::ItemType) sourceModel()->data(left, TreeModel::RoleItemType).toInt();
-    TreeModel::ItemType rightItemType = (TreeModel::ItemType) sourceModel()->data(right, TreeModel::RoleItemType).toInt();
+    TreeModel::ItemType leftItemType = TreeModel::ItemType(sourceModel()->data(left, TreeModel::RoleItemType).toInt());
+    TreeModel::ItemType rightItemType = TreeModel::ItemType(sourceModel()->data(right, TreeModel::RoleItemType).toInt());
     if (leftItemType < rightItemType) {
         return true;
     } else if (leftItemType > rightItemType) {

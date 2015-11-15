@@ -154,7 +154,8 @@ QSizeF AnnotationItem::minimumSize() const
     return calcMinimumGeometry();
 }
 
-void AnnotationItem::setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta)
+void AnnotationItem::setPosAndRect(const QPointF &originalPos, const QRectF &originalRect,
+                                   const QPointF &topLeftDelta, const QPointF &bottomRightDelta)
 {
     QPointF newPos = originalPos;
     QRectF newRect = originalRect;
@@ -169,7 +170,8 @@ void AnnotationItem::setPosAndRect(const QPointF &originalPos, const QRectF &ori
     }
 }
 
-void AnnotationItem::alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide, double rasterWidth, double rasterHeight)
+void AnnotationItem::alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide,
+                                           double rasterWidth, double rasterHeight)
 {
     Q_UNUSED(adjustHorizontalSide);
     Q_UNUSED(adjustVerticalSide);

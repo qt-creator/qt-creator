@@ -173,14 +173,19 @@ void TextScanner::skipWhitespaces()
             if (secondSourceChar.ch == QLatin1Char('/')) {
                 for (;;) {
                     SourceChar commentChar = readChar();
-                    if (commentChar.ch.isNull() || commentChar.ch == QChar::LineFeed || commentChar.ch == QChar::CarriageReturn)
+                    if (commentChar.ch.isNull()
+                            || commentChar.ch == QChar::LineFeed
+                            || commentChar.ch == QChar::CarriageReturn) {
                         break;
+                    }
                 }
             } else {
                 unreadChar(secondSourceChar);
                 unreadChar(sourceChar);
             }
-        } else if (sourceChar.ch == QChar::LineFeed || sourceChar.ch == QChar::CarriageReturn || !sourceChar.ch.isSpace()) {
+        } else if (sourceChar.ch == QChar::LineFeed
+                   || sourceChar.ch == QChar::CarriageReturn
+                   || !sourceChar.ch.isSpace()) {
             unreadChar(sourceChar);
             return;
         }

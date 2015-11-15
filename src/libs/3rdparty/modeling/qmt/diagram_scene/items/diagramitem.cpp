@@ -158,8 +158,10 @@ QSizeF DiagramItem::calcMinimumGeometry() const
     double width = MINIMUM_WIDTH;
     double height = 0.0;
 
-    if (m_customIcon)
-        return stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
+    if (m_customIcon) {
+        return stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(),
+                                         CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
+    }
 
     height += BODY_VERT_BORDER;
     if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {

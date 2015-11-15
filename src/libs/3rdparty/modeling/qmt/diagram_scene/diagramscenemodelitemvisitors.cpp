@@ -139,7 +139,8 @@ void DiagramSceneModel::CreationVisitor::visitDBoundary(DBoundary *boundary)
     m_graphicsItem = new BoundaryItem(boundary, m_diagramSceneModel);
 }
 
-DiagramSceneModel::UpdateVisitor::UpdateVisitor(QGraphicsItem *item, DiagramSceneModel *diagramSceneModel, DElement *relatedElement)
+DiagramSceneModel::UpdateVisitor::UpdateVisitor(QGraphicsItem *item, DiagramSceneModel *diagramSceneModel,
+                                                DElement *relatedElement)
     : m_graphicsItem(item),
       m_diagramSceneModel(diagramSceneModel),
       m_relatedElement(relatedElement)
@@ -241,7 +242,9 @@ void DiagramSceneModel::UpdateVisitor::visitDRelation(DRelation *relation)
 {
     QMT_CHECK(m_graphicsItem);
 
-    if (m_relatedElement == 0 || m_relatedElement->uid() == relation->endAUid() || m_relatedElement->uid() == relation->endBUid()) {
+    if (m_relatedElement == 0
+            || m_relatedElement->uid() == relation->endAUid()
+            || m_relatedElement->uid() == relation->endBUid()) {
         RelationItem *relationItem = qgraphicsitem_cast<RelationItem *>(m_graphicsItem);
         QMT_CHECK(relationItem);
         QMT_CHECK(relationItem->relation() == relation);

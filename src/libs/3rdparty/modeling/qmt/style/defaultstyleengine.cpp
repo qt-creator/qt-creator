@@ -157,7 +157,8 @@ DefaultStyleEngine::~DefaultStyleEngine()
     qDeleteAll(m_boundaryStyleMap);
 }
 
-const Style *DefaultStyleEngine::applyStyle(const Style *baseStyle, StyleEngine::ElementType elementType, const StyleEngine::Parameters *parameters)
+const Style *DefaultStyleEngine::applyStyle(const Style *baseStyle, StyleEngine::ElementType elementType,
+                                            const StyleEngine::Parameters *parameters)
 {
     switch (elementType) {
     case TypeAnnotation:
@@ -170,14 +171,19 @@ const Style *DefaultStyleEngine::applyStyle(const Style *baseStyle, StyleEngine:
     case TypeComponent:
     case TypeItem:
     case TypePackage:
-        return applyObjectStyle(baseStyle, elementType, ObjectVisuals(DObject::PrimaryRoleNormal, DObject::SecondaryRoleNone, false, QColor(), 0), parameters);
+        return applyObjectStyle(
+                    baseStyle, elementType,
+                    ObjectVisuals(DObject::PrimaryRoleNormal, DObject::SecondaryRoleNone, false, QColor(), 0),
+                    parameters);
     case TypeOther:
         break;
     }
     return baseStyle;
 }
 
-const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, StyleEngine::ElementType elementType, const ObjectVisuals &objectVisuals, const StyleEngine::Parameters *parameters)
+const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, StyleEngine::ElementType elementType,
+                                                  const ObjectVisuals &objectVisuals,
+                                                  const StyleEngine::Parameters *parameters)
 {
     ObjectStyleKey key(elementType, objectVisuals);
     const Style *derivedStyle = m_objectStyleMap.value(key);
@@ -231,7 +237,8 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, StyleE
     return derivedStyle;
 }
 
-const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const StyledObject &styledObject, const Parameters *parameters)
+const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const StyledObject &styledObject,
+                                                  const Parameters *parameters)
 {
     ElementType elementType = objectType(styledObject.object());
 
@@ -245,7 +252,8 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
         {
         }
 
-        DepthProperties(ElementType elementType, DObject::VisualPrimaryRole visualPrimaryRole, DObject::VisualSecondaryRole visualSecondaryRole)
+        DepthProperties(ElementType elementType, DObject::VisualPrimaryRole visualPrimaryRole,
+                        DObject::VisualSecondaryRole visualSecondaryRole)
             : m_elementType(elementType),
               m_visualPrimaryRole(visualPrimaryRole),
               m_visualSecondaryRole(visualSecondaryRole)
@@ -268,7 +276,8 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
             DObject::VisualPrimaryRole collidingVisualPrimaryRole = collidingObject->visualPrimaryRole();
             DObject::VisualSecondaryRole collidingVisualSecondaryRole = collidingObject->visualSecondaryRole();
             if (!depths.contains(collidingDepth)) {
-                depths.insert(collidingDepth, DepthProperties(collidingElementType, collidingVisualPrimaryRole, collidingVisualSecondaryRole));
+                depths.insert(collidingDepth, DepthProperties(collidingElementType, collidingVisualPrimaryRole,
+                                                              collidingVisualSecondaryRole));
             } else {
                 bool updateProperties = false;
                 DepthProperties properties = depths.value(collidingDepth);
@@ -278,8 +287,10 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
                     properties.m_visualSecondaryRole = collidingVisualSecondaryRole;
                     updateProperties = true;
                 } else if (properties.m_elementType == elementType && collidingElementType == elementType) {
-                    if ((properties.m_visualPrimaryRole != styledVisualPrimaryRole || properties.m_visualSecondaryRole != styledVisualSecondaryRole)
-                            && collidingVisualPrimaryRole == styledVisualPrimaryRole && collidingVisualSecondaryRole == styledVisualSecondaryRole) {
+                    if ((properties.m_visualPrimaryRole != styledVisualPrimaryRole
+                         || properties.m_visualSecondaryRole != styledVisualSecondaryRole)
+                            && collidingVisualPrimaryRole == styledVisualPrimaryRole
+                            && collidingVisualSecondaryRole == styledVisualSecondaryRole) {
                         properties.m_visualPrimaryRole = collidingVisualPrimaryRole;
                         properties.m_visualSecondaryRole = collidingVisualSecondaryRole;
                         updateProperties = true;
@@ -296,10 +307,13 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
         qSort(keys);
         foreach (int d, keys) {
             DepthProperties properties = depths.value(d);
-            if (properties.m_elementType == elementType && areStackingRoles(properties.m_visualPrimaryRole, properties.m_visualSecondaryRole, styledVisualPrimaryRole, styledVisualSecondaryRole))
+            if (properties.m_elementType == elementType
+                    && areStackingRoles(properties.m_visualPrimaryRole, properties.m_visualSecondaryRole,
+                                        styledVisualPrimaryRole, styledVisualSecondaryRole)) {
                 ++depth;
-            else
+            } else {
                 depth = 0;
+            }
         }
     }
 
@@ -312,7 +326,8 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
                             parameters);
 }
 
-const Style *DefaultStyleEngine::applyRelationStyle(const Style *baseStyle, const StyledRelation &styledRelation, const Parameters *parameters)
+const Style *DefaultStyleEngine::applyRelationStyle(const Style *baseStyle, const StyledRelation &styledRelation,
+                                                    const Parameters *parameters)
 {
     Q_UNUSED(parameters);
 
@@ -351,20 +366,23 @@ const Style *DefaultStyleEngine::applyRelationStyle(const Style *baseStyle, cons
     return derivedStyle;
 }
 
-const Style *DefaultStyleEngine::applyAnnotationStyle(const Style *baseStyle, const DAnnotation *annotation, const Parameters *parameters)
+const Style *DefaultStyleEngine::applyAnnotationStyle(const Style *baseStyle, const DAnnotation *annotation,
+                                                      const Parameters *parameters)
 {
     DAnnotation::VisualRole visualRole = annotation ? annotation->visualRole() : DAnnotation::RoleNormal;
     return applyAnnotationStyle(baseStyle, visualRole, parameters);
 }
 
-const Style *DefaultStyleEngine::applyBoundaryStyle(const Style *baseStyle, const DBoundary *boundary, const Parameters *parameters)
+const Style *DefaultStyleEngine::applyBoundaryStyle(const Style *baseStyle, const DBoundary *boundary,
+                                                    const Parameters *parameters)
 {
     Q_UNUSED(boundary);
 
     return applyBoundaryStyle(baseStyle, parameters);
 }
 
-const Style *DefaultStyleEngine::applyAnnotationStyle(const Style *baseStyle, DAnnotation::VisualRole visualRole, const StyleEngine::Parameters *parameters)
+const Style *DefaultStyleEngine::applyAnnotationStyle(const Style *baseStyle, DAnnotation::VisualRole visualRole,
+                                                      const StyleEngine::Parameters *parameters)
 {
     Q_UNUSED(parameters);
 
@@ -437,8 +455,10 @@ DefaultStyleEngine::ElementType DefaultStyleEngine::objectType(const DObject *ob
     return elementType;
 }
 
-bool DefaultStyleEngine::areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryRole, DObject::VisualSecondaryRole rhsSecondaryRole,
-                                          DObject::VisualPrimaryRole lhsPrimaryRole, DObject::VisualSecondaryRole lhsSecondaryRols)
+bool DefaultStyleEngine::areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryRole,
+                                          DObject::VisualSecondaryRole rhsSecondaryRole,
+                                          DObject::VisualPrimaryRole lhsPrimaryRole,
+                                          DObject::VisualSecondaryRole lhsSecondaryRols)
 {
     switch (rhsSecondaryRole) {
     case DObject::SecondaryRoleNone:

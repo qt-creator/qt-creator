@@ -123,7 +123,8 @@ public:
             return false;
         if (diagramKey() != otherUpdateCommand->diagramKey())
             return false;
-        if (m_updateAction == DiagramController::UpdateMajor || otherUpdateCommand->m_updateAction == DiagramController::UpdateMajor
+        if (m_updateAction == DiagramController::UpdateMajor
+                || otherUpdateCommand->m_updateAction == DiagramController::UpdateMajor
                 || m_updateAction != otherUpdateCommand->m_updateAction) {
             return false;
         }
@@ -352,21 +353,35 @@ void DiagramController::setModelController(ModelController *modelController)
         connect(modelController, SIGNAL(beginResetModel()), this, SLOT(onBeginResetModel()));
         connect(modelController, SIGNAL(endResetModel()), this, SLOT(onEndResetModel()));
 
-        connect(modelController, SIGNAL(beginUpdateObject(int,const MObject*)), this, SLOT(onBeginUpdateObject(int,const MObject*)));
-        connect(modelController, SIGNAL(endUpdateObject(int,const MObject*)), this, SLOT(onEndUpdateObject(int,const MObject*)));
-        connect(modelController, SIGNAL(beginInsertObject(int,const MObject*)), this, SLOT(onBeginInsertObject(int,const MObject*)));
-        connect(modelController, SIGNAL(endInsertObject(int,const MObject*)), this, SLOT(onEndInsertObject(int,const MObject*)));
-        connect(modelController, SIGNAL(beginRemoveObject(int,const MObject*)), this, SLOT(onBeginRemoveObject(int,const MObject*)));
-        connect(modelController, SIGNAL(endRemoveObject(int,const MObject*)), this, SLOT(onEndRemoveObject(int,const MObject*)));
-        connect(modelController, SIGNAL(beginMoveObject(int,const MObject*)), this, SLOT(onBeginMoveObject(int,const MObject*)));
-        connect(modelController, SIGNAL(endMoveObject(int,const MObject*)), this, SLOT(onEndMoveObject(int,const MObject*)));
+        connect(modelController, SIGNAL(beginUpdateObject(int,const MObject*)),
+                this, SLOT(onBeginUpdateObject(int,const MObject*)));
+        connect(modelController, SIGNAL(endUpdateObject(int,const MObject*)),
+                this, SLOT(onEndUpdateObject(int,const MObject*)));
+        connect(modelController, SIGNAL(beginInsertObject(int,const MObject*)),
+                this, SLOT(onBeginInsertObject(int,const MObject*)));
+        connect(modelController, SIGNAL(endInsertObject(int,const MObject*)),
+                this, SLOT(onEndInsertObject(int,const MObject*)));
+        connect(modelController, SIGNAL(beginRemoveObject(int,const MObject*)),
+                this, SLOT(onBeginRemoveObject(int,const MObject*)));
+        connect(modelController, SIGNAL(endRemoveObject(int,const MObject*)),
+                this, SLOT(onEndRemoveObject(int,const MObject*)));
+        connect(modelController, SIGNAL(beginMoveObject(int,const MObject*)),
+                this, SLOT(onBeginMoveObject(int,const MObject*)));
+        connect(modelController, SIGNAL(endMoveObject(int,const MObject*)),
+                this, SLOT(onEndMoveObject(int,const MObject*)));
 
-        connect(modelController, SIGNAL(beginUpdateRelation(int,const MObject*)), this, SLOT(onBeginUpdateRelation(int,const MObject*)));
-        connect(modelController, SIGNAL(endUpdateRelation(int,const MObject*)), this, SLOT(onEndUpdateRelation(int,const MObject*)));
-        connect(modelController, SIGNAL(beginRemoveRelation(int,const MObject*)), this, SLOT(onBeginRemoveRelation(int,const MObject*)));
-        connect(modelController, SIGNAL(endRemoveRelation(int,const MObject*)), this, SLOT(onEndRemoveRelation(int,const MObject*)));
-        connect(modelController, SIGNAL(beginMoveRelation(int,const MObject*)), this, SLOT(onBeginMoveRelation(int,const MObject*)));
-        connect(modelController, SIGNAL(endMoveRelation(int,const MObject*)), this, SLOT(onEndMoveRelation(int,const MObject*)));
+        connect(modelController, SIGNAL(beginUpdateRelation(int,const MObject*)),
+                this, SLOT(onBeginUpdateRelation(int,const MObject*)));
+        connect(modelController, SIGNAL(endUpdateRelation(int,const MObject*)),
+                this, SLOT(onEndUpdateRelation(int,const MObject*)));
+        connect(modelController, SIGNAL(beginRemoveRelation(int,const MObject*)),
+                this, SLOT(onBeginRemoveRelation(int,const MObject*)));
+        connect(modelController, SIGNAL(endRemoveRelation(int,const MObject*)),
+                this, SLOT(onEndRemoveRelation(int,const MObject*)));
+        connect(modelController, SIGNAL(beginMoveRelation(int,const MObject*)),
+                this, SLOT(onBeginMoveRelation(int,const MObject*)));
+        connect(modelController, SIGNAL(endMoveRelation(int,const MObject*)),
+                this, SLOT(onEndMoveRelation(int,const MObject*)));
     }
 }
 
@@ -697,7 +712,8 @@ void DiagramController::onEndMoveRelation(int row, const MObject *owner)
     onEndUpdateRelation(row, owner);
 }
 
-void DiagramController::deleteElements(const DSelection &diagramSelection, MDiagram *diagram, const QString &commandLabel)
+void DiagramController::deleteElements(const DSelection &diagramSelection, MDiagram *diagram,
+                                       const QString &commandLabel)
 {
     QMT_CHECK(diagram);
 
@@ -783,8 +799,10 @@ void DiagramController::removeRelations(DElement *element, MDiagram *diagram)
     if (diagramObject) {
         foreach (DElement *diagramElement, diagram->diagramElements()) {
             if (DRelation *diagramRelation = dynamic_cast<DRelation *>(diagramElement)) {
-                if (diagramRelation->endAUid() == diagramObject->uid() || diagramRelation->endBUid() == diagramObject->uid())
+                if (diagramRelation->endAUid() == diagramObject->uid()
+                        || diagramRelation->endBUid() == diagramObject->uid()) {
                     removeElement(diagramRelation, diagram);
+                }
             }
         }
     }
@@ -843,7 +861,8 @@ void DiagramController::updateElementFromModel(DElement *element, const MDiagram
 
 void DiagramController::diagramModified(MDiagram *diagram)
 {
-    // the modification date is updated intentionally without signalling model controller avoiding recursive change updates
+    // the modification date is updated intentionally without signalling model controller
+    // avoiding recursive change updates
     diagram->setLastModifiedToNow();
     emit modified(diagram);
 }

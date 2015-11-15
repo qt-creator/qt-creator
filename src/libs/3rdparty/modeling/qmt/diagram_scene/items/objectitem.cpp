@@ -102,7 +102,8 @@ QRectF ObjectItem::rect() const
     return m_object->rect();
 }
 
-void ObjectItem::setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta)
+void ObjectItem::setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta,
+                               const QPointF &bottomRightDelta)
 {
     QPointF newPos = originalPos;
     QRectF newRect = originalRect;
@@ -117,7 +118,8 @@ void ObjectItem::setPosAndRect(const QPointF &originalPos, const QRectF &origina
     }
 }
 
-void ObjectItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, IResizable::Side adjustVerticalSide, double rasterWidth, double rasterHeight)
+void ObjectItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, IResizable::Side adjustVerticalSide,
+                                       double rasterWidth, double rasterHeight)
 {
     QPointF pos = m_object->pos();
     QRectF rect = m_object->rect();
@@ -277,42 +279,51 @@ void ObjectItem::align(IAlignable::AlignType alignType, const QString &identifie
     switch (alignType) {
     case IAlignable::AlignLeft:
         QMT_CHECK(identifier == QStringLiteral("left"));
-        m_diagramSceneModel->diagramSceneController()->alignLeft(m_object, m_diagramSceneModel->selectedElements(), m_diagramSceneModel->diagram());
+        m_diagramSceneModel->diagramSceneController()->alignLeft(m_object, m_diagramSceneModel->selectedElements(),
+                                                                 m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignRight:
         QMT_CHECK(identifier == QStringLiteral("right"));
-        m_diagramSceneModel->diagramSceneController()->alignRight(m_object, m_diagramSceneModel->selectedElements(), m_diagramSceneModel->diagram());
+        m_diagramSceneModel->diagramSceneController()->alignRight(m_object, m_diagramSceneModel->selectedElements(),
+                                                                  m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignTop:
         QMT_CHECK(identifier == QStringLiteral("top"));
-        m_diagramSceneModel->diagramSceneController()->alignTop(m_object, m_diagramSceneModel->selectedElements(), m_diagramSceneModel->diagram());
+        m_diagramSceneModel->diagramSceneController()->alignTop(m_object, m_diagramSceneModel->selectedElements(),
+                                                                m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignBottom:
         QMT_CHECK(identifier == QStringLiteral("bottom"));
-        m_diagramSceneModel->diagramSceneController()->alignBottom(m_object, m_diagramSceneModel->selectedElements(), m_diagramSceneModel->diagram());
+        m_diagramSceneModel->diagramSceneController()->alignBottom(m_object, m_diagramSceneModel->selectedElements(),
+                                                                   m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignHcenter:
         QMT_CHECK(identifier == QStringLiteral("center"));
-        m_diagramSceneModel->diagramSceneController()->alignHCenter(m_object, m_diagramSceneModel->selectedElements(), m_diagramSceneModel->diagram());
+        m_diagramSceneModel->diagramSceneController()->alignHCenter(m_object, m_diagramSceneModel->selectedElements(),
+                                                                    m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignVcenter:
         QMT_CHECK(identifier == QStringLiteral("center"));
-        m_diagramSceneModel->diagramSceneController()->alignVCenter(m_object, m_diagramSceneModel->selectedElements(), m_diagramSceneModel->diagram());
+        m_diagramSceneModel->diagramSceneController()->alignVCenter(m_object, m_diagramSceneModel->selectedElements(),
+                                                                    m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignWidth:
         QMT_CHECK(identifier == QStringLiteral("width"));
         m_diagramSceneModel->diagramSceneController()->alignWidth(m_object, m_diagramSceneModel->selectedElements(),
-                                                                      minimumSize(m_diagramSceneModel->selectedItems()), m_diagramSceneModel->diagram());
+                                                                  minimumSize(m_diagramSceneModel->selectedItems()),
+                                                                  m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignHeight:
         QMT_CHECK(identifier == QStringLiteral("height"));
         m_diagramSceneModel->diagramSceneController()->alignHeight(m_object, m_diagramSceneModel->selectedElements(),
-                                                                       minimumSize(m_diagramSceneModel->selectedItems()), m_diagramSceneModel->diagram());
+                                                                   minimumSize(m_diagramSceneModel->selectedItems()),
+                                                                   m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignSize:
         QMT_CHECK(identifier == QStringLiteral("size"));
         m_diagramSceneModel->diagramSceneController()->alignSize(m_object, m_diagramSceneModel->selectedElements(),
-                                                                     minimumSize(m_diagramSceneModel->selectedItems()), m_diagramSceneModel->diagram());
+                                                                 minimumSize(m_diagramSceneModel->selectedItems()),
+                                                                 m_diagramSceneModel->diagram());
         break;
     }
 }
@@ -328,7 +339,8 @@ void ObjectItem::updateStereotypeIconDisplay()
     m_stereotypeIconDisplay = stereotypeDisplayVisitor.stereotypeIconDisplay();
 }
 
-void ObjectItem::updateStereotypes(const QString &stereotypeIconId, StereotypeIcon::Display stereotypeDisplay, const Style *style)
+void ObjectItem::updateStereotypes(const QString &stereotypeIconId, StereotypeIcon::Display stereotypeDisplay,
+                                   const Style *style)
 {
     QList<QString> stereotypes = m_object->stereotypes();
     if (!stereotypeIconId.isEmpty()
@@ -360,7 +372,8 @@ void ObjectItem::updateStereotypes(const QString &stereotypeIconId, StereotypeIc
     }
 }
 
-QSizeF ObjectItem::stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon, qreal minimumWidth, qreal minimumHeight) const
+QSizeF ObjectItem::stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon,
+                                             qreal minimumWidth, qreal minimumHeight) const
 {
     Q_UNUSED(minimumWidth);
 
@@ -649,17 +662,21 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         addSeparator = true;
     if (addSeparator)
         menu.addSeparator();
-    menu.addAction(new ContextMenuAction(QObject::tr("Remove"), QStringLiteral("remove"), QKeySequence(QKeySequence::Delete), &menu));
-    menu.addAction(new ContextMenuAction(QObject::tr("Delete"), QStringLiteral("delete"), QKeySequence(Qt::CTRL + Qt::Key_D), &menu));
+    menu.addAction(new ContextMenuAction(QObject::tr("Remove"), QStringLiteral("remove"),
+                                         QKeySequence(QKeySequence::Delete), &menu));
+    menu.addAction(new ContextMenuAction(QObject::tr("Delete"), QStringLiteral("delete"),
+                                         QKeySequence(Qt::CTRL + Qt::Key_D), &menu));
     //menu.addAction(new ContextMenuAction(QObject::tr("Select in Model Tree"), QStringLiteral("selectInModelTree"), &menu));
     QMenu alignMenu;
     alignMenu.setTitle(QObject::tr("Align Objects"));
     alignMenu.addAction(new ContextMenuAction(QObject::tr("Align Left"), QStringLiteral("alignLeft"), &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(QObject::tr("Center Vertically"), QStringLiteral("centerVertically"), &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(QObject::tr("Center Vertically"), QStringLiteral("centerVertically"),
+                                              &alignMenu));
     alignMenu.addAction(new ContextMenuAction(QObject::tr("Align Right"), QStringLiteral("alignRight"), &alignMenu));
     alignMenu.addSeparator();
     alignMenu.addAction(new ContextMenuAction(QObject::tr("Align Top"), QStringLiteral("alignTop"), &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(QObject::tr("Center Horizontally"), QStringLiteral("centerHorizontally"), &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(QObject::tr("Center Horizontally"), QStringLiteral("centerHorizontally"),
+                                              &alignMenu));
     alignMenu.addAction(new ContextMenuAction(QObject::tr("Align Bottom"), QStringLiteral("alignBottom"), &alignMenu));
     alignMenu.addSeparator();
     alignMenu.addAction(new ContextMenuAction(QObject::tr("Same Width"), QStringLiteral("sameWidth"), &alignMenu));

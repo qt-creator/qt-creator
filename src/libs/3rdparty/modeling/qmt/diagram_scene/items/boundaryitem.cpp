@@ -169,7 +169,8 @@ QSizeF BoundaryItem::minimumSize() const
     return calcMinimumGeometry();
 }
 
-void BoundaryItem::setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta)
+void BoundaryItem::setPosAndRect(const QPointF &originalPos, const QRectF &originalRect, const QPointF &topLeftDelta,
+                                 const QPointF &bottomRightDelta)
 {
     QPointF newPos = originalPos;
     QRectF newRect = originalRect;
@@ -182,7 +183,8 @@ void BoundaryItem::setPosAndRect(const QPointF &originalPos, const QRectF &origi
     }
 }
 
-void BoundaryItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, IResizable::Side adjustVerticalSide, double rasterWidth, double rasterHeight)
+void BoundaryItem::alignItemSizeToRaster(IResizable::Side adjustHorizontalSide, IResizable::Side adjustVerticalSide,
+                                         double rasterWidth, double rasterHeight)
 {
     QPointF pos = m_boundary->pos();
     QRectF rect = m_boundary->rect();

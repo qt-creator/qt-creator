@@ -67,25 +67,42 @@ void PropertiesView::setModelController(ModelController *modelController)
             connect(m_modelController, SIGNAL(beginResetModel()), this, SLOT(onBeginResetModel()));
             connect(m_modelController, SIGNAL(endResetModel()), this, SLOT(onEndResetModel()));
 
-            connect(m_modelController, SIGNAL(beginInsertObject(int,const MObject*)), this, SLOT(onBeginInsertObject(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endInsertObject(int,const MObject*)), this, SLOT(onEndInsertObject(int,const MObject*)));
-            connect(m_modelController, SIGNAL(beginUpdateObject(int,const MObject*)), this, SLOT(onBeginUpdateObject(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endUpdateObject(int,const MObject*)), this, SLOT(onEndUpdateObject(int,const MObject*)));
-            connect(m_modelController, SIGNAL(beginRemoveObject(int,const MObject*)), this, SLOT(onBeginRemoveObject(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endRemoveObject(int,const MObject*)), this, SLOT(onEndRemoveObject(int,const MObject*)));
-            connect(m_modelController, SIGNAL(beginMoveObject(int,const MObject*)), this, SLOT(onBeginMoveObject(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endMoveObject(int,const MObject*)), this, SLOT(onEndMoveObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginInsertObject(int,const MObject*)),
+                    this, SLOT(onBeginInsertObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endInsertObject(int,const MObject*)),
+                    this, SLOT(onEndInsertObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginUpdateObject(int,const MObject*)),
+                    this, SLOT(onBeginUpdateObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endUpdateObject(int,const MObject*)),
+                    this, SLOT(onEndUpdateObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginRemoveObject(int,const MObject*)),
+                    this, SLOT(onBeginRemoveObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endRemoveObject(int,const MObject*)),
+                    this, SLOT(onEndRemoveObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginMoveObject(int,const MObject*)),
+                    this, SLOT(onBeginMoveObject(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endMoveObject(int,const MObject*)),
+                    this, SLOT(onEndMoveObject(int,const MObject*)));
 
-            connect(m_modelController, SIGNAL(beginInsertRelation(int,const MObject*)), this, SLOT(onBeginInsertRelation(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endInsertRelation(int,const MObject*)), this, SLOT(onEndInsertRelation(int,const MObject*)));
-            connect(m_modelController, SIGNAL(beginUpdateRelation(int,const MObject*)), this, SLOT(onBeginUpdateRelation(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endUpdateRelation(int,const MObject*)), this, SLOT(onEndUpdateRelation(int,const MObject*)));
-            connect(m_modelController, SIGNAL(beginRemoveRelation(int,const MObject*)), this, SLOT(onBeginRemoveRelation(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endRemoveRelation(int,const MObject*)), this, SLOT(onEndRemoveRelation(int,const MObject*)));
-            connect(m_modelController, SIGNAL(beginMoveRelation(int,const MObject*)), this, SLOT(onBeginMoveRelation(int,const MObject*)));
-            connect(m_modelController, SIGNAL(endMoveRelation(int,const MObject*)), this, SLOT(onEndMoveRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginInsertRelation(int,const MObject*)),
+                    this, SLOT(onBeginInsertRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endInsertRelation(int,const MObject*)),
+                    this, SLOT(onEndInsertRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginUpdateRelation(int,const MObject*)),
+                    this, SLOT(onBeginUpdateRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endUpdateRelation(int,const MObject*)),
+                    this, SLOT(onEndUpdateRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginRemoveRelation(int,const MObject*)),
+                    this, SLOT(onBeginRemoveRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endRemoveRelation(int,const MObject*)),
+                    this, SLOT(onEndRemoveRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(beginMoveRelation(int,const MObject*)),
+                    this, SLOT(onBeginMoveRelation(int,const MObject*)));
+            connect(m_modelController, SIGNAL(endMoveRelation(int,const MObject*)),
+                    this, SLOT(onEndMoveRelation(int,const MObject*)));
 
-            connect(m_modelController, SIGNAL(relationEndChanged(MRelation*,MObject*)), this, SLOT(onRelationEndChanged(MRelation*,MObject*)));
+            connect(m_modelController, SIGNAL(relationEndChanged(MRelation*,MObject*)),
+                    this, SLOT(onRelationEndChanged(MRelation*,MObject*)));
         }
     }
 }
@@ -102,15 +119,23 @@ void PropertiesView::setDiagramController(DiagramController *diagramController)
             connect(m_diagramController, SIGNAL(beginResetAllDiagrams()), this, SLOT(onBeginResetAllDiagrams()));
             connect(m_diagramController, SIGNAL(endResetAllDiagrams()), this, SLOT(onEndResetAllDiagrams()));
 
-            connect(m_diagramController, SIGNAL(beginResetDiagram(const MDiagram*)), this, SLOT(onBeginResetDiagram(const MDiagram*)));
-            connect(m_diagramController, SIGNAL(endResetDiagram(const MDiagram*)), this, SLOT(onEndResetDiagram(const MDiagram*)));
+            connect(m_diagramController, SIGNAL(beginResetDiagram(const MDiagram*)),
+                    this, SLOT(onBeginResetDiagram(const MDiagram*)));
+            connect(m_diagramController, SIGNAL(endResetDiagram(const MDiagram*)),
+                    this, SLOT(onEndResetDiagram(const MDiagram*)));
 
-            connect(m_diagramController, SIGNAL(beginUpdateElement(int,const MDiagram*)), this, SLOT(onBeginUpdateElement(int,const MDiagram*)));
-            connect(m_diagramController, SIGNAL(endUpdateElement(int,const MDiagram*)), this, SLOT(onEndUpdateElement(int,const MDiagram*)));
-            connect(m_diagramController, SIGNAL(beginInsertElement(int,const MDiagram*)), this, SLOT(onBeginInsertElement(int,const MDiagram*)));
-            connect(m_diagramController, SIGNAL(endInsertElement(int,const MDiagram*)), this, SLOT(onEndInsertElement(int,const MDiagram*)));
-            connect(m_diagramController, SIGNAL(beginRemoveElement(int,const MDiagram*)), this, SLOT(onBeginRemoveElement(int,const MDiagram*)));
-            connect(m_diagramController, SIGNAL(endRemoveElement(int,const MDiagram*)), this, SLOT(onEndRemoveElement(int,const MDiagram*)));
+            connect(m_diagramController, SIGNAL(beginUpdateElement(int,const MDiagram*)),
+                    this, SLOT(onBeginUpdateElement(int,const MDiagram*)));
+            connect(m_diagramController, SIGNAL(endUpdateElement(int,const MDiagram*)),
+                    this, SLOT(onEndUpdateElement(int,const MDiagram*)));
+            connect(m_diagramController, SIGNAL(beginInsertElement(int,const MDiagram*)),
+                    this, SLOT(onBeginInsertElement(int,const MDiagram*)));
+            connect(m_diagramController, SIGNAL(endInsertElement(int,const MDiagram*)),
+                    this, SLOT(onEndInsertElement(int,const MDiagram*)));
+            connect(m_diagramController, SIGNAL(beginRemoveElement(int,const MDiagram*)),
+                    this, SLOT(onBeginRemoveElement(int,const MDiagram*)));
+            connect(m_diagramController, SIGNAL(endRemoveElement(int,const MDiagram*)),
+                    this, SLOT(onEndRemoveElement(int,const MDiagram*)));
         }
     }
 }

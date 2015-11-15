@@ -227,9 +227,10 @@ PackageItem::ShapeGeometry PackageItem::calcMinimumGeometry() const
     double tabHeight = 0.0;
     double tabWidth = 0.0;
 
-    if (m_customIcon)
-        return ShapeGeometry(stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT), QSizeF(tabWidth, tabHeight));
-
+    if (m_customIcon) {
+        return ShapeGeometry(stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH,
+                                                       CUSTOM_ICON_MINIMUM_AUTO_HEIGHT), QSizeF(tabWidth, tabHeight));
+    }
     double bodyHeight = 0.0;
     double bodyWidth = 0.0;
 

@@ -89,7 +89,8 @@ void DiagramsManager::setModel(TreeModel *model)
         connect(m_model, 0, this, 0);
     m_model = model;
     if (model)
-        connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onDataChanged(QModelIndex,QModelIndex)));
+        connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                this, SLOT(onDataChanged(QModelIndex,QModelIndex)));
 }
 
 void DiagramsManager::setDiagramsView(DiagramsViewInterface *diagramsView)
@@ -103,7 +104,8 @@ void DiagramsManager::setDiagramController(DiagramController *diagramController)
         connect(m_diagramController, 0, this, 0);
     m_diagramController = diagramController;
     if (diagramController)
-        connect(diagramController, SIGNAL(diagramAboutToBeRemoved(const MDiagram*)), this, SLOT(removeDiagram(const MDiagram*)));
+        connect(diagramController, SIGNAL(diagramAboutToBeRemoved(const MDiagram*)),
+                this, SLOT(removeDiagram(const MDiagram*)));
 }
 
 void DiagramsManager::setDiagramSceneController(DiagramSceneController *diagramSceneController)
@@ -130,8 +132,10 @@ DiagramSceneModel *DiagramsManager::bindDiagramSceneModel(MDiagram *diagram)
         diagramSceneModel->setStyleController(m_styleController);
         diagramSceneModel->setStereotypeController(m_stereotypeController);
         diagramSceneModel->setDiagram(diagram);
-        connect(diagramSceneModel, SIGNAL(diagramSceneActivated(const MDiagram*)), this, SIGNAL(diagramActivated(const MDiagram*)));
-        connect(diagramSceneModel, SIGNAL(selectionHasChanged(const MDiagram*)), this, SIGNAL(diagramSelectionChanged(const MDiagram*)));
+        connect(diagramSceneModel, SIGNAL(diagramSceneActivated(const MDiagram*)),
+                this, SIGNAL(diagramActivated(const MDiagram*)));
+        connect(diagramSceneModel, SIGNAL(selectionHasChanged(const MDiagram*)),
+                this, SIGNAL(diagramSelectionChanged(const MDiagram*)));
         ManagedDiagram *managedDiagram = new ManagedDiagram(diagramSceneModel, diagram->name());
         m_diagramUidToManagedDiagramMap.insert(diagram->uid(), managedDiagram);
     }

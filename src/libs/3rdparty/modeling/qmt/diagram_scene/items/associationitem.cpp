@@ -78,7 +78,9 @@ void AssociationItem::update(const Style *style)
     placeEndLabels(m_arrow->lastLineSegment(), m_endBName, m_endBCardinality, endBItem, m_arrow->endHeadLength());
 }
 
-void AssociationItem::updateEndLabels(const DAssociationEnd &end, const DAssociationEnd &otherEnd, QGraphicsSimpleTextItem **endName, QGraphicsSimpleTextItem **endCardinality, const Style *style)
+void AssociationItem::updateEndLabels(const DAssociationEnd &end, const DAssociationEnd &otherEnd,
+                                      QGraphicsSimpleTextItem **endName, QGraphicsSimpleTextItem **endCardinality,
+                                      const Style *style)
 {
     Q_UNUSED(end);
 
@@ -107,7 +109,8 @@ void AssociationItem::updateEndLabels(const DAssociationEnd &end, const DAssocia
     }
 }
 
-void AssociationItem::placeEndLabels(const QLineF &lineSegment, QGraphicsItem *endName, QGraphicsItem *endCardinality, QGraphicsItem *endItem, double headLength)
+void AssociationItem::placeEndLabels(const QLineF &lineSegment, QGraphicsItem *endName, QGraphicsItem *endCardinality,
+                                     QGraphicsItem *endItem, double headLength)
 {
     const double HEAD_OFFSET = headLength + 6.0;
     const double SIDE_OFFSET = 4.0;
@@ -119,12 +122,14 @@ void AssociationItem::placeEndLabels(const QLineF &lineSegment, QGraphicsItem *e
         if (endName)
             endName->setPos(lineSegment.p1() + headOffset + sideOffset);
         if (endCardinality)
-            endCardinality->setPos(lineSegment.p1() + headOffset - sideOffset - endCardinality->boundingRect().bottomLeft());
+            endCardinality->setPos(lineSegment.p1() + headOffset - sideOffset
+                                   - endCardinality->boundingRect().bottomLeft());
     } else if (angle <= -175 || angle >= 175) {
         if (endName)
             endName->setPos(lineSegment.p1() - headOffset + sideOffset - endName->boundingRect().topRight());
         if (endCardinality)
-            endCardinality->setPos(lineSegment.p1() - headOffset - sideOffset - endCardinality->boundingRect().bottomRight());
+            endCardinality->setPos(lineSegment.p1() - headOffset
+                                   - sideOffset - endCardinality->boundingRect().bottomRight());
     } else {
         QRectF rect;
         if (endCardinality)
@@ -139,9 +144,12 @@ void AssociationItem::placeEndLabels(const QLineF &lineSegment, QGraphicsItem *e
             QPointF intersectionPoint;
             QLineF intersectionLine;
 
-            if (objectItem->intersectShapeWithLine(GeometryUtilities::stretch(lineSegment.translated(pos()), 2.0, 0.0), &intersectionPoint, &intersectionLine)) {
-                if (!GeometryUtilities::placeRectAtLine(rect, lineSegment, HEAD_OFFSET, SIDE_OFFSET, intersectionLine, &rectPlacement, &alignedSide))
+            if (objectItem->intersectShapeWithLine(GeometryUtilities::stretch(lineSegment.translated(pos()), 2.0, 0.0),
+                                                   &intersectionPoint, &intersectionLine)) {
+                if (!GeometryUtilities::placeRectAtLine(rect, lineSegment, HEAD_OFFSET, SIDE_OFFSET,
+                                                        intersectionLine, &rectPlacement, &alignedSide)) {
                     rectPlacement = intersectionPoint;
+                }
             } else {
                 rectPlacement = lineSegment.p1();
             }
@@ -151,7 +159,8 @@ void AssociationItem::placeEndLabels(const QLineF &lineSegment, QGraphicsItem *e
 
         if (endCardinality) {
             if (alignedSide == GeometryUtilities::SideRight)
-                endCardinality->setPos(rectPlacement + QPointF(rect.width() - endCardinality->boundingRect().width(), 0.0));
+                endCardinality->setPos(rectPlacement
+                                       + QPointF(rect.width() - endCardinality->boundingRect().width(), 0.0));
             else
                 endCardinality->setPos(rectPlacement);
             rectPlacement += endCardinality->boundingRect().bottomLeft();

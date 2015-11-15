@@ -142,7 +142,8 @@ void DiagramSceneController::deleteFromDiagram(const DSelection &dselection, MDi
     }
 }
 
-void DiagramSceneController::createDependency(DObject *endAObject, DObject *endBObject, const QList<QPointF> &intermediatePoints, MDiagram *diagram)
+void DiagramSceneController::createDependency(DObject *endAObject, DObject *endBObject,
+                                              const QList<QPointF> &intermediatePoints, MDiagram *diagram)
 {
     m_diagramController->undoController()->beginMergeSequence(tr("Create Dependency"));
 
@@ -168,7 +169,8 @@ void DiagramSceneController::createDependency(DObject *endAObject, DObject *endB
         emit newElementCreated(relation, diagram);
 }
 
-void DiagramSceneController::createInheritance(DClass *derivedClass, DClass *baseClass, const QList<QPointF> &intermediatePoints, MDiagram *diagram)
+void DiagramSceneController::createInheritance(DClass *derivedClass, DClass *baseClass,
+                                               const QList<QPointF> &intermediatePoints, MDiagram *diagram)
 {
     m_diagramController->undoController()->beginMergeSequence(tr("Create Inheritance"));
 
@@ -193,7 +195,8 @@ void DiagramSceneController::createInheritance(DClass *derivedClass, DClass *bas
         emit newElementCreated(relation, diagram);
 }
 
-void DiagramSceneController::createAssociation(DClass *endAClass, DClass *endBClass, const QList<QPointF> &intermediatePoints, MDiagram *diagram)
+void DiagramSceneController::createAssociation(DClass *endAClass, DClass *endBClass,
+                                               const QList<QPointF> &intermediatePoints, MDiagram *diagram)
 {
     m_diagramController->undoController()->beginMergeSequence(tr("Create Association"));
 
@@ -251,7 +254,8 @@ void DiagramSceneController::addExistingModelElement(const Uid &modelElementKey,
         emit elementAdded(element, diagram);
 }
 
-void DiagramSceneController::dropNewElement(const QString &newElementId, const QString &name, const QString &stereotype, DElement *topMostElementAtPos, const QPointF &pos, MDiagram *diagram)
+void DiagramSceneController::dropNewElement(const QString &newElementId, const QString &name, const QString &stereotype,
+                                            DElement *topMostElementAtPos, const QPointF &pos, MDiagram *diagram)
 {
     if (newElementId == QLatin1String(ELEMENT_TYPE_ANNOTATION)) {
         DAnnotation *annotation = new DAnnotation();
@@ -306,7 +310,8 @@ void DiagramSceneController::dropNewElement(const QString &newElementId, const Q
     }
 }
 
-void DiagramSceneController::dropNewModelElement(MObject *modelObject, MPackage *parentPackage, const QPointF &pos, MDiagram *diagram)
+void DiagramSceneController::dropNewModelElement(MObject *modelObject, MPackage *parentPackage, const QPointF &pos,
+                                                 MDiagram *diagram)
 {
     m_modelController->undoController()->beginMergeSequence(tr("Drop Element"));
     m_modelController->addObject(parentPackage, modelObject);
@@ -469,22 +474,26 @@ void DiagramSceneController::alignVCenter(DObject *object, const DSelection &sel
     alignPosition(object, selection, alignObjectVCenter, diagram);
 }
 
-void DiagramSceneController::alignWidth(DObject *object, const DSelection &selection, const QSizeF &minimumSize, MDiagram *diagram)
+void DiagramSceneController::alignWidth(DObject *object, const DSelection &selection, const QSizeF &minimumSize,
+                                        MDiagram *diagram)
 {
     alignSize(object, selection, minimumSize, alignObjectWidth, diagram);
 }
 
-void DiagramSceneController::alignHeight(DObject *object, const DSelection &selection, const QSizeF &minimumSize, MDiagram *diagram)
+void DiagramSceneController::alignHeight(DObject *object, const DSelection &selection, const QSizeF &minimumSize,
+                                         MDiagram *diagram)
 {
     alignSize(object, selection, minimumSize, alignObjectHeight, diagram);
 }
 
-void DiagramSceneController::alignSize(DObject *object, const DSelection &selection, const QSizeF &minimumSize, MDiagram *diagram)
+void DiagramSceneController::alignSize(DObject *object, const DSelection &selection, const QSizeF &minimumSize,
+                                       MDiagram *diagram)
 {
     alignSize(object, selection, minimumSize, alignObjectSize, diagram);
 }
 
-void DiagramSceneController::alignPosition(DObject *object, const DSelection &selection, QPointF (*aligner)(DObject *, DObject *), MDiagram *diagram)
+void DiagramSceneController::alignPosition(DObject *object, const DSelection &selection,
+                                           QPointF (*aligner)(DObject *, DObject *), MDiagram *diagram)
 {
     foreach (const DSelection::Index &index, selection.indices()) {
         DElement *element = m_diagramController->findElement(index.elementKey(), diagram);
@@ -501,7 +510,8 @@ void DiagramSceneController::alignPosition(DObject *object, const DSelection &se
     }
 }
 
-void DiagramSceneController::alignSize(DObject *object, const DSelection &selection, const QSizeF &minimumSize, QRectF (*aligner)(DObject *, const QSizeF &), MDiagram *diagram)
+void DiagramSceneController::alignSize(DObject *object, const DSelection &selection, const QSizeF &minimumSize,
+                                       QRectF (*aligner)(DObject *, const QSizeF &), MDiagram *diagram)
 {
     QSizeF size;
     if (object->rect().width() < minimumSize.width())
@@ -609,7 +619,8 @@ DObject *DiagramSceneController::addObject(MObject *modelObject, const QPointF &
     return diagramObject;
 }
 
-DRelation *DiagramSceneController::addRelation(MRelation *modelRelation, const QList<QPointF> &intermediatePoints, MDiagram *diagram)
+DRelation *DiagramSceneController::addRelation(MRelation *modelRelation, const QList<QPointF> &intermediatePoints,
+                                               MDiagram *diagram)
 {
     QMT_CHECK(modelRelation);
 

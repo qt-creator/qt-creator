@@ -88,7 +88,8 @@ void AlignOnRasterVisitor::visitDObject(DObject *object)
 {
     IResizable *resizable = m_sceneInspector->resizable(object, m_diagram);
     if (resizable)
-        resizable->alignItemSizeToRaster(IResizable::SideRightOrBottom, IResizable::SideRightOrBottom, 2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
+        resizable->alignItemSizeToRaster(IResizable::SideRightOrBottom, IResizable::SideRightOrBottom,
+                                         2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
     IMoveable *moveable = m_sceneInspector->moveable(object, m_diagram);
     if (moveable)
         moveable->alignItemPositionToRaster(RASTER_WIDTH, RASTER_HEIGHT);
@@ -150,7 +151,8 @@ void AlignOnRasterVisitor::visitDBoundary(DBoundary *boundary)
 {
     IResizable *resizable = m_sceneInspector->resizable(boundary, m_diagram);
     if (resizable)
-        resizable->alignItemSizeToRaster(IResizable::SideRightOrBottom, IResizable::SideRightOrBottom, 2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
+        resizable->alignItemSizeToRaster(IResizable::SideRightOrBottom, IResizable::SideRightOrBottom,
+                                         2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
     IMoveable *moveable = m_sceneInspector->moveable(boundary, m_diagram);
     if (moveable)
         moveable->alignItemPositionToRaster(RASTER_WIDTH, RASTER_HEIGHT);

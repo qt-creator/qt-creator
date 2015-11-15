@@ -32,7 +32,8 @@
 
 namespace qmt {
 
-StyledObject::StyledObject(const DObject *object, const ObjectVisuals &objectVisuals, const QList<const DObject *> &collidingObjects)
+StyledObject::StyledObject(const DObject *object, const ObjectVisuals &objectVisuals,
+                           const QList<const DObject *> &collidingObjects)
     : m_object(object),
       m_objectVisuals(objectVisuals),
       m_collidingObjects(collidingObjects)

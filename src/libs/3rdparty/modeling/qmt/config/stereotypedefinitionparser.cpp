@@ -476,30 +476,36 @@ void StereotypeDefinitionParser::parseIconCommands(StereotypeIcon *stereotypeIco
                 break;
             case KEYWORD_ELLIPSE:
                 parameters = parseIconCommandParameters(Parameters() << SCALED << SCALED << SCALED << SCALED);
-                iconShape.addEllipse(ShapePointF(parameters.at(0), parameters.at(1)), ShapeSizeF(parameters.at(2), parameters.at(3)));
+                iconShape.addEllipse(ShapePointF(parameters.at(0), parameters.at(1)),
+                                     ShapeSizeF(parameters.at(2), parameters.at(3)));
                 expectSemicolonOrEndOfLine();
                 break;
             case KEYWORD_LINE:
                 parameters = parseIconCommandParameters(Parameters() << SCALED << SCALED << SCALED << SCALED);
-                iconShape.addLine(ShapePointF(parameters.at(0), parameters.at(1)), ShapePointF(parameters.at(2), parameters.at(3)));
+                iconShape.addLine(ShapePointF(parameters.at(0), parameters.at(1)),
+                                  ShapePointF(parameters.at(2), parameters.at(3)));
                 expectSemicolonOrEndOfLine();
                 break;
             case KEYWORD_RECT:
                 parameters = parseIconCommandParameters(Parameters() << SCALED << SCALED << SCALED << SCALED);
-                iconShape.addRect(ShapePointF(parameters.at(0), parameters.at(1)), ShapeSizeF(parameters.at(2), parameters.at(3)));
+                iconShape.addRect(ShapePointF(parameters.at(0), parameters.at(1)),
+                                  ShapeSizeF(parameters.at(2), parameters.at(3)));
                 expectSemicolonOrEndOfLine();
                 break;
             case KEYWORD_ROUNDEDRECT:
                 parameters = parseIconCommandParameters(Parameters() << SCALED << SCALED << SCALED << SCALED << FIX);
-                iconShape.addRoundedRect(ShapePointF(parameters.at(0), parameters.at(1)), ShapeSizeF(parameters.at(2), parameters.at(3)), parameters.at(4));
+                iconShape.addRoundedRect(ShapePointF(parameters.at(0), parameters.at(1)),
+                                         ShapeSizeF(parameters.at(2), parameters.at(3)), parameters.at(4));
                 expectSemicolonOrEndOfLine();
                 break;
             case KEYWORD_ARC:
             {
-                parameters = parseIconCommandParameters(Parameters() << SCALED << SCALED << SCALED << SCALED << ABSOLUTE << ABSOLUTE);
+                parameters = parseIconCommandParameters(
+                            Parameters() << SCALED << SCALED << SCALED << SCALED << ABSOLUTE << ABSOLUTE);
                 qreal startAngle = expectAbsoluteValue(parameters.at(4), d->m_scanner->sourcePos());
                 qreal spanAngle = expectAbsoluteValue(parameters.at(5), d->m_scanner->sourcePos());
-                iconShape.addArc(ShapePointF(parameters.at(0), parameters.at(1)), ShapeSizeF(parameters.at(2), parameters.at(3)), startAngle, spanAngle);
+                iconShape.addArc(ShapePointF(parameters.at(0), parameters.at(1)),
+                                 ShapeSizeF(parameters.at(2), parameters.at(3)), startAngle, spanAngle);
                 expectSemicolonOrEndOfLine();
                 break;
             }
@@ -515,18 +521,22 @@ void StereotypeDefinitionParser::parseIconCommands(StereotypeIcon *stereotypeIco
                 break;
             case KEYWORD_ARCMOVETO:
             {
-                parameters = parseIconCommandParameters(Parameters() << SCALED << SCALED << SCALED << SCALED << ABSOLUTE);
+                parameters = parseIconCommandParameters(
+                            Parameters() << SCALED << SCALED << SCALED << SCALED << ABSOLUTE);
                 qreal angle = expectAbsoluteValue(parameters.at(4), d->m_scanner->sourcePos());
-                iconShape.arcMoveTo(ShapePointF(parameters.at(0), parameters.at(1)), ShapeSizeF(parameters.at(2), parameters.at(3)), angle);
+                iconShape.arcMoveTo(ShapePointF(parameters.at(0), parameters.at(1)),
+                                    ShapeSizeF(parameters.at(2), parameters.at(3)), angle);
                 expectSemicolonOrEndOfLine();
                 break;
             }
             case KEYWORD_ARCTO:
             {
-                parameters = parseIconCommandParameters(Parameters() << SCALED << SCALED << SCALED << SCALED << ABSOLUTE << ABSOLUTE);
+                parameters = parseIconCommandParameters(
+                            Parameters() << SCALED << SCALED << SCALED << SCALED << ABSOLUTE << ABSOLUTE);
                 qreal startAngle = expectAbsoluteValue(parameters.at(4), d->m_scanner->sourcePos());
                 qreal sweepLength = expectAbsoluteValue(parameters.at(5), d->m_scanner->sourcePos());
-                iconShape.arcTo(ShapePointF(parameters.at(0), parameters.at(1)), ShapeSizeF(parameters.at(2), parameters.at(3)), startAngle, sweepLength);
+                iconShape.arcTo(ShapePointF(parameters.at(0), parameters.at(1)),
+                                ShapeSizeF(parameters.at(2), parameters.at(3)), startAngle, sweepLength);
                 expectSemicolonOrEndOfLine();
                 break;
             }
@@ -550,7 +560,8 @@ QList<ShapeValueF> StereotypeDefinitionParser::parseIconCommandParameters(const 
     Token token;
     for (;;) {
         if (values.count() <= parameters.count())
-            values << ShapeValueF(parseFloatExpression(), parameters.at(values.count()).m_unit, parameters.at(values.count()).m_origin);
+            values << ShapeValueF(parseFloatExpression(), parameters.at(values.count()).m_unit,
+                                  parameters.at(values.count()).m_origin);
         else
             values << ShapeValueF(parseFloatExpression());
         token = d->m_scanner->read();
@@ -716,8 +727,10 @@ qreal StereotypeDefinitionParser::expectAbsoluteValue(const ShapeValueF &value, 
 void StereotypeDefinitionParser::expectSemicolonOrEndOfLine()
 {
     Token token = d->m_scanner->read();
-    if (token.type() != Token::TokenEndOfLine && (token.type() != Token::TokenOperator || token.subtype() != OPERATOR_SEMICOLON))
+    if (token.type() != Token::TokenEndOfLine
+            && (token.type() != Token::TokenOperator || token.subtype() != OPERATOR_SEMICOLON)) {
         throw StereotypeDefinitionParserError(QStringLiteral("Expected ';' or end-of-line."), token.sourcePos());
+    }
 }
 
 bool StereotypeDefinitionParser::nextIsComma()

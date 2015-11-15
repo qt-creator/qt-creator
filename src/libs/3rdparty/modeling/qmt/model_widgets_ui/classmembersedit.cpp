@@ -95,7 +95,8 @@ QString ClassMembersEdit::Cursor::readWord()
         ++m_pos;
         if (c.isLetterOrNumber() ||c == QLatin1Char('_')) {
             word = c;
-            while (m_isValid && m_pos < m_text.length() && (m_text.at(m_pos).isLetterOrNumber() || m_text.at(m_pos) == QLatin1Char('_'))) {
+            while (m_isValid && m_pos < m_text.length()
+                   && (m_text.at(m_pos).isLetterOrNumber() || m_text.at(m_pos) == QLatin1Char('_'))) {
                 word += m_text.at(m_pos);
                 ++m_pos;
             }
@@ -119,7 +120,8 @@ QString ClassMembersEdit::Cursor::readWord()
 bool ClassMembersEdit::Cursor::skip(const QString &s)
 {
     skipWhitespaces();
-    if (m_isValid && m_pos + s.length() <= m_text.length() && s.compare(m_text.mid(m_pos, s.length()), s, Qt::CaseInsensitive) == 0) {
+    if (m_isValid && m_pos + s.length() <= m_text.length()
+            && s.compare(m_text.mid(m_pos, s.length()), s, Qt::CaseInsensitive) == 0) {
         m_pos += s.length();
         return true;
     }
@@ -134,7 +136,8 @@ QString ClassMembersEdit::Cursor::readUntil(const QString &delimiter)
             m_isValid = false;
             return s;
         }
-        if (m_pos + delimiter.length() <= m_text.length() && s.compare(m_text.mid(m_pos, delimiter.length()), delimiter, Qt::CaseInsensitive) == 0) {
+        if (m_pos + delimiter.length() <= m_text.length()
+                && s.compare(m_text.mid(m_pos, delimiter.length()), delimiter, Qt::CaseInsensitive) == 0) {
             m_pos += delimiter.length();
             return s;
         }
@@ -162,7 +165,8 @@ void ClassMembersEdit::Cursor::skipUntilOrNewline(const QString &delimiter)
             return;
         if (m_text.at(m_pos) == QStringLiteral("\n"))
             return;
-        if (m_pos + delimiter.length() <= m_text.length() && QString::compare(m_text.mid(m_pos, delimiter.length()), delimiter, Qt::CaseInsensitive) == 0) {
+        if (m_pos + delimiter.length() <= m_text.length()
+                && QString::compare(m_text.mid(m_pos, delimiter.length()), delimiter, Qt::CaseInsensitive) == 0) {
             m_pos += delimiter.length();
             return;
         }
@@ -180,7 +184,8 @@ QString ClassMembersEdit::Cursor::readWordFromRight()
         --m_pos;
         if (c.isLetterOrNumber() || c == QLatin1Char('_')) {
             word = c;
-            while (m_isValid && m_pos >= 0 && (m_text.at(m_pos).isLetterOrNumber() || m_text.at(m_pos) == QLatin1Char('_'))) {
+            while (m_isValid && m_pos >= 0
+                   && (m_text.at(m_pos).isLetterOrNumber() || m_text.at(m_pos) == QLatin1Char('_'))) {
                 word = m_text.at(m_pos) + word;
                 --m_pos;
             }

@@ -91,7 +91,8 @@ QList<QString> StereotypeController::knownStereotypes(StereotypeIcon::Element st
     return list;
 }
 
-QString StereotypeController::findStereotypeIconId(StereotypeIcon::Element element, const QList<QString> &stereotypes) const
+QString StereotypeController::findStereotypeIconId(StereotypeIcon::Element element,
+                                                   const QList<QString> &stereotypes) const
 {
     foreach (const QString &stereotype, stereotypes) {
         if (d->m_stereotypeToIconIdMap.contains(qMakePair(element, stereotype)))
@@ -102,7 +103,8 @@ QString StereotypeController::findStereotypeIconId(StereotypeIcon::Element eleme
     return QString();
 }
 
-QList<QString> StereotypeController::filterStereotypesByIconId(const QString &stereotypeIconId, const QList<QString> &stereotypes) const
+QList<QString> StereotypeController::filterStereotypesByIconId(const QString &stereotypeIconId,
+                                                               const QList<QString> &stereotypes) const
 {
     if (!d->m_iconIdToStereotypeIconsMap.contains(stereotypeIconId))
         return stereotypes;
@@ -118,8 +120,9 @@ StereotypeIcon StereotypeController::findStereotypeIcon(const QString &stereotyp
     return d->m_iconIdToStereotypeIconsMap.value(stereotypeIconId);
 }
 
-QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes, const QString &defaultIconPath,
-                                       const Style *style, const QSize &size, const QMarginsF &margins)
+QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes,
+                                       const QString &defaultIconPath, const Style *style, const QSize &size,
+                                       const QMarginsF &margins)
 {
     // TODO implement cache with key build from element, stereotypes, defaultIconPath, style, size and margins
     // TODO implement unique id for style which can be used as key
@@ -144,7 +147,8 @@ QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QL
                                            shapeSize, shapeSize);
         stereotypeIcon.iconShape().visitShapes(&sizeVisitor);
         QRectF iconBoundingRect = sizeVisitor.boundingRect();
-        QPixmap pixmap(iconBoundingRect.width() + margins.left() + margins.right(), iconBoundingRect.height() + margins.top() + margins.bottom());
+        QPixmap pixmap(iconBoundingRect.width() + margins.left() + margins.right(),
+                       iconBoundingRect.height() + margins.top() + margins.bottom());
         pixmap.fill(Qt::transparent);
         QPainter painter(&pixmap);
         painter.setBrush(Qt::NoBrush);
@@ -161,7 +165,8 @@ QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QL
         QPixmap iconPixmap(size);
         iconPixmap.fill(Qt::transparent);
         QPainter iconPainter(&iconPixmap);
-        iconPainter.drawPixmap((iconPixmap.width() - pixmap.width()) / 2, (iconPixmap.width() - pixmap.height()) / 2, pixmap);
+        iconPainter.drawPixmap((iconPixmap.width() - pixmap.width()) / 2,
+                               (iconPixmap.width() - pixmap.height()) / 2, pixmap);
         icon = QIcon(iconPixmap);
     }
     if (icon.isNull() && !defaultIconPath.isEmpty())

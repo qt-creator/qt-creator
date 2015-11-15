@@ -38,7 +38,8 @@ ContextMenuAction::ContextMenuAction(const QString &label, const QString &id, QO
 {
 }
 
-ContextMenuAction::ContextMenuAction(const QString &label, const QString &id, const QKeySequence &shortcut, QObject *parent)
+ContextMenuAction::ContextMenuAction(const QString &label, const QString &id, const QKeySequence &shortcut,
+                                     QObject *parent)
     : QAction(label, parent),
       m_id(id)
 {

@@ -62,7 +62,8 @@ QLineF GeometryUtilities::stretch(const QLineF &line, double p1Extension, double
     return QLineF(stretchedP1, stretchedP2);
 }
 
-bool GeometryUtilities::intersect(const QPolygonF &polygon, const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine)
+bool GeometryUtilities::intersect(const QPolygonF &polygon, const QLineF &line,
+                                  QPointF *intersectionPoint, QLineF *intersectionLine)
 {
     for (int i = 0; i <= polygon.size() - 2; ++i) {
         QLineF polygonLine(polygon.at(i), polygon.at(i+1));
@@ -91,7 +92,8 @@ public:
 
 }
 
-bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, double lineOffset, double distance, const QLineF &intersectionLine, QPointF *placement, Side *horizontalAlignedSide)
+bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, double lineOffset, double distance,
+                                        const QLineF &intersectionLine, QPointF *placement, Side *horizontalAlignedSide)
 {
     QMT_CHECK(placement);
 
@@ -107,9 +109,9 @@ bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, 
 
     QVector<QVector2D> rectEdgeVectors;
     rectEdgeVectors << QVector2D(rect.topLeft() - rect.topLeft())
-                      << QVector2D(rect.topRight() - rect.topLeft())
-                      << QVector2D(rect.bottomLeft() - rect.topLeft())
-                      << QVector2D(rect.bottomRight() -rect.topLeft());
+                    << QVector2D(rect.topRight() - rect.topLeft())
+                    << QVector2D(rect.bottomLeft() - rect.topLeft())
+                    << QVector2D(rect.bottomRight() -rect.topLeft());
 
     QVector2D directionVector(line.p2() - line.p1());
     directionVector.normalize();
@@ -133,7 +135,8 @@ bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, 
         // solve equation a * directionVector + candidate.first = b * intersectionVector to find smallest a
         double r = directionVector.x() * intersectionVector.y() - directionVector.y() * intersectionVector.x();
         if (r <= -1e-5 || r >= 1e-5) {
-            double a = (candidate.first.y() * intersectionVector.x() - candidate.first.x() * intersectionVector.y()) / r;
+            double a = (candidate.first.y() * intersectionVector.x()
+                        - candidate.first.x() * intersectionVector.y()) / r;
             if (a >= 0.0 && (smallestA < 0.0 || a < smallestA)) {
                 // verify that all rectangle edges lay outside of shape (by checking for positiv projection to intersection)
                 bool ok = true;
@@ -183,7 +186,8 @@ bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, 
     }
     if (smallestA < 0.0)
         return false;
-    *placement = line.p1() + (directionVector * (smallestA + lineOffset)).toPointF() + (sideVector * (bestSign * distance)).toPointF() - rectTranslation;
+    *placement = line.p1() + (directionVector * (smallestA + lineOffset)).toPointF()
+            + (sideVector * (bestSign * distance)).toPointF() - rectTranslation;
     return true;
 }
 
@@ -261,7 +265,8 @@ QPointF GeometryUtilities::calcSecondaryAxisDirection(const QLineF &line)
     }
 }
 
-void GeometryUtilities::adjustPosAndRect(QPointF *pos, QRectF *rect, const QPointF &topLeftDelta, const QPointF &bottomRightDelta, const QPointF &relativeAlignment)
+void GeometryUtilities::adjustPosAndRect(QPointF *pos, QRectF *rect, const QPointF &topLeftDelta,
+                                         const QPointF &bottomRightDelta, const QPointF &relativeAlignment)
 {
     *pos += QPointF(topLeftDelta.x() * (1.0 - relativeAlignment.x()) + bottomRightDelta.x() * relativeAlignment.x(),
                     topLeftDelta.y() * (1.0 - relativeAlignment.y()) + bottomRightDelta.y() * relativeAlignment.y());

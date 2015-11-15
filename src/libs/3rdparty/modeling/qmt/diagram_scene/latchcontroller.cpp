@@ -140,7 +140,8 @@ void LatchController::mouseMoveEventLatching(QGraphicsSceneMouseEvent *event)
                 foreach (const ILatchable::Latch &palpedLatch, palpedHorizontals) {
                     foreach (const ILatchable::Latch &latch, horizontals) {
                         if (palpedLatch.m_latchType == latch.m_latchType) {
-                            // calculate distance and minimal distance with sign because this is needed later to move the objects
+                            // calculate distance and minimal distance with sign
+                            // because this is needed later to move the objects
                             qreal dist = latch.m_pos - palpedLatch.m_pos;
                             if (qAbs(dist) < qAbs(horizMinDist)) {
                                 horizMinDist = dist;
@@ -154,7 +155,8 @@ void LatchController::mouseMoveEventLatching(QGraphicsSceneMouseEvent *event)
                 foreach (const ILatchable::Latch &palpedLatch, palpedVerticals) {
                     foreach (const ILatchable::Latch &latch, verticals) {
                         if (palpedLatch.m_latchType == latch.m_latchType) {
-                            // calculate distance and minimal distance with sign because this is needed later to move the objects
+                            // calculate distance and minimal distance with sign
+                            // because this is needed later to move the objects
                             qreal dist = latch.m_pos - palpedLatch.m_pos;
                             if (qAbs(dist) < qAbs(vertMinDist)) {
                                 vertMinDist = dist;
