@@ -59,7 +59,7 @@
         \li \uicontrol {Qt Quick Controls UI} is like \uicontrol {Qt Quick UI},
             but using Qt Quick Controls.
 
-        \li \uicontrol {Qt Quick Extension Plugins} (in the \uicontrol Libraries category)
+        \li \uicontrol {Qt Quick Extension Plugins} (in the \uicontrol Library category)
             create C++ plugins that make it possible to offer extensions that
             can be loaded dynamically into Qt Quick applications. Select
             \uicontrol {Qt Quick 1 Extension Plugin} to create extensions for
