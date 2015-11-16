@@ -39,7 +39,7 @@
 
     \table
         \header
-            \li {1,3} Target Platform
+            \li {1,2} Target Platform
             \li {3,1} Development Platform
         \header
             \li Linux
