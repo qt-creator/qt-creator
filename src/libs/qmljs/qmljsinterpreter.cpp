@@ -1453,9 +1453,10 @@ void CppQmlTypes::load(const QString &originId, const T &fakeMetaObjects, const 
             object->setPrototype(proto);
     }
 }
+
 // explicitly instantiate load for list and hash
-template void CppQmlTypes::load< QList<FakeMetaObject::ConstPtr> >(const QString &, const QList<FakeMetaObject::ConstPtr> &, const QString &);
-template void CppQmlTypes::load< QHash<QString, FakeMetaObject::ConstPtr> >(const QString &, const QHash<QString, FakeMetaObject::ConstPtr> &, const QString &);
+template QMLJS_EXPORT void CppQmlTypes::load< QList<FakeMetaObject::ConstPtr> >(const QString &, const QList<FakeMetaObject::ConstPtr> &, const QString &);
+template QMLJS_EXPORT void CppQmlTypes::load< QHash<QString, FakeMetaObject::ConstPtr> >(const QString &, const QHash<QString, FakeMetaObject::ConstPtr> &, const QString &);
 
 QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QString &package, ComponentVersion version)
 {
