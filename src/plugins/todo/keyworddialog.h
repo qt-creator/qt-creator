@@ -41,6 +41,7 @@ namespace Internal {
 namespace Ui { class KeywordDialog; }
 
 class Keyword;
+enum class IconType;
 
 class KeywordDialog : public QDialog
 {
@@ -57,7 +58,7 @@ private slots:
     void acceptButtonClicked();
 
 private:
-    void setupListWidget(const QString &selectedIcon);
+    void setupListWidget(IconType selectedIcon);
     void setupColorWidgets(const QColor &color);
     bool canAccept();
     bool isKeywordNameCorrect();

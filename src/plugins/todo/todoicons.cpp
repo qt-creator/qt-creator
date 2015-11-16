@@ -29,33 +29,34 @@
 **
 ****************************************************************************/
 
-#include "keyword.h"
-
 #include <coreplugin/coreconstants.h>
 #include <utils/themehelper.h>
+
+#include "todoicons.h"
 
 namespace Todo {
 namespace Internal {
 
-Keyword::Keyword() : color(Qt::white)
+QIcon icon(IconType type)
 {
-}
-
-bool Keyword::equals(const Keyword &other) const
-{
-    return (this->name == other.name)
-        && (this->iconType == other.iconType)
-        && (this->color == other.color);
-}
-
-bool operator ==(Keyword &k1, Keyword &k2)
-{
-    return k1.equals(k2);
-}
-
-bool operator !=(Keyword &k1, Keyword &k2)
-{
-    return !k1.equals(k2);
+    switch (type) {
+    case IconType::Info: {
+        const static QIcon icon = Utils::ThemeHelper::themedIcon(
+                    QLatin1String(Core::Constants::ICON_INFO));
+        return icon;
+    }
+    case IconType::Warning: {
+        const static QIcon icon = Utils::ThemeHelper::themedIcon(
+                    QLatin1String(Core::Constants::ICON_WARNING));
+        return icon;
+    }
+    default:
+    case IconType::Error: {
+        const static QIcon icon = Utils::ThemeHelper::themedIcon(
+                    QLatin1String(Core::Constants::ICON_ERROR));
+        return icon;
+    }
+    }
 }
 
 } // namespace Internal

@@ -35,6 +35,8 @@ QtcPlugin {
         "qmljstodoitemsscanner.h",
         "settings.cpp",
         "settings.h",
+        "todoicons.h",
+        "todoicons.cpp",
         "todoitem.h",
         "todoitemsmodel.cpp",
         "todoitemsmodel.h",

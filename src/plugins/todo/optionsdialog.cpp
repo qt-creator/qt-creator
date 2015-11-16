@@ -72,8 +72,8 @@ void OptionsDialog::setSettings(const Settings &settings)
 void OptionsDialog::addToKeywordsList(const Keyword &keyword)
 {
     QListWidgetItem *item = new QListWidgetItem(
-                Utils::ThemeHelper::themedIcon(keyword.iconResource), keyword.name);
-    item->setData(Qt::UserRole, keyword.iconResource);
+                icon(keyword.iconType), keyword.name);
+    item->setData(Qt::UserRole, static_cast<int>(keyword.iconType));
     item->setBackgroundColor(keyword.color);
     ui->keywordsList->addItem(item);
 }
@@ -114,7 +114,7 @@ void OptionsDialog::editKeyword(QListWidgetItem *item)
 {
     Keyword keyword;
     keyword.name = item->text();
-    keyword.iconResource = item->data(Qt::UserRole).toString();
+    keyword.iconType = static_cast<IconType>(item->data(Qt::UserRole).toInt());
     keyword.color = item->backgroundColor();
 
     QSet<QString> keywordNamesButThis = keywordNames();
@@ -123,9 +123,9 @@ void OptionsDialog::editKeyword(QListWidgetItem *item)
     KeywordDialog *keywordDialog = new KeywordDialog(keyword, keywordNamesButThis, this);
     if (keywordDialog->exec() == QDialog::Accepted) {
         keyword = keywordDialog->keyword();
-        item->setIcon(Utils::ThemeHelper::themedIcon(keyword.iconResource));
+        item->setIcon(icon(keyword.iconType));
         item->setText(keyword.name);
-        item->setData(Qt::UserRole, keyword.iconResource);
+        item->setData(Qt::UserRole, static_cast<int>(keyword.iconType));
         item->setBackgroundColor(keyword.color);
     }
 }
@@ -177,7 +177,7 @@ Settings OptionsDialog::settingsFromUi()
 
         Keyword keyword;
         keyword.name = item->text();
-        keyword.iconResource = item->data(Qt::UserRole).toString();
+        keyword.iconType = static_cast<IconType>(item->data(Qt::UserRole).toInt());
         keyword.color = item->backgroundColor();
 
         settings.keywords << keyword;

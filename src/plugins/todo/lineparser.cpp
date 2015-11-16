@@ -175,7 +175,7 @@ QList<TodoItem> LineParser::todoItemsFromKeywordEntries(const QList<KeywordEntry
         TodoItem item;
         item.text =  m_keywords.at(entry.keywordIndex).name + entry.text;
         item.color = m_keywords.at(entry.keywordIndex).color;
-        item.iconResource = m_keywords.at(entry.keywordIndex).iconResource;
+        item.iconType = m_keywords.at(entry.keywordIndex).iconType;
         todoItems << item;
     }
 

@@ -33,6 +33,7 @@
 #define TODOITEM_H
 
 #include "constants.h"
+#include "todoicons.h"
 
 #include <QMetaType>
 #include <QString>
@@ -49,7 +50,7 @@ public:
     QString text;
     QString file;
     int line;
-    QString iconResource;
+    IconType iconType;
     QColor color;
 };
 

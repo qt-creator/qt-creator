@@ -100,7 +100,7 @@ QVariant TodoItemsModel::data(const QModelIndex &index, int role) const
                 case Qt::DisplayRole:
                     return item.text;
                 case Qt::DecorationRole:
-                    return QVariant::fromValue(Utils::ThemeHelper::themedIcon(item.iconResource));
+                    return icon(item.iconType);
             }
             break;
 

@@ -48,18 +48,29 @@ void Settings::save(QSettings *settings) const
     if (const int size = keywords.size()) {
         const QString nameKey = QLatin1String("name");
         const QString colorKey = QLatin1String("color");
-        const QString iconResourceKey = QLatin1String("iconResource");
+        const QString iconTypeKey = QLatin1String("iconType");
         for (int i = 0; i < size; ++i) {
             settings->setArrayIndex(i);
             settings->setValue(nameKey, keywords.at(i).name);
             settings->setValue(colorKey, keywords.at(i).color);
-            settings->setValue(iconResourceKey, keywords.at(i).iconResource);
+            settings->setValue(iconTypeKey, static_cast<int>(keywords.at(i).iconType));
         }
     }
     settings->endArray();
 
     settings->endGroup();
     settings->sync();
+}
+
+// Compatibility helper for transition from 3.6 to higher
+// TODO: remove in 4.0
+IconType resourceToTypeKey(const QString &key)
+{
+    if (key.contains(QLatin1String("error")))
+        return IconType::Error;
+    else if (key.contains(QLatin1String("warning")))
+        return IconType::Warning;
+    return IconType::Info;
 }
 
 void Settings::load(QSettings *settings)
@@ -76,13 +87,16 @@ void Settings::load(QSettings *settings)
     if (keywordsSize > 0) {
         const QString nameKey = QLatin1String("name");
         const QString colorKey = QLatin1String("color");
-        const QString iconResourceKey = QLatin1String("iconResource");
+        const QString iconResourceKey = QLatin1String("iconResource"); // Legacy since 3.7 TODO: remove in 4.0
+        const QString iconTypeKey = QLatin1String("iconType");
         for (int i = 0; i < keywordsSize; ++i) {
             settings->setArrayIndex(i);
             Keyword keyword;
             keyword.name = settings->value(nameKey).toString();
             keyword.color = settings->value(colorKey).value<QColor>();
-            keyword.iconResource = settings->value(iconResourceKey).toString();
+            keyword.iconType = settings->contains(iconTypeKey) ?
+                        static_cast<IconType>(settings->value(iconTypeKey).toInt())
+                      : resourceToTypeKey(settings->value(iconResourceKey).toString());
             newKeywords << keyword;
         }
         keywords = newKeywords;
@@ -101,27 +115,27 @@ void Settings::setDefault()
     Keyword keyword;
 
     keyword.name = QLatin1String("TODO");
-    keyword.iconResource = QLatin1String(Core::Constants::ICON_WARNING);
+    keyword.iconType = IconType::Warning;
     keyword.color = QColor(QLatin1String(Constants::COLOR_TODO_BG));
     keywords.append(keyword);
 
     keyword.name = QLatin1String("NOTE");
-    keyword.iconResource = QLatin1String(Core::Constants::ICON_INFO);
+    keyword.iconType = IconType::Info;
     keyword.color = QColor(QLatin1String(Constants::COLOR_NOTE_BG));
     keywords.append(keyword);
 
     keyword.name = QLatin1String("FIXME");
-    keyword.iconResource = QLatin1String(Core::Constants::ICON_ERROR);
+    keyword.iconType = IconType::Error;
     keyword.color = QColor(QLatin1String(Constants::COLOR_FIXME_BG));
     keywords.append(keyword);
 
     keyword.name = QLatin1String("BUG");
-    keyword.iconResource = QLatin1String(Core::Constants::ICON_ERROR);
+    keyword.iconType = IconType::Error;
     keyword.color = QColor(QLatin1String(Constants::COLOR_BUG_BG));
     keywords.append(keyword);
 
     keyword.name = QLatin1String("WARNING");
-    keyword.iconResource = QLatin1String(Core::Constants::ICON_WARNING);
+    keyword.iconType = IconType::Warning;
     keyword.color = QColor(QLatin1String(Constants::COLOR_WARNING_BG));
     keywords.append(keyword);
 }

@@ -32,6 +32,8 @@
 #ifndef KEYWORD_H
 #define KEYWORD_H
 
+#include "todoicons.h"
+
 #include <QColor>
 #include <QString>
 #include <QList>
@@ -46,7 +48,7 @@ public:
     Keyword();
 
     QString name;
-    QString iconResource;
+    IconType iconType;
     QColor color;
     bool equals(const Keyword &other) const;
 };

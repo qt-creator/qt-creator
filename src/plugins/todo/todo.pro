@@ -17,7 +17,8 @@ HEADERS += todoplugin.h \
     lineparser.h \
     todooutputtreeview.h \
     todooutputtreeviewdelegate.h \
-    todoprojectsettingswidget.h
+    todoprojectsettingswidget.h \
+    todoicons.h
 
 SOURCES += todoplugin.cpp \
     keyword.cpp \
@@ -34,7 +35,8 @@ SOURCES += todoplugin.cpp \
     lineparser.cpp \
     todooutputtreeview.cpp \
     todooutputtreeviewdelegate.cpp \
-    todoprojectsettingswidget.cpp
+    todoprojectsettingswidget.cpp \
+    todoicons.cpp
 
 RESOURCES += \
     todoplugin.qrc

@@ -50,7 +50,7 @@ KeywordDialog::KeywordDialog(const Keyword &keyword, const QSet<QString> &alread
     m_alreadyUsedKeywordNames(alreadyUsedKeywordNames)
 {
     ui->setupUi(this);
-    setupListWidget(keyword.iconResource);
+    setupListWidget(keyword.iconType);
     setupColorWidgets(keyword.color);
     ui->keywordNameEdit->setText(keyword.name);
     ui->errorLabel->hide();
@@ -68,7 +68,7 @@ Keyword KeywordDialog::keyword()
 {
     Keyword result;
     result.name = keywordName();
-    result.iconResource = ui->listWidget->currentItem()->data(Qt::UserRole).toString();
+    result.iconType = static_cast<IconType>(ui->listWidget->currentItem()->data(Qt::UserRole).toInt());
     result.color = ui->colorEdit->text();
 
     return result;
@@ -85,31 +85,27 @@ void KeywordDialog::acceptButtonClicked()
         accept();
 }
 
-void KeywordDialog::setupListWidget(const QString &selectedIcon)
+void KeywordDialog::setupListWidget(IconType selectedIcon)
 {
     ui->listWidget->setViewMode(QListWidget::IconMode);
     ui->listWidget->setDragEnabled(false);
-    const QString infoIconName = QLatin1String(Core::Constants::ICON_INFO);
-    QListWidgetItem *item = new QListWidgetItem(Utils::ThemeHelper::themedIcon(infoIconName),
-                                                QLatin1String("information"));
-    item->setData(Qt::UserRole, infoIconName);
+
+    QListWidgetItem *item =
+            new QListWidgetItem(icon(IconType::Info), QLatin1String("information"));
+    item->setData(Qt::UserRole, static_cast<int>(IconType::Info));
     ui->listWidget->addItem(item);
 
-    const QString warningIconName = QLatin1String(Core::Constants::ICON_WARNING);
-    item = new QListWidgetItem(Utils::ThemeHelper::themedIcon(warningIconName),
-                               QLatin1String("warning"));
-    item->setData(Qt::UserRole, warningIconName);
+    item = new QListWidgetItem(icon(IconType::Warning), QLatin1String("warning"));
+    item->setData(Qt::UserRole, static_cast<int>(IconType::Warning));
     ui->listWidget->addItem(item);
 
-    const QString errorIconName = QLatin1String(Core::Constants::ICON_ERROR);
-    item = new QListWidgetItem(Utils::ThemeHelper::themedIcon(errorIconName),
-                               QLatin1String("error"));
-    item->setData(Qt::UserRole, errorIconName);
+    item = new QListWidgetItem(icon(IconType::Error), QLatin1String("error"));
+    item->setData(Qt::UserRole, static_cast<int>(IconType::Error));
     ui->listWidget->addItem(item);
 
     for (int i = 0; i < ui->listWidget->count(); ++i) {
         item = ui->listWidget->item(i);
-        if (item->data(Qt::UserRole).toString() == selectedIcon) {
+        if (static_cast<IconType>(item->data(Qt::UserRole).toInt()) == selectedIcon) {
             ui->listWidget->setCurrentItem(item);
             break;
         }
