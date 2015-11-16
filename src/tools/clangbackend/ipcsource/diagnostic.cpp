@@ -113,7 +113,7 @@ std::vector<SourceRange> Diagnostic::ranges() const
         const SourceRange sourceRange(clang_getDiagnosticRange(cxDiagnostic, index));
 
         if (sourceRange.isValid())
-            ranges.push_back(SourceRange(clang_getDiagnosticRange(cxDiagnostic, index)));
+            ranges.push_back(std::move(sourceRange));
     }
 
     return ranges;
