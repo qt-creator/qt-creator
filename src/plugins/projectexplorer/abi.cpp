@@ -471,7 +471,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
     Abi::OS os = Abi::UnknownOS;
     Abi::OSFlavor flavor = Abi::UnknownFlavor;
     Abi::BinaryFormat format = Abi::UnknownFormat;
-    int width = 0;
+    unsigned char width = 0;
     int unknownCount = 0;
 
     foreach (const QString &p, parts) {
