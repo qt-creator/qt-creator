@@ -39,7 +39,6 @@
 namespace QmlDebug {
 
 const int protocolVersion = 1;
-int QmlDebugClient::s_dataStreamVersion = QDataStream::Qt_4_7;
 
 const QString serverId = QLatin1String("QDeclarativeDebugServer");
 const QString clientId = QLatin1String("QDeclarativeDebugClient");
@@ -67,6 +66,9 @@ public:
     QHash <QString, float> serverPlugins;
     QHash<QString, QmlDebugClient *> plugins;
 
+    int currentDataStreamVersion;
+    int maximumDataStreamVersion;
+
     void advertisePlugins();
     void flush();
 
@@ -79,7 +81,9 @@ public slots:
 };
 
 QmlDebugConnectionPrivate::QmlDebugConnectionPrivate(QmlDebugConnection *c)
-    : QObject(c), q(c), protocol(0), device(0), gotHello(false)
+    : QObject(c), q(c), protocol(0), device(0), gotHello(false),
+    currentDataStreamVersion(QDataStream::Qt_4_7),
+    maximumDataStreamVersion(QDataStream::Qt_DefaultCompiledVersion)
 {
 }
 
@@ -88,17 +92,17 @@ void QmlDebugConnectionPrivate::advertisePlugins()
     if (!q->isOpen())
         return;
 
-    QPacket pack;
+    QPacket pack(currentDataStreamVersion);
     pack << serverId << 1 << plugins.keys();
-    protocol->send(pack);
+    protocol->send(pack.data());
     flush();
 }
 
 void QmlDebugConnectionPrivate::connected()
 {
-    QPacket pack;
-    pack << serverId << 0 << protocolVersion << plugins.keys() << QDataStream().version();
-    protocol->send(pack);
+    QPacket pack(currentDataStreamVersion);
+    pack << serverId << 0 << protocolVersion << plugins.keys() << maximumDataStreamVersion;
+    protocol->send(pack.data());
     flush();
 }
 
@@ -134,7 +138,7 @@ void QmlDebugConnectionPrivate::error(QAbstractSocket::SocketError socketError)
 void QmlDebugConnectionPrivate::readyRead()
 {
     if (!gotHello) {
-        QPacket pack = protocol->read();
+        QPacket pack(currentDataStreamVersion, protocol->read());
         QString name;
 
         pack >> name;
@@ -150,7 +154,7 @@ void QmlDebugConnectionPrivate::readyRead()
                     QStringList pluginNames;
                     QList<float> pluginVersions;
                     pack >> pluginNames;
-                    if (!pack.isEmpty())
+                    if (!pack.atEnd())
                         pack >> pluginVersions;
 
                     const int pluginNamesSize = pluginNames.size();
@@ -163,9 +167,8 @@ void QmlDebugConnectionPrivate::readyRead()
                     }
 
                     if (!pack.atEnd()) {
-                        pack >> QmlDebugClient::s_dataStreamVersion;
-                        if (QmlDebugClient::s_dataStreamVersion
-                                > QDataStream().version())
+                        pack >> currentDataStreamVersion;
+                        if (currentDataStreamVersion > maximumDataStreamVersion)
                             qWarning() << "Server returned invalid data stream version!";
                     }
                     validHello = true;
@@ -192,7 +195,7 @@ void QmlDebugConnectionPrivate::readyRead()
     }
 
     while (protocol && protocol->packetsAvailable()) {
-        QPacket pack = protocol->read();
+        QPacket pack(currentDataStreamVersion, protocol->read());
         QString name;
         pack >> name;
 
@@ -208,7 +211,7 @@ void QmlDebugConnectionPrivate::readyRead()
                 QStringList pluginNames;
                 QList<float> pluginVersions;
                 pack >> pluginNames;
-                if (!pack.isEmpty())
+                if (!pack.atEnd())
                     pack >> pluginVersions;
 
                 const int pluginNamesSize = pluginNames.size();
@@ -334,7 +337,15 @@ void QmlDebugConnection::connectToHost(const QString &hostName, quint16 port)
     socket->connectToHost(hostName, port);
 }
 
-//
+int QmlDebugConnection::currentDataStreamVersion() const
+{
+    return d->currentDataStreamVersion;
+}
+
+void QmlDebugConnection::setMaximumDataStreamVersion(int maximumVersion)
+{
+    d->maximumDataStreamVersion = maximumVersion;
+}
 
 QmlDebugClientPrivate::QmlDebugClientPrivate()
     : connection(0)
@@ -412,9 +423,9 @@ void QmlDebugClient::sendMessage(const QByteArray &message)
     if (state() != Enabled)
         return;
 
-    QPacket pack;
+    QPacket pack(d->connection->currentDataStreamVersion());
     pack << d->name << message;
-    d->connection->d->protocol->send(pack);
+    d->connection->d->protocol->send(pack.data());
     d->connection->d->flush();
 }
 
@@ -424,30 +435,6 @@ void QmlDebugClient::stateChanged(State)
 
 void QmlDebugClient::messageReceived(const QByteArray &)
 {
-}
-
-QmlDebugStream::QmlDebugStream()
-    : QDataStream()
-{
-    setVersion(QmlDebugClient::s_dataStreamVersion);
-}
-
-QmlDebugStream::QmlDebugStream(QIODevice *d)
-    : QDataStream(d)
-{
-    setVersion(QmlDebugClient::s_dataStreamVersion);
-}
-
-QmlDebugStream::QmlDebugStream(QByteArray *ba, QIODevice::OpenMode flags)
-    : QDataStream(ba, flags)
-{
-    setVersion(QmlDebugClient::s_dataStreamVersion);
-}
-
-QmlDebugStream::QmlDebugStream(const QByteArray &ba)
-    : QDataStream(ba)
-{
-    setVersion(QmlDebugClient::s_dataStreamVersion);
 }
 
 } // namespace QmlDebug

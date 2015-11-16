@@ -31,6 +31,7 @@
 #include "declarativeenginedebugclient.h"
 #include "qmldebugconstants.h"
 #include "qmldebugclient.h"
+#include "qpacketprotocol.h"
 
 namespace QmlDebug {
 
@@ -50,11 +51,10 @@ quint32 DeclarativeEngineDebugClient::setBindingForObject(
     quint32 id = 0;
     if (state() == Enabled && objectDebugId != -1) {
         id = getId();
-        QByteArray message;
-        QmlDebugStream ds(&message, QIODevice::WriteOnly);
+        QPacket ds(connection()->currentDataStreamVersion());
         ds << QByteArray("SET_BINDING") << objectDebugId << propertyName
            << bindingExpression << isLiteralValue << source << line;
-        sendMessage(message);
+        sendMessage(ds.data());
     }
     return id;
 }
@@ -66,10 +66,9 @@ quint32 DeclarativeEngineDebugClient::resetBindingForObject(
     quint32 id = 0;
     if (state() == Enabled && objectDebugId != -1) {
         id = getId();
-        QByteArray message;
-        QmlDebugStream ds(&message, QIODevice::WriteOnly);
+        QPacket ds(connection()->currentDataStreamVersion());
         ds << QByteArray("RESET_BINDING") << objectDebugId << propertyName;
-        sendMessage(message);
+        sendMessage(ds.data());
     }
     return id;
 }
@@ -81,18 +80,17 @@ quint32 DeclarativeEngineDebugClient::setMethodBody(
     quint32 id = 0;
     if (state() == Enabled && objectDebugId != -1) {
         id = getId();
-        QByteArray message;
-        QmlDebugStream ds(&message, QIODevice::WriteOnly);
+        QPacket ds(connection()->currentDataStreamVersion());
         ds << QByteArray("SET_METHOD_BODY") << objectDebugId
            << methodName << methodBody;
-        sendMessage(message);
+        sendMessage(ds.data());
     }
     return id;
 }
 
 void DeclarativeEngineDebugClient::messageReceived(const QByteArray &data)
 {
-    QmlDebugStream ds(data);
+    QPacket ds(connection()->currentDataStreamVersion(), data);
     QByteArray type;
     ds >> type;
 

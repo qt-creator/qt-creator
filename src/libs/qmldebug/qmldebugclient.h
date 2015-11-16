@@ -56,6 +56,9 @@ public:
 
     void connectToHost(const QString &hostName, quint16 port);
 
+    int currentDataStreamVersion() const;
+    void setMaximumDataStreamVersion(int maximumVersion);
+
     bool isOpen() const;
     bool isConnecting() const;
     void close();
@@ -103,17 +106,7 @@ private:
     friend class QmlDebugConnectionPrivate;
     QScopedPointer<QmlDebugClientPrivate> d_ptr;
 
-public:
-    static int s_dataStreamVersion;
-};
 
-class QMLDEBUG_EXPORT QmlDebugStream : public QDataStream
-{
-public:
-    QmlDebugStream();
-    explicit QmlDebugStream(QIODevice *d);
-    QmlDebugStream(QByteArray *ba, QIODevice::OpenMode flags);
-    QmlDebugStream(const QByteArray &ba);
 };
 
 } // namespace QmlDebug

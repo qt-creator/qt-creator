@@ -31,6 +31,7 @@
 #include "qmlprofilertraceclient.h"
 #include "qmlenginecontrolclient.h"
 #include "qdebugmessageclient.h"
+#include "qpacketprotocol.h"
 
 namespace QmlDebug {
 
@@ -76,12 +77,11 @@ static const int GAP_TIME = 150;
 
 void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
 {
-    QByteArray ba;
-    QmlDebugStream stream(&ba, QIODevice::WriteOnly);
+    QPacket stream(q->connection()->currentDataStreamVersion());
     stream << recording << engineId; // engineId -1 is OK. It means "all of them"
     if (recording)
         stream << requestedFeatures << flushInterval;
-    q->sendMessage(ba);
+    q->sendMessage(stream.data());
 }
 
 QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebugConnection *client, quint64 features)
@@ -201,8 +201,7 @@ void QmlProfilerTraceClient::stateChanged(State /*status*/)
 
 void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
 {
-    QByteArray rwData = data;
-    QmlDebugStream stream(&rwData, QIODevice::ReadOnly);
+    QPacket stream(connection()->currentDataStreamVersion(), data);
 
     qint64 time;
     int messageType;

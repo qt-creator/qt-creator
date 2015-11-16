@@ -57,6 +57,7 @@
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/consolemanagerinterface.h>
+#include <qmldebug/qpacketprotocol.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -1504,11 +1505,10 @@ void QmlEnginePrivate::setBreakpoint(const QString type, const QString target,
     //                    }
     //    }
     if (type == _(EVENT)) {
-        QByteArray params;
-        QmlDebugStream rs(&params, QIODevice::WriteOnly);
+        QPacket rs(connection->currentDataStreamVersion());
         rs <<  target.toUtf8() << enabled;
         engine->showMessage(QString(_("%1 %2 %3")).arg(_(BREAKONSIGNAL), target, enabled ? _("enabled") : _("disabled")), LogInput);
-        runDirectCommand(BREAKONSIGNAL, params);
+        runDirectCommand(BREAKONSIGNAL, rs.data());
 
     } else {
         DebuggerCommand cmd(SETBREAKPOINT);
@@ -1704,14 +1704,13 @@ void QmlEnginePrivate::runDirectCommand(const QByteArray &type, const QByteArray
 
     engine->showMessage(QString::fromLatin1("%1 %2").arg(_(type), _(msg)), LogInput);
 
-    QByteArray request;
-    QmlDebugStream rs(&request, QIODevice::WriteOnly);
+    QPacket rs(connection->currentDataStreamVersion());
     rs << cmd << type << msg;
 
     if (state() == Enabled)
-        sendMessage(request);
+        sendMessage(rs.data());
     else
-        sendBuffer.append(request);
+        sendBuffer.append(rs.data());
 }
 
 void QmlEnginePrivate::memorizeRefs(const QVariant &refs)
@@ -1727,7 +1726,7 @@ void QmlEnginePrivate::memorizeRefs(const QVariant &refs)
 
 void QmlEnginePrivate::messageReceived(const QByteArray &data)
 {
-    QmlDebugStream ds(data);
+    QPacket ds(connection->currentDataStreamVersion(), data);
     QByteArray command;
     ds >> command;
 

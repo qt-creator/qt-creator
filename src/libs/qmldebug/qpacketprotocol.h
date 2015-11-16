@@ -31,81 +31,54 @@
 #ifndef QPACKETPROTOCOL_H
 #define QPACKETPROTOCOL_H
 
+#include "qmldebug_global.h"
+
 #include <qobject.h>
 #include <qdatastream.h>
+#include <qbuffer.h>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;
-class QBuffer;
 QT_END_NAMESPACE
 
 namespace QmlDebug {
 
-class QPacket;
-class QPacketAutoSend;
-
 class QPacketProtocolPrivate;
-
-class QPacketProtocol : public QObject
+class QMLDEBUG_EXPORT QPacketProtocol : public QObject
 {
     Q_OBJECT
-
+    Q_DECLARE_PRIVATE(QPacketProtocol)
 public:
     explicit QPacketProtocol(QIODevice *dev, QObject *parent = 0);
-    virtual ~QPacketProtocol();
 
-    qint32 maximumPacketSize() const;
-    qint32 setMaximumPacketSize(qint32);
-
-    QPacketAutoSend send();
-    void send(const QPacket &);
-
+    void send(const QByteArray &data);
     qint64 packetsAvailable() const;
-    QPacket read();
-
+    QByteArray read();
     bool waitForReadyRead(int msecs = 3000);
 
-    void clear();
-
-    QIODevice *device();
-
-signals:
+Q_SIGNALS:
     void readyRead();
     void invalidPacket();
-    void packetWritten();
+
+private Q_SLOTS:
+    void aboutToClose();
+    void bytesWritten(qint64 bytes);
+    void readyToRead();
 
 private:
     QPacketProtocolPrivate *d;
 };
 
-
-class QPacket : public QDataStream
+class QMLDEBUG_EXPORT QPacket : public QDataStream
 {
 public:
-    QPacket();
-    QPacket(const QPacket &);
-    virtual ~QPacket();
-
-    void clear();
-    bool isEmpty() const;
+    QPacket(int version);
+    explicit QPacket(int version, const QByteArray &ba);
     QByteArray data() const;
 
-protected:
-    friend class QPacketProtocol;
-    QPacket(const QByteArray &ba);
-    QByteArray b;
-    QBuffer *buf;
-};
-
-class QPacketAutoSend : public QPacket
-{
-public:
-    virtual ~QPacketAutoSend();
-
 private:
-    friend class QPacketProtocol;
-    QPacketAutoSend(QPacketProtocol *);
-    QPacketProtocol *p;
+    void init(QIODevice::OpenMode mode);
+    QBuffer buf;
 };
 
 } // QmlDebug
