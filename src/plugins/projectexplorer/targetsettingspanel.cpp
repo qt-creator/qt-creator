@@ -330,10 +330,7 @@ void TargetSettingsPanelWidget::addActionTriggered(QAction *action)
         Kit *k = KitManager::find(action->data().value<Id>());
         QTC_ASSERT(!m_project->target(k), return);
 
-        Target *target = m_project->createTarget(k);
-        if (!target)
-            return;
-        m_project->addTarget(target);
+        m_project->addTarget(m_project->createTarget(k));
     } else {
         QTC_ASSERT(data.canConvert<IPotentialKit *>(), return);
         IPotentialKit *potentialKit = data.value<IPotentialKit *>();
@@ -507,7 +504,6 @@ void TargetSettingsPanelWidget::removeTarget(Target *t)
     }
 
     m_project->removeTarget(t);
-
 }
 
 void TargetSettingsPanelWidget::showTargetToolTip(const QPoint &globalPos, int targetIndex)
