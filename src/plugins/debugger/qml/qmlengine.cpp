@@ -291,11 +291,9 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
     connect(&d->connectionTimer, &QTimer::timeout,
             this, &QmlEngine::checkConnectionState);
 
-    connect(d->connection, &QmlDebugConnection::stateMessage,
-            this, &QmlEngine::showConnectionStateMessage);
-    connect(d->connection, &QmlDebugConnection::errorMessage,
-            this, &QmlEngine::showConnectionErrorMessage);
-    connect(d->connection, &QmlDebugConnection::error,
+    connect(d->connection, &QmlDebugConnection::socketStateChanged,
+            this, &QmlEngine::connectionStateChanged);
+    connect(d->connection, &QmlDebugConnection::socketError,
             this, &QmlEngine::connectionErrorOccurred);
     connect(d->connection, &QmlDebugConnection::connected,
             &d->connectionTimer, &QTimer::stop);
@@ -1213,11 +1211,11 @@ bool QmlEnginePrivate::canEvaluateScript(const QString &script)
     return interpreter.canEvaluate();
 }
 
-void QmlEngine::connectionErrorOccurred(QDebugSupport::Error error)
+void QmlEngine::connectionErrorOccurred(QAbstractSocket::SocketError error)
 {
     // this is only an error if we are already connected and something goes wrong.
     if (isConnected()) {
-        if (error == QDebugSupport::RemoteClosedConnectionError)
+        if (error == QAbstractSocket::RemoteHostClosedError)
             showMessage(tr("QML Debugger: Remote host closed connection."), StatusBar);
 
         if (!isSlaveEngine()) { // normal flow for slave engine when gdb exits
@@ -1228,6 +1226,11 @@ void QmlEngine::connectionErrorOccurred(QDebugSupport::Error error)
         d->connectionTimer.stop();
         connectionStartupFailed();
     }
+}
+
+void QmlEngine::connectionStateChanged(QAbstractSocket::SocketState socketState)
+{
+    showConnectionStateMessage(QmlDebugConnection::socketStateToString(socketState));
 }
 
 void QmlEngine::clientStateChanged(QmlDebugClient::State state)
@@ -1258,11 +1261,6 @@ bool QmlEngine::isConnected() const
 void QmlEngine::showConnectionStateMessage(const QString &message)
 {
     showMessage(_("QML Debugger: ") + message, LogStatus);
-}
-
-void QmlEngine::showConnectionErrorMessage(const QString &message)
-{
-    showMessage(_("QML Debugger: ") + message, LogError);
 }
 
 void QmlEngine::logServiceStateChange(const QString &service, float version,

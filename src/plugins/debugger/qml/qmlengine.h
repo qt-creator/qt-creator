@@ -34,7 +34,6 @@
 #include <debugger/debuggerengine.h>
 
 #include <qmldebug/qdebugmessageclient.h>
-#include <qmldebug/qmldebugclient.h>
 #include <qmldebug/qmloutputparser.h>
 #include <qmljs/iscriptevaluator.h>
 #include <qmljs/qmljsdocument.h>
@@ -142,11 +141,12 @@ private:
     void startApplicationLauncher();
     void stopApplicationLauncher();
 
-    void connectionErrorOccurred(QDebugSupport::Error socketError);
+    void connectionErrorOccurred(QAbstractSocket::SocketError socketError);
+    void connectionStateChanged(QAbstractSocket::SocketState socketState);
+
     void clientStateChanged(QmlDebug::QmlDebugClient::State state);
     void checkConnectionState();
     void showConnectionStateMessage(const QString &message);
-    void showConnectionErrorMessage(const QString &message);
     bool isConnected() const;
 
 private:

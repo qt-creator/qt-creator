@@ -33,10 +33,10 @@
 
 #include "qmlprofilerstatemanager.h"
 #include <qmldebug/qmlprofilereventlocation.h>
-#include <qmldebug/qmldebugclient.h>
 
 #include <QObject>
 #include <QStringList>
+#include <QAbstractSocket>
 
 namespace QmlProfiler {
 class QmlProfilerModelManager;
@@ -72,7 +72,8 @@ private slots:
     void tryToConnect();
     void qmlDebugConnectionOpened();
     void qmlDebugConnectionClosed();
-    void qmlDebugConnectionError(QDebugSupport::Error error);
+    void qmlDebugConnectionError(QAbstractSocket::SocketError error);
+    void qmlDebugConnectionStateChanged(QAbstractSocket::SocketState state);
     void logState(const QString &);
 
     void retryMessageBoxFinished(int result);

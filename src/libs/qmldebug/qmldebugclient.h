@@ -36,13 +36,6 @@
 
 #include <QDataStream>
 
-namespace QDebugSupport {
-enum Error {
-    RemoteClosedConnectionError,
-    UnknownError
-};
-}
-
 namespace QmlDebug {
 
 class QmlDebugConnectionPrivate;
@@ -64,12 +57,14 @@ public:
     void close();
 
     float serviceVersion(const QString &serviceName) const;
+    static QString socketStateToString(QAbstractSocket::SocketState state);
+    static QString socketErrorToString(QAbstractSocket::SocketError error);
+
 signals:
     void connected();
     void disconnected();
-    void error(QDebugSupport::Error);
-    void stateMessage(const QString &message);
-    void errorMessage(const QString &message);
+    void socketError(QAbstractSocket::SocketError error);
+    void socketStateChanged(QAbstractSocket::SocketState state);
 
 private:
     friend class QmlDebugConnectionPrivate;

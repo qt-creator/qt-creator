@@ -32,7 +32,6 @@
 #include "qmlprofilertool.h"
 #include "qmlprofilerplugin.h"
 
-#include <qmldebug/qmldebugclient.h>
 #include <qmldebug/qmlprofilertraceclient.h>
 
 #include <utils/qtcassert.h>
@@ -132,16 +131,14 @@ void QmlProfilerClientManager::connectClient(quint16 port)
 
     d->connection = new QmlDebugConnection;
     enableServices();
-    connect(d->connection, &QmlDebugConnection::stateMessage,
-            this, &QmlProfilerClientManager::logState);
-    connect(d->connection, &QmlDebugConnection::errorMessage,
-            this, &QmlProfilerClientManager::logState);
     connect(d->connection, &QmlDebugConnection::connected,
             this, &QmlProfilerClientManager::qmlDebugConnectionOpened);
     connect(d->connection, &QmlDebugConnection::disconnected,
             this, &QmlProfilerClientManager::qmlDebugConnectionClosed);
-    connect(d->connection, &QmlDebugConnection::error,
+    connect(d->connection, &QmlDebugConnection::socketError,
             this, &QmlProfilerClientManager::qmlDebugConnectionError);
+    connect(d->connection, &QmlDebugConnection::socketStateChanged,
+            this, &QmlProfilerClientManager::qmlDebugConnectionStateChanged);
     d->connectionTimer.start();
     d->tcpPort = port;
 }
@@ -273,15 +270,20 @@ void QmlProfilerClientManager::qmlDebugConnectionClosed()
     emit connectionClosed();
 }
 
-void QmlProfilerClientManager::qmlDebugConnectionError(QDebugSupport::Error error)
+void QmlProfilerClientManager::qmlDebugConnectionError(QAbstractSocket::SocketError error)
 {
-    logState(tr("Debug connection error %1").arg(error));
+    logState(QmlDebugConnection::socketErrorToString(error));
     if (d->connection->isConnected()) {
         disconnectClient();
         emit connectionClosed();
     } else {
         disconnectClient();
     }
+}
+
+void QmlProfilerClientManager::qmlDebugConnectionStateChanged(QAbstractSocket::SocketState state)
+{
+    logState(QmlDebugConnection::socketStateToString(state));
 }
 
 void QmlProfilerClientManager::logState(const QString &msg)
