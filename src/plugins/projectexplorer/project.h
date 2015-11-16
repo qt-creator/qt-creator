@@ -102,6 +102,7 @@ public:
     virtual bool supportsKit(Kit *k, QString *errorMessage = 0) const;
 
     Target *createTarget(Kit *k);
+    Target *cloneTarget(Target *sourceTarget, Kit *k);
     Target *restoreTarget(const QVariantMap &data);
 
     void saveSettings();

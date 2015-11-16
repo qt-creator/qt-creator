@@ -51,8 +51,6 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/runconfiguration.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -303,7 +301,7 @@ void TargetSettingsPanelWidget::changeActionTriggered(QAction *action)
 {
     Kit *k = KitManager::find(action->data().value<Id>());
     Target *sourceTarget = m_targets.at(m_menuTargetIndex);
-    Target *newTarget = cloneTarget(sourceTarget, k);
+    Target *newTarget = m_project->cloneTarget(sourceTarget, k);
 
     if (newTarget) {
         m_project->addTarget(newTarget);
@@ -315,7 +313,7 @@ void TargetSettingsPanelWidget::changeActionTriggered(QAction *action)
 void TargetSettingsPanelWidget::duplicateActionTriggered(QAction *action)
 {
     Kit *k = KitManager::find(action->data().value<Id>());
-    Target *newTarget = cloneTarget(m_targets.at(m_menuTargetIndex), k);
+    Target *newTarget = m_project->cloneTarget(m_targets.at(m_menuTargetIndex), k);
 
     if (newTarget) {
         m_project->addTarget(newTarget);
@@ -336,140 +334,6 @@ void TargetSettingsPanelWidget::addActionTriggered(QAction *action)
         IPotentialKit *potentialKit = data.value<IPotentialKit *>();
         potentialKit->executeFromMenu();
     }
-}
-
-Target *TargetSettingsPanelWidget::cloneTarget(Target *sourceTarget, Kit *k)
-{
-    Target *newTarget = new Target(m_project, k);
-
-    QStringList buildconfigurationError;
-    QStringList deployconfigurationError;
-    QStringList runconfigurationError;
-
-    foreach (BuildConfiguration *sourceBc, sourceTarget->buildConfigurations()) {
-        IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(newTarget, sourceBc);
-        if (!factory) {
-            buildconfigurationError << sourceBc->displayName();
-            continue;
-        }
-        BuildConfiguration *newBc = factory->clone(newTarget, sourceBc);
-        if (!newBc) {
-            buildconfigurationError << sourceBc->displayName();
-            continue;
-        }
-        newBc->setDisplayName(sourceBc->displayName());
-        newTarget->addBuildConfiguration(newBc);
-        if (sourceTarget->activeBuildConfiguration() == sourceBc)
-            SessionManager::setActiveBuildConfiguration(newTarget, newBc, SetActive::NoCascade);
-    }
-    if (!newTarget->activeBuildConfiguration()) {
-        QList<BuildConfiguration *> bcs = newTarget->buildConfigurations();
-        if (!bcs.isEmpty())
-            SessionManager::setActiveBuildConfiguration(newTarget, bcs.first(), SetActive::NoCascade);
-    }
-
-    foreach (DeployConfiguration *sourceDc, sourceTarget->deployConfigurations()) {
-        DeployConfigurationFactory *factory = DeployConfigurationFactory::find(newTarget, sourceDc);
-        if (!factory) {
-            deployconfigurationError << sourceDc->displayName();
-            continue;
-        }
-        DeployConfiguration *newDc = factory->clone(newTarget, sourceDc);
-        if (!newDc) {
-            deployconfigurationError << sourceDc->displayName();
-            continue;
-        }
-        newDc->setDisplayName(sourceDc->displayName());
-        newTarget->addDeployConfiguration(newDc);
-        if (sourceTarget->activeDeployConfiguration() == sourceDc)
-            SessionManager::setActiveDeployConfiguration(newTarget, newDc, SetActive::NoCascade);
-    }
-    if (!newTarget->activeBuildConfiguration()) {
-        QList<DeployConfiguration *> dcs = newTarget->deployConfigurations();
-        if (!dcs.isEmpty())
-            SessionManager::setActiveDeployConfiguration(newTarget, dcs.first(), SetActive::NoCascade);
-    }
-
-    foreach (RunConfiguration *sourceRc, sourceTarget->runConfigurations()) {
-        IRunConfigurationFactory *factory = IRunConfigurationFactory::find(newTarget, sourceRc);
-        if (!factory) {
-            runconfigurationError << sourceRc->displayName();
-            continue;
-        }
-        RunConfiguration *newRc = factory->clone(newTarget, sourceRc);
-        if (!newRc) {
-            runconfigurationError << sourceRc->displayName();
-            continue;
-        }
-        newRc->setDisplayName(sourceRc->displayName());
-        newTarget->addRunConfiguration(newRc);
-        if (sourceTarget->activeRunConfiguration() == sourceRc)
-            newTarget->setActiveRunConfiguration(newRc);
-    }
-    if (!newTarget->activeRunConfiguration()) {
-        QList<RunConfiguration *> rcs = newTarget->runConfigurations();
-        if (!rcs.isEmpty())
-            newTarget->setActiveRunConfiguration(rcs.first());
-    }
-
-    bool fatalError = false;
-    if (buildconfigurationError.count() == sourceTarget->buildConfigurations().count())
-        fatalError = true;
-
-    if (deployconfigurationError.count() == sourceTarget->deployConfigurations().count())
-        fatalError = true;
-
-    if (runconfigurationError.count() == sourceTarget->runConfigurations().count())
-        fatalError = true;
-
-    if (fatalError) {
-        // That could be a more granular error message
-        QMessageBox::critical(ICore::mainWindow(),
-                              tr("Incompatible Kit"),
-                              tr("Kit %1 is incompatible with kit %2.")
-                              .arg(sourceTarget->kit()->displayName())
-                              .arg(k->displayName()));
-
-        delete newTarget;
-        newTarget = 0;
-    } else if (!buildconfigurationError.isEmpty()
-               || !deployconfigurationError.isEmpty()
-               || ! runconfigurationError.isEmpty()) {
-
-        QString error;
-        if (!buildconfigurationError.isEmpty())
-            error += tr("Build configurations:")
-                    + QLatin1Char('\n')
-                    + buildconfigurationError.join(QLatin1Char('\n'));
-
-        if (!deployconfigurationError.isEmpty()) {
-            if (!error.isEmpty())
-                error.append(QLatin1Char('\n'));
-            error += tr("Deploy configurations:")
-                    + QLatin1Char('\n')
-                    + deployconfigurationError.join(QLatin1Char('\n'));
-        }
-
-        if (!runconfigurationError.isEmpty()) {
-            if (!error.isEmpty())
-                error.append(QLatin1Char('\n'));
-            error += tr("Run configurations") + QLatin1Char(' ')
-                    + runconfigurationError.join(QLatin1Char('\n'));
-        }
-
-        QMessageBox msgBox(ICore::mainWindow());
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setWindowTitle(tr("Partially Incompatible Kit"));
-        msgBox.setText(tr("Some configurations could not be copied."));
-        msgBox.setDetailedText(error);
-        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-        if (msgBox.exec() != QDialog::Accepted) {
-            delete newTarget;
-            newTarget = 0;
-        }
-    }
-
-    return newTarget;
 }
 
 void TargetSettingsPanelWidget::removeTarget()
