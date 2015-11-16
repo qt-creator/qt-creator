@@ -59,14 +59,15 @@ public:
     int currentDataStreamVersion() const;
     void setMaximumDataStreamVersion(int maximumVersion);
 
-    bool isOpen() const;
+    bool isConnected() const;
     bool isConnecting() const;
     void close();
 
+    float serviceVersion(const QString &serviceName) const;
 signals:
-    void opened();
+    void connected();
+    void disconnected();
     void error(QDebugSupport::Error);
-    void closed();
     void stateMessage(const QString &message);
     void errorMessage(const QString &message);
 
@@ -91,7 +92,7 @@ public:
     ~QmlDebugClient();
 
     QString name() const;
-    int remoteVersion() const;
+    float serviceVersion() const;
     State state() const;
     QmlDebugConnection *connection() const;
 

@@ -106,7 +106,7 @@ void QmlToolsClient::setObjectIdList(
 
 void QmlToolsClient::reload(const QHash<QString, QByteArray> &changesHash)
 {
-    if (!m_connection || !m_connection->isOpen())
+    if (!m_connection || !m_connection->isConnected())
         return;
 
     m_reloadQueryId = m_requestId;
@@ -123,7 +123,7 @@ void QmlToolsClient::reload(const QHash<QString, QByteArray> &changesHash)
 
 void QmlToolsClient::setDesignModeBehavior(bool inDesignMode)
 {
-    if (!m_connection || !m_connection->isOpen())
+    if (!m_connection || !m_connection->isConnected())
         return;
 
     QByteArray message;
@@ -156,7 +156,7 @@ void QmlToolsClient::changeToZoomTool()
 
 void QmlToolsClient::showAppOnTop(bool showOnTop)
 {
-    if (!m_connection || !m_connection->isOpen())
+    if (!m_connection || !m_connection->isConnected())
         return;
 
     QByteArray message;

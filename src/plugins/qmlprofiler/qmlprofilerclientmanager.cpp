@@ -136,9 +136,9 @@ void QmlProfilerClientManager::connectClient(quint16 port)
             this, &QmlProfilerClientManager::logState);
     connect(d->connection, &QmlDebugConnection::errorMessage,
             this, &QmlProfilerClientManager::logState);
-    connect(d->connection, &QmlDebugConnection::opened,
+    connect(d->connection, &QmlDebugConnection::connected,
             this, &QmlProfilerClientManager::qmlDebugConnectionOpened);
-    connect(d->connection, &QmlDebugConnection::closed,
+    connect(d->connection, &QmlDebugConnection::disconnected,
             this, &QmlProfilerClientManager::qmlDebugConnectionClosed);
     connect(d->connection, &QmlDebugConnection::error,
             this, &QmlProfilerClientManager::qmlDebugConnectionError);
@@ -208,7 +208,7 @@ void QmlProfilerClientManager::disconnectClientSignals()
 
 void QmlProfilerClientManager::connectToClient()
 {
-    if (!d->connection || d->connection->isOpen() || d->connection->isConnecting())
+    if (!d->connection || d->connection->isConnected() || d->connection->isConnecting())
         return;
 
     d->connection->connectToHost(d->tcpHost, d->tcpPort);
@@ -216,7 +216,7 @@ void QmlProfilerClientManager::connectToClient()
 
 bool QmlProfilerClientManager::isConnected() const
 {
-    return d->connection && d->connection->isOpen();
+    return d->connection && d->connection->isConnected();
 }
 
 void QmlProfilerClientManager::disconnectClient()
@@ -233,7 +233,7 @@ void QmlProfilerClientManager::tryToConnect()
 {
     ++d->connectionAttempts;
 
-    if (d->connection && d->connection->isOpen()) {
+    if (d->connection && d->connection->isConnected()) {
         d->connectionTimer.stop();
         d->connectionAttempts = 0;
     } else if (d->connectionAttempts == 50) {
@@ -276,7 +276,7 @@ void QmlProfilerClientManager::qmlDebugConnectionClosed()
 void QmlProfilerClientManager::qmlDebugConnectionError(QDebugSupport::Error error)
 {
     logState(tr("Debug connection error %1").arg(error));
-    if (d->connection->isOpen()) {
+    if (d->connection->isConnected()) {
         disconnectClient();
         emit connectionClosed();
     } else {
@@ -295,7 +295,7 @@ void QmlProfilerClientManager::logState(const QString &msg)
 void QmlProfilerClientManager::retryMessageBoxFinished(int result)
 {
     if (d->connection) {
-        QTC_ASSERT(!d->connection->isOpen(), return);
+        QTC_ASSERT(!d->connection->isConnected(), return);
         if (d->connection->isConnecting())
             d->connection->disconnect();
     }

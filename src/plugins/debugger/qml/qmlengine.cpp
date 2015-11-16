@@ -297,11 +297,11 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
             this, &QmlEngine::showConnectionErrorMessage);
     connect(d->connection, &QmlDebugConnection::error,
             this, &QmlEngine::connectionErrorOccurred);
-    connect(d->connection, &QmlDebugConnection::opened,
+    connect(d->connection, &QmlDebugConnection::connected,
             &d->connectionTimer, &QTimer::stop);
-    connect(d->connection, &QmlDebugConnection::opened,
+    connect(d->connection, &QmlDebugConnection::connected,
             this, &QmlEngine::connectionEstablished);
-    connect(d->connection, &QmlDebugConnection::closed,
+    connect(d->connection, &QmlDebugConnection::disconnected,
             this, &QmlEngine::disconnected);
 
     d->msgClient = new QDebugMessageClient(d->connection);
@@ -398,7 +398,7 @@ void QmlEngine::beginConnection(quint16 port)
     if (runParameters().qmlServerPort > 0)
         port = runParameters().qmlServerPort;
 
-    if (!d->connection || d->connection->isOpen())
+    if (!d->connection || d->connection->isConnected())
         return;
 
     d->connection->connectToHost(host, port);
@@ -1236,7 +1236,7 @@ void QmlEngine::clientStateChanged(QmlDebugClient::State state)
     float version = 0;
     if (QmlDebugClient *client = qobject_cast<QmlDebugClient*>(sender())) {
         serviceName = client->name();
-        version = client->remoteVersion();
+        version = client->serviceVersion();
     }
 
     logServiceStateChange(serviceName, version, state);
@@ -1252,7 +1252,7 @@ void QmlEngine::checkConnectionState()
 
 bool QmlEngine::isConnected() const
 {
-    return d->connection->isOpen();
+    return d->connection->isConnected();
 }
 
 void QmlEngine::showConnectionStateMessage(const QString &message)

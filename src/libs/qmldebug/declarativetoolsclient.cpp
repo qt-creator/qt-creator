@@ -232,7 +232,7 @@ void DeclarativeToolsClient::reload(const QHash<QString,
 {
     Q_UNUSED(changesHash);
 
-    if (!m_connection || !m_connection->isOpen())
+    if (!m_connection || !m_connection->isConnected())
         return;
 
     QByteArray message;
@@ -248,7 +248,7 @@ void DeclarativeToolsClient::reload(const QHash<QString,
 
 void DeclarativeToolsClient::setDesignModeBehavior(bool inDesignMode)
 {
-    if (!m_connection || !m_connection->isOpen())
+    if (!m_connection || !m_connection->isConnected())
         return;
 
     QByteArray message;
@@ -265,7 +265,7 @@ void DeclarativeToolsClient::setDesignModeBehavior(bool inDesignMode)
 
 void DeclarativeToolsClient::changeToSelectTool()
 {
-    if (!m_connection || !m_connection->isOpen())
+    if (!m_connection || !m_connection->isConnected())
         return;
 
     QByteArray message;
@@ -283,7 +283,7 @@ void DeclarativeToolsClient::changeToSelectTool()
 
 void DeclarativeToolsClient::changeToSelectMarqueeTool()
 {
-    if (!m_connection || !m_connection->isOpen())
+    if (!m_connection || !m_connection->isConnected())
         return;
 
     QByteArray message;
@@ -301,7 +301,7 @@ void DeclarativeToolsClient::changeToSelectMarqueeTool()
 
 void DeclarativeToolsClient::changeToZoomTool()
 {
-    if (!m_connection || !m_connection->isOpen())
+    if (!m_connection || !m_connection->isConnected())
         return;
 
     QByteArray message;
@@ -319,7 +319,7 @@ void DeclarativeToolsClient::changeToZoomTool()
 
 void DeclarativeToolsClient::showAppOnTop(bool showOnTop)
 {
-    if (!m_connection || !m_connection->isOpen())
+    if (!m_connection || !m_connection->isConnected())
         return;
 
     QByteArray message;

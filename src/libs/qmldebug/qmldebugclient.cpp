@@ -89,7 +89,7 @@ QmlDebugConnectionPrivate::QmlDebugConnectionPrivate(QmlDebugConnection *c)
 
 void QmlDebugConnectionPrivate::advertisePlugins()
 {
-    if (!q->isOpen())
+    if (!gotHello)
         return;
 
     QPacket pack(currentDataStreamVersion);
@@ -113,7 +113,7 @@ void QmlDebugConnectionPrivate::disconnected()
         QHash<QString, QmlDebugClient*>::iterator iter = plugins.begin();
         for (; iter != plugins.end(); ++iter)
             iter.value()->stateChanged(QmlDebugClient::NotConnected);
-        emit q->closed();
+        emit q->disconnected();
     }
     delete protocol;
     protocol = 0;
@@ -191,7 +191,7 @@ void QmlDebugConnectionPrivate::readyRead()
                 newState = QmlDebugClient::Enabled;
             iter.value()->stateChanged(newState);
         }
-        emit q->opened();
+        emit q->connected();
     }
 
     while (protocol && protocol->packetsAvailable()) {
@@ -292,7 +292,7 @@ QmlDebugConnection::~QmlDebugConnection()
         iter.value()->d_func()->connection = 0;
 }
 
-bool QmlDebugConnection::isOpen() const
+bool QmlDebugConnection::isConnected() const
 {
     // gotHello can only be set if the connection is open.
     return d->gotHello;
@@ -300,13 +300,18 @@ bool QmlDebugConnection::isOpen() const
 
 bool QmlDebugConnection::isConnecting() const
 {
-    return !isOpen() && d->device;
+    return !isConnected() && d->device;
 }
 
 void QmlDebugConnection::close()
 {
     if (d->device && d->device->isOpen())
         d->device->close(); // will trigger disconnected() at some point.
+}
+
+float QmlDebugConnection::serviceVersion(const QString &serviceName) const
+{
+    return d->serverPlugins.value(serviceName, -1);
 }
 
 void QmlDebugConnectionPrivate::flush()
@@ -387,22 +392,22 @@ QString QmlDebugClient::name() const
     return d->name;
 }
 
-int QmlDebugClient::remoteVersion() const
+float QmlDebugClient::serviceVersion() const
 {
     Q_D(const QmlDebugClient);
     // The version is internally saved as float for compatibility reasons. Exposing that to clients
     // is a bad idea because floats cannot be properly compared. IEEE 754 floats represent integers
     // exactly up to about 2^24, so the cast shouldn't be a problem for any realistic version
     // numbers.
-    if (d->connection && d->connection->d->serverPlugins.contains(d->name))
-        return static_cast<int>(d->connection->d->serverPlugins.value(d->name));
+    if (d->connection)
+        return d->connection->serviceVersion(d->name);
     return -1;
 }
 
 QmlDebugClient::State QmlDebugClient::state() const
 {
     Q_D(const QmlDebugClient);
-    if (!d->connection || !d->connection->isOpen())
+    if (!d->connection || !d->connection->isConnected())
         return NotConnected;
 
     if (d->connection->d->serverPlugins.contains(d->name))
