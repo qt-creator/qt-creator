@@ -38,6 +38,7 @@
 
 namespace QmlDebug {
 
+class QmlDebugClient;
 class QmlDebugConnectionPrivate;
 class QMLDEBUG_EXPORT QmlDebugConnection : public QObject
 {
@@ -57,7 +58,13 @@ public:
     bool isConnecting() const;
     void close();
 
+    QmlDebugClient *client(const QString &name) const;
+    bool addClient(const QString &name, QmlDebugClient *client);
+    bool removeClient(const QString &name);
+
     float serviceVersion(const QString &serviceName) const;
+    bool sendMessage(const QString &name, const QByteArray &message);
+
     static QString socketStateToString(QAbstractSocket::SocketState state);
     static QString socketErrorToString(QAbstractSocket::SocketError error);
 
@@ -74,8 +81,6 @@ private slots:
 
 private:
     QScopedPointer<QmlDebugConnectionPrivate> d_ptr;
-    friend class QmlDebugClient;
-    friend class QmlDebugClientPrivate;
 };
 
 class QmlDebugClientPrivate;
@@ -104,10 +109,7 @@ protected:
 
 private:
     friend class QmlDebugConnection;
-    friend class QmlDebugConnectionPrivate;
     QScopedPointer<QmlDebugClientPrivate> d_ptr;
-
-
 };
 
 } // namespace QmlDebug

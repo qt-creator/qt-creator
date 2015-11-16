@@ -299,10 +299,49 @@ void QmlDebugConnection::close()
         d->device->close(); // will trigger disconnected() at some point.
 }
 
+QmlDebugClient *QmlDebugConnection::client(const QString &name) const
+{
+    Q_D(const QmlDebugConnection);
+    return d->plugins.value(name, 0);
+}
+
+bool QmlDebugConnection::addClient(const QString &name, QmlDebugClient *client)
+{
+    Q_D(QmlDebugConnection);
+    if (d->plugins.contains(name))
+        return false;
+    d->plugins.insert(name, client);
+    d->advertisePlugins();
+    return true;
+}
+
+bool QmlDebugConnection::removeClient(const QString &name)
+{
+    Q_D(QmlDebugConnection);
+    if (!d->plugins.contains(name))
+        return false;
+    d->plugins.remove(name);
+    d->advertisePlugins();
+    return true;
+}
+
 float QmlDebugConnection::serviceVersion(const QString &serviceName) const
 {
     Q_D(const QmlDebugConnection);
     return d->serverPlugins.value(serviceName, -1);
+}
+
+bool QmlDebugConnection::sendMessage(const QString &name, const QByteArray &message)
+{
+    Q_D(QmlDebugConnection);
+    if (!d->gotHello || !d->serverPlugins.contains(name))
+        return false;
+
+    QPacket pack(d->currentDataStreamVersion);
+    pack << name << message;
+    d->protocol->send(pack.data());
+    d->flush();
+    return true;
 }
 
 void QmlDebugConnectionPrivate::flush()
@@ -349,8 +388,7 @@ QmlDebugClientPrivate::QmlDebugClientPrivate()
 {
 }
 
-QmlDebugClient::QmlDebugClient(const QString &name,
-                                                 QmlDebugConnection *parent)
+QmlDebugClient::QmlDebugClient(const QString &name, QmlDebugConnection *parent)
     : QObject(parent), d_ptr(new QmlDebugClientPrivate())
 {
     Q_D(QmlDebugClient);
@@ -360,22 +398,15 @@ QmlDebugClient::QmlDebugClient(const QString &name,
     if (!d->connection)
         return;
 
-    if (d->connection->d->plugins.contains(name)) {
-        qWarning() << "QML Debug Client: Conflicting plugin name" << name;
-        d->connection = 0;
-    } else {
-        d->connection->d->plugins.insert(name, this);
-        d->connection->d->advertisePlugins();
-    }
+    d->connection->addClient(name, this);
 }
 
 QmlDebugClient::~QmlDebugClient()
 {
     Q_D(const QmlDebugClient);
-    if (d->connection && d->connection->d) {
-        d->connection->d->plugins.remove(d->name);
-        d->connection->d->advertisePlugins();
-    }
+
+    if (d->connection)
+        d->connection->removeClient(d->name);
 }
 
 QString QmlDebugClient::name() const
@@ -402,7 +433,7 @@ QmlDebugClient::State QmlDebugClient::state() const
     if (!d->connection || !d->connection->isConnected())
         return NotConnected;
 
-    if (d->connection->d->serverPlugins.contains(d->name))
+    if (d->connection->client(d->name) == this)
         return Enabled;
 
     return Unavailable;
@@ -420,10 +451,7 @@ void QmlDebugClient::sendMessage(const QByteArray &message)
     if (state() != Enabled)
         return;
 
-    QPacket pack(d->connection->currentDataStreamVersion());
-    pack << d->name << message;
-    d->connection->d->protocol->send(pack.data());
-    d->connection->d->flush();
+    d->connection->sendMessage(d->name, message);
 }
 
 void QmlDebugClient::stateChanged(State)
