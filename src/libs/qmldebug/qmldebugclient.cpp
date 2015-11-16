@@ -35,6 +35,8 @@
 #include <qdebug.h>
 #include <qstringlist.h>
 #include <qnetworkproxy.h>
+#include <qlocalserver.h>
+#include <qlocalsocket.h>
 
 namespace QmlDebug {
 
@@ -58,6 +60,7 @@ class QmlDebugConnectionPrivate
 public:
     QmlDebugConnectionPrivate();
     QPacketProtocol *protocol;
+    QLocalServer *server;
     QIODevice *device; // Currently a QTcpSocket
 
     bool gotHello;
@@ -369,6 +372,46 @@ void QmlDebugConnection::connectToHost(const QString &hostName, quint16 port)
     connect(socket, &QAbstractSocket::connected, this, &QmlDebugConnection::socketConnected);
     connect(socket, &QAbstractSocket::disconnected, this, &QmlDebugConnection::socketDisconnected);
     socket->connectToHost(hostName, port);
+}
+
+void QmlDebugConnection::startLocalServer(const QString &fileName)
+{
+    Q_D(QmlDebugConnection);
+    if (d->gotHello)
+        close();
+    if (d->server)
+        d->server->deleteLater();
+    d->server = new QLocalServer(this);
+    // QueuedConnection so that waitForNewConnection() returns true.
+    connect(d->server, SIGNAL(newConnection()), this, SLOT(newConnection()), Qt::QueuedConnection);
+    d->server->listen(fileName);
+}
+
+void QmlDebugConnection::newConnection()
+{
+    Q_D(QmlDebugConnection);
+    delete d->device;
+    QLocalSocket *socket = d->server->nextPendingConnection();
+    d->server->close();
+    d->device = socket;
+    delete d->protocol;
+    d->protocol = new QPacketProtocol(socket, this);
+    QObject::connect(d->protocol, &QPacketProtocol::readyRead,
+                     this, &QmlDebugConnection::protocolReadyRead);
+
+    connect(socket, &QLocalSocket::disconnected, this, &QmlDebugConnection::socketDisconnected);
+
+    connect(socket, static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>
+            (&QLocalSocket::error), this, [this](QLocalSocket::LocalSocketError error) {
+        socketError(static_cast<QAbstractSocket::SocketError>(error));
+    });
+
+    connect(socket, &QLocalSocket::stateChanged,
+            this, [this](QLocalSocket::LocalSocketState state) {
+        socketStateChanged(static_cast<QAbstractSocket::SocketState>(state));
+    });
+
+    socketConnected();
 }
 
 int QmlDebugConnection::currentDataStreamVersion() const

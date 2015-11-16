@@ -50,6 +50,7 @@ public:
     ~QmlDebugConnection();
 
     void connectToHost(const QString &hostName, quint16 port);
+    void startLocalServer(const QString &fileName);
 
     int currentDataStreamVersion() const;
     void setMaximumDataStreamVersion(int maximumVersion);
@@ -75,6 +76,7 @@ signals:
     void socketStateChanged(QAbstractSocket::SocketState state);
 
 private slots:
+    void newConnection();
     void socketConnected();
     void socketDisconnected();
     void protocolReadyRead();
