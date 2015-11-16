@@ -157,18 +157,14 @@ signals:
     /// build configuration was changed.
     void buildDirectoryChanged();
 
-public slots:
-    void onBuildDirectoryChanged();
-
-protected:
+private:
     void setEnabled(bool);
 
     bool fromMap(const QVariantMap &map) override;
 
-protected slots:
     void updateDeviceState();
+    void onBuildDirectoryChanged();
 
-private slots:
     void changeEnvironment();
     void changeBuildConfigurationEnabled();
     void changeDeployConfigurationEnabled();
@@ -177,7 +173,6 @@ private slots:
     void handleKitUpdates(ProjectExplorer::Kit *k);
     void handleKitRemoval(ProjectExplorer::Kit *k);
 
-private:
     void setActiveBuildConfiguration(BuildConfiguration *configuration);
     void setActiveDeployConfiguration(DeployConfiguration *configuration);
     TargetPrivate *d;

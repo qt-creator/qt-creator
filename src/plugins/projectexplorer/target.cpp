@@ -127,18 +127,15 @@ Target::Target(Project *project, Kit *k) :
     ProjectConfiguration(project, k->id()),
     d(new TargetPrivate)
 {
-    connect(DeviceManager::instance(), SIGNAL(updated()), this, SLOT(updateDeviceState()));
-
+    connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
     d->m_kit = k;
 
     setDisplayName(d->m_kit->displayName());
     setIcon(d->m_kit->icon());
 
-    QObject *km = KitManager::instance();
-    connect(km, SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(handleKitUpdates(ProjectExplorer::Kit*)));
-    connect(km, SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
-            this, SLOT(handleKitRemoval(ProjectExplorer::Kit*)));
+    KitManager *km = KitManager::instance();
+    connect(km, &KitManager::kitUpdated, this, &Target::handleKitUpdates);
+    connect(km, &KitManager::kitRemoved, this, &Target::handleKitRemoval);
 
     Utils::MacroExpander *expander = macroExpander();
     expander->setDisplayName(tr("Target Settings"));
@@ -251,12 +248,12 @@ void Target::addBuildConfiguration(BuildConfiguration *configuration)
 
     emit addedBuildConfiguration(configuration);
 
-    connect(configuration, SIGNAL(environmentChanged()),
-            SLOT(changeEnvironment()));
-    connect(configuration, SIGNAL(enabledChanged()),
-            this, SLOT(changeBuildConfigurationEnabled()));
-    connect(configuration, SIGNAL(buildDirectoryChanged()),
-            SLOT(onBuildDirectoryChanged()));
+    connect(configuration, &BuildConfiguration::environmentChanged,
+            this, &Target::changeEnvironment);
+    connect(configuration, &BuildConfiguration::enabledChanged,
+            this, &Target::changeBuildConfigurationEnabled);
+    connect(configuration, &BuildConfiguration::buildDirectoryChanged,
+            this, &Target::onBuildDirectoryChanged);
 
     if (!activeBuildConfiguration())
         setActiveBuildConfiguration(configuration);
@@ -326,7 +323,8 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
     // add it
     d->m_deployConfigurations.push_back(dc);
 
-    connect(dc, SIGNAL(enabledChanged()), this, SLOT(changeDeployConfigurationEnabled()));
+    connect(dc, &DeployConfiguration::enabledChanged,
+            this, &Target::changeDeployConfigurationEnabled);
 
     emit addedDeployConfiguration(dc);
 
@@ -427,7 +425,8 @@ void Target::addRunConfiguration(RunConfiguration* runConfiguration)
 
     d->m_runConfigurations.push_back(runConfiguration);
 
-    connect(runConfiguration, SIGNAL(enabledChanged()), this, SLOT(changeRunConfigurationEnabled()));
+    connect(runConfiguration, &RunConfiguration::enabledChanged,
+            this, &Target::changeRunConfigurationEnabled);
 
     emit addedRunConfiguration(runConfiguration);
 
