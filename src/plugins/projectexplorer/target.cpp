@@ -80,21 +80,21 @@ namespace ProjectExplorer {
 class TargetPrivate
 {
 public:
-    TargetPrivate();
+    TargetPrivate(Kit *k);
 
     QList<DeployConfigurationFactory *> deployFactories() const;
 
-    bool m_isEnabled;
+    bool m_isEnabled = true;
     QIcon m_icon;
     QIcon m_overlayIcon;
     QString m_toolTip;
 
     QList<BuildConfiguration *> m_buildConfigurations;
-    BuildConfiguration *m_activeBuildConfiguration;
+    BuildConfiguration *m_activeBuildConfiguration = 0;
     QList<DeployConfiguration *> m_deployConfigurations;
-    DeployConfiguration *m_activeDeployConfiguration;
+    DeployConfiguration *m_activeDeployConfiguration = 0;
     QList<RunConfiguration *> m_runConfigurations;
-    RunConfiguration* m_activeRunConfiguration;
+    RunConfiguration* m_activeRunConfiguration = 0;
     DeploymentData m_deploymentData;
     BuildTargetInfoList m_appTargets;
     QVariantMap m_pluginSettings;
@@ -103,20 +103,15 @@ public:
     QPixmap m_readyToUsePixmap;
     QPixmap m_disconnectedPixmap;
 
-    Kit *m_kit;
+    Kit *const m_kit;
 };
 
-TargetPrivate::TargetPrivate() :
-    m_isEnabled(true),
-    m_activeBuildConfiguration(0),
-    m_activeDeployConfiguration(0),
-    m_activeRunConfiguration(0),
+TargetPrivate::TargetPrivate(Kit *k) :
     m_connectedPixmap(QLatin1String(":/projectexplorer/images/DeviceConnected.png")),
     m_readyToUsePixmap(QLatin1String(":/projectexplorer/images/DeviceReadyToUse.png")),
     m_disconnectedPixmap(QLatin1String(":/projectexplorer/images/DeviceDisconnected.png")),
-    m_kit(0)
-{
-}
+    m_kit(k)
+{ }
 
 QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
 {
@@ -125,10 +120,10 @@ QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
 
 Target::Target(Project *project, Kit *k) :
     ProjectConfiguration(project, k->id()),
-    d(new TargetPrivate)
+    d(new TargetPrivate(k))
 {
+    QTC_CHECK(d->m_kit);
     connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
-    d->m_kit = k;
 
     setDisplayName(d->m_kit->displayName());
     setIcon(d->m_kit->icon());
@@ -213,7 +208,6 @@ void Target::handleKitRemoval(Kit *k)
 {
     if (k != d->m_kit)
         return;
-    d->m_kit = 0;
     project()->removeTarget(this);
 }
 
@@ -793,9 +787,7 @@ bool Target::fromMap(const QVariantMap &map)
     if (!ProjectConfiguration::fromMap(map))
         return false;
 
-    d->m_kit = KitManager::find(id());
-    if (!d->m_kit)
-        return false;
+    QTC_ASSERT(d->m_kit == KitManager::find(id()), return false);
 
     setDisplayName(d->m_kit->displayName()); // Overwrite displayname read from file
     setDefaultDisplayName(d->m_kit->displayName());
