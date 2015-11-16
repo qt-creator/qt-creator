@@ -606,13 +606,8 @@ Project::RestoreResult QbsProject::fromMap(const QVariantMap &map, QString *erro
         return result;
 
     Kit *defaultKit = KitManager::defaultKit();
-    if (!activeTarget() && defaultKit) {
-        Target *t = new Target(this, defaultKit);
-        t->updateDefaultBuildConfigurations();
-        t->updateDefaultDeployConfigurations();
-        t->updateDefaultRunConfigurations();
-        addTarget(t);
-    }
+    if (!activeTarget() && defaultKit)
+        addTarget(createTarget(defaultKit));
 
     return RestoreResult::Ok;
 }

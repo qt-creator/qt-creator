@@ -59,7 +59,6 @@ class PROJECTEXPLORER_EXPORT Target : public ProjectConfiguration
     Q_OBJECT
 
 public:
-    Target(Project *parent, Kit *k);
     ~Target() override;
 
     Project *project() const;
@@ -158,6 +157,7 @@ signals:
     void buildDirectoryChanged();
 
 private:
+    Target(Project *parent, Kit *k);
     void setEnabled(bool);
 
     bool fromMap(const QVariantMap &map) override;
@@ -169,7 +169,6 @@ private:
     void changeBuildConfigurationEnabled();
     void changeDeployConfigurationEnabled();
     void changeRunConfigurationEnabled();
-
     void handleKitUpdates(ProjectExplorer::Kit *k);
     void handleKitRemoval(ProjectExplorer::Kit *k);
 
