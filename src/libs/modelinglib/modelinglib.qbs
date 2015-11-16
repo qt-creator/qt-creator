@@ -9,6 +9,7 @@ QtcLibrary {
     ])
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "Utils" }
 
     Group {
         name: "Qmt"
