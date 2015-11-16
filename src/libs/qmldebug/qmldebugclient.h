@@ -43,6 +43,7 @@ class QMLDEBUG_EXPORT QmlDebugConnection : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(QmlDebugConnection)
+    Q_DECLARE_PRIVATE(QmlDebugConnection)
 public:
     QmlDebugConnection(QObject * = 0);
     ~QmlDebugConnection();
@@ -66,9 +67,13 @@ signals:
     void socketError(QAbstractSocket::SocketError error);
     void socketStateChanged(QAbstractSocket::SocketState state);
 
+private slots:
+    void socketConnected();
+    void socketDisconnected();
+    void protocolReadyRead();
+
 private:
-    friend class QmlDebugConnectionPrivate;
-    QmlDebugConnectionPrivate *d;
+    QScopedPointer<QmlDebugConnectionPrivate> d_ptr;
     friend class QmlDebugClient;
     friend class QmlDebugClientPrivate;
 };

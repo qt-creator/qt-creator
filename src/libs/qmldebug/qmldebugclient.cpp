@@ -53,12 +53,10 @@ public:
     QmlDebugConnection *connection;
 };
 
-class QmlDebugConnectionPrivate : public QObject
+class QmlDebugConnectionPrivate
 {
-    Q_OBJECT
 public:
-    QmlDebugConnectionPrivate(QmlDebugConnection *c);
-    QmlDebugConnection *q;
+    QmlDebugConnectionPrivate();
     QPacketProtocol *protocol;
     QIODevice *device; // Currently a QTcpSocket
 
@@ -71,11 +69,6 @@ public:
 
     void advertisePlugins();
     void flush();
-
-public slots:
-    void connected();
-    void disconnected();
-    void readyRead();
 };
 
 QString QmlDebugConnection::socketStateToString(QAbstractSocket::SocketState state)
@@ -109,8 +102,8 @@ QString QmlDebugConnection::socketErrorToString(QAbstractSocket::SocketError err
     }
 }
 
-QmlDebugConnectionPrivate::QmlDebugConnectionPrivate(QmlDebugConnection *c)
-    : QObject(c), q(c), protocol(0), device(0), gotHello(false),
+QmlDebugConnectionPrivate::QmlDebugConnectionPrivate() :
+    protocol(0), server(0), device(0), gotHello(false),
     currentDataStreamVersion(QDataStream::Qt_4_7),
     maximumDataStreamVersion(QDataStream::Qt_DefaultCompiledVersion)
 {
@@ -127,36 +120,39 @@ void QmlDebugConnectionPrivate::advertisePlugins()
     flush();
 }
 
-void QmlDebugConnectionPrivate::connected()
+void QmlDebugConnection::socketConnected()
 {
-    QPacket pack(currentDataStreamVersion);
-    pack << serverId << 0 << protocolVersion << plugins.keys() << maximumDataStreamVersion;
-    protocol->send(pack.data());
-    flush();
+    Q_D(QmlDebugConnection);
+    QPacket pack(d->currentDataStreamVersion);
+    pack << serverId << 0 << protocolVersion << d->plugins.keys() << d->maximumDataStreamVersion;
+    d->protocol->send(pack.data());
+    d->flush();
 }
 
-void QmlDebugConnectionPrivate::disconnected()
+void QmlDebugConnection::socketDisconnected()
 {
-    if (gotHello) {
-        gotHello = false;
-        QHash<QString, QmlDebugClient*>::iterator iter = plugins.begin();
-        for (; iter != plugins.end(); ++iter)
+    Q_D(QmlDebugConnection);
+    if (d->gotHello) {
+        d->gotHello = false;
+        QHash<QString, QmlDebugClient*>::iterator iter = d->plugins.begin();
+        for (; iter != d->plugins.end(); ++iter)
             iter.value()->stateChanged(QmlDebugClient::NotConnected);
-        emit q->disconnected();
+        emit disconnected();
     }
-    delete protocol;
-    protocol = 0;
-    if (device) {
+    delete d->protocol;
+    d->protocol = 0;
+    if (d->device) {
         // Don't immediately delete it as it may do some cleanup on returning from a signal.
-        device->deleteLater();
-        device = 0;
+        d->device->deleteLater();
+        d->device = 0;
     }
 }
 
-void QmlDebugConnectionPrivate::readyRead()
+void QmlDebugConnection::protocolReadyRead()
 {
-    if (!gotHello) {
-        QPacket pack(currentDataStreamVersion, protocol->read());
+    Q_D(QmlDebugConnection);
+    if (!d->gotHello) {
+        QPacket pack(d->currentDataStreamVersion, d->protocol->read());
         QString name;
 
         pack >> name;
@@ -181,12 +177,12 @@ void QmlDebugConnectionPrivate::readyRead()
                         float pluginVersion = 1.0;
                         if (i < pluginVersionsSize)
                             pluginVersion = pluginVersions.at(i);
-                        serverPlugins.insert(pluginNames.at(i), pluginVersion);
+                        d->serverPlugins.insert(pluginNames.at(i), pluginVersion);
                     }
 
                     if (!pack.atEnd()) {
-                        pack >> currentDataStreamVersion;
-                        if (currentDataStreamVersion > maximumDataStreamVersion)
+                        pack >> d->currentDataStreamVersion;
+                        if (d->currentDataStreamVersion > d->maximumDataStreamVersion)
                             qWarning() << "Server returned invalid data stream version!";
                     }
                     validHello = true;
@@ -196,24 +192,24 @@ void QmlDebugConnectionPrivate::readyRead()
 
         if (!validHello) {
             qWarning("QML Debug Client: Invalid hello message");
-            QObject::disconnect(protocol, &QPacketProtocol::readyRead,
-                                this, &QmlDebugConnectionPrivate::readyRead);
+            QObject::disconnect(d->protocol, &QPacketProtocol::readyRead,
+                                this, &QmlDebugConnection::protocolReadyRead);
             return;
         }
-        gotHello = true;
+        d->gotHello = true;
 
-        QHash<QString, QmlDebugClient *>::Iterator iter = plugins.begin();
-        for (; iter != plugins.end(); ++iter) {
+        QHash<QString, QmlDebugClient *>::Iterator iter = d->plugins.begin();
+        for (; iter != d->plugins.end(); ++iter) {
             QmlDebugClient::State newState = QmlDebugClient::Unavailable;
-            if (serverPlugins.contains(iter.key()))
+            if (d->serverPlugins.contains(iter.key()))
                 newState = QmlDebugClient::Enabled;
             iter.value()->stateChanged(newState);
         }
-        emit q->connected();
+        emit connected();
     }
 
-    while (protocol && protocol->packetsAvailable()) {
-        QPacket pack(currentDataStreamVersion, protocol->read());
+    while (d->protocol && d->protocol->packetsAvailable()) {
+        QPacket pack(d->currentDataStreamVersion, d->protocol->read());
         QString name;
         pack >> name;
 
@@ -223,8 +219,8 @@ void QmlDebugConnectionPrivate::readyRead()
 
             if (op == 1) {
                 // Service Discovery
-                QHash<QString, float> oldServerPlugins = serverPlugins;
-                serverPlugins.clear();
+                QHash<QString, float> oldServerPlugins = d->serverPlugins;
+                d->serverPlugins.clear();
 
                 QStringList pluginNames;
                 QList<float> pluginVersions;
@@ -238,18 +234,18 @@ void QmlDebugConnectionPrivate::readyRead()
                     float pluginVersion = 1.0;
                     if (i < pluginVersionsSize)
                         pluginVersion = pluginVersions.at(i);
-                    serverPlugins.insert(pluginNames.at(i), pluginVersion);
+                    d->serverPlugins.insert(pluginNames.at(i), pluginVersion);
                 }
 
-                QHash<QString, QmlDebugClient *>::Iterator iter = plugins.begin();
-                for (; iter != plugins.end(); ++iter) {
+                QHash<QString, QmlDebugClient *>::Iterator iter = d->plugins.begin();
+                for (; iter != d->plugins.end(); ++iter) {
                     const QString pluginName = iter.key();
                     QmlDebugClient::State newState = QmlDebugClient::Unavailable;
-                    if (serverPlugins.contains(pluginName))
+                    if (d->serverPlugins.contains(pluginName))
                         newState = QmlDebugClient::Enabled;
 
                     if (oldServerPlugins.contains(pluginName)
-                            != serverPlugins.contains(pluginName)) {
+                            != d->serverPlugins.contains(pluginName)) {
                         iter.value()->stateChanged(newState);
                     }
                 }
@@ -260,9 +256,8 @@ void QmlDebugConnectionPrivate::readyRead()
             QByteArray message;
             pack >> message;
 
-            QHash<QString, QmlDebugClient *>::Iterator iter =
-                    plugins.find(name);
-            if (iter == plugins.end())
+            QHash<QString, QmlDebugClient *>::Iterator iter = d->plugins.find(name);
+            if (iter == d->plugins.end())
                 qWarning() << "QML Debug Client: Message received for missing plugin" << name;
             else
                 (*iter)->messageReceived(message);
@@ -271,13 +266,14 @@ void QmlDebugConnectionPrivate::readyRead()
 }
 
 QmlDebugConnection::QmlDebugConnection(QObject *parent)
-    : QObject(parent), d(new QmlDebugConnectionPrivate(this))
+    : QObject(parent), d_ptr(new QmlDebugConnectionPrivate)
 {
 }
 
 QmlDebugConnection::~QmlDebugConnection()
 {
-    d->disconnected();
+    Q_D(QmlDebugConnection);
+    socketDisconnected();
     QHash<QString, QmlDebugClient*>::iterator iter = d->plugins.begin();
     for (; iter != d->plugins.end(); ++iter)
         iter.value()->d_func()->connection = 0;
@@ -285,23 +281,27 @@ QmlDebugConnection::~QmlDebugConnection()
 
 bool QmlDebugConnection::isConnected() const
 {
+    Q_D(const QmlDebugConnection);
     // gotHello can only be set if the connection is open.
     return d->gotHello;
 }
 
 bool QmlDebugConnection::isConnecting() const
 {
-    return !isConnected() && d->device;
+    Q_D(const QmlDebugConnection);
+    return !d->gotHello && d->device;
 }
 
 void QmlDebugConnection::close()
 {
+    Q_D(QmlDebugConnection);
     if (d->device && d->device->isOpen())
         d->device->close(); // will trigger disconnected() at some point.
 }
 
 float QmlDebugConnection::serviceVersion(const QString &serviceName) const
 {
+    Q_D(const QmlDebugConnection);
     return d->serverPlugins.value(serviceName, -1);
 }
 
@@ -316,27 +316,31 @@ void QmlDebugConnectionPrivate::flush()
 
 void QmlDebugConnection::connectToHost(const QString &hostName, quint16 port)
 {
-    d->disconnected();
-    QTcpSocket *socket = new QTcpSocket(d);
+    Q_D(QmlDebugConnection);
+    socketDisconnected();
+    QTcpSocket *socket = new QTcpSocket(this);
     socket->setProxy(QNetworkProxy::NoProxy);
     d->device = socket;
-    d->protocol = new QPacketProtocol(d->device, this);
-    connect(d->protocol, &QPacketProtocol::readyRead, d, &QmlDebugConnectionPrivate::readyRead);
+    d->protocol = new QPacketProtocol(socket, this);
+    QObject::connect(d->protocol, &QPacketProtocol::readyRead,
+                     this, &QmlDebugConnection::protocolReadyRead);
     connect(socket, &QAbstractSocket::stateChanged, this, &QmlDebugConnection::socketStateChanged);
     connect(socket, static_cast<void (QTcpSocket::*)(QAbstractSocket::SocketError)>
             (&QAbstractSocket::error), this, &QmlDebugConnection::socketError);
-    connect(socket, &QAbstractSocket::connected, d, &QmlDebugConnectionPrivate::connected);
-    connect(socket, &QAbstractSocket::disconnected, d, &QmlDebugConnectionPrivate::disconnected);
+    connect(socket, &QAbstractSocket::connected, this, &QmlDebugConnection::socketConnected);
+    connect(socket, &QAbstractSocket::disconnected, this, &QmlDebugConnection::socketDisconnected);
     socket->connectToHost(hostName, port);
 }
 
 int QmlDebugConnection::currentDataStreamVersion() const
 {
+    Q_D(const QmlDebugConnection);
     return d->currentDataStreamVersion;
 }
 
 void QmlDebugConnection::setMaximumDataStreamVersion(int maximumVersion)
 {
+    Q_D(QmlDebugConnection);
     d->maximumDataStreamVersion = maximumVersion;
 }
 
@@ -431,5 +435,3 @@ void QmlDebugClient::messageReceived(const QByteArray &)
 }
 
 } // namespace QmlDebug
-
-#include <qmldebugclient.moc>
