@@ -38,7 +38,6 @@
 #include <coreplugin/icontext.h>
 #include <debugger/debuggerconstants.h>
 #include <qmldebug/baseenginedebugclient.h>
-#include <qmldebug/qmldebugclient.h>
 
 namespace QmlDebug {
 class BaseEngineDebugClient;
