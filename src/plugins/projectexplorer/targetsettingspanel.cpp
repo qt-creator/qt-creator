@@ -339,11 +339,7 @@ void TargetSettingsPanelWidget::addActionTriggered(QAction *action)
 void TargetSettingsPanelWidget::removeTarget()
 {
     Target *t = m_targets.at(m_menuTargetIndex);
-    removeTarget(t);
-}
 
-void TargetSettingsPanelWidget::removeTarget(Target *t)
-{
     if (BuildManager::isBuilding(t)) {
         QMessageBox box;
         QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Remove Kit"), QMessageBox::AcceptRole);
@@ -465,11 +461,11 @@ void TargetSettingsPanelWidget::updateTargetButtons()
     if (m_project->targets().size() < 2)
         removeAction->setEnabled(false);
 
-    connect(m_changeMenu, SIGNAL(triggered(QAction*)),
-            this, SLOT(changeActionTriggered(QAction*)));
-    connect(m_duplicateMenu, SIGNAL(triggered(QAction*)),
-            this, SLOT(duplicateActionTriggered(QAction*)));
-    connect(removeAction, SIGNAL(triggered()), this, SLOT(removeTarget()));
+    connect(m_changeMenu, &QMenu::triggered,
+            this, &TargetSettingsPanelWidget::changeActionTriggered);
+    connect(m_duplicateMenu, &QMenu::triggered,
+            this, &TargetSettingsPanelWidget::duplicateActionTriggered);
+    connect(removeAction, &QAction::triggered, this, &TargetSettingsPanelWidget::removeTarget);
 
     foreach (Kit *k, KitManager::sortKits(KitManager::kits())) {
         if (m_project->target(k))
@@ -524,7 +520,7 @@ void TargetSettingsPanelWidget::importTarget(const Utils::FileName &path)
     foreach (BuildInfo *info, toImport) {
         target = m_project->target(info->kitId);
         if (!target) {
-            target = new Target(m_project, KitManager::find(info->kitId));
+            target = m_project->createTarget(KitManager::find(info->kitId));
             m_project->addTarget(target);
         }
         bc = info->factory()->create(target, info);

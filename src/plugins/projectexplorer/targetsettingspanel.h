@@ -84,7 +84,6 @@ private slots:
     void changeActionTriggered(QAction *action);
     void duplicateActionTriggered(QAction *action);
 private:
-    void removeTarget(Target *t);
     void importTarget(const Utils::FileName &path);
     void createAction(Kit *k, QMenu *menu);
 
