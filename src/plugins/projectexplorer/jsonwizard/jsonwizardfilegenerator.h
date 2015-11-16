@@ -53,18 +53,14 @@ public:
 private:
     class File {
     public:
-        File() :
-            condition(true), isBinary(false), overwrite(false),
-            openInEditor(false), openAsProject(false)
-        { }
-
+        bool keepExisting = false;
         QString source;
         QString target;
-        QVariant condition;
-        QVariant isBinary;
-        QVariant overwrite;
-        QVariant openInEditor;
-        QVariant openAsProject;
+        QVariant condition = true;
+        QVariant isBinary = false;
+        QVariant overwrite = false;
+        QVariant openInEditor = false;
+        QVariant openAsProject = false;
 
         class OptionDefinition {
         public:
@@ -74,6 +70,9 @@ private:
         };
         QList<OptionDefinition> options;
     };
+
+    Core::GeneratedFile generateFile(const File &file, Utils::MacroExpander *expander,
+        QString *errorMessage);
 
     QList<File> m_fileList;
 };

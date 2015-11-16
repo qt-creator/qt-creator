@@ -40,9 +40,11 @@
 #include <utils/qtcassert.h>
 #include <utils/macroexpander.h>
 #include <utils/templateengine.h>
+#include <utils/algorithm.h>
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QDirIterator>
 #include <QVariant>
 
 namespace ProjectExplorer {
@@ -108,6 +110,69 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
     return true;
 }
 
+Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
+    Utils::MacroExpander *expander, QString *errorMessage)
+{
+    // Read contents of source file
+    const QFile::OpenMode openMode = file.isBinary.toBool() ?
+        QIODevice::ReadOnly : (QIODevice::ReadOnly|QIODevice::Text);
+
+    Utils::FileReader reader;
+    if (!reader.fetch(file.source, openMode, errorMessage))
+        return Core::GeneratedFile();
+
+    // Generate file information:
+    Core::GeneratedFile gf;
+    gf.setPath(file.target);
+
+    if (!file.keepExisting) {
+        if (file.isBinary.toBool()) {
+            gf.setBinary(true);
+            gf.setBinaryContents(reader.data());
+        } else {
+            // TODO: Document that input files are UTF8 encoded!
+            gf.setBinary(false);
+            Utils::MacroExpander nested;
+            const File *fPtr = &file;
+            Utils::MacroExpander *thisExpander = &nested;
+            nested.registerExtraResolver([fPtr, thisExpander](QString n, QString *ret) -> bool {
+                foreach (const File::OptionDefinition &od, fPtr->options) {
+                    if (!JsonWizard::boolFromVariant(od.condition, thisExpander))
+                        continue;
+                    if (n == od.key) {
+                        *ret = od.value;
+                        return true;
+                    }
+                }
+                return false;
+            });
+            nested.registerExtraResolver([expander](QString n, QString *ret) { return expander->resolveMacro(n, ret); });
+
+            gf.setContents(Utils::TemplateEngine::processText(&nested, QString::fromUtf8(reader.data()),
+                                                              errorMessage));
+            if (!errorMessage->isEmpty()) {
+                *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard", "When processing \"%1\":<br>%2")
+                        .arg(file.source, *errorMessage);
+                return Core::GeneratedFile();
+            }
+        }
+    }
+
+    Core::GeneratedFile::Attributes attributes = 0;
+    if (JsonWizard::boolFromVariant(file.openInEditor, expander))
+        attributes |= Core::GeneratedFile::OpenEditorAttribute;
+    if (JsonWizard::boolFromVariant(file.openAsProject, expander))
+        attributes |= Core::GeneratedFile::OpenProjectAttribute;
+    if (JsonWizard::boolFromVariant(file.overwrite, expander))
+        attributes |= Core::GeneratedFile::ForceOverwrite;
+
+    if (file.keepExisting)
+        attributes |= Core::GeneratedFile::KeepExistingFileAttribute;
+
+    gf.setAttributes(attributes);
+    return gf;
+}
+
 Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *expander,
                                                        const QString &wizardDir, const QString &projectDir,
                                                        QString *errorMessage)
@@ -117,78 +182,63 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *exp
     QDir wizard(wizardDir);
     QDir project(projectDir);
 
-    Core::GeneratedFiles result;
+    const QList<File> enabledFiles
+            = Utils::filtered(m_fileList, [&expander](const File &f) {
+                                  return JsonWizard::boolFromVariant(f.condition, expander);
+                              });
 
-    foreach (const File &f, m_fileList) {
-        if (!JsonWizard::boolFromVariant(f.condition, expander))
-            continue;
+    const QList<File> concreteFiles
+            = Utils::transform(enabledFiles,
+                               [&expander, &wizard, &project](const File &f) -> File {
+                                  // Return a new file with concrete values based on input file:
+                                  File file = f;
 
-        const bool keepExisting = f.source.isEmpty();
-        const QString targetPath = project.absoluteFilePath(expander->expand(f.target));
-        const QString sourcePath
-                = keepExisting ? targetPath : wizard.absoluteFilePath(expander->expand(f.source));
-        const bool isBinary = JsonWizard::boolFromVariant(f.isBinary, expander);
+                                  file.keepExisting = file.source.isEmpty();
+                                  file.target = project.absoluteFilePath(expander->expand(file.target));
+                                  file.source = file.keepExisting ? file.target : wizard.absoluteFilePath(
+                                      expander->expand(file.source));
+                                  file.isBinary = JsonWizard::boolFromVariant(file.isBinary, expander);
 
-        // Read contents of source file
-        const QFile::OpenMode openMode
-                = JsonWizard::boolFromVariant(isBinary, expander)
-                ? QIODevice::ReadOnly : (QIODevice::ReadOnly|QIODevice::Text);
+                                  return file;
+                               });
 
-        Utils::FileReader reader;
-        if (!reader.fetch(sourcePath, openMode, errorMessage))
-            return Core::GeneratedFiles();
+    QList<File> fileList;
+    QList<File> dirList;
+    std::tie(fileList, dirList)
+            = Utils::partition(concreteFiles, [](const File &f) { return !QFileInfo(f.source).isDir(); });
 
-        // Generate file information:
-        Core::GeneratedFile gf;
-        gf.setPath(targetPath);
+    const QSet<QString> knownFiles
+            = QSet<QString>::fromList(Utils::transform(fileList, [](const File &f) { return f.target; }));
 
-        if (!keepExisting) {
-            if (isBinary) {
-                gf.setBinary(true);
-                gf.setBinaryContents(reader.data());
-            } else {
-                // TODO: Document that input files are UTF8 encoded!
-                gf.setBinary(false);
-                Utils::MacroExpander nested;
-                const File *fPtr = &f;
-                Utils::MacroExpander *thisExpander = &nested;
-                nested.registerExtraResolver([fPtr, thisExpander](QString n, QString *ret) -> bool {
-                    foreach (const File::OptionDefinition &od, fPtr->options) {
-                        if (!JsonWizard::boolFromVariant(od.condition, thisExpander))
-                            continue;
-                        if (n == od.key) {
-                            *ret = od.value;
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-                nested.registerExtraResolver([expander](QString n, QString *ret) { return expander->resolveMacro(n, ret); });
+    foreach (const File &dir, dirList) {
+        QDir sourceDir(dir.source);
+        QDirIterator it(dir.source, QDir::NoDotAndDotDot | QDir::Files| QDir::Hidden,
+                        QDirIterator::Subdirectories);
 
-                gf.setContents(Utils::TemplateEngine::processText(&nested, QString::fromUtf8(reader.data()),
-                                                                  errorMessage));
-                if (!errorMessage->isEmpty()) {
-                    *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard", "When processing \"%1\":<br>%2")
-                            .arg(sourcePath, *errorMessage);
-                    return Core::GeneratedFiles();
-                }
-            }
+        while (it.hasNext()) {
+            const QString relativeFilePath = sourceDir.relativeFilePath(it.next());
+            const QString targetPath = dir.target + QLatin1Char('/') + relativeFilePath;
+
+            if (knownFiles.contains(targetPath))
+                continue;
+
+            // initialize each new file with properties (isBinary etc)
+            // from the current directory json entry
+            File newFile = dir;
+            newFile.source = dir.source + QLatin1Char('/') + relativeFilePath;
+            newFile.target = targetPath;
+            fileList.append(newFile);
         }
-
-        Core::GeneratedFile::Attributes attributes = 0;
-        if (JsonWizard::boolFromVariant(f.openInEditor, expander))
-            attributes |= Core::GeneratedFile::OpenEditorAttribute;
-        if (JsonWizard::boolFromVariant(f.openAsProject, expander))
-            attributes |= Core::GeneratedFile::OpenProjectAttribute;
-        if (JsonWizard::boolFromVariant(f.overwrite, expander))
-            attributes |= Core::GeneratedFile::ForceOverwrite;
-
-        if (keepExisting)
-            attributes |= Core::GeneratedFile::KeepExistingFileAttribute;
-
-        gf.setAttributes(attributes);
-        result.append(gf);
     }
+
+    const Core::GeneratedFiles result
+            = Utils::transform(fileList,
+                               [this, &expander, &errorMessage](const File &f) {
+                                   return generateFile(f, expander, errorMessage);
+                               });
+
+    if (Utils::contains(result, [](const Core::GeneratedFile &gf) { return gf.path().isEmpty(); }))
+        return Core::GeneratedFiles();
 
     return result;
 }
