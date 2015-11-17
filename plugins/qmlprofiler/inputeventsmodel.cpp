@@ -107,7 +107,6 @@ void InputEventsModel::loadData()
 void InputEventsModel::clear()
 {
     m_keyTypeId = m_mouseTypeId = -1;
-    m_data.clear();
     QmlProfilerTimelineModel::clear();
 }
 
