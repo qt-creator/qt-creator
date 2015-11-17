@@ -91,7 +91,7 @@ public:
         {
             if (this != &other) {
                 if (m_dataType == StringData)
-                    m_stringData.~QString();
+                    delete m_stringData;
 
                 m_startTime = other.m_startTime;
                 m_duration = other.m_duration;
@@ -105,7 +105,7 @@ public:
         ~QmlEventData()
         {
             if (m_dataType == StringData)
-                m_stringData.~QString();
+                delete m_stringData;
         }
 
         qint64 startTime() const { return m_startTime; }
@@ -121,7 +121,7 @@ public:
         void setNumericData(int i, qint64 data)
         {
             if (m_dataType == StringData)
-                m_stringData.~QString();
+                delete m_stringData;
 
             m_dataType = NumericData;
             m_numericData[i] = data;
@@ -131,7 +131,7 @@ public:
         {
             switch (m_dataType) {
             case NumericData: return QString();
-            case StringData: return m_stringData;
+            case StringData: return *m_stringData;
             default: return QString::fromUtf8(m_characterData, m_characterDataLength);
             }
         }
@@ -139,7 +139,7 @@ public:
         void setStringData(const QString &data)
         {
             if (m_dataType == StringData)
-                m_stringData.~QString();
+                delete m_stringData;
 
             assignStringData(data);
         }
@@ -153,7 +153,7 @@ public:
         qint64 m_duration;
         union {
             qint64 m_numericData[5];
-            QString m_stringData;
+            QString *m_stringData;
             char m_characterData[5 * sizeof(qint64) + 3];
         };
 
@@ -167,7 +167,7 @@ public:
         {
             switch (m_dataType) {
             case StringData:
-                new (&m_stringData) QString(other.m_stringData);
+                m_stringData = new QString(*other.m_stringData);
                 break;
             case NumericData:
                 for (int i = 0; i < 5; ++i)
@@ -187,7 +187,7 @@ public:
                 memcpy(m_characterData, cdata.constData(), m_characterDataLength);
             } else {
                 m_dataType = StringData;
-                new (&m_stringData) QString(data);
+                m_stringData = new QString(data);
             }
         }
     };
