@@ -44,6 +44,7 @@
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <QTcpServer>
+#include <QTemporaryFile>
 
 using namespace QmlProfiler;
 using namespace ProjectExplorer;
@@ -71,7 +72,7 @@ Analyzer::AnalyzerRunControl *LocalQmlProfilerRunner::createLocalRunControl(
     conf.executableArguments = sp.debuggeeArgs;
     conf.workingDirectory = sp.workingDirectory;
     conf.environment = sp.environment;
-
+    conf.socket = sp.analyzerSocket;
     conf.port = sp.analyzerPort;
 
     if (conf.executable.isEmpty()) {
@@ -90,6 +91,17 @@ Analyzer::AnalyzerRunControl *LocalQmlProfilerRunner::createLocalRunControl(
                      runner, &LocalQmlProfilerRunner::start);
     QObject::connect(rc, &RunControl::finished, runner, &LocalQmlProfilerRunner::stop);
     return rc;
+}
+
+QString LocalQmlProfilerRunner::findFreeSocket()
+{
+    QTemporaryFile file;
+    if (file.open()) {
+        return file.fileName();
+    } else {
+        qWarning() << "Could not open a temporary file to find a debug socket.";
+        return QString();
+    }
 }
 
 quint16 LocalQmlProfilerRunner::findFreePort(QString &host)
@@ -121,15 +133,21 @@ LocalQmlProfilerRunner::~LocalQmlProfilerRunner()
 
 void LocalQmlProfilerRunner::start()
 {
-    QString arguments = QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,
-                                                       m_configuration.port);
+    QString arguments = m_configuration.socket.isEmpty() ?
+                QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,
+                                               m_configuration.port) :
+                QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlProfilerServices,
+                                                 m_configuration.socket);
+
 
     if (!m_configuration.executableArguments.isEmpty())
         arguments += QLatin1Char(' ') + m_configuration.executableArguments;
 
-    if (QmlProfilerPlugin::debugOutput)
-        qWarning("QmlProfiler: Launching %s:%d", qPrintable(m_configuration.executable),
-                 m_configuration.port);
+    if (QmlProfilerPlugin::debugOutput) {
+        qWarning("QmlProfiler: Launching %s:%s", qPrintable(m_configuration.executable),
+                 qPrintable(m_configuration.socket.isEmpty() ?
+                                QString::number(m_configuration.port) : m_configuration.socket));
+    }
 
     m_launcher.setWorkingDirectory(m_configuration.workingDirectory);
     m_launcher.setEnvironment(m_configuration.environment);

@@ -214,10 +214,10 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParamet
 
     engine->registerProfilerStateManager(d->m_profilerState);
 
-    bool isTcpConnection = true;
-
     // FIXME: Check that there's something sensible in sp.connParams
-    if (isTcpConnection)
+    if (!sp.analyzerSocket.isEmpty())
+        d->m_profilerConnections->setLocalSocket(sp.analyzerSocket);
+    else
         d->m_profilerConnections->setTcpConnection(sp.analyzerHost, sp.analyzerPort);
 
     //
@@ -232,8 +232,9 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParamet
 
     populateFileFinder(projectDirectory, sp.sysroot);
 
-    connect(engine, &QmlProfilerRunControl::processRunning,
-            d->m_profilerConnections, &QmlProfilerClientManager::connectClient);
+    if (sp.analyzerSocket.isEmpty())
+        connect(engine, &QmlProfilerRunControl::processRunning,
+                d->m_profilerConnections, &QmlProfilerClientManager::connectTcpClient);
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionFailed,
             engine, &QmlProfilerRunControl::cancelProcess);
 

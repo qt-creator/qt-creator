@@ -58,6 +58,7 @@ public:
     QTimer connectionTimer;
     int connectionAttempts;
 
+    QString localSocket;
     QString tcpHost;
     quint64 tcpPort;
     QString sysroot;
@@ -107,6 +108,13 @@ void QmlProfilerClientManager::setTcpConnection(QString host, quint64 port)
     disconnectClient();
 }
 
+void QmlProfilerClientManager::setLocalSocket(QString file)
+{
+    d->localSocket = file;
+    d->tcpPort = 0;
+    connectLocalClient(file);
+}
+
 void QmlProfilerClientManager::clearBufferedData()
 {
     if (d->qmlclientplugin)
@@ -118,7 +126,7 @@ void QmlProfilerClientManager::discardPendingData()
     clearBufferedData();
 }
 
-void QmlProfilerClientManager::connectClient(quint16 port)
+void QmlProfilerClientManager::connectTcpClient(quint16 port)
 {
     if (d->connection) {
         if (port == d->tcpPort) {
@@ -129,22 +137,28 @@ void QmlProfilerClientManager::connectClient(quint16 port)
         }
     }
 
-    d->connection = new QmlDebugConnection;
-    enableServices();
-    connect(d->connection, &QmlDebugConnection::connected,
-            this, &QmlProfilerClientManager::qmlDebugConnectionOpened);
-    connect(d->connection, &QmlDebugConnection::disconnected,
-            this, &QmlProfilerClientManager::qmlDebugConnectionClosed);
-    connect(d->connection, &QmlDebugConnection::socketError,
-            this, &QmlProfilerClientManager::qmlDebugConnectionError);
-    connect(d->connection, &QmlDebugConnection::socketStateChanged,
-            this, &QmlProfilerClientManager::qmlDebugConnectionStateChanged);
+    createConnection();
     d->connectionTimer.start();
     d->tcpPort = port;
 }
 
-void QmlProfilerClientManager::enableServices()
+void QmlProfilerClientManager::connectLocalClient(const QString &file)
 {
+    if (d->connection) {
+        if (file == d->localSocket)
+            return;
+        else
+            delete d->connection;
+    }
+
+    createConnection();
+    d->localSocket = file;
+    d->connection->startLocalServer(file);
+}
+
+void QmlProfilerClientManager::createConnection()
+{
+    d->connection = new QmlDebugConnection;
     QTC_ASSERT(d->profilerState, return);
 
     disconnectClientSignals();
@@ -155,6 +169,14 @@ void QmlProfilerClientManager::enableServices()
                                                     d->profilerState->requestedFeatures());
     d->qmlclientplugin->setFlushInterval(d->flushInterval);
     connectClientSignals();
+    connect(d->connection, &QmlDebugConnection::connected,
+            this, &QmlProfilerClientManager::qmlDebugConnectionOpened);
+    connect(d->connection, &QmlDebugConnection::disconnected,
+            this, &QmlProfilerClientManager::qmlDebugConnectionClosed);
+    connect(d->connection, &QmlDebugConnection::socketError,
+            this, &QmlProfilerClientManager::qmlDebugConnectionError);
+    connect(d->connection, &QmlDebugConnection::socketStateChanged,
+            this, &QmlProfilerClientManager::qmlDebugConnectionStateChanged);
 }
 
 void QmlProfilerClientManager::connectClientSignals()

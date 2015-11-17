@@ -53,6 +53,7 @@ public:
         QString executable;
         QString executableArguments;
         quint16 port;
+        QString socket;
         QString workingDirectory;
         Utils::Environment environment;
     };
@@ -63,6 +64,7 @@ public:
             QString *errorMessage);
 
     static quint16 findFreePort(QString &host);
+    static QString findFreeSocket();
 
     ~LocalQmlProfilerRunner();
 

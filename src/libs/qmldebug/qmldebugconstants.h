@@ -40,6 +40,7 @@ const char STR_UNABLE_TO_LISTEN[] = "Unable to listen ";
 const char STR_IGNORING_DEBUGGER[] = "Ignoring \"-qmljsdebugger=";
 const char STR_IGNORING_DEBUGGER2[] = "Ignoring\"-qmljsdebugger="; // There is (was?) a bug in one of the error strings - safest to handle both
 const char STR_CONNECTION_ESTABLISHED[] = "Connection established";
+const char STR_CONNECTING_TO_SOCKET[] = "Connecting to socket";
 
 const char QDECLARATIVE_ENGINE[] = "QDeclarativeEngine";
 

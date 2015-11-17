@@ -62,6 +62,7 @@ public:
     QString workingDirectory;
     QString sysroot;
     QString analyzerHost;
+    QString analyzerSocket;
     quint16 analyzerPort = 0;
 };
 

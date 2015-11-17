@@ -52,6 +52,7 @@ public:
 
     void registerProfilerStateManager(QmlProfilerStateManager *profilerState);
     void setTcpConnection(QString host, quint64 port);
+    void setLocalSocket(QString file);
 
     void clearBufferedData();
     void discardPendingData();
@@ -65,7 +66,8 @@ signals:
     void connectionClosed();
 
 public slots:
-    void connectClient(quint16 port);
+    void connectTcpClient(quint16 port);
+    void connectLocalClient(const QString &file);
     void disconnectClient();
 
 private slots:
@@ -89,7 +91,7 @@ private:
 
     void connectToClient();
 
-    void enableServices();
+    void createConnection();
     void connectClientSignals();
     void disconnectClientSignals();
 

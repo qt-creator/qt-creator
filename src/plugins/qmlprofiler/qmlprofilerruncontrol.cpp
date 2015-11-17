@@ -96,6 +96,8 @@ QmlProfilerRunControl::QmlProfilerRunControl(const AnalyzerStartParameters &sp,
             this, &QmlProfilerRunControl::processIsRunning);
     connect(&d->m_outputParser, &QmlDebug::QmlOutputParser::noOutputMessage,
             this, [this](){processIsRunning(0);});
+    connect(&d->m_outputParser, &QmlDebug::QmlOutputParser::connectingToSocketMessage,
+            this, [this](){processIsRunning(0);});
     connect(&d->m_outputParser, &QmlDebug::QmlOutputParser::errorMessage,
             this, &QmlProfilerRunControl::wrongSetupMessageBox);
 }
@@ -113,7 +115,7 @@ bool QmlProfilerRunControl::startEngine()
 
     if (startParameters().analyzerPort != 0)
         emit processRunning(startParameters().analyzerPort);
-    else
+    else if (startParameters().analyzerSocket.isEmpty())
         d->m_noDebugOutputTimer.start();
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);

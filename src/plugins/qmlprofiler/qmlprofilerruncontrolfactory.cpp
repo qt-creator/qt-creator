@@ -44,6 +44,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <utils/qtcassert.h>
 
@@ -79,7 +81,19 @@ static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration
     sp.debuggee = rc->executable();
     sp.debuggeeArgs = rc->commandLineArguments();
     sp.displayName = rc->displayName();
-    sp.analyzerPort = LocalQmlProfilerRunner::findFreePort(sp.analyzerHost);
+
+    const QtSupport::BaseQtVersion *version =
+            QtSupport::QtKitInformation::qtVersion(runConfiguration->target()->kit());
+    if (version) {
+        QtSupport::QtVersionNumber versionNumber = version->qtVersion();
+        if (versionNumber.majorVersion >= 5 && versionNumber.minorVersion >= 6)
+            sp.analyzerSocket = LocalQmlProfilerRunner::findFreeSocket();
+        else
+            sp.analyzerPort = LocalQmlProfilerRunner::findFreePort(sp.analyzerHost);
+    } else {
+        qWarning() << "Running QML profiler on Kit without Qt version??";
+        sp.analyzerPort = LocalQmlProfilerRunner::findFreePort(sp.analyzerHost);
+    }
 
     return sp;
 }
