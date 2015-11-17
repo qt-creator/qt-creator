@@ -28,32 +28,45 @@
 **
 ****************************************************************************/
 
-#include <diagnostic.h>
-#include <diagnosticset.h>
+#include <cursor.h>
+#include <clangstring.h>
 #include <projectpart.h>
+#include <projects.h>
+#include <skippedsourceranges.h>
+#include <sourcelocation.h>
+#include <sourcerange.h>
 #include <translationunit.h>
 #include <translationunits.h>
-#include <projects.h>
 #include <unsavedfiles.h>
-#include <sourcerange.h>
 
-#include <clang-c/Index.h>
+#include <sourcerangecontainer.h>
+
+#include <QVector>
 
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 #include "gtest-qt-printing.h"
 
-using ClangBackEnd::DiagnosticSet;
+using ClangBackEnd::Cursor;
 using ClangBackEnd::TranslationUnit;
-using ClangBackEnd::ProjectPart;
 using ClangBackEnd::UnsavedFiles;
-using ClangBackEnd::Diagnostic;
-using ClangBackEnd::SourceRange;
+using ClangBackEnd::ProjectPart;
 using ClangBackEnd::TranslationUnits;
+using ClangBackEnd::ClangString;
+using ClangBackEnd::SourceRange;
+using ClangBackEnd::SkippedSourceRanges;
 
-using testing::PrintToString;
+using testing::IsNull;
+using testing::NotNull;
+using testing::Gt;
+using testing::Contains;
+using testing::EndsWith;
+using testing::AllOf;
+using testing::Not;
 using testing::IsEmpty;
+using testing::SizeIs;
+using testing::PrintToString;
 
 namespace {
 
@@ -76,21 +89,18 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
 }
 
 struct Data {
-    ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-pedantic")}};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_source_range.cpp"),
-                                    projectPart,
-                                    Utf8StringVector(),
-                                    translationUnits};
-    DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
-    Diagnostic diagnostic{diagnosticSet.front()};
-    Diagnostic diagnosticWithFilteredOutInvalidRange{diagnosticSet.at(1)};
-    ::SourceRange sourceRange{diagnostic.ranges().front()};
+    Utf8String filePath = Utf8StringLiteral(TESTDATA_DIR"/skippedsourceranges.cpp");
+    TranslationUnit translationUnit{filePath,
+                ProjectPart(Utf8StringLiteral("projectPartId"),
+                            {Utf8StringLiteral("-std=c++11"),Utf8StringLiteral("-DBLAH")}),
+                {},
+                translationUnits};
 };
 
-class SourceRange : public ::testing::Test
+class SkippedSourceRanges : public ::testing::Test
 {
 public:
     static void SetUpTestCase();
@@ -98,72 +108,49 @@ public:
 
 protected:
     static Data *d;
-    const ::SourceRange &sourceRange = d->sourceRange;
-    const Diagnostic &diagnostic = d->diagnostic;
-    const Diagnostic &diagnosticWithFilteredOutInvalidRange = d->diagnosticWithFilteredOutInvalidRange;
     const TranslationUnit &translationUnit = d->translationUnit;
+    const Utf8String &filePath = d->filePath;
+    const ::SkippedSourceRanges skippedSourceRanges{d->translationUnit.skippedSourceRanges()};
 };
 
-TEST_F(SourceRange, IsNull)
-{
-    ::SourceRange sourceRange;
+Data *SkippedSourceRanges::d;
 
-    ASSERT_TRUE(sourceRange.isNull());
+TEST_F(SkippedSourceRanges, RangeWithZero)
+{
+    auto ranges = skippedSourceRanges.sourceRanges();
+
+    ASSERT_THAT(ranges, SizeIs(2));
 }
 
-TEST_F(SourceRange, IsNotNull)
+TEST_F(SkippedSourceRanges, RangeOne)
 {
-    ::SourceRange sourceRange = diagnostic.ranges()[0];
+    auto ranges = skippedSourceRanges.sourceRanges();
 
-    ASSERT_FALSE(sourceRange.isNull());
+    ASSERT_THAT(ranges[0].start(), IsSourceLocation(filePath, 1, 2, 1));
+    ASSERT_THAT(ranges[0].end(), IsSourceLocation(filePath, 5, 7, 24));
 }
 
-TEST_F(SourceRange, Size)
+TEST_F(SkippedSourceRanges, RangeTwo)
 {
-    ASSERT_THAT(diagnostic.ranges().size(), 2);
+    auto ranges = skippedSourceRanges.sourceRanges();
+
+    ASSERT_THAT(ranges[1].start(), IsSourceLocation(filePath, 7, 2, 27));
+    ASSERT_THAT(ranges[1].end(), IsSourceLocation(filePath, 12, 7, 63));
 }
 
-TEST_F(SourceRange, Start)
+TEST_F(SkippedSourceRanges, RangeContainerSize)
 {
-    ASSERT_THAT(sourceRange.start(), IsSourceLocation(Utf8StringLiteral("diagnostic_source_range.cpp"),
-                                                      8u,
-                                                      5u,
-                                                      43u));
+    auto ranges = skippedSourceRanges.toSourceRangeContainers();
+
+    ASSERT_THAT(ranges, SizeIs(2));
 }
 
-TEST_F(SourceRange, End)
-{
-    ASSERT_THAT(sourceRange.end(), IsSourceLocation(Utf8StringLiteral("diagnostic_source_range.cpp"),
-                                                      8u,
-                                                      6u,
-                                                      44u));
-}
-
-TEST_F(SourceRange, Create)
-{
-    ASSERT_THAT(sourceRange, ::SourceRange(sourceRange.start(), sourceRange.end()));
-}
-
-TEST_F(SourceRange, SourceRangeFromTranslationUnit)
-{
-    auto sourceRangeFromTranslationUnit = translationUnit.sourceRange(8u, 5u, 8u, 6u);
-
-    ASSERT_THAT(sourceRangeFromTranslationUnit, sourceRange);
-}
-
-TEST_F(SourceRange, InvalidRangeIsFilteredOut)
-{
-    ASSERT_THAT(diagnosticWithFilteredOutInvalidRange.ranges(), IsEmpty());
-}
-
-Data *SourceRange::d;
-
-void SourceRange::SetUpTestCase()
+void SkippedSourceRanges::SetUpTestCase()
 {
     d = new Data;
 }
 
-void SourceRange::TearDownTestCase()
+void SkippedSourceRanges::TearDownTestCase()
 {
     delete d;
     d = nullptr;

@@ -53,7 +53,10 @@ SOURCES += \
     translationunittest.cpp \
     unsavedfilestest.cpp \
     utf8test.cpp \
-    senddocumenttrackertest.cpp
+    senddocumenttrackertest.cpp \
+    cursortest.cpp \
+    highlightinginformationstest.cpp \
+    skippedsourcerangestest.cpp
 
 HEADERS += \
     gtest-qt-printing.h \

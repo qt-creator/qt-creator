@@ -41,9 +41,14 @@ class SourceRange
 {
     friend class Diagnostic;
     friend class FixIt;
+    friend class Cursor;
+    friend class HighlightingInformation;
+    friend bool operator==(const SourceRange &first, const SourceRange &second);
 
 public:
     SourceRange();
+    SourceRange(CXSourceRange cxSourceRange);
+    SourceRange(const SourceLocation &start, const SourceLocation &end);
 
     bool isNull() const;
     bool isValid() const;
@@ -53,13 +58,15 @@ public:
 
     SourceRangeContainer toSourceRangeContainer() const;
 
-private:
-    SourceRange(CXSourceRange cxSourceRange);
+    operator CXSourceRange() const;
+    operator SourceRangeContainer() const;
 
 private:
     CXSourceRange cxSourceRange;
 };
 
+bool operator==(const SourceRange &first, const SourceRange &second);
+void PrintTo(const SourceRange &sourceRange, ::std::ostream* os);
 } // namespace ClangBackEnd
 
 #endif // CLANGBACKEND_SOURCERANGE_H

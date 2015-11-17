@@ -30,13 +30,17 @@
 
 #include "translationunit.h"
 
+#include "cursor.h"
 #include "clangstring.h"
 #include "codecompleter.h"
 #include "commandlinearguments.h"
 #include "diagnosticcontainer.h"
 #include "diagnosticset.h"
 #include "projectpart.h"
+#include "skippedsourceranges.h"
 #include "sourcelocation.h"
+#include "sourcerange.h"
+#include "highlightinginformations.h"
 #include "translationunitfilenotexitexception.h"
 #include "translationunitisnullexception.h"
 #include "translationunitparseerrorexception.h"
@@ -245,6 +249,53 @@ void TranslationUnit::setDirtyIfDependencyIsMet(const Utf8String &filePath)
     }
 }
 
+SourceLocation TranslationUnit::sourceLocationAt(uint line, uint column) const
+{
+    return SourceLocation(cxTranslationUnit(), filePath(), line, column);
+}
+
+SourceLocation TranslationUnit::sourceLocationAt(const Utf8String &filePath, uint line, uint column) const
+{
+    return SourceLocation(cxTranslationUnit(), filePath, line, column);
+}
+
+SourceRange TranslationUnit::sourceRange(uint fromLine, uint fromColumn, uint toLine, uint toColumn) const
+{
+    return SourceRange(sourceLocationAt(fromLine, fromColumn),
+                       sourceLocationAt(toLine, toColumn));
+}
+
+Cursor TranslationUnit::cursorAt(uint line, uint column) const
+{
+    return clang_getCursor(cxTranslationUnit(), sourceLocationAt(line, column));
+}
+
+Cursor TranslationUnit::cursorAt(const Utf8String &filePath, uint line, uint column) const
+{
+    return clang_getCursor(cxTranslationUnit(), sourceLocationAt(filePath, line, column));
+}
+
+Cursor TranslationUnit::cursor() const
+{
+    return clang_getTranslationUnitCursor(cxTranslationUnit());
+}
+
+HighlightingInformations TranslationUnit::highlightingInformationsInRange(const SourceRange &range) const
+{
+    CXToken *cxTokens = 0;
+    uint cxTokensCount = 0;
+    auto translationUnit = cxTranslationUnit();
+
+    clang_tokenize(translationUnit, range, &cxTokens, &cxTokensCount);
+
+    return HighlightingInformations(translationUnit, cxTokens, cxTokensCount);
+}
+
+SkippedSourceRanges TranslationUnit::skippedSourceRanges() const
+{
+    return SkippedSourceRanges(cxTranslationUnit(), d->filePath.constData());
+}
+
 void TranslationUnit::checkIfNull() const
 {
     if (isNull())
@@ -380,7 +431,8 @@ uint TranslationUnit::defaultOptions()
 {
     return CXTranslationUnit_CacheCompletionResults
          | CXTranslationUnit_PrecompiledPreamble
-         | CXTranslationUnit_IncludeBriefCommentsInCodeCompletion;
+         | CXTranslationUnit_IncludeBriefCommentsInCodeCompletion
+         | CXTranslationUnit_DetailedPreprocessingRecord;
 }
 
 uint TranslationUnit::unsavedFilesCount() const

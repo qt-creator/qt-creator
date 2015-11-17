@@ -52,8 +52,13 @@ class ProjectPart;
 class DiagnosticContainer;
 class DiagnosticSet;
 class FileContainer;
+class HighlightingInformations;
 class TranslationUnits;
 class CommandLineArguments;
+class Cursor;
+class SourceLocation;
+class SourceRange;
+class SkippedSourceRanges;
 
 using time_point = std::chrono::steady_clock::time_point;
 
@@ -110,6 +115,19 @@ public:
     void setDirtyIfDependencyIsMet(const Utf8String &filePath);
 
     CommandLineArguments commandLineArguments() const;
+
+    SourceLocation sourceLocationAt(uint line, uint column) const;
+    SourceLocation sourceLocationAt(const Utf8String &filePath, uint line, uint column) const;
+
+    SourceRange sourceRange(uint fromLine, uint fromColumn, uint toLine, uint toColumn) const;
+
+    Cursor cursorAt(uint line, uint column) const;
+    Cursor cursorAt(const Utf8String &filePath, uint line, uint column) const;
+    Cursor cursor() const;
+
+    HighlightingInformations highlightingInformationsInRange(const SourceRange &range) const;
+
+    SkippedSourceRanges skippedSourceRanges() const;
 
 private:
     void checkIfNull() const;

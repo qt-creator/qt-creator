@@ -28,57 +28,52 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_SOURCELOCATION_H
-#define CLANGBACKEND_SOURCELOCATION_H
-
-#include <clang-c/Index.h>
-
-#include <utf8string.h>
+#include "highlightinginformations.h"
 
 namespace ClangBackEnd {
 
-class SourceLocationContainer;
-class TranslationUnit;
-
-class SourceLocation
+HighlightingInformations::HighlightingInformations(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount)
+    : cxTranslationUnit(cxTranslationUnit),
+      cxToken(tokens),
+      cxTokenCount(tokensCount)
 {
-    friend class Diagnostic;
-    friend class SourceRange;
-    friend class TranslationUnit;
-    friend class Cursor;
-    friend bool operator==(const SourceLocation &first, const SourceLocation &second);
+    cxCursor.resize(tokensCount);
+    clang_annotateTokens(cxTranslationUnit, cxToken, cxTokenCount, cxCursor.data());
+}
 
-public:
-    SourceLocation();
+HighlightingInformations::~HighlightingInformations()
+{
+    clang_disposeTokens(cxTranslationUnit, cxToken, cxTokenCount);
+}
 
-    const Utf8String &filePath() const;
-    uint line() const;
-    uint column() const;
-    uint offset() const;
+HighlightingInformations::const_iterator HighlightingInformations::begin() const
+{
+    return const_iterator(cxCursor.cbegin(), cxToken, cxTranslationUnit);
+}
 
-    SourceLocationContainer toSourceLocationContainer() const;
+HighlightingInformations::const_iterator HighlightingInformations::end() const
+{
+    return const_iterator(cxCursor.cend(), cxToken + cxTokenCount, cxTranslationUnit);
+}
 
-private:
-    SourceLocation(CXSourceLocation cxSourceLocation);
-    SourceLocation(CXTranslationUnit cxTranslationUnit,
-                   const Utf8String &filePath,
-                   uint line,
-                   uint column);
+bool HighlightingInformations::isEmpty() const
+{
+    return cxTokenCount == 0;
+}
 
-    operator CXSourceLocation() const;
+bool ClangBackEnd::HighlightingInformations::isNull() const
+{
+    return cxToken == nullptr;
+}
 
-private:
-   CXSourceLocation cxSourceLocation;
-   Utf8String filePath_;
-   uint line_ = 0;
-   uint column_ = 0;
-   uint offset_ = 0;
-};
+uint HighlightingInformations::size() const
+{
+    return cxTokenCount;
+}
 
-bool operator==(const SourceLocation &first, const SourceLocation &second);
-
-void PrintTo(const SourceLocation &sourceLocation, ::std::ostream* os);
+HighlightingInformation HighlightingInformations::operator[](size_t index) const
+{
+    return HighlightingInformation(cxCursor[index], cxToken + index, cxTranslationUnit);
+}
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_SOURCELOCATION_H

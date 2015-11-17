@@ -28,57 +28,60 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_SOURCELOCATION_H
-#define CLANGBACKEND_SOURCELOCATION_H
+#ifndef CLANGBACKEND_TYPE_H
+#define CLANGBACKEND_TYPE_H
 
 #include <clang-c/Index.h>
 
-#include <utf8string.h>
+#include <iosfwd>
+
+class Utf8String;
 
 namespace ClangBackEnd {
 
-class SourceLocationContainer;
-class TranslationUnit;
+class Cursor;
+class ClangString;
 
-class SourceLocation
+class Type
 {
-    friend class Diagnostic;
-    friend class SourceRange;
-    friend class TranslationUnit;
     friend class Cursor;
-    friend bool operator==(const SourceLocation &first, const SourceLocation &second);
+    friend bool operator==(Type first, Type second);
 
 public:
-    SourceLocation();
+    bool isConstant() const;
+    bool isConstantReference();
+    bool isPointer() const;
+    bool isPointerToConstant() const;
+    bool isConstantPointer() const;
+    bool isLValueReference() const;
+    bool isReferencingConstant() const;
+    bool isOutputParameter() const;
 
-    const Utf8String &filePath() const;
-    uint line() const;
-    uint column() const;
-    uint offset() const;
+    Utf8String utf8Spelling() const;
+    ClangString spelling() const;
+    int argumentCount() const;
 
-    SourceLocationContainer toSourceLocationContainer() const;
+    Type alias() const;
+    Type canonical() const;
+    Type classType() const;
+    Type pointeeType() const;
+    Type argument(int index) const;
+
+    Cursor declaration() const;
+
+    CXTypeKind kind() const;
 
 private:
-    SourceLocation(CXSourceLocation cxSourceLocation);
-    SourceLocation(CXTranslationUnit cxTranslationUnit,
-                   const Utf8String &filePath,
-                   uint line,
-                   uint column);
-
-    operator CXSourceLocation() const;
+    Type(CXType cxType);
 
 private:
-   CXSourceLocation cxSourceLocation;
-   Utf8String filePath_;
-   uint line_ = 0;
-   uint column_ = 0;
-   uint offset_ = 0;
+    CXType cxType;
 };
 
-bool operator==(const SourceLocation &first, const SourceLocation &second);
+bool operator==(Type first, Type second);
 
-void PrintTo(const SourceLocation &sourceLocation, ::std::ostream* os);
-
+void PrintTo(CXTypeKind typeKind, ::std::ostream* os);
+void PrintTo(const Type &type, ::std::ostream* os);
 } // namespace ClangBackEnd
 
-#endif // CLANGBACKEND_SOURCELOCATION_H
+#endif // CLANGBACKEND_TYPE_H

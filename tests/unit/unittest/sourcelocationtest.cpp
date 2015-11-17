@@ -50,13 +50,13 @@ using ClangBackEnd::ProjectPart;
 using ClangBackEnd::SourceLocation;
 using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;
+
 using testing::EndsWith;
+using testing::Not;
 
 namespace {
 
-class SourceLocation : public ::testing::Test
-{
-protected:
+struct Data {
     ProjectPart projectPart{Utf8StringLiteral("projectPartId")};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
@@ -68,7 +68,18 @@ protected:
     DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
     Diagnostic diagnostic{diagnosticSet.front()};
     ::SourceLocation sourceLocation{diagnostic.location()};
+};
 
+class SourceLocation : public ::testing::Test
+{
+public:
+    static void SetUpTestCase();
+    static void TearDownTestCase();
+
+protected:
+    static Data *d;
+    const ::SourceLocation &sourceLocation = d->sourceLocation;
+    const TranslationUnit &translationUnit = d->translationUnit;
 };
 
 TEST_F(SourceLocation, FilePath)
@@ -89,6 +100,29 @@ TEST_F(SourceLocation, Column)
 TEST_F(SourceLocation, Offset)
 {
     ASSERT_THAT(sourceLocation.offset(), 18);
+}
+
+TEST_F(SourceLocation, Create)
+{
+    ASSERT_THAT(translationUnit.sourceLocationAt(4, 1), sourceLocation);
+}
+
+TEST_F(SourceLocation, NotEqual)
+{
+    ASSERT_THAT(translationUnit.sourceLocationAt(3, 1), Not(sourceLocation));
+}
+
+Data *SourceLocation::d;
+
+void SourceLocation::SetUpTestCase()
+{
+    d = new Data;
+}
+
+void SourceLocation::TearDownTestCase()
+{
+    delete d;
+    d = nullptr;
 }
 
 }

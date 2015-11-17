@@ -42,6 +42,8 @@
 
 namespace {
 
+using ::testing::StrEq;
+
 using ClangBackEnd::ClangString;
 
 TEST(ClangString, ConvertToUtf8String)
@@ -86,5 +88,12 @@ TEST(ClangString, MoveSelfAssigment)
     text = std::move(text);
 
     ASSERT_FALSE(text.isNull());
+}
+
+TEST(ClangString, SpellingAsCString)
+{
+    ClangString text(CXString{"text", 0});
+
+    ASSERT_THAT(text.cString(), StrEq("text"));
 }
 }

@@ -9,8 +9,8 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://www.qt.io/licensing.  For further information
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
 ** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
@@ -22,43 +22,42 @@
 ** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
 ** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#ifndef CLANGBACKEND_SKIPPEDSOURCERANGES_H
+#define CLANGBACKEND_SKIPPEDSOURCERANGES_H
 
-#ifndef CLANGBACKEND_CLANGSTRING_H
-#define CLANGBACKEND_CLANGSTRING_H
-
-#include <clang-c/CXString.h>
-
-#include <utf8string.h>
+#include "sourcerange.h"
 
 namespace ClangBackEnd {
 
-class ClangString
+class SourceRangeContainer;
+
+class SkippedSourceRanges
 {
 public:
-    ClangString(CXString cxString);
-    ~ClangString();
+    SkippedSourceRanges(CXTranslationUnit TranslationUnit, const char *filePath);
+    ~SkippedSourceRanges();
 
-    ClangString(const ClangString &) = delete;
-    const ClangString &operator=(const ClangString &) = delete;
+    SkippedSourceRanges(const SkippedSourceRanges &) = delete;
+    const SkippedSourceRanges &operator=(const SkippedSourceRanges &) = delete;
 
-    ClangString(ClangString &&other);
-    ClangString &operator=(ClangString &&other);
+    SkippedSourceRanges(SkippedSourceRanges &&);
+    SkippedSourceRanges &operator=(SkippedSourceRanges &&);
 
-    operator Utf8String() const;
+    std::vector<SourceRange> sourceRanges() const;
 
-    const char *cString() const;
+    QVector<SourceRangeContainer> toSourceRangeContainers() const;
 
-    bool isNull() const;
+    operator QVector<SourceRangeContainer>() const;
 
 private:
-    CXString cxString;
+    CXSourceRangeList *cxSkippedSourceRanges;
 };
 
 } // namespace ClangBackEnd
 
-#endif // CLANGBACKEND_CLANGSTRING_H
+#endif // CLANGBACKEND_SKIPPEDSOURCERANGES_H

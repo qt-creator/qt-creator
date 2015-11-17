@@ -31,6 +31,7 @@
 #include "sourcelocation.h"
 
 #include "clangstring.h"
+#include "translationunit.h"
 
 #include <utf8string.h>
 
@@ -38,6 +39,11 @@
 #include <sourcelocationcontainer.h>
 
 namespace ClangBackEnd {
+
+SourceLocation::SourceLocation()
+    : cxSourceLocation(clang_getNullLocation())
+{
+}
 
 const Utf8String &SourceLocation::filePath() const
 {
@@ -65,6 +71,7 @@ SourceLocationContainer SourceLocation::toSourceLocationContainer() const
 }
 
 SourceLocation::SourceLocation(CXSourceLocation cxSourceLocation)
+    : cxSourceLocation(cxSourceLocation)
 {
     CXFile cxFile;
 
@@ -77,10 +84,37 @@ SourceLocation::SourceLocation(CXSourceLocation cxSourceLocation)
     filePath_ = ClangString(clang_getFileName(cxFile));
 }
 
+SourceLocation::SourceLocation(CXTranslationUnit cxTranslationUnit,
+                               const Utf8String &filePath,
+                               uint line,
+                               uint column)
+    : cxSourceLocation(clang_getLocation(cxTranslationUnit,
+                                         clang_getFile(cxTranslationUnit,
+                                                       filePath.constData()),
+                                         line,
+                                         column)),
+      filePath_(filePath),
+      line_(line)
+{
+}
+
+bool operator==(const SourceLocation &first, const SourceLocation &second)
+{
+    return clang_equalLocations(first.cxSourceLocation, second.cxSourceLocation);
+}
+
+SourceLocation::operator CXSourceLocation() const
+{
+    return cxSourceLocation;
+}
+
 void PrintTo(const SourceLocation &sourceLocation, std::ostream *os)
 {
-    *os << sourceLocation.filePath().constData()
-        << ", line: " << sourceLocation.line()
+    auto filePath = sourceLocation.filePath();
+    if (filePath.hasContent())
+        *os << filePath.constData()  << ", ";
+
+    *os << "line: " << sourceLocation.line()
         << ", column: "<< sourceLocation.column()
         << ", offset: "<< sourceLocation.offset();
 }
