@@ -670,6 +670,17 @@ int TestTreeModel::unnamedQuickTestsCount() const
         return unnamed->childCount();
     return 0;
 }
+
+int TestTreeModel::dataTagsCount() const
+{
+    int dataTagCount = 0;
+    foreach (Utils::TreeItem *item, m_autoTestRootItem->children()) {
+        TestTreeItem *classItem = static_cast<TestTreeItem *>(item);
+        foreach (Utils::TreeItem *functionItem, classItem->children())
+            dataTagCount += functionItem->childCount();
+   }
+    return dataTagCount;
+}
 #endif
 
 /***************************** Sort/Filter Model **********************************/

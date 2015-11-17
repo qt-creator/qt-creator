@@ -79,6 +79,7 @@ void AutoTestUnitTests::testCodeParser()
     QFETCH(int, expectedAutoTestsCount);
     QFETCH(int, expectedNamedQuickTestsCount);
     QFETCH(int, expectedUnnamedQuickTestsCount);
+    QFETCH(int, expectedDataTagsCount);
 
     NavigationWidget *navigation = NavigationWidget::instance();
     navigation->activateSubWidget(Constants::AUTOTEST_ID);
@@ -96,6 +97,7 @@ void AutoTestUnitTests::testCodeParser()
     QCOMPARE(m_model->autoTestsCount(), expectedAutoTestsCount);
     QCOMPARE(m_model->namedQuickTestsCount(), expectedNamedQuickTestsCount);
     QCOMPARE(m_model->unnamedQuickTestsCount(), expectedUnnamedQuickTestsCount);
+    QCOMPARE(m_model->dataTagsCount(), expectedDataTagsCount);
 
     QCOMPARE(m_model->parser()->autoTestsCount(), expectedAutoTestsCount);
     QCOMPARE(m_model->parser()->namedQuickTestsCount(), expectedNamedQuickTestsCount);
@@ -109,20 +111,21 @@ void AutoTestUnitTests::testCodeParser_data()
     QTest::addColumn<int>("expectedAutoTestsCount");
     QTest::addColumn<int>("expectedNamedQuickTestsCount");
     QTest::addColumn<int>("expectedUnnamedQuickTestsCount");
+    QTest::addColumn<int>("expectedDataTagsCount");
 
 
     QTest::newRow("plainAutoTest")
             << QString(m_tmpDir->path() + QLatin1String("/plain/plain.pro"))
-            << 1 << 0 << 0;
+            << 1 << 0 << 0 << 0;
     QTest::newRow("mixedAutoTestAndQuickTests")
             << QString(m_tmpDir->path() + QLatin1String("/mixed_atp/mixed_atp.pro"))
-            << 3 << 5 << 3;
+            << 3 << 5 << 3 << 8;
     QTest::newRow("plainAutoTestQbs")
             << QString(m_tmpDir->path() + QLatin1String("/plain/plain.qbs"))
-            << 1 << 0 << 0;
-    QTest::newRow("mixedAuotTestAndQuickTestsQbs")
+            << 1 << 0 << 0 << 0;
+    QTest::newRow("mixedAutoTestAndQuickTestsQbs")
             << QString(m_tmpDir->path() + QLatin1String("/mixed_atp/mixed_atp.qbs"))
-            << 3 << 5 << 3;
+            << 3 << 5 << 3 << 8;
 }
 
 void AutoTestUnitTests::testCodeParserSwitchStartup()
@@ -131,6 +134,7 @@ void AutoTestUnitTests::testCodeParserSwitchStartup()
     QFETCH(QList<int>, expectedAutoTestsCount);
     QFETCH(QList<int>, expectedNamedQuickTestsCount);
     QFETCH(QList<int>, expectedUnnamedQuickTestsCount);
+    QFETCH(QList<int>, expectedDataTagsCount);
 
     NavigationWidget *navigation = NavigationWidget::instance();
     navigation->activateSubWidget(Constants::AUTOTEST_ID);
@@ -149,6 +153,8 @@ void AutoTestUnitTests::testCodeParserSwitchStartup()
                  m_isQt4 ? 0 : expectedNamedQuickTestsCount.at(i));
         QCOMPARE(m_model->unnamedQuickTestsCount(),
                  m_isQt4 ? 0 : expectedUnnamedQuickTestsCount.at(i));
+        QCOMPARE(m_model->dataTagsCount(),
+                 expectedDataTagsCount.at(i));
 
         QCOMPARE(m_model->parser()->autoTestsCount(), expectedAutoTestsCount.at(i));
         QCOMPARE(m_model->parser()->namedQuickTestsCount(),
@@ -164,6 +170,7 @@ void AutoTestUnitTests::testCodeParserSwitchStartup_data()
     QTest::addColumn<QList<int> >("expectedAutoTestsCount");
     QTest::addColumn<QList<int> >("expectedNamedQuickTestsCount");
     QTest::addColumn<QList<int> >("expectedUnnamedQuickTestsCount");
+    QTest::addColumn<QList<int> >("expectedDataTagsCount");
 
     QStringList projects = QStringList()
             << QString(m_tmpDir->path() + QLatin1String("/plain/plain.pro"))
@@ -174,9 +181,11 @@ void AutoTestUnitTests::testCodeParserSwitchStartup_data()
     QList<int> expectedAutoTests = QList<int>()         << 1 << 3 << 1 << 3;
     QList<int> expectedNamedQuickTests = QList<int>()   << 0 << 5 << 0 << 5;
     QList<int> expectedUnnamedQuickTests = QList<int>() << 0 << 3 << 0 << 3;
+    QList<int> expectedDataTagsCount = QList<int>()     << 0 << 8 << 0 << 8;
 
     QTest::newRow("loadMultipleProjects")
-            << projects << expectedAutoTests << expectedNamedQuickTests << expectedUnnamedQuickTests;
+            << projects << expectedAutoTests << expectedNamedQuickTests
+            << expectedUnnamedQuickTests << expectedDataTagsCount;
 }
 
 } // namespace Internal
