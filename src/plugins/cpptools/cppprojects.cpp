@@ -59,6 +59,16 @@ ProjectPart::ProjectPart()
 {
 }
 
+static ProjectPart::HeaderPath toProjectPartHeaderPath(const ProjectExplorer::HeaderPath &headerPath)
+{
+    const ProjectPart::HeaderPath::Type headerPathType =
+        headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath
+            ? ProjectPart::HeaderPath::FrameworkPath
+            : ProjectPart::HeaderPath::IncludePath;
+
+    return ProjectPart::HeaderPath(headerPath.path(), headerPathType);
+}
+
 /*!
     \brief Retrieves info from concrete compiler using it's flags.
 
@@ -106,10 +116,9 @@ void ProjectPart::evaluateToolchain(const ToolChain *tc,
 
     const QList<ProjectExplorer::HeaderPath> headers = tc->systemHeaderPaths(commandLineFlags, sysRoot);
     foreach (const ProjectExplorer::HeaderPath &header, headers) {
-        headerPaths << ProjectPart::HeaderPath(header.path(),
-                                header.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath
-                                    ? ProjectPart::HeaderPath::FrameworkPath
-                                    : ProjectPart::HeaderPath::IncludePath);
+        const HeaderPath headerPath = toProjectPartHeaderPath(header);
+        if (!headerPaths.contains(headerPath))
+            headerPaths << headerPath;
     }
 
     toolchainDefines = tc->predefinedMacros(commandLineFlags);
