@@ -67,7 +67,7 @@ GdbServerProvider::GdbServerProvider(const QString &id)
 }
 
 GdbServerProvider::GdbServerProvider(const GdbServerProvider &other)
-    : m_id(other.m_id)
+    : m_id(createId(other.m_id))
     , m_startupMode(other.m_startupMode)
     , m_initCommands(other.m_initCommands)
     , m_resetCommands(other.m_resetCommands)
