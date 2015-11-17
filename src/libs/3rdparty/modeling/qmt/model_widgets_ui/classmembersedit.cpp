@@ -530,6 +530,7 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
                 word = cursor.readWord().toLower();
             } else if (word == QStringLiteral("invokable") || word == QStringLiteral("q_invokable")) {
                 member.setProperties(member.getProperties() | MClassMember::PROPERTY_QINVOKABLE);
+                word = cursor.readWord().toLower();
             } else if (word == QStringLiteral(":")) {
                 word = cursor.readWord().toLower();
             } else {
