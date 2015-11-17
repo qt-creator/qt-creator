@@ -29,23 +29,22 @@
 ****************************************************************************/
 
 #include "cppcodemodelsettings.h"
-#include "cppmodelmanagersupport.h"
 #include "cpptoolsconstants.h"
+
+#include <QSettings>
 
 using namespace CppTools;
 
 static QLatin1String cppHeaderMimeType(Constants::CPP_HEADER_MIMETYPE);
 static QLatin1String cHeaderMimeType(Constants::C_HEADER_MIMETYPE);
 static QLatin1String clangExtraOptionsKey(Constants::CPPTOOLS_EXTRA_CLANG_OPTIONS);
+static QLatin1String useClangCodeModelKey(Constants::CPPTOOLS_USE_CLANG_CODE_MODEL);
 
 void CppCodeModelSettings::fromSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
-    QVariant supporters = s->value(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_SUPPORTERS_KEY));
 
-    foreach (const QString &mimeType, supportedMimeTypes())
-        setIdForMimeType(supporters, mimeType);
-
+    setUseClangCodeModel(s->value(useClangCodeModelKey, false).toBool());
     setExtraClangOptions(s->value(clangExtraOptionsKey, defaultExtraClangOptions()).toStringList());
 
     QVariant v = s->value(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE), PchUse_None);
@@ -58,66 +57,24 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
 void CppCodeModelSettings::toSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
-    QHash<QString, QVariant> var;
-    foreach (const QString &mimeType, m_modelManagerSupportByMimeType.keys())
-        var[mimeType] = m_modelManagerSupportByMimeType[mimeType];
-    s->setValue(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_SUPPORTERS_KEY), QVariant(var));
+
+    s->setValue(useClangCodeModelKey, useClangCodeModel());
     s->setValue(clangExtraOptionsKey, extraClangOptions());
     s->setValue(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE), pchUsage());
+
     s->endGroup();
 
     emit changed();
 }
 
-QStringList CppCodeModelSettings::supportedMimeTypes()
+bool CppCodeModelSettings::useClangCodeModel() const
 {
-    return QStringList({
-        QLatin1String(Constants::C_SOURCE_MIMETYPE),
-        QLatin1String(Constants::CPP_SOURCE_MIMETYPE),
-        QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE),
-        QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE),
-        QLatin1String(Constants::CPP_HEADER_MIMETYPE)
-    });
+    return m_useClangCodeModel;
 }
 
-void CppCodeModelSettings::emitChanged()
+void CppCodeModelSettings::setUseClangCodeModel(bool useClangCodeModel)
 {
-    emit changed();
-}
-
-void CppCodeModelSettings::setModelManagerSupportProviders(
-        const QList<ModelManagerSupportProvider *> &providers)
-{
-    m_modelManagerSupportsByName.clear();
-    foreach (ModelManagerSupportProvider *provider, providers)
-        m_modelManagerSupportsByName[provider->displayName()] = provider->id();
-}
-
-QString CppCodeModelSettings::modelManagerSupportIdForMimeType(const QString &mimeType) const
-{
-    if (mimeType == cHeaderMimeType)
-        return m_modelManagerSupportByMimeType.value(cppHeaderMimeType);
-    else
-        return m_modelManagerSupportByMimeType.value(mimeType);
-}
-
-void CppCodeModelSettings::setModelManagerSupportIdForMimeType(const QString &mimeType,
-                                                               const QString &id)
-{
-    QString theMimeType = mimeType;
-    if (theMimeType == cHeaderMimeType)
-        theMimeType = cppHeaderMimeType;
-
-    m_modelManagerSupportByMimeType.insert(theMimeType, id);
-}
-
-bool CppCodeModelSettings::hasModelManagerSupportIdForMimeType(const QString &mimeType,
-                                                               const QString &id) const
-{
-    if (mimeType == cHeaderMimeType)
-        return m_modelManagerSupportByMimeType.value(cppHeaderMimeType) == id;
-    else
-        return m_modelManagerSupportByMimeType.value(mimeType) == id;
+    m_useClangCodeModel = useClangCodeModel;
 }
 
 QStringList CppCodeModelSettings::defaultExtraClangOptions()
@@ -147,8 +104,17 @@ void CppCodeModelSettings::setExtraClangOptions(const QStringList &extraClangOpt
     m_extraClangOptions = extraClangOptions;
 }
 
-void CppCodeModelSettings::setIdForMimeType(const QVariant &var, const QString &mimeType)
+CppCodeModelSettings::PCHUsage CppCodeModelSettings::pchUsage() const
 {
-    QHash<QString, QVariant> mimeToId = var.toHash();
-    m_modelManagerSupportByMimeType[mimeType] = mimeToId.value(mimeType, defaultId()).toString();
+    return m_pchUsage;
+}
+
+void CppCodeModelSettings::setPCHUsage(CppCodeModelSettings::PCHUsage pchUsage)
+{
+    m_pchUsage = pchUsage;
+}
+
+void CppCodeModelSettings::emitChanged()
+{
+    emit changed();
 }

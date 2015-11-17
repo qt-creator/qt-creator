@@ -94,7 +94,7 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
             pchManager, &PchManager::onProjectPartsUpdated);
 
     // Register ModelManagerSupportProvider
-    cppModelManager->addModelManagerSupportProvider(&m_modelManagerSupportProvider);
+    cppModelManager->setClangModelManagerSupportProvider(&m_modelManagerSupportProvider);
 
     initializeTextMarks();
 

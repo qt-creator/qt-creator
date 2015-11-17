@@ -35,6 +35,7 @@
 
 #include <clang-c/Index.h>
 
+#include <functional>
 #include <vector>
 
 class Utf8String;
@@ -75,6 +76,9 @@ public:
     std::vector<FixIt> fixIts() const;
     DiagnosticSet childDiagnostics() const;
 
+    using IsAcceptedDiagnostic = std::function<bool (const Diagnostic &)>;
+    DiagnosticContainer toDiagnosticContainer(
+            const IsAcceptedDiagnostic &isAcceptedChildDiagnostic) const;
     DiagnosticContainer toDiagnosticContainer() const;
 
 private:

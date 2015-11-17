@@ -121,7 +121,8 @@ public:
     void emitAbstractEditorSupportRemoved(const QString &filePath);
 
     bool isCppEditor(Core::IEditor *editor) const;
-    bool isManagedByModelManagerSupport(Core::IDocument *document, const QString &id) const;
+    bool isClangCodeModelAvailable() const;
+    bool isClangCodeModelActive() const;
 
     QSet<AbstractEditorSupport*> abstractEditorSupports() const;
     void addExtraEditorSupport(AbstractEditorSupport *editorSupport);
@@ -143,8 +144,8 @@ public:
 
     void finishedRefreshingSourceFiles(const QSet<QString> &files);
 
-    void addModelManagerSupportProvider(ModelManagerSupportProvider *modelManagerSupportProvider);
-    CppCompletionAssistProvider *completionAssistProvider(const QString &mimeType) const;
+    void setClangModelManagerSupportProvider(ModelManagerSupportProvider *modelManagerSupportProvider);
+    CppCompletionAssistProvider *completionAssistProvider() const;
     BaseEditorDocumentProcessor *editorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument) const;
 
@@ -205,6 +206,7 @@ private slots:
     void onCoreAboutToClose();
 
 private:
+    void initializeModelManagerSupports();
     void delayedGC();
     void recalculateProjectPartMappings();
     void updateCppEditorDocuments() const;
@@ -213,12 +215,7 @@ private:
     void removeFilesFromSnapshot(const QSet<QString> &removedFiles);
     void removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo);
 
-    void handleAddedModelManagerSupports(const QSet<QString> &supportIds);
-    QList<ModelManagerSupport::Ptr> handleRemovedModelManagerSupports(
-            const QSet<QString> &supportIds);
     void closeCppEditorDocuments();
-
-    ModelManagerSupport::Ptr modelManagerSupportForMimeType(const QString &mimeType) const;
 
     WorkingCopy buildWorkingCopyList();
 

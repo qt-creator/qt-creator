@@ -519,19 +519,20 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
         const bool wantQmlDebugger = m_debuggerAspect->useQmlDebugger() && (m_rp.languages & QmlLanguage);
 
         if (wantQmlDebugger) {
-            QString qmlArgs;
+            QmlDebug::QmlDebugServicesPreset service;
             if (wantCppDebugger) {
                 if (m_rp.nativeMixedEnabled) {
-                    qmlArgs = QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlNativeDebuggerServices);
+                    service = QmlDebug::QmlNativeDebuggerServices;
                 } else {
                     m_rp.masterEngineType = QmlCppEngineType;
-                    qmlArgs = QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlDebuggerServices, m_rp.qmlServerPort);
+                    service = QmlDebug::QmlDebuggerServices;
                 }
             } else {
                 m_rp.masterEngineType = QmlEngineType;
-                qmlArgs = QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlDebuggerServices, m_rp.qmlServerPort);
+                service = QmlDebug::QmlDebuggerServices;
             }
-            QtcProcess::addArg(&m_rp.processArgs, qmlArgs);
+            if (m_rp.startMode != AttachExternal)
+                QtcProcess::addArg(&m_rp.processArgs, QmlDebug::qmlDebugCommandLineArguments(service, m_rp.qmlServerPort));
         }
     }
 

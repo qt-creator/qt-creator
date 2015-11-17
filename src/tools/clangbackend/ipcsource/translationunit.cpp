@@ -33,8 +33,10 @@
 #include "clangstring.h"
 #include "codecompleter.h"
 #include "commandlinearguments.h"
+#include "diagnosticcontainer.h"
 #include "diagnosticset.h"
 #include "projectpart.h"
+#include "sourcelocation.h"
 #include "translationunitfilenotexitexception.h"
 #include "translationunitisnullexception.h"
 #include "translationunitparseerrorexception.h"
@@ -216,6 +218,16 @@ DiagnosticSet TranslationUnit::diagnostics() const
     d->hasNewDiagnostics = false;
 
     return DiagnosticSet(clang_getDiagnosticSetFromTU(cxTranslationUnit()));
+}
+
+QVector<ClangBackEnd::DiagnosticContainer> TranslationUnit::mainFileDiagnostics() const
+{
+    const auto mainFilePath = filePath();
+    const auto isMainFileDiagnostic = [mainFilePath](const Diagnostic &diagnostic) {
+        return diagnostic.location().filePath() == mainFilePath;
+    };
+
+    return diagnostics().toDiagnosticContainers(isMainFileDiagnostic);
 }
 
 const QSet<Utf8String> &TranslationUnit::dependedFilePaths() const

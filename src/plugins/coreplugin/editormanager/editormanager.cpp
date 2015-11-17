@@ -2517,8 +2517,6 @@ static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
                 seen.insert(parent.name());
                 if (seen.size() != seenSize) // not seen before, so add
                     queue.append(parent);
-                else
-                    qWarning("MimeTypes: Parent hierarchy loop detected for '%s'!", qPrintable(parent.name()));
             }
         }
     }

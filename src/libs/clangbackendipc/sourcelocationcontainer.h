@@ -44,6 +44,7 @@ class CMBIPC_EXPORT SourceLocationContainer
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, SourceLocationContainer &container);
     friend CMBIPC_EXPORT bool operator==(const SourceLocationContainer &first, const SourceLocationContainer &second);
+    friend CMBIPC_EXPORT bool operator!=(const SourceLocationContainer &first, const SourceLocationContainer &second);
     friend CMBIPC_EXPORT bool operator<(const SourceLocationContainer &first, const SourceLocationContainer &second);
 
 public:
@@ -65,6 +66,7 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, SourceLocationContainer &container);
 CMBIPC_EXPORT bool operator==(const SourceLocationContainer &first, const SourceLocationContainer &second);
+CMBIPC_EXPORT bool operator!=(const SourceLocationContainer &first, const SourceLocationContainer &second);
 CMBIPC_EXPORT bool operator<(const SourceLocationContainer &first, const SourceLocationContainer &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceLocationContainer &container);

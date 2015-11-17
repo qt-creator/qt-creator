@@ -61,8 +61,6 @@ const char CPP_SNIPPETS_GROUP_ID[] = "C++";
 
 const char CPP_PREPROCESSOR_PROJECT_PREFIX[] = "CppPreprocessorProject-";
 
-const char CLANG_MODELMANAGERSUPPORT_ID[] = "ClangCodeMode.ClangCodeMode";
-
 } // namespace Constants
 } // namespace CppEditor
 

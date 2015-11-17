@@ -51,6 +51,8 @@ Q_DECLARE_METATYPE(Core::IWizardFactory*)
 namespace {
 
 const int ICON_SIZE = 22;
+const char LAST_CATEGORY_KEY[] = "Core/NewDialog/LastCategory";
+const char LAST_PLATFORM_KEY[] = "Core/NewDialog/LastPlatform";
 
 class WizardFactoryContainer
 {
@@ -188,8 +190,6 @@ using namespace Core;
 using namespace Core::Internal;
 
 bool NewDialog::m_isRunning = false;
-QString NewDialog::m_lastCategory = QString();
-QString NewDialog::m_lastPlatform = QString();
 
 NewDialog::NewDialog(QWidget *parent) :
     QDialog(parent),
@@ -302,12 +302,18 @@ void NewDialog::showDialog()
 {
     QModelIndex idx;
 
-    if (!m_lastPlatform.isEmpty())
-        m_ui->comboBox->setCurrentIndex(m_ui->comboBox->findData(m_lastPlatform));
+    QString lastPlatform = ICore::settings()->value(QLatin1String(LAST_PLATFORM_KEY)).toString();
+    QString lastCategory = ICore::settings()->value(QLatin1String(LAST_CATEGORY_KEY)).toString();
 
-    if (!m_lastCategory.isEmpty())
+    if (!lastPlatform.isEmpty()) {
+        int index = m_ui->comboBox->findData(lastPlatform);
+        if (index != -1)
+            m_ui->comboBox->setCurrentIndex(index);
+    }
+
+    if (!lastCategory.isEmpty())
         foreach (QStandardItem* item, m_categoryItems) {
-            if (item->data(Qt::UserRole) == m_lastCategory)
+            if (item->data(Qt::UserRole) == lastCategory)
                 idx = m_twoLevelProxyModel->mapToSource(m_model->indexFromItem(item));
     }
     if (!idx.isValid())
@@ -449,8 +455,9 @@ void NewDialog::saveState()
     QModelIndex idx = m_ui->templateCategoryView->currentIndex();
     QStandardItem *currentItem = m_model->itemFromIndex(m_twoLevelProxyModel->mapToSource(idx));
     if (currentItem)
-        m_lastCategory = currentItem->data(Qt::UserRole).toString();
-    m_lastPlatform = m_ui->comboBox->currentData().toString();
+        ICore::settings()->setValue(QLatin1String(LAST_CATEGORY_KEY),
+                                    currentItem->data(Qt::UserRole));
+    ICore::settings()->setValue(QLatin1String(LAST_PLATFORM_KEY), m_ui->comboBox->currentData());
 }
 
 void NewDialog::accept()

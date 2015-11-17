@@ -28,9 +28,15 @@
 **
 ****************************************************************************/
 
+#include <clangbackendipc_global.h>
+#include <diagnosticcontainer.h>
 #include <diagnosticset.h>
+#include <fixitcontainer.h>
 #include <projectpart.h>
 #include <projects.h>
+#include <sourcelocation.h>
+#include <sourcelocationcontainer.h>
+#include <sourcerangecontainer.h>
 #include <translationunit.h>
 #include <translationunits.h>
 #include <unsavedfiles.h>
@@ -40,14 +46,26 @@
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
+#include "matcher-diagnosticcontainer.h"
 #include "gtest-qt-printing.h"
 
+using ::testing::Contains;
+using ::testing::Not;
+using ::testing::PrintToString;
+
+using ::ClangBackEnd::Diagnostic;
 using ::ClangBackEnd::DiagnosticSet;
-using ::ClangBackEnd::TranslationUnit;
+using ::ClangBackEnd::DiagnosticContainer;
+using ::ClangBackEnd::FixItContainer;
 using ::ClangBackEnd::ProjectPart;
+using ::ClangBackEnd::SourceLocation;
+using ::ClangBackEnd::SourceLocationContainer;
+using ::ClangBackEnd::TranslationUnit;
 using ::ClangBackEnd::UnsavedFiles;
 
 namespace {
+
+const Utf8String headerFilePath = Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnosticset_header.cpp");
 
 class DiagnosticSet : public ::testing::Test
 {
@@ -60,6 +78,15 @@ protected:
                                     projectPart,
                                     Utf8StringVector(),
                                     translationUnits};
+    TranslationUnit translationUnitMainFile{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnosticset_mainfile.cpp"),
+                                            projectPart,
+                                            Utf8StringVector(),
+                                            translationUnits};
+    ::DiagnosticSet diagnosticSetWithChildren{translationUnitMainFile.diagnostics()};
+
+protected:
+    enum ChildMode { WithChild, WithoutChild };
+    DiagnosticContainer expectedDiagnostic(ChildMode childMode) const;
 };
 
 TEST_F(DiagnosticSet, SetHasContent)
@@ -118,6 +145,65 @@ TEST_F(DiagnosticSet, BeginPlusOneIsEqualEnd)
     auto set = translationUnit.diagnostics();
 
     ASSERT_TRUE(++set.begin() == set.end());
+}
+
+TEST_F(DiagnosticSet, ToDiagnosticContainersLetThroughByDefault)
+{
+    const auto diagnosticContainerWithoutChild = expectedDiagnostic(WithChild);
+
+    const auto diagnostics = translationUnitMainFile.diagnostics().toDiagnosticContainers();
+
+    ASSERT_THAT(diagnostics, Contains(IsDiagnosticContainer(diagnosticContainerWithoutChild)));
+}
+
+TEST_F(DiagnosticSet, ToDiagnosticContainersFiltersOutTopLevelItem)
+{
+    const auto acceptNoDiagnostics = [](const Diagnostic &) { return false; };
+
+    const auto diagnostics = diagnosticSetWithChildren.toDiagnosticContainers(acceptNoDiagnostics);
+
+    ASSERT_TRUE(diagnostics.isEmpty());
+}
+
+TEST_F(DiagnosticSet, ToDiagnosticContainersFiltersOutChildren)
+{
+    const auto diagnosticContainerWithoutChild = expectedDiagnostic(WithoutChild);
+    const auto acceptMainFileDiagnostics = [this](const Diagnostic &diagnostic) {
+        return diagnostic.location().filePath() == translationUnitMainFile.filePath();
+    };
+
+    const auto diagnostics = diagnosticSetWithChildren.toDiagnosticContainers(acceptMainFileDiagnostics);
+
+    ASSERT_THAT(diagnostics, Contains(IsDiagnosticContainer(diagnosticContainerWithoutChild)));
+}
+
+DiagnosticContainer DiagnosticSet::expectedDiagnostic(DiagnosticSet::ChildMode childMode) const
+{
+    QVector<DiagnosticContainer> children;
+    if (childMode == WithChild) {
+        const auto child = DiagnosticContainer(
+            Utf8StringLiteral("note: previous definition is here"),
+            Utf8StringLiteral("Semantic Issue"),
+            {Utf8String(), Utf8String()},
+            ClangBackEnd::DiagnosticSeverity::Note,
+            SourceLocationContainer(headerFilePath, 1, 5),
+            {},
+            {},
+            {}
+        );
+        children.append(child);
+    }
+
+    return DiagnosticContainer(
+        Utf8StringLiteral("error: redefinition of 'f'"),
+        Utf8StringLiteral("Semantic Issue"),
+        {Utf8String(), Utf8String()},
+        ClangBackEnd::DiagnosticSeverity::Error,
+        SourceLocationContainer(translationUnitMainFile.filePath(), 3, 53),
+        {},
+        {},
+        children
+    );
 }
 
 }

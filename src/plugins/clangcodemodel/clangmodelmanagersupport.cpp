@@ -174,13 +174,8 @@ void ModelManagerSupportClang::onEditorOpened(Core::IEditor *editor)
     TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(document);
 
     if (textDocument && cppModelManager()->isCppEditor(editor)) {
-        const QString clangSupportId = QLatin1String(Constants::CLANG_MODELMANAGERSUPPORT_ID);
-        if (cppModelManager()->isManagedByModelManagerSupport(textDocument, clangSupportId)) {
-            connectTextDocumentToTranslationUnit(textDocument);
-            connectToWidgetsMarkContextMenuRequested(editor->widget());
-        } else {
-            connectTextDocumentToUnsavedFiles(textDocument);
-        }
+        connectTextDocumentToTranslationUnit(textDocument);
+        connectToWidgetsMarkContextMenuRequested(editor->widget());
 
         // TODO: Ensure that not fully loaded documents are updated?
     }

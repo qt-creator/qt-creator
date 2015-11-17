@@ -49,6 +49,7 @@ class TranslationUnitData;
 class CodeCompleter;
 class UnsavedFiles;
 class ProjectPart;
+class DiagnosticContainer;
 class DiagnosticSet;
 class FileContainer;
 class TranslationUnits;
@@ -102,6 +103,7 @@ public:
     bool hasNewDiagnostics() const;
 
     DiagnosticSet diagnostics() const;
+    QVector<DiagnosticContainer> mainFileDiagnostics() const;
 
     const QSet<Utf8String> &dependedFilePaths() const;
 

@@ -45,6 +45,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/qtcprocess.h>
+#include <debugger/debuggerruncontrol.h>
 
 #include <QDir>
 
@@ -54,6 +55,7 @@ using namespace WinRt::Internal;
 WinRtRunnerHelper::WinRtRunnerHelper(WinRtRunConfiguration *runConfiguration, QString *errormessage)
     : QObject()
     , m_messenger(0)
+    , m_debugMessenger(0)
     , m_runConfiguration(runConfiguration)
     , m_process(0)
 {
@@ -63,6 +65,7 @@ WinRtRunnerHelper::WinRtRunnerHelper(WinRtRunConfiguration *runConfiguration, QS
 WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunControl *runControl)
     : QObject(runControl)
     , m_messenger(runControl)
+    , m_debugMessenger(0)
     , m_runConfiguration(0)
     , m_process(0)
 {
@@ -112,6 +115,17 @@ bool WinRtRunnerHelper::init(WinRtRunConfiguration *runConfiguration, QString *e
     return true;
 }
 
+void WinRtRunnerHelper::appendMessage(const QString &message, Utils::OutputFormat format)
+{
+    if (m_debugMessenger && (format == Utils::StdOutFormat || format == Utils::StdErrFormat)){
+        // We wan to filter out the waiting for connection message from the QML debug server
+        m_debugMessenger->showMessage(message, format == Utils::StdOutFormat ? Debugger::AppOutput
+                                                                             : Debugger::AppError);
+    } else if (m_messenger) {
+        m_messenger->appendMessage(message, format);
+    }
+}
+
 void WinRtRunnerHelper::debug(const QString &debuggerExecutable, const QString &debuggerArguments)
 {
     m_debuggerExecutable = debuggerExecutable;
@@ -138,27 +152,22 @@ bool WinRtRunnerHelper::waitForStarted(int msecs)
     return m_process->waitForStarted(msecs);
 }
 
-void WinRtRunnerHelper::setRunControl(ProjectExplorer::RunControl *runControl)
+void WinRtRunnerHelper::setDebugRunControl(Debugger::DebuggerRunControl *runControl)
 {
+    m_debugMessenger = runControl;
     m_messenger = runControl;
 }
 
 void WinRtRunnerHelper::onProcessReadyReadStdOut()
 {
     QTC_ASSERT(m_process, return);
-    if (m_messenger) {
-        m_messenger->appendMessage(QString::fromLocal8Bit(
-                                        m_process->readAllStandardOutput()), Utils::StdOutFormat);
-    }
+    appendMessage(QString::fromLocal8Bit(m_process->readAllStandardOutput()), Utils::StdOutFormat);
 }
 
 void WinRtRunnerHelper::onProcessReadyReadStdErr()
 {
     QTC_ASSERT(m_process, return);
-    if (m_messenger) {
-        m_messenger->appendMessage(QString::fromLocal8Bit(
-                                        m_process->readAllStandardError()), Utils::StdErrFormat);
-    }
+    appendMessage(QString::fromLocal8Bit(m_process->readAllStandardError()), Utils::StdErrFormat);
 }
 
 void WinRtRunnerHelper::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -173,11 +182,8 @@ void WinRtRunnerHelper::onProcessFinished(int exitCode, QProcess::ExitStatus exi
 void WinRtRunnerHelper::onProcessError(QProcess::ProcessError processError)
 {
     QTC_ASSERT(m_process, return);
-    if (m_messenger) {
-        m_messenger->appendMessage(tr("Error while executing the WinRT Runner Tool: %1\n").arg(
-                                        m_process->errorString()),
-                                    Utils::ErrorMessageFormat);
-    }
+    appendMessage(tr("Error while executing the WinRT Runner Tool: %1\n").arg(
+                      m_process->errorString()), Utils::ErrorMessageFormat);
     m_process->disconnect();
     m_process->deleteLater();
     m_process = 0;
@@ -193,16 +199,16 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
         QtcProcess::addArg(&runnerArgs, QString::number(m_device->deviceId()));
     }
 
-    Utils::QtcProcess *process = 0;
+    QtcProcess *process = 0;
     bool connectProcess = false;
 
     switch (conf) {
     case Debug:
-        Utils::QtcProcess::addArg(&runnerArgs, QStringLiteral("--debug"));
-        Utils::QtcProcess::addArg(&runnerArgs, m_debuggerExecutable);
+        QtcProcess::addArg(&runnerArgs, QStringLiteral("--debug"));
+        QtcProcess::addArg(&runnerArgs, m_debuggerExecutable);
         if (!m_debuggerArguments.isEmpty()) {
-            Utils::QtcProcess::addArg(&runnerArgs, QStringLiteral("--debugger-arguments"));
-            Utils::QtcProcess::addArg(&runnerArgs, m_debuggerArguments);
+            QtcProcess::addArg(&runnerArgs, QStringLiteral("--debugger-arguments"));
+            QtcProcess::addArg(&runnerArgs, m_debuggerArguments);
         }
         // fall through
     case Start:
@@ -213,7 +219,7 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
         process = m_process;
         break;
     case Stop:
-        Utils::QtcProcess::addArgs(&runnerArgs, QStringLiteral("--stop"));
+        QtcProcess::addArgs(&runnerArgs, QStringLiteral("--stop"));
         process = new QtcProcess(this);
         break;
     }
@@ -225,10 +231,7 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
     if (!m_arguments.isEmpty())
         QtcProcess::addArgs(&runnerArgs, m_arguments);
 
-    if (m_messenger) {
-        m_messenger->appendMessage(QStringLiteral("winrtrunner ") + runnerArgs + QLatin1Char('\n'),
-                                    Utils::NormalMessageFormat);
-    }
+    appendMessage(QStringLiteral("winrtrunner ") + runnerArgs + QLatin1Char('\n'), NormalMessageFormat);
 
     if (connectProcess) {
         connect(process, SIGNAL(started()), SIGNAL(started()));

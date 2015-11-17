@@ -82,7 +82,13 @@ QDataStream &operator>>(QDataStream &in, SourceLocationContainer &container)
 
 bool operator==(const SourceLocationContainer &first, const SourceLocationContainer &second)
 {
-    return first.offset_ == second.offset_ && first.filePath_ == second.filePath_;
+    return !(first != second);
+}
+
+bool operator!=(const SourceLocationContainer &first, const SourceLocationContainer &second)
+{
+    return first.offset_ != second.offset_
+        || first.filePath_ != second.filePath_;
 }
 
 bool operator<(const SourceLocationContainer &first, const SourceLocationContainer &second)

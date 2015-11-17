@@ -38,6 +38,8 @@
 
 #include <QVector>
 
+#include <functional>
+
 namespace ClangBackEnd {
 
 class DiagnosticSetIterator;
@@ -71,6 +73,8 @@ public:
     ConstIterator end() const;
 
     QVector<DiagnosticContainer> toDiagnosticContainers() const;
+    QVector<DiagnosticContainer> toDiagnosticContainers(
+            const Diagnostic::IsAcceptedDiagnostic &isAcceptedDiagnostic) const;
 
 private:
     DiagnosticSet(CXDiagnosticSet cxDiagnosticSet);

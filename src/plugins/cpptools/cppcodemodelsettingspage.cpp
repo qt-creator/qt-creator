@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "cppcodemodelsettingspage.h"
+#include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
 #include "ui_cppcodemodelsettingspage.h"
 
@@ -63,41 +64,26 @@ void CppCodeModelSettingsWidget::setSettings(const QSharedPointer<CppCodeModelSe
     m_settings = s;
 
     setupClangCodeModelWidgets();
-    m_ui->ignorePCHCheckBox->setChecked(s->pchUsage() == CppCodeModelSettings::PchUse_None);
+    setupPchCheckBox();
 }
 
 void CppCodeModelSettingsWidget::applyToSettings() const
 {
     bool changed = false;
 
-    if (applyClangCodeModelWidgetsToSettings())
-        changed = true;
-
-    if (m_ui->ignorePCHCheckBox->isChecked() !=
-            (m_settings->pchUsage() == CppCodeModelSettings::PchUse_None)) {
-        m_settings->setPCHUsage(
-                   m_ui->ignorePCHCheckBox->isChecked() ? CppCodeModelSettings::PchUse_None
-                                                        : CppCodeModelSettings::PchUse_BuildSystem);
-        changed = true;
-    }
+    changed |= applyClangCodeModelWidgetsToSettings();
+    changed |= applyPchCheckBoxToSettings();
 
     if (changed)
         m_settings->toSettings(Core::ICore::settings());
 }
 
-static bool isClangCodeModelActive(const CppCodeModelSettings &settings)
-{
-    const QString currentCodeModelId
-        = settings.modelManagerSupportIdForMimeType(QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
-    return currentCodeModelId != settings.defaultId();
-}
-
 void CppCodeModelSettingsWidget::setupClangCodeModelWidgets() const
 {
     bool isClangActive = false;
-    const bool isClangAvailable = m_settings->availableModelManagerSupportProvidersByName().size() > 1;
+    const bool isClangAvailable = CppModelManager::instance()->isClangCodeModelAvailable();
     if (isClangAvailable)
-        isClangActive = isClangCodeModelActive(*m_settings.data());
+        isClangActive = m_settings->useClangCodeModel();
 
     m_ui->activateClangCodeModelPluginHint->setVisible(!isClangAvailable);
     m_ui->clangSettingsGroupBox->setEnabled(isClangAvailable);
@@ -107,25 +93,50 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets() const
     m_ui->clangOptionsToAppendTextEdit->document()->setPlainText(extraClangOptions);
 }
 
+void CppCodeModelSettingsWidget::setupPchCheckBox() const
+{
+    const bool ignorePch = m_settings->pchUsage() == CppCodeModelSettings::PchUse_None;
+    m_ui->ignorePCHCheckBox->setChecked(ignorePch);
+}
+
 bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
 {
-    // Once the underlying settings are not mime type based anymore, simplify here.
-    // Until then, ensure that the settings are set uniformly for all the mime types
-    // to avoid surprises.
+    bool settingsChanged = false;
 
-    const QString activeCodeModelId = m_ui->clangSettingsGroupBox->isChecked()
-            ? QLatin1String("ClangCodeMode.ClangCodeMode")
-            : QLatin1String("CppTools.BuiltinCodeModel");
+    const bool previouslyClangWasActive = m_settings->useClangCodeModel();
+    const bool nowClangIsActive = m_ui->clangSettingsGroupBox->isChecked();
+    if (nowClangIsActive != previouslyClangWasActive) {
+        m_settings->setUseClangCodeModel(nowClangIsActive);
+        settingsChanged = true;
+    }
 
-    foreach (const QString &mimeType, m_settings->supportedMimeTypes())
-        m_settings->setModelManagerSupportIdForMimeType(mimeType, activeCodeModelId);
+    const QStringList previousOptions = m_settings->extraClangOptions();
+    const QString newOptionsAsString = m_ui->clangOptionsToAppendTextEdit->document()->toPlainText();
+    const QStringList newOptions = newOptionsAsString.split(QLatin1Char('\n'),
+                                                            QString::SkipEmptyParts);
+    if (newOptions != previousOptions) {
+        m_settings->setExtraClangOptions(newOptions);
+        settingsChanged = true;
+    }
 
-    const QString clangOptionsText = m_ui->clangOptionsToAppendTextEdit->document()->toPlainText();
-    const QStringList extraClangOptions = clangOptionsText.split(QLatin1Char('\n'),
-                                                                 QString::SkipEmptyParts);
-    m_settings->setExtraClangOptions(extraClangOptions);
+    return settingsChanged;
+}
 
-    return true;
+bool CppCodeModelSettingsWidget::applyPchCheckBoxToSettings() const
+{
+    const bool newIgnorePch = m_ui->ignorePCHCheckBox->isChecked();
+    const bool previousIgnorePch = m_settings->pchUsage() == CppCodeModelSettings::PchUse_None;
+
+    if (newIgnorePch != previousIgnorePch) {
+        const CppCodeModelSettings::PCHUsage pchUsage = m_ui->ignorePCHCheckBox->isChecked()
+                ? CppCodeModelSettings::PchUse_None
+                : CppCodeModelSettings::PchUse_BuildSystem;
+        m_settings->setPCHUsage(pchUsage);
+
+        return true;
+    }
+
+    return false;
 }
 
 CppCodeModelSettingsPage::CppCodeModelSettingsPage(QSharedPointer<CppCodeModelSettings> &settings,

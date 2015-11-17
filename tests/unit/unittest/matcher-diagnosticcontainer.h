@@ -28,43 +28,36 @@
 **
 ****************************************************************************/
 
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include "gtest-qt-printing.h"
 
-#ifndef WINRT_INTERNAL_WINRTDEBUGSUPPORT_H
-#define WINRT_INTERNAL_WINRTDEBUGSUPPORT_H
+namespace {
 
-#include <projectexplorer/runconfiguration.h>
+using ::testing::PrintToString;
 
-#include <QObject>
-
-namespace WinRt {
-namespace Internal {
-
-class WinRtRunConfiguration;
-class WinRtRunnerHelper;
-
-class WinRtDebugSupport : public QObject
+MATCHER_P(IsDiagnosticContainer, diagnosticContainer, "")
 {
-    Q_OBJECT
-public:
-    static ProjectExplorer::RunControl *createDebugRunControl(WinRtRunConfiguration *runConfig,
-                                                              Core::Id mode,
-                                                              QString *errorMessage);
-    ~WinRtDebugSupport();
+    if (arg.text() != diagnosticContainer.text()) {
+        *result_listener << "text is " + PrintToString(arg.text())
+                            + " and not " + PrintToString(diagnosticContainer.text());
+        return false;
+    }
 
-private:
-    WinRtDebugSupport(ProjectExplorer::RunControl *runControl, WinRtRunnerHelper *runner);
+    if (arg.location() != diagnosticContainer.location()) {
+        *result_listener << "location is " + PrintToString(arg.location())
+                            + " and not " + PrintToString(diagnosticContainer.location());
+        return false;
+    }
 
-    static bool useQmlDebugging(WinRtRunConfiguration *runConfig);
-    static bool getFreePort(quint16 &qmlDebuggerPort, QString *errorMessage);
+    if (arg.children() != diagnosticContainer.children()) {
+        *result_listener << "children are " + PrintToString(arg.children())
+                            + " and not " + PrintToString(diagnosticContainer.children());
+        return false;
+    }
 
-    ProjectExplorer::RunControl *m_debugRunControl;
-    WinRtRunnerHelper *m_runner;
+    return true;
+}
 
-private slots:
-    void finish();
-};
-
-} // namespace Internal
-} // namespace WinRt
-
-#endif // WINRT_INTERNAL_WINRTDEBUGSUPPORT_H
+} // anonymous

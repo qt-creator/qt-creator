@@ -35,13 +35,11 @@
 #include "../clangmodelmanagersupport.h"
 
 #include <clangcodemodel/clangeditordocumentprocessor.h>
-#include <clangcodemodel/constants.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cpptoolstestcase.h>
 #include <cpptools/modelmanagertesthelper.h>
@@ -857,7 +855,7 @@ private:
     ActivateClangModelManagerSupport();
 
     CppCodeModelSettingsPtr m_codeModelSettings;
-    QHash<QString, QString> m_previousValues;
+    bool m_clangCodeModelWasUsedPreviously;
 };
 
 ActivateClangModelManagerSupport::ActivateClangModelManagerSupport(
@@ -865,22 +863,16 @@ ActivateClangModelManagerSupport::ActivateClangModelManagerSupport(
     : m_codeModelSettings(codeModelSettings)
 {
     QTC_CHECK(m_codeModelSettings);
-    const QString clangModelManagerSupportId
-            = QLatin1String(Constants::CLANG_MODELMANAGERSUPPORT_ID);
-    foreach (const QString &mimeType, CppTools::CppCodeModelSettings::supportedMimeTypes()) {
-        m_previousValues.insert(mimeType,
-                                m_codeModelSettings->modelManagerSupportIdForMimeType(mimeType));
-        m_codeModelSettings->setModelManagerSupportIdForMimeType(mimeType,
-                                                                 clangModelManagerSupportId);
-    }
+
+    m_clangCodeModelWasUsedPreviously = m_codeModelSettings->useClangCodeModel();
+
+    m_codeModelSettings->setUseClangCodeModel(true);
     m_codeModelSettings->emitChanged();
 }
 
 ActivateClangModelManagerSupport::~ActivateClangModelManagerSupport()
 {
-    QHash<QString, QString>::const_iterator i = m_previousValues.constBegin();
-    for (; i != m_previousValues.end(); ++i)
-        m_codeModelSettings->setModelManagerSupportIdForMimeType(i.key(), i.value());
+    m_codeModelSettings->setUseClangCodeModel(m_clangCodeModelWasUsedPreviously);
     m_codeModelSettings->emitChanged();
 }
 

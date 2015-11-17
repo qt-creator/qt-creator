@@ -59,6 +59,7 @@ HEADERS += \
     gtest-qt-printing.h \
     mockipclient.h \
     mockipcserver.h \
-    spydummy.h
+    spydummy.h \
+    matcher-diagnosticcontainer.h
 
 OTHER_FILES += $$files(data/*)

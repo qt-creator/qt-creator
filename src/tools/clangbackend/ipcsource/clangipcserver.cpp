@@ -233,7 +233,7 @@ void ClangIpcServer::requestDiagnostics(const RequestDiagnosticsMessage &message
                                                                 message.file().projectPartId());
 
         client()->diagnosticsChanged(DiagnosticsChangedMessage(translationUnit.fileContainer(),
-                                                               translationUnit.diagnostics().toDiagnosticContainers()));
+                                                               translationUnit.mainFileDiagnostics()));
     } catch (const TranslationUnitDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const ProjectPartDoNotExistException &exception) {

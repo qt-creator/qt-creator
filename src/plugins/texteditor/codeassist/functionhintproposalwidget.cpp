@@ -115,6 +115,7 @@ FunctionHintProposalWidget::FunctionHintProposalWidget()
 
     connect(upArrow, SIGNAL(clicked()), SLOT(previousPage()));
     connect(downArrow, SIGNAL(clicked()), SLOT(nextPage()));
+    connect(d->m_popupFrame.data(), &QObject::destroyed, this, &FunctionHintProposalWidget::abort);
 
     setFocusPolicy(Qt::NoFocus);
 }

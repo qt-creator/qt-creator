@@ -99,8 +99,8 @@
 
     \list 1
 
-        \li Choose \uicontrol {File > New File or Project > Libraries >
-            C++ Library} to create the library.
+        \li Choose \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Library > \uicontrol {C++ Library} to create the library.
 
             The \uicontrol {Introduction and Product Location} dialog opens.
 
