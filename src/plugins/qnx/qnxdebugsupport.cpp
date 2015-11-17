@@ -106,7 +106,7 @@ void QnxDebugSupport::startExecution()
 
     if (m_useQmlDebugger)
         m_runControl->startParameters().processArgs +=
-                QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlDebuggerServices, m_qmlPort);
+                QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices, m_qmlPort);
 
     QStringList arguments;
     if (m_useCppDebugger)

@@ -60,18 +60,31 @@ static inline QString qmlDebugServices(QmlDebugServicesPreset preset)
 }
 
 static inline QString qmlDebugCommandLineArguments(QmlDebugServicesPreset services,
-                                                   quint16 port = 0)
+                                                   const QString &connectionMode, bool block)
 {
     if (services == NoQmlDebugServices)
         return QString();
 
-    if (services == QmlNativeDebuggerServices)
-        return QString::fromLatin1("-qmljsdebugger=native,services:%1")
-            .arg(qmlDebugServices(services));
+    return QString::fromLatin1("-qmljsdebugger=%1%2,services:%3").arg(connectionMode)
+            .arg(QLatin1String(block ? ",block" : "")).arg(qmlDebugServices(services));
+}
 
-    return QString::fromLatin1("-qmljsdebugger=port:%1,block,services:%2")
-            .arg(port ? QString::number(port) : QStringLiteral("%qml_port%"))
-            .arg(qmlDebugServices(services));
+static inline QString qmlDebugTcpArguments(QmlDebugServicesPreset services, quint16 port = 0,
+                                           bool block = true)
+{
+    return qmlDebugCommandLineArguments(services, port ? QString::fromLatin1("port:%1").arg(port) :
+                                                         QStringLiteral("port:%qml_port%"), block);
+}
+
+static inline QString qmlDebugNativeArguments(QmlDebugServicesPreset services, bool block = true)
+{
+    return qmlDebugCommandLineArguments(services, QLatin1String("native"), block);
+}
+
+static inline QString qmlDebugLocalArguments(QmlDebugServicesPreset services, const QString &socket,
+                                             bool block = true)
+{
+    return qmlDebugCommandLineArguments(services, QLatin1String("file:") + socket, block);
 }
 
 } // namespace QmlDebug

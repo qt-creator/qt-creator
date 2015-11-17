@@ -114,7 +114,7 @@ RunControl *WinRtDebugSupport::createDebugRunControl(WinRtRunConfiguration *runC
         if (!getFreePort(qmlDebugPort, errorMessage))
             return 0;
         runConfig->setArguments(runConfig->arguments() + QLatin1Char(' ')
-                    + QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlDebuggerServices, qmlDebugPort));
+                    + QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices, qmlDebugPort));
         params.qmlServerAddress = QHostAddress::LocalHost;
         params.qmlServerPort = qmlDebugPort;
     }

@@ -532,7 +532,9 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
                 service = QmlDebug::QmlDebuggerServices;
             }
             if (m_rp.startMode != AttachExternal)
-                QtcProcess::addArg(&m_rp.processArgs, QmlDebug::qmlDebugCommandLineArguments(service, m_rp.qmlServerPort));
+                QtcProcess::addArg(&m_rp.processArgs, wantCppDebugger && m_rp.nativeMixedEnabled ?
+                                       QmlDebug::qmlDebugNativeArguments(service, false) :
+                                       QmlDebug::qmlDebugTcpArguments(service, m_rp.qmlServerPort));
         }
     }
 

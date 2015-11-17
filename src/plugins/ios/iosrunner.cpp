@@ -82,7 +82,7 @@ QStringList IosRunner::extraArgs()
 {
     QStringList res = m_arguments;
     if (m_qmlPort != 0)
-        res << QmlDebug::qmlDebugCommandLineArguments(m_qmlDebugServices, m_qmlPort);
+        res << QmlDebug::qmlDebugTcpArguments(m_qmlDebugServices, m_qmlPort);
     return res;
 }
 

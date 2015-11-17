@@ -157,7 +157,7 @@ void RemoteLinuxAnalyzeSupport::startExecution()
             this, &RemoteLinuxAnalyzeSupport::handleAppRunnerError);
 
     const QStringList args = arguments()
-            << QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices, d->qmlPort);
+            << QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, d->qmlPort);
 
     runner->setWorkingDirectory(workingDirectory());
     runner->setEnvironment(environment());

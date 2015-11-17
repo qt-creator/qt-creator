@@ -102,7 +102,7 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const AbstractR
         aspect->setUseMultiProcess(true);
         QStringList args = runConfig->arguments();
         if (aspect->useQmlDebugger())
-            args.prepend(QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlDebuggerServices));
+            args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices));
 
         params.processArgs = Utils::QtcProcess::joinArgs(args, Utils::OsTypeLinux);
         params.executable = runConfig->localExecutableFilePath();
@@ -166,8 +166,7 @@ void LinuxDeviceDebugSupport::startExecution()
     QString command;
 
     if (d->qmlDebugging)
-        args.prepend(QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlDebuggerServices,
-                                                            d->qmlPort));
+        args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices, d->qmlPort));
 
     if (d->qmlDebugging && !d->cppDebugging) {
         command = remoteFilePath();

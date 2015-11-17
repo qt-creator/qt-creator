@@ -99,7 +99,7 @@ void QnxAnalyzeSupport::startExecution()
 
     const QStringList args = QStringList()
             << Utils::QtcProcess::splitArgs(m_runControl->startParameters().debuggeeArgs)
-            << QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices, m_qmlPort);
+            << QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, m_qmlPort);
 
     appRunner()->setEnvironment(environment());
     appRunner()->setWorkingDirectory(workingDirectory());
