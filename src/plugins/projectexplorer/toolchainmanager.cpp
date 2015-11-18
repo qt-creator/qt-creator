@@ -203,9 +203,19 @@ static QList<ToolChain *> intersectByEqual(const QList<ToolChain *> &a, const QL
                               });
 }
 
-static QList<ToolChain *> makeUnique(const QList<ToolChain *> &a)
+static QList<ToolChain *> makeUniqueByPointerEqual(const QList<ToolChain *> &a)
 {
     return QSet<ToolChain *>::fromList(a).toList();
+}
+
+static QList<ToolChain *> makeUniqueByEqual(const QList<ToolChain *> &a)
+{
+    QList<ToolChain *> result;
+    foreach (ToolChain *tc, a) {
+        if (!Utils::contains(result, [tc](ToolChain *rtc) { return *tc == *rtc; }))
+            result.append(tc);
+    }
+    return result;
 }
 
 namespace {
@@ -223,12 +233,13 @@ static ToolChainOperations mergeToolChainLists(const QList<ToolChain *> &systemF
                                                const QList<ToolChain *> &userFileTcs,
                                                const QList<ToolChain *> &autodetectedTcs)
 {
+    const QList<ToolChain *> uniqueUserFileTcs = makeUniqueByEqual(userFileTcs);
     const QList<ToolChain *> manualUserTcs
-            = Utils::filtered(userFileTcs, [](ToolChain *t) { return !t->isAutoDetected(); });
+            = Utils::filtered(uniqueUserFileTcs, [](ToolChain *t) { return !t->isAutoDetected(); });
 
     // Remove systemFileTcs from autodetectedUserTcs based on id-matches:
     const QList<ToolChain *> autodetectedUserFileTcs
-            = Utils::filtered(userFileTcs, &ToolChain::isAutoDetected);
+            = Utils::filtered(uniqueUserFileTcs, &ToolChain::isAutoDetected);
     const QList<ToolChain *> autodetectedUserTcs = subtractById(autodetectedUserFileTcs, systemFileTcs);
 
     // Calculate a set of Tcs that were detected before (and saved to userFile) and that
@@ -255,8 +266,8 @@ static ToolChainOperations mergeToolChainLists(const QList<ToolChain *> &systemF
     result.toRegister = result.toDemote + systemFileTcs + redetectedUserTcs + newlyAutodetectedTcs
             + validManualUserTcs;
 
-    result.toDelete = makeUnique(subtractByPointerEqual(systemFileTcs + userFileTcs + autodetectedTcs,
-                                                        result.toRegister));
+    result.toDelete = makeUniqueByPointerEqual(subtractByPointerEqual(systemFileTcs + userFileTcs + autodetectedTcs,
+                                                                      result.toRegister));
     return result;
 }
 
@@ -541,6 +552,9 @@ void ProjectExplorerPlugin::testToolChainManager_data()
             << (TCList()) << (TCList() << auto1);
     QTest::newRow("Auto: auto-redetect, user")
             << (TCList()) << (TCList() << auto1) << (TCList() << auto1_2)
+            << (TCList()) << (TCList() << auto1);
+    QTest::newRow("Auto: auto-redetect, duplicate users")
+            << (TCList()) << (TCList() << auto1 << auto1c) << (TCList() << auto1_2)
             << (TCList()) << (TCList() << auto1);
     QTest::newRow("Auto: (no) auto, invalid user")
             << (TCList()) << (TCList() << auto3i) << (TCList())
