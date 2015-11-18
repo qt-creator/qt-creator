@@ -41,6 +41,7 @@ SOURCES += \
     cxprettyprinter.cpp \
     diagnostic.cpp \
     fastindexer.cpp \
+    highlightingmarksreporter.cpp \
     pchinfo.cpp \
     pchmanager.cpp \
     raii/scopedclangoptions.cpp \
@@ -86,6 +87,7 @@ HEADERS += \
     cxraii.h \
     diagnostic.h \
     fastindexer.h \
+    highlightingmarksreporter.h \
     pchinfo.h \
     pchmanager.h \
     raii/scopedclangoptions.h \

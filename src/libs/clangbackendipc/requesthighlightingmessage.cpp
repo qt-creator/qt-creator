@@ -28,23 +28,62 @@
 **
 ****************************************************************************/
 
-#include "clangeditordocumentparser.h"
+#include "requesthighlightingmessage.h"
 
-namespace ClangCodeModel {
+#include <QDataStream>
+#include <QDebug>
 
-ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
-    : BaseEditorDocumentParser(filePath)
+#include <ostream>
+
+namespace ClangBackEnd {
+
+RequestHighlightingMessage::RequestHighlightingMessage(const FileContainer &file)
+    : fileContainer_(file)
 {
-    BaseEditorDocumentParser::Configuration config = configuration();
-    config.stickToPreviousProjectPart = false;
-    setConfiguration(config);
 }
 
-void ClangEditorDocumentParser::updateHelper(const BaseEditorDocumentParser::InMemoryInfo &)
+const FileContainer RequestHighlightingMessage::fileContainer() const
 {
-    State state_ = state();
-    state_.projectPart = determineProjectPart(filePath(), configuration(), state_);
-    setState(state_);
+    return fileContainer_;
 }
 
-} // namespace ClangCodeModel
+QDataStream &operator<<(QDataStream &out, const RequestHighlightingMessage &message)
+{
+    out << message.fileContainer_;
+
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, RequestHighlightingMessage &message)
+{
+    in >> message.fileContainer_;
+
+    return in;
+}
+
+bool operator==(const RequestHighlightingMessage &first, const RequestHighlightingMessage &second)
+{
+    return first.fileContainer_ == second.fileContainer_;
+}
+
+bool operator<(const RequestHighlightingMessage &first, const RequestHighlightingMessage &second)
+{
+    return first.fileContainer_ < second.fileContainer_;
+}
+
+QDebug operator<<(QDebug debug, const RequestHighlightingMessage &message)
+{
+    debug.nospace() << "RequestHighlightingMessage("
+                    << message.fileContainer()
+                    << ")";
+
+    return debug;
+}
+
+void PrintTo(const RequestHighlightingMessage &message, ::std::ostream* os)
+{
+    *os << message.fileContainer().filePath().constData()
+        << "(" << message.fileContainer().projectPartId().constData() << ")";
+}
+
+} // namespace ClangBackEnd

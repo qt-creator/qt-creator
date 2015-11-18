@@ -52,6 +52,8 @@ public:
                  void(const ClangBackEnd::ProjectPartsDoNotExistMessage &message));
     MOCK_METHOD1(diagnosticsChanged,
                  void(const ClangBackEnd::DiagnosticsChangedMessage &message));
+    MOCK_METHOD1(highlightingChanged,
+                 void(const ClangBackEnd::HighlightingChangedMessage &message));
 };
 
 #endif // MOCKIPCLIENT_H

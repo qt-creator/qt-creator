@@ -28,6 +28,8 @@
 **
 ****************************************************************************/
 
+#include <highlightingmarkcontainer.h>
+
 #include "clangstring.h"
 #include "cursor.h"
 #include "highlightinginformation.h"
@@ -79,6 +81,11 @@ QVector<HighlightingInformation> HighlightingInformation::outputFunctionArgument
     QVector<HighlightingInformation> outputFunctionArguments;
 
     return outputFunctionArguments;
+}
+
+HighlightingInformation::operator HighlightingMarkContainer() const
+{
+    return HighlightingMarkContainer(line, column, length, type);
 }
 
 namespace {
@@ -278,7 +285,7 @@ HighlightingType HighlightingInformation::kind(CXToken *cxToken, const Cursor &c
     Q_UNREACHABLE();
 }
 
-void PrintTo(const HighlightingInformation& information, ::std::ostream *os)
+void PrintTo(const HighlightingInformation &information, ::std::ostream *os)
 {
     *os << "type: ";
     PrintTo(information.type, os);
@@ -286,31 +293,5 @@ void PrintTo(const HighlightingInformation& information, ::std::ostream *os)
         << " column: " << information.column
         << " length: " << information.length;
 }
-
-void PrintTo(HighlightingType highlightingType, std::ostream *os)
-{
-    switch (highlightingType) {
-        case HighlightingType::Invalid: *os << "Invalid"; break;
-        case HighlightingType::Comment: *os << "Comment"; break;
-        case HighlightingType::Keyword: *os << "Keyword"; break;
-        case HighlightingType::StringLiteral: *os << "StringLiteral"; break;
-        case HighlightingType::NumberLiteral: *os << "NumberLiteral"; break;
-        case HighlightingType::Function: *os << "Function"; break;
-        case HighlightingType::VirtualFunction: *os << "VirtualFunction"; break;
-        case HighlightingType::Type: *os << "Type"; break;
-        case HighlightingType::LocalVariable: *os << "LocalVariable"; break;
-        case HighlightingType::GlobalVariable: *os << "GlobalVariable"; break;
-        case HighlightingType::Field: *os << "Field"; break;
-        case HighlightingType::Enumeration: *os << "Enumeration"; break;
-        case HighlightingType::Operator: *os << "Operator"; break;
-        case HighlightingType::Preprocessor: *os << "Preprocessor"; break;
-        case HighlightingType::Label: *os << "Label"; break;
-        case HighlightingType::OutputArgument: *os << "OutputArgument"; break;
-        case HighlightingType::PreprocessorDefinition: *os << "PreprocessorDefinition"; break;
-        case HighlightingType::PreprocessorExpansion: *os << "PreprocessorExpansion"; break;
-    }
-}
-
-
 
 } // namespace ClangBackEnd

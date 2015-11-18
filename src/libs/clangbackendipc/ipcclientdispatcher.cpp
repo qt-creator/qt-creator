@@ -80,5 +80,11 @@ void IpcClientDispatcher::diagnosticsChanged(const DiagnosticsChangedMessage &me
         client->diagnosticsChanged(message);
 }
 
+void IpcClientDispatcher::highlightingChanged(const HighlightingChangedMessage &message)
+{
+    for (auto *client : clients)
+        client->highlightingChanged(message);
+}
+
 } // namespace ClangBackEnd
 

@@ -28,23 +28,37 @@
 **
 ****************************************************************************/
 
-#include "clangeditordocumentparser.h"
+#include "chunksreportedmonitor.h"
 
-namespace ClangCodeModel {
+#include <QSignalSpy>
 
-ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
-    : BaseEditorDocumentParser(filePath)
+namespace ClangBackEnd {
+
+ChunksReportedMonitor::ChunksReportedMonitor(const QFuture<TextEditor::HighlightingResult> &future)
+    : m_future(future)
 {
-    BaseEditorDocumentParser::Configuration config = configuration();
-    config.stickToPreviousProjectPart = false;
-    setConfiguration(config);
+    m_futureWatcher.setFuture(future);
+    connect(&m_futureWatcher, &QFutureWatcher<TextEditor::HighlightingResult>::resultsReadyAt,
+            this, &ChunksReportedMonitor::onResultsReadyAt);
 }
 
-void ClangEditorDocumentParser::updateHelper(const BaseEditorDocumentParser::InMemoryInfo &)
+bool ChunksReportedMonitor::waitUntilFinished(int timeoutInMs)
 {
-    State state_ = state();
-    state_.projectPart = determineProjectPart(filePath(), configuration(), state_);
-    setState(state_);
+    QSignalSpy spy(&m_futureWatcher, SIGNAL(finished()));
+    return spy.wait(timeoutInMs);
 }
 
-} // namespace ClangCodeModel
+void ChunksReportedMonitor::onResultsReadyAt(int beginIndex, int endIndex)
+{
+    Q_UNUSED(beginIndex)
+    Q_UNUSED(endIndex)
+    ++m_resultsReadyCounter;
+}
+
+uint ChunksReportedMonitor::resultsReadyCounter()
+{
+    waitUntilFinished();
+    return m_resultsReadyCounter;
+}
+
+} // namespace ClangBackEnd

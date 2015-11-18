@@ -56,7 +56,9 @@ SOURCES += \
     senddocumenttrackertest.cpp \
     cursortest.cpp \
     highlightinginformationstest.cpp \
-    skippedsourcerangestest.cpp
+    skippedsourcerangestest.cpp \
+    highlightingmarksreportertest.cpp \
+    chunksreportedmonitor.cpp
 
 HEADERS += \
     gtest-qt-printing.h \
@@ -64,6 +66,7 @@ HEADERS += \
     mockipcserver.h \
     spydummy.h \
     matcher-diagnosticcontainer.h \
-    mocksenddiagnosticscallback.h
+    chunksreportedmonitor.h \
+    mocksendeditorupdatescallback.h
 
 OTHER_FILES += $$files(data/*)

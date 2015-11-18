@@ -43,6 +43,7 @@
 
 namespace ClangBackEnd {
 class DiagnosticContainer;
+class HighlightingMarkContainer;
 class FileContainer;
 }
 
@@ -75,6 +76,9 @@ public:
 
     void updateCodeWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                             uint documentRevision);
+    void updateHighlighting(const QVector<ClangBackEnd::HighlightingMarkContainer> &highlightingMarks,
+                            const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,
+                            uint documentRevision);
 
     TextEditor::QuickFixOperations
     extraRefactoringOperations(const TextEditor::AssistInterface &assistInterface) override;
@@ -84,17 +88,17 @@ public:
     void clearDiagnosticsWithFixIts();
 
 public:
+    enum class DocumentChangedCheck { NoCheck, RevisionCheck };
     static ClangEditorDocumentProcessor *get(const QString &filePath);
 
 private slots:
-    void onParserDeterminedProjectPart(CppTools::ProjectPart::Ptr projectPart);
     void onParserFinished();
 
 private:
-    void updateProjectPartAndTranslationUnitForEditor(CppTools::ProjectPart::Ptr projectPart);
+    void updateProjectPartAndTranslationUnitForEditor();
     void updateTranslationUnitForEditor(CppTools::ProjectPart *projectPart);
-    void requestDiagnostics(CppTools::ProjectPart *projectPart);
-    void requestDiagnostics();
+    void requestDiagnosticsAndHighlighting(CppTools::ProjectPart *projectPart);
+    void requestDiagnosticsAndHighlighting(DocumentChangedCheck documentChangedCheck = DocumentChangedCheck::RevisionCheck);
     ClangBackEnd::FileContainer fileContainer(CppTools::ProjectPart *projectPart) const;
 
 private:

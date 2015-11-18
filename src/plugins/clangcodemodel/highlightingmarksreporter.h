@@ -27,27 +27,54 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef MOCKSENDDIAGNOSTICSCALLBACK_H
-#define MOCKSENDDIAGNOSTICSCALLBACK_H
 
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
+#ifndef CLANGCODEMODEL_HIGHLIGHTINGMARKSREPORTER_H
+#define CLANGCODEMODEL_HIGHLIGHTINGMARKSREPORTER_H
 
-class SendDiagnosticCallback
+#include "clang_global.h"
+
+#include <QFutureInterface>
+#include <QObject>
+#include <QRunnable>
+#include <QThreadPool>
+
+#include <texteditor/semantichighlighter.h>
+
+#include <clangbackendipc/highlightingmarkcontainer.h>
+
+namespace ClangCodeModel {
+
+class HighlightingMarksReporter:
+        public QObject,
+        public QRunnable,
+        public QFutureInterface<TextEditor::HighlightingResult>
 {
-public:
-    virtual ~SendDiagnosticCallback() = default;
+    Q_OBJECT
 
-    virtual void sendDiagnostic() = 0;
+public:
+    HighlightingMarksReporter(const QVector<ClangBackEnd::HighlightingMarkContainer> &highlightingMarks);
+
+    void setChunkSize(int chunkSize);
+
+    QFuture<TextEditor::HighlightingResult> start();
+
+private:
+    void run() override;
+    void run_internal();
+
+    void reportChunkWise(const TextEditor::HighlightingResult &highlightingResult);
+    void reportAndClearCurrentChunks();
+
+private:
+    QVector<ClangBackEnd::HighlightingMarkContainer> m_highlightingMarks;
+    QVector<TextEditor::HighlightingResult> m_chunksToReport;
+
+    int m_chunkSize = 100;
+
+    bool m_flushRequested = false;
+    unsigned m_flushLine = 0;
 };
 
-class MockSendDiagnosticCallback : public SendDiagnosticCallback
-{
-public:
-    MOCK_METHOD0(sendDiagnostic,
-                 void());
-};
+} // namespace ClangCodeModel
 
-#endif // MOCKSENDDIAGNOSTICSCALLBACK_H
+#endif // CLANGCODEMODEL_HIGHLIGHTINGMARKSREPORTER_H

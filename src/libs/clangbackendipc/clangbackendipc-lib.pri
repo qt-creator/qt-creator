@@ -42,10 +42,13 @@ SOURCES += $$PWD/ipcserverinterface.cpp \
     $$PWD/sourcelocationcontainer.cpp \
     $$PWD/fixitcontainer.cpp \
     $$PWD/requestdiagnosticsmessage.cpp \
+    $$PWD/requesthighlightingmessage.cpp \
     $$PWD/registerunsavedfilesforeditormessage.cpp \
     $$PWD/unregisterunsavedfilesforeditormessage.cpp \
     $$PWD/updatetranslationunitsforeditormessage.cpp \
-    $$PWD/updatevisibletranslationunitsmessage.cpp
+    $$PWD/updatevisibletranslationunitsmessage.cpp \
+    $$PWD/highlightingchangedmessage.cpp \
+    $$PWD/highlightingmarkcontainer.cpp
 
 HEADERS += \
     $$PWD/ipcserverinterface.h \
@@ -84,9 +87,12 @@ HEADERS += \
     $$PWD/sourcelocationcontainer.h \
     $$PWD/fixitcontainer.h \
     $$PWD/requestdiagnosticsmessage.h \
+    $$PWD/requesthighlightingmessage.h \
     $$PWD/registerunsavedfilesforeditormessage.h \
     $$PWD/unregisterunsavedfilesforeditormessage.h \
     $$PWD/updatetranslationunitsforeditormessage.h \
-    $$PWD/updatevisibletranslationunitsmessage.h
+    $$PWD/updatevisibletranslationunitsmessage.h \
+    $$PWD/highlightingchangedmessage.h \
+    $$PWD/highlightingmarkcontainer.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

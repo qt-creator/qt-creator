@@ -50,8 +50,6 @@ class ClangCodeModelPlugin: public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangCodeModel.json")
 
 public:
-    ClangCodeModelPlugin();
-
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 

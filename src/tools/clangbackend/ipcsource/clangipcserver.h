@@ -61,18 +61,19 @@ public:
     void unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message) override;
     void completeCode(const CompleteCodeMessage &message) override;
     void requestDiagnostics(const RequestDiagnosticsMessage &message) override;
+    void requestHighlighting(const RequestHighlightingMessage &message) override;
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
 
     const TranslationUnits &translationUnitsForTestOnly() const;
 
 private:
-    void startSendDiagnosticTimerIfFileIsNotATranslationUnit(const Utf8String &filePath);
+    void startSendDelayedEditorUpdatesTimerIfFileIsNotATranslationUnit(const Utf8String &filePath);
 
 private:
     ProjectParts projects;
     UnsavedFiles unsavedFiles;
     TranslationUnits translationUnits;
-    QTimer sendDiagnosticsTimer;
+    QTimer sendDelayedEditorUpdatesTimer;
 };
 
 } // namespace ClangBackEnd

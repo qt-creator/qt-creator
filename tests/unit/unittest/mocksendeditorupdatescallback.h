@@ -27,24 +27,27 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#ifndef MOCKSENDEDITORUPDATESCALLBACK_H
+#define MOCKSENDEDITORUPDATESCALLBACK_H
 
-#include "clangeditordocumentparser.h"
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include "gtest-qt-printing.h"
 
-namespace ClangCodeModel {
-
-ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
-    : BaseEditorDocumentParser(filePath)
+class SendEditorUpdatesCallback
 {
-    BaseEditorDocumentParser::Configuration config = configuration();
-    config.stickToPreviousProjectPart = false;
-    setConfiguration(config);
-}
+public:
+    virtual ~SendEditorUpdatesCallback() = default;
 
-void ClangEditorDocumentParser::updateHelper(const BaseEditorDocumentParser::InMemoryInfo &)
+    virtual void sendEditorUpdates() = 0;
+};
+
+class MockSendEditorUpdatesCallback : public SendEditorUpdatesCallback
 {
-    State state_ = state();
-    state_.projectPart = determineProjectPart(filePath(), configuration(), state_);
-    setState(state_);
-}
+public:
+    MOCK_METHOD0(sendEditorUpdates,
+                 void());
+};
 
-} // namespace ClangCodeModel
+#endif // MOCKSENDEDITORUPDATESCALLBACK_H

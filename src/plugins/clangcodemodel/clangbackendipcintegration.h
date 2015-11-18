@@ -81,6 +81,7 @@ private:
     void echo(const ClangBackEnd::EchoMessage &message) override;
     void codeCompleted(const ClangBackEnd::CodeCompletedMessage &message) override;
     void diagnosticsChanged(const ClangBackEnd::DiagnosticsChangedMessage &message) override;
+    void highlightingChanged(const ClangBackEnd::HighlightingChangedMessage &message) override;
 
     void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistMessage &message) override;
     void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistMessage &message) override;
@@ -105,6 +106,7 @@ public:
     virtual void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message) = 0;
     virtual void completeCode(const ClangBackEnd::CompleteCodeMessage &message) = 0;
     virtual void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message) = 0;
+    virtual void requestHighlighting(const ClangBackEnd::RequestHighlightingMessage &message) = 0;
 };
 
 class IpcCommunicator : public QObject
@@ -115,6 +117,8 @@ public:
     using Ptr = QSharedPointer<IpcCommunicator>;
     using FileContainers = QVector<ClangBackEnd::FileContainer>;
     using ProjectPartContainers = QVector<ClangBackEnd::ProjectPartContainer>;
+
+    enum class DocumentChangedCheck { NoCheck, RevisionCheck };
 
 public:
     IpcCommunicator();
@@ -140,8 +144,9 @@ public:
     void updateUnsavedFileFromCppEditorDocument(const QString &filePath);
     void updateTranslationUnit(const QString &filePath, const QByteArray &contents, uint documentRevision);
     void updateUnsavedFile(const QString &filePath, const QByteArray &contents, uint documentRevision);
-    void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer);
-    void requestDiagnostics(Core::IDocument *document);
+    void requestDiagnosticsAndHighlighting(const ClangBackEnd::FileContainer &fileContainer,
+                                           DocumentChangedCheck documentChangedCheck = DocumentChangedCheck::RevisionCheck);
+    void requestDiagnosticsAndHighlighting(Core::IDocument *document);
     void updateChangeContentStartPosition(const QString &filePath, int position);
 
     void registerFallbackProjectPart();
@@ -161,6 +166,9 @@ private:
     void registerCurrentProjectParts();
     void registerCurrentCppEditorDocuments();
     void registerCurrentCodeModelUiHeaders();
+
+    void requestHighlighting(const ClangBackEnd::FileContainer &fileContainer);
+    void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer);
 
     void onBackendRestarted();
     void onEditorAboutToClose(Core::IEditor *editor);

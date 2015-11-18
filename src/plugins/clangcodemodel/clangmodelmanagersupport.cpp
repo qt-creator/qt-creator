@@ -193,7 +193,7 @@ void ModelManagerSupportClang::onCppDocumentReloadFinishedOnTranslationUnit(bool
     if (success) {
         TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
         connectToTextDocumentContentsChangedForTranslationUnit(textDocument);
-        m_ipcCommunicator.requestDiagnostics(textDocument);
+        m_ipcCommunicator.requestDiagnosticsAndHighlighting(textDocument);
     }
 }
 

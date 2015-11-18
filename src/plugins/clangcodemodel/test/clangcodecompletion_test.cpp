@@ -380,6 +380,11 @@ QString toString(const RequestDiagnosticsMessage &)
     return QStringLiteral("RequestDiagnosticsMessage\n");
 }
 
+QString toString(const RequestHighlightingMessage &)
+{
+    return QStringLiteral("RequestHighlightingMessage\n");
+}
+
 class IpcSenderSpy : public IpcSenderInterface
 {
 public:
@@ -413,6 +418,8 @@ public:
     void requestDiagnostics(const RequestDiagnosticsMessage &message) override
     { senderLog.append(toString(message)); }
 
+    void requestHighlighting(const RequestHighlightingMessage &message) override
+    { senderLog.append(toString(message)); }
 
 public:
     QString senderLog;

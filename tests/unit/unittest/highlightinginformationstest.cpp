@@ -144,6 +144,14 @@ TEST_F(HighlightingInformations, IteratorBeginEnd)
     ASSERT_THAT(infos.end(), endIterator);
 }
 
+TEST_F(HighlightingInformations, ForFullTranslationUnitRange)
+{
+    const auto infos = translationUnit.highlightingInformations();
+
+    ASSERT_THAT(infos, AllOf(Contains(IsHighlightingInformation(1u, 1u, 4u, HighlightingType::Keyword)),
+                             Contains(IsHighlightingInformation(277u, 5u, 15u, HighlightingType::Function))));
+}
+
 TEST_F(HighlightingInformations, Size)
 {
     const auto range = translationUnit.sourceRange(5, 5, 5, 10);

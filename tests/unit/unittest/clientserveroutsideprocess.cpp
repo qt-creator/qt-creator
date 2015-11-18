@@ -40,6 +40,7 @@
 #include <cmbregistertranslationunitsforeditormessage.h>
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
+#include <highlightingchangedmessage.h>
 #include <connectionclient.h>
 #include <diagnosticschangedmessage.h>
 #include <projectpartsdonotexistmessage.h>

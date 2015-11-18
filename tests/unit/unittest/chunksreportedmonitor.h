@@ -28,23 +28,36 @@
 **
 ****************************************************************************/
 
-#include "clangeditordocumentparser.h"
+#ifndef CLANGBACKEND_CHUNKSREPORTEDMONITOR_H
+#define CLANGBACKEND_CHUNKSREPORTEDMONITOR_H
 
-namespace ClangCodeModel {
+#include <QObject>
+#include <QFuture>
+#include <QFutureWatcher>
 
-ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
-    : BaseEditorDocumentParser(filePath)
+#include <texteditor/semantichighlighter.h>
+
+namespace ClangBackEnd {
+
+class ChunksReportedMonitor : public QObject
 {
-    BaseEditorDocumentParser::Configuration config = configuration();
-    config.stickToPreviousProjectPart = false;
-    setConfiguration(config);
-}
+    Q_OBJECT
 
-void ClangEditorDocumentParser::updateHelper(const BaseEditorDocumentParser::InMemoryInfo &)
-{
-    State state_ = state();
-    state_.projectPart = determineProjectPart(filePath(), configuration(), state_);
-    setState(state_);
-}
+public:
+    ChunksReportedMonitor(const QFuture<TextEditor::HighlightingResult> &future);
 
-} // namespace ClangCodeModel
+    uint resultsReadyCounter();
+
+private:
+    bool waitUntilFinished(int timeoutInMs = 5000);
+    void onResultsReadyAt(int beginIndex, int endIndex);
+
+private:
+    QFuture<TextEditor::HighlightingResult> m_future;
+    QFutureWatcher<TextEditor::HighlightingResult> m_futureWatcher;
+    uint m_resultsReadyCounter = 0;
+};
+
+} // namespace ClangBackEnd
+
+#endif // CLANGBACKEND_CHUNKSREPORTEDMONITOR_H

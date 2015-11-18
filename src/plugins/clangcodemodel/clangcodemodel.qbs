@@ -81,6 +81,8 @@ QtcPlugin {
         files: [
             "cppcreatemarkers.cpp",
             "cppcreatemarkers.h",
+            "highlightingmarksreporter.cpp",
+            "highlightingmarksreporter.h",
         ]
     }
 

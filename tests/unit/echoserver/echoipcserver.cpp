@@ -41,6 +41,7 @@
 #include "connectionserver.h"
 #include "registerunsavedfilesforeditormessage.h"
 #include "requestdiagnosticsmessage.h"
+#include "requesthighlightingmessage.h"
 #include "unregisterunsavedfilesforeditormessage.h"
 #include "updatetranslationunitsforeditormessage.h"
 #include "updatevisibletranslationunitsmessage.h"
@@ -103,6 +104,11 @@ void EchoIpcServer::completeCode(const CompleteCodeMessage &message)
 }
 
 void EchoIpcServer::requestDiagnostics(const RequestDiagnosticsMessage &message)
+{
+    echoMessage(QVariant::fromValue(message));
+}
+
+void EchoIpcServer::requestHighlighting(const RequestHighlightingMessage &message)
 {
     echoMessage(QVariant::fromValue(message));
 }

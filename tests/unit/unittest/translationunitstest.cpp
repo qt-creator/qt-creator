@@ -30,6 +30,8 @@
 
 #include <diagnosticset.h>
 #include <filecontainer.h>
+#include <highlightingchangedmessage.h>
+#include <highlightinginformations.h>
 #include <projectpartcontainer.h>
 #include <projectpart.h>
 #include <projectpartsdonotexistexception.h>
@@ -45,7 +47,7 @@
 
 #include <clang-c/Index.h>
 
-#include "mocksenddiagnosticscallback.h"
+#include "mocksendeditorupdatescallback.h"
 
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
@@ -56,7 +58,8 @@ using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::DiagnosticsChangedMessage;
-using ClangBackEnd::DiagnosticSendState;
+using ClangBackEnd::HighlightingChangedMessage;
+using ClangBackEnd::EditorUpdatesSendState;
 
 using testing::IsNull;
 using testing::NotNull;
@@ -84,15 +87,15 @@ class TranslationUnits : public ::testing::Test
 {
 protected:
     void SetUp() override;
-    void sendAllDiagnostics();
-    void sendAllCurrentEditorDiagnostics();
-    void sendAllVisibleEditorsDiagnostics();
+    void sendAllEditorUpdates();
+    void sendAllEditorUpdatesForCurrentEditor();
+    void sendAllEditorUpdatesForVisibleEditors();
 
 protected:
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    MockSendDiagnosticCallback mockSendDiagnosticCallback;
+    MockSendEditorUpdatesCallback mockSendEditorUpdatesCallback;
     const Utf8String filePath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp");
     const Utf8String headerPath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.h");
     const Utf8String nonExistingFilePath = Utf8StringLiteral("foo.cpp");
@@ -206,6 +209,32 @@ TEST_F(TranslationUnits, RemoveFileAndCheckForDiagnostics)
     translationUnits.remove({headerContainerWithUnsavedContent});
 
     ASSERT_TRUE(translationUnits.translationUnit(filePath, projectPartId).hasNewDiagnostics());
+}
+
+TEST_F(TranslationUnits, UpdateUnsavedFileAndCheckForHighlightingInformations)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
+    translationUnits.create({fileContainer, headerContainer});
+    translationUnits.translationUnit(filePath, projectPartId).highlightingInformations();
+
+    translationUnits.update({headerContainerWithUnsavedContent});
+
+    ASSERT_TRUE(translationUnits.translationUnit(filePath, projectPartId).hasNewHighlightingInformations());
+}
+
+TEST_F(TranslationUnits, RemoveFileAndCheckForHighlightingInformations)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
+    translationUnits.create({fileContainer, headerContainer});
+    translationUnits.translationUnit(filePath, projectPartId).highlightingInformations();
+
+    translationUnits.remove({headerContainerWithUnsavedContent});
+
+    ASSERT_TRUE(translationUnits.translationUnit(filePath, projectPartId).hasNewHighlightingInformations());
 }
 
 TEST_F(TranslationUnits, DontGetNewerFileContainerIfRevisionIsTheSame)
@@ -345,75 +374,77 @@ TEST_F(TranslationUnits, IsNotVisibleEditorAfterBeingVisible)
     ASSERT_FALSE(translationUnit.isVisibleInEditor());
 }
 
-TEST_F(TranslationUnits, DoNotSendDiagnosticsIfThereIsNothingToSend)
+TEST_F(TranslationUnits, DoNotSendEditorUpdatesIfThereIsNothingToSend)
 {
-    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(0);
+    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(0);
 
-    sendAllDiagnostics();
+    sendAllEditorUpdates();
 }
 
-TEST_F(TranslationUnits, SendDiagnosticsAfterTranslationUnitCreation)
-{
-    translationUnits.create({fileContainer, headerContainer});
-
-    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(2);
-
-    sendAllDiagnostics();
-}
-
-TEST_F(TranslationUnits, DoNotSendDiagnosticsAfterGettingDiagnostics)
+TEST_F(TranslationUnits, SendEditorUpdatessAfterTranslationUnitCreation)
 {
     translationUnits.create({fileContainer, headerContainer});
-    auto translationUnit = translationUnits.translationUnit(fileContainer);
-    translationUnit.diagnostics();
 
-    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(1);
+    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(2);
 
-    sendAllDiagnostics();
+    sendAllEditorUpdates();
 }
 
-TEST_F(TranslationUnits, SendDiagnosticsForCurrentEditor)
+TEST_F(TranslationUnits, DoNotSendEditorUpdatesAfterGettingEditorUpdates)
 {
     translationUnits.create({fileContainer, headerContainer});
     auto translationUnit = translationUnits.translationUnit(fileContainer);
-    translationUnit.setIsUsedByCurrentEditor(true);
+    translationUnit.diagnostics(); // Reset
+    translationUnit.highlightingInformations(); // Reset
 
-    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(1);
+    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(1);
 
-    sendAllCurrentEditorDiagnostics();
+    sendAllEditorUpdates();
 }
 
-TEST_F(TranslationUnits, DoNotSendDiagnosticsForCurrentEditorIfThereIsNoCurrentEditor)
-{
-    translationUnits.create({fileContainer, headerContainer});
-
-    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(0);
-
-    sendAllCurrentEditorDiagnostics();
-}
-
-TEST_F(TranslationUnits, DoNotSendDiagnosticsForCurrentEditorAfterGettingDiagnostics)
+TEST_F(TranslationUnits, SendEditorUpdatesForCurrentEditor)
 {
     translationUnits.create({fileContainer, headerContainer});
     auto translationUnit = translationUnits.translationUnit(fileContainer);
     translationUnit.setIsUsedByCurrentEditor(true);
-    translationUnit.diagnostics();
 
-    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(0);
+    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(1);
 
-    sendAllCurrentEditorDiagnostics();
+    sendAllEditorUpdatesForCurrentEditor();
 }
 
-TEST_F(TranslationUnits, DoNotSendDiagnosticsForVisibleEditorIfThereAreNoVisibleEditors)
+TEST_F(TranslationUnits, DoNotSendEditorUpdatesForCurrentEditorIfThereIsNoCurrentEditor)
 {
     translationUnits.create({fileContainer, headerContainer});
 
-    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(0);
+    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(0);
 
-    translationUnits.sendChangedDiagnosticsForVisibleEditors();
+    sendAllEditorUpdatesForCurrentEditor();
 }
 
-TEST_F(TranslationUnits, SendDiagnosticsForVisibleEditors)
+TEST_F(TranslationUnits, DoNotSendEditorUpdatesForCurrentEditorAfterGettingEditorUpdates)
+{
+    translationUnits.create({fileContainer, headerContainer});
+    auto translationUnit = translationUnits.translationUnit(fileContainer);
+    translationUnit.setIsUsedByCurrentEditor(true);
+    translationUnit.diagnostics(); // Reset
+    translationUnit.highlightingInformations(); // Reset
+
+    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(0);
+
+    sendAllEditorUpdatesForCurrentEditor();
+}
+
+TEST_F(TranslationUnits, DoNotSendEditorUpdatesForVisibleEditorIfThereAreNoVisibleEditors)
+{
+    translationUnits.create({fileContainer, headerContainer});
+
+    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(0);
+
+    translationUnits.sendDelayedEditorUpdatesForVisibleEditors();
+}
+
+TEST_F(TranslationUnits, SendEditorUpdatesForVisibleEditors)
 {
     translationUnits.create({fileContainer, headerContainer});
     auto fileTranslationUnit = translationUnits.translationUnit(fileContainer);
@@ -421,55 +452,58 @@ TEST_F(TranslationUnits, SendDiagnosticsForVisibleEditors)
     auto headerTranslationUnit = translationUnits.translationUnit(headerContainer);
     headerTranslationUnit.setIsVisibleInEditor(true);
 
-    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(2);
+    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(2);
 
-    sendAllVisibleEditorsDiagnostics();
+    sendAllEditorUpdatesForVisibleEditors();
 }
 
-TEST_F(TranslationUnits, SendOnlyOneDiagnosticsForVisibleEditor)
+TEST_F(TranslationUnits, SendOnlyOneEditorUpdateForVisibleEditor)
 {
     translationUnits.create({fileContainer, headerContainer});
     auto fileTranslationUnit = translationUnits.translationUnit(fileContainer);
     fileTranslationUnit.setIsVisibleInEditor(true);
     auto headerTranslationUnit = translationUnits.translationUnit(headerContainer);
     headerTranslationUnit.setIsVisibleInEditor(true);
-    headerTranslationUnit.diagnostics();
+    headerTranslationUnit.diagnostics(); // Reset
+    headerTranslationUnit.highlightingInformations(); // Reset
 
-    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(1);
+    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(1);
 
-    sendAllVisibleEditorsDiagnostics();
+    sendAllEditorUpdatesForVisibleEditors();
 }
 
 void TranslationUnits::SetUp()
 {
     projects.createOrUpdate({ClangBackEnd::ProjectPartContainer(projectPartId)});
 
-    auto callback = [&] (const DiagnosticsChangedMessage &) { mockSendDiagnosticCallback.sendDiagnostic(); };
-    translationUnits.setSendChangeDiagnosticsCallback(callback);
+    auto callback = [&] (const DiagnosticsChangedMessage &, const HighlightingChangedMessage &) {
+        mockSendEditorUpdatesCallback.sendEditorUpdates();
+    };
+    translationUnits.setSendDelayedEditorUpdatesCallback(callback);
 }
 
-void TranslationUnits::sendAllDiagnostics()
+void TranslationUnits::sendAllEditorUpdates()
 {
-    auto diagnosticSendState = DiagnosticSendState::MaybeThereAreMoreDiagnostics;
+    auto editorUpdatesSendState = EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates;
 
-    while (diagnosticSendState == DiagnosticSendState::MaybeThereAreMoreDiagnostics)
-        diagnosticSendState = translationUnits.sendChangedDiagnostics();
+    while (editorUpdatesSendState == EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates)
+        editorUpdatesSendState = translationUnits.sendDelayedEditorUpdates();
 }
 
-void TranslationUnits::sendAllCurrentEditorDiagnostics()
+void TranslationUnits::sendAllEditorUpdatesForCurrentEditor()
 {
-    auto diagnosticSendState = DiagnosticSendState::MaybeThereAreMoreDiagnostics;
+    auto editorUpdatesSendState = EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates;
 
-    while (diagnosticSendState == DiagnosticSendState::MaybeThereAreMoreDiagnostics)
-        diagnosticSendState = translationUnits.sendChangedDiagnosticsForCurrentEditor();
+    while (editorUpdatesSendState == EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates)
+        editorUpdatesSendState = translationUnits.sendDelayedEditorUpdatesForCurrentEditor();
 }
 
-void TranslationUnits::sendAllVisibleEditorsDiagnostics()
+void TranslationUnits::sendAllEditorUpdatesForVisibleEditors()
 {
-    auto diagnosticSendState = DiagnosticSendState::MaybeThereAreMoreDiagnostics;
+    auto editorUpdatesSendState = EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates;
 
-    while (diagnosticSendState == DiagnosticSendState::MaybeThereAreMoreDiagnostics)
-        diagnosticSendState = translationUnits.sendChangedDiagnosticsForVisibleEditors();
+    while (editorUpdatesSendState == EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates)
+        editorUpdatesSendState = translationUnits.sendDelayedEditorUpdatesForVisibleEditors();
 }
 
 }

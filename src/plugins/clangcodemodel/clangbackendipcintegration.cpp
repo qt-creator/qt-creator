@@ -48,6 +48,7 @@
 #include <texteditor/texteditor.h>
 
 #include <clangbackendipc/diagnosticschangedmessage.h>
+#include <clangbackendipc/highlightingchangedmessage.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -62,6 +63,7 @@
 #include <clangbackendipc/cmbmessages.h>
 #include <clangbackendipc/registerunsavedfilesforeditormessage.h>
 #include <clangbackendipc/requestdiagnosticsmessage.h>
+#include <clangbackendipc/requesthighlightingmessage.h>
 #include <clangbackendipc/filecontainer.h>
 #include <clangbackendipc/projectpartsdonotexistmessage.h>
 #include <clangbackendipc/translationunitdoesnotexistmessage.h>
@@ -174,6 +176,24 @@ void IpcReceiver::diagnosticsChanged(const DiagnosticsChangedMessage &message)
     }
 }
 
+void IpcReceiver::highlightingChanged(const HighlightingChangedMessage &message)
+{
+    qCDebug(log) << "<<< HighlightingChangedMessage with"
+                 << message.highlightingMarks().size() << "items";
+
+    auto processor = ClangEditorDocumentProcessor::get(message.file().filePath());
+
+    if (processor && processor->projectPart()) {
+        const QString highlightingProjectPartId = message.file().projectPartId();
+        const QString documentProjectPartId = processor->projectPart()->id();
+        if (highlightingProjectPartId == documentProjectPartId) {
+            processor->updateHighlighting(message.highlightingMarks(),
+                                          message.skippedPreprocessorRanges(),
+                                          message.file().documentRevision());
+        }
+    }
+}
+
 void IpcReceiver::translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message)
 {
     QTC_CHECK(!"Got TranslationUnitDoesNotExistMessage");
@@ -203,6 +223,7 @@ public:
     void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message) override;
     void completeCode(const ClangBackEnd::CompleteCodeMessage &message) override;
     void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message) override;
+    void requestHighlighting(const ClangBackEnd::RequestHighlightingMessage &message) override;
 
 private:
     ClangBackEnd::ConnectionClient &m_connection;
@@ -266,6 +287,12 @@ void IpcSender::requestDiagnostics(const RequestDiagnosticsMessage &message)
 {
     QTC_CHECK(m_connection.isConnected());
     m_connection.serverProxy().requestDiagnostics(message);
+}
+
+void IpcSender::requestHighlighting(const RequestHighlightingMessage &message)
+{
+    QTC_CHECK(m_connection.isConnected());
+    m_connection.serverProxy().requestHighlighting(message);
 }
 
 IpcCommunicator::IpcCommunicator()
@@ -446,33 +473,50 @@ void IpcCommunicator::updateUnsavedFile(const QString &filePath, const QByteArra
                                     documentRevision}});
 }
 
-void IpcCommunicator::requestDiagnostics(const FileContainer &fileContainer)
+void IpcCommunicator::requestDiagnosticsAndHighlighting(const FileContainer &fileContainer,
+                                                        DocumentChangedCheck documentChangedCheck)
 {
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    if (documentHasChanged(fileContainer.filePath())) {
-        updateTranslationUnitsForEditor({fileContainer});
-
-        const RequestDiagnosticsMessage message(fileContainer);
-        qCDebug(log) << ">>>" << message;
-        m_ipcSender->requestDiagnostics(message);
-
-        setLastSentDocumentRevision(fileContainer.filePath(),
-                                    fileContainer.documentRevision());
+    if (documentChangedCheck == DocumentChangedCheck::RevisionCheck) {
+        if (documentHasChanged(fileContainer.filePath())) {
+            updateTranslationUnitsForEditor({fileContainer});
+            requestDiagnostics(fileContainer);
+            requestHighlighting(fileContainer);
+            setLastSentDocumentRevision(fileContainer.filePath(),
+                                        fileContainer.documentRevision());
+        }
+    } else {
+        requestDiagnostics(fileContainer);
+        requestHighlighting(fileContainer);
     }
 }
 
-void IpcCommunicator::requestDiagnostics(Core::IDocument *document)
+void IpcCommunicator::requestDiagnostics(const FileContainer &fileContainer)
+{
+    const RequestDiagnosticsMessage message(fileContainer);
+    qCDebug(log) << ">>>" << message;
+    m_ipcSender->requestDiagnostics(message);
+}
+
+void IpcCommunicator::requestHighlighting(const FileContainer &fileContainer)
+{
+    const RequestHighlightingMessage message(fileContainer);
+    qCDebug(log) << ">>>" << message;
+    m_ipcSender->requestHighlighting(message);
+}
+
+void IpcCommunicator::requestDiagnosticsAndHighlighting(Core::IDocument *document)
 {
     const auto textDocument = qobject_cast<TextDocument*>(document);
     const auto filePath = textDocument->filePath().toString();
     const QString projectPartId = Utils::projectPartIdForFile(filePath);
 
-    requestDiagnostics(FileContainer(filePath,
-                                     projectPartId,
-                                     Utf8StringVector(),
-                                     textDocument->document()->revision()));
+    requestDiagnosticsAndHighlighting(FileContainer(filePath,
+                                      projectPartId,
+                                      Utf8StringVector(),
+                                      textDocument->document()->revision()));
 }
 
 void IpcCommunicator::updateChangeContentStartPosition(const QString &filePath, int position)

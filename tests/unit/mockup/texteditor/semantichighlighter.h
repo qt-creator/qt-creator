@@ -28,23 +28,41 @@
 **
 ****************************************************************************/
 
-#include "clangeditordocumentparser.h"
+#ifndef TEXTEDITOR_SEMANTICHIGHLIGHTER_H
+#define TEXTEDITOR_SEMANTICHIGHLIGHTER_H
 
-namespace ClangCodeModel {
+namespace TextEditor {
 
-ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
-    : BaseEditorDocumentParser(filePath)
-{
-    BaseEditorDocumentParser::Configuration config = configuration();
-    config.stickToPreviousProjectPart = false;
-    setConfiguration(config);
-}
+class HighlightingResult {
+public:
+    unsigned line;
+    unsigned column;
+    unsigned length;
+    int kind;
 
-void ClangEditorDocumentParser::updateHelper(const BaseEditorDocumentParser::InMemoryInfo &)
-{
-    State state_ = state();
-    state_.projectPart = determineProjectPart(filePath(), configuration(), state_);
-    setState(state_);
-}
+    bool isValid() const
+    { return line != 0; }
 
-} // namespace ClangCodeModel
+    bool isInvalid() const
+    { return line == 0; }
+
+    HighlightingResult()
+        : line(0), column(0), length(0), kind(0)
+    {}
+
+    HighlightingResult(unsigned line, unsigned column, unsigned length, int kind)
+        : line(line), column(column), length(length), kind(kind)
+    {}
+
+    bool operator==(const HighlightingResult& other) const
+    {
+        return line == other.line
+                && column == other.column
+                && length == other.length
+                && kind == other.kind;
+    }
+};
+
+} // namespace TextEditor
+
+#endif // TEXTEDITOR_SEMANTICHIGHLIGHTER_H

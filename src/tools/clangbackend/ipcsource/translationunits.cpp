@@ -32,8 +32,11 @@
 
 #include <diagnosticschangedmessage.h>
 #include <diagnosticset.h>
+#include <highlightingchangedmessage.h>
+#include <highlightinginformations.h>
 #include <projectpartsdonotexistexception.h>
 #include <projects.h>
+#include <skippedsourceranges.h>
 #include <translationunitalreadyexistsexception.h>
 #include <translationunitdoesnotexistexception.h>
 
@@ -163,62 +166,73 @@ void TranslationUnits::updateTranslationUnitsWithChangedDependencies(const QVect
         updateTranslationUnitsWithChangedDependency(fileContainer.filePath());
 }
 
-DiagnosticSendState TranslationUnits::sendChangedDiagnostics()
+EditorUpdatesSendState TranslationUnits::sendDelayedEditorUpdates()
 {
-    auto diagnosticSendState = sendChangedDiagnosticsForCurrentEditor();
-    if (diagnosticSendState == DiagnosticSendState::NoDiagnosticSend)
-        diagnosticSendState = sendChangedDiagnosticsForVisibleEditors();
-    if (diagnosticSendState == DiagnosticSendState::NoDiagnosticSend)
-        diagnosticSendState = sendChangedDiagnosticsForAll();
+    auto editorUpdatesSendState = sendDelayedEditorUpdatesForCurrentEditor();
+    if (editorUpdatesSendState == EditorUpdatesSendState::NoEditorUpdatesSend)
+        editorUpdatesSendState = sendDelayedEditorUpdatesForVisibleEditors();
+    if (editorUpdatesSendState == EditorUpdatesSendState::NoEditorUpdatesSend)
+        editorUpdatesSendState = sendDelayedEditorUpdatesForAll();
 
-    return diagnosticSendState;
+    return editorUpdatesSendState;
 }
 
 template<class Predicate>
-DiagnosticSendState TranslationUnits::sendChangedDiagnostics(Predicate predicate)
+EditorUpdatesSendState TranslationUnits::sendDelayedEditorUpdates(Predicate predicate)
 {
     auto foundTranslationUnit = std::find_if(translationUnits_.begin(),
                                              translationUnits_.end(),
                                              predicate);
 
     if (foundTranslationUnit != translationUnits().end()) {
-        sendDiagnosticChangedMessage(*foundTranslationUnit);
-        return DiagnosticSendState::MaybeThereAreMoreDiagnostics;
+        sendDelayedEditorUpdates(*foundTranslationUnit);
+        return EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates;
     }
 
-    return DiagnosticSendState::NoDiagnosticSend;
+    return EditorUpdatesSendState::NoEditorUpdatesSend;
 }
 
-DiagnosticSendState TranslationUnits::sendChangedDiagnosticsForCurrentEditor()
+namespace {
+
+bool translationUnitHasEditorDocumentUpdates(const TranslationUnit &translationUnit)
 {
-    auto hasDiagnosticsForCurrentEditor = [] (const TranslationUnit &translationUnit) {
-        return translationUnit.isUsedByCurrentEditor() && translationUnit.hasNewDiagnostics();
+    return translationUnit.hasNewDiagnostics() || translationUnit.hasNewHighlightingInformations();
+}
+
+}
+
+EditorUpdatesSendState TranslationUnits::sendDelayedEditorUpdatesForCurrentEditor()
+{
+    auto hasEditorUpdatesForCurrentEditor = [] (const TranslationUnit &translationUnit) {
+        return translationUnit.isUsedByCurrentEditor()
+            && translationUnitHasEditorDocumentUpdates(translationUnit);
     };
 
-    return sendChangedDiagnostics(hasDiagnosticsForCurrentEditor);
+    return sendDelayedEditorUpdates(hasEditorUpdatesForCurrentEditor);
 }
 
-DiagnosticSendState TranslationUnits::sendChangedDiagnosticsForVisibleEditors()
+EditorUpdatesSendState TranslationUnits::sendDelayedEditorUpdatesForVisibleEditors()
 {
-    auto hasDiagnosticsForVisibleEditor = [] (const TranslationUnit &translationUnit) {
-        return translationUnit.isVisibleInEditor() && translationUnit.hasNewDiagnostics();
+    auto hasEditorUpdatesForVisibleEditor = [] (const TranslationUnit &translationUnit) {
+        return translationUnit.isVisibleInEditor()
+            && translationUnitHasEditorDocumentUpdates(translationUnit);
     };
 
-    return sendChangedDiagnostics(hasDiagnosticsForVisibleEditor);
+    return sendDelayedEditorUpdates(hasEditorUpdatesForVisibleEditor);
 }
 
-DiagnosticSendState TranslationUnits::sendChangedDiagnosticsForAll()
+EditorUpdatesSendState TranslationUnits::sendDelayedEditorUpdatesForAll()
 {
-    auto hasDiagnostics = [] (const TranslationUnit &translationUnit) {
-        return translationUnit.hasNewDiagnostics();
+    auto hasEditorUpdates = [] (const TranslationUnit &translationUnit) {
+        return translationUnitHasEditorDocumentUpdates(translationUnit);
     };
 
-    return sendChangedDiagnostics(hasDiagnostics);
+    return sendDelayedEditorUpdates(hasEditorUpdates);
 }
 
-void TranslationUnits::setSendChangeDiagnosticsCallback(std::function<void(const DiagnosticsChangedMessage &)> &&callback)
+void TranslationUnits::setSendDelayedEditorUpdatesCallback(DelayedEditorUpdatesCallback &&callback)
 {
-    sendDiagnosticsChangedCallback = std::move(callback);
+    sendDelayedEditorUpdatesCallback = std::move(callback);
 }
 
 QVector<FileContainer> TranslationUnits::newerFileContainers(const QVector<FileContainer> &fileContainers) const
@@ -340,13 +354,18 @@ void TranslationUnits::checkIfTranslationUnitsForFilePathsDoesExists(const QVect
     }
 }
 
-void TranslationUnits::sendDiagnosticChangedMessage(const TranslationUnit &translationUnit)
+void TranslationUnits::sendDelayedEditorUpdates(const TranslationUnit &translationUnit)
 {
-    if (sendDiagnosticsChangedCallback) {
-        DiagnosticsChangedMessage message(translationUnit.fileContainer(),
-                                          translationUnit.mainFileDiagnostics());
+    if (sendDelayedEditorUpdatesCallback) {
+        const auto fileContainer = translationUnit.fileContainer();
+        DiagnosticsChangedMessage diagnosticsMessage(fileContainer,
+                                                     translationUnit.mainFileDiagnostics());
+        HighlightingChangedMessage highlightingsMessage(fileContainer,
+                                                        translationUnit.highlightingInformations().toHighlightingMarksContainers(),
+                                                        translationUnit.skippedSourceRanges().toSourceRangeContainers());
 
-        sendDiagnosticsChangedCallback(std::move(message));
+        sendDelayedEditorUpdatesCallback(std::move(diagnosticsMessage),
+                                         std::move(highlightingsMessage));
     }
 }
 

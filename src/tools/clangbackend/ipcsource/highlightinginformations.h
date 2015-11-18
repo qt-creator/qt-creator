@@ -40,6 +40,7 @@
 namespace ClangBackEnd {
 
 using uint = unsigned int;
+class HighlightingMarkContainer;
 
 class HighlightingInformations
 {
@@ -60,6 +61,8 @@ public:
 
     const_iterator begin() const;
     const_iterator end() const;
+
+    QVector<HighlightingMarkContainer> toHighlightingMarksContainers() const;
 
 private:
     CXTranslationUnit cxTranslationUnit = nullptr;

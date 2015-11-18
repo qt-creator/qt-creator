@@ -40,6 +40,7 @@
 #include <ipcclientinterface.h>
 #include <registerunsavedfilesforeditormessage.h>
 #include <requestdiagnosticsmessage.h>
+#include <requesthighlightingmessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
 #include <updatetranslationunitsforeditormessage.h>
 #include <updatevisibletranslationunitsmessage.h>
@@ -116,6 +117,11 @@ void IpcServerProxy::completeCode(const CompleteCodeMessage &message)
 }
 
 void IpcServerProxy::requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message)
+{
+    writeMessageBlock.write(QVariant::fromValue(message));
+}
+
+void IpcServerProxy::requestHighlighting(const RequestHighlightingMessage &message)
 {
     writeMessageBlock.write(QVariant::fromValue(message));
 }

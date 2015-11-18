@@ -247,6 +247,4 @@ private:
 
 } // namespace CppTools
 
-Q_DECLARE_METATYPE(CppTools::ProjectPart::Ptr)
-
 #endif // CPPPROJECTPART_H

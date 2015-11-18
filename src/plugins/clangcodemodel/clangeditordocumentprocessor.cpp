@@ -36,6 +36,7 @@
 #include "clangutils.h"
 #include "cppcreatemarkers.h"
 #include "diagnostic.h"
+#include "highlightingmarksreporter.h"
 #include "pchinfo.h"
 
 #include <diagnosticcontainer.h>
@@ -59,22 +60,6 @@
 
 #include <QTextBlock>
 
-namespace {
-
-typedef CPlusPlus::Document::DiagnosticMessage CppToolsDiagnostic;
-
-QList<TextEditor::BlockRange> toTextEditorBlocks(
-        const QList<ClangCodeModel::SemanticMarker::Range> &ranges)
-{
-    QList<TextEditor::BlockRange> result;
-    result.reserve(ranges.size());
-    foreach (const ClangCodeModel::SemanticMarker::Range &range, ranges)
-        result.append(TextEditor::BlockRange(range.first, range.last));
-    return result;
-}
-
-} // anonymous namespace
-
 namespace ClangCodeModel {
 namespace Internal {
 
@@ -89,26 +74,12 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
     , m_semanticHighlighter(document)
     , m_builtinProcessor(document, /*enableSemanticHighlighter=*/ false)
 {
-    connect(m_parser.data(), &ClangEditorDocumentParser::projectPartDetermined,
-            this, &ClangEditorDocumentProcessor::onParserDeterminedProjectPart);
-
     // Forwarding the semantic info from the builtin processor enables us to provide all
     // editor (widget) related features that are not yet implemented by the clang plugin.
     connect(&m_builtinProcessor, &CppTools::BuiltinEditorDocumentProcessor::cppDocumentUpdated,
             this, &ClangEditorDocumentProcessor::cppDocumentUpdated);
     connect(&m_builtinProcessor, &CppTools::BuiltinEditorDocumentProcessor::semanticInfoUpdated,
             this, &ClangEditorDocumentProcessor::semanticInfoUpdated);
-
-    m_semanticHighlighter.setHighlightingRunner(
-        [this]() -> QFuture<TextEditor::HighlightingResult> {
-            const int firstLine = 1;
-            const int lastLine = baseTextDocument()->document()->blockCount();
-
-            CreateMarkers *createMarkers = CreateMarkers::create(m_parser->semanticMarker(),
-                                                                 baseTextDocument()->filePath().toString(),
-                                                                 firstLine, lastLine);
-            return createMarkers->start();
-        });
 }
 
 ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
@@ -125,7 +96,7 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
 
 void ClangEditorDocumentProcessor::run()
 {
-    requestDiagnostics();
+    requestDiagnosticsAndHighlighting();
 
     // Run clang parser
     disconnect(&m_parserWatcher, &QFutureWatcher<void>::finished,
@@ -153,7 +124,7 @@ void ClangEditorDocumentProcessor::recalculateSemanticInfoDetached(bool force)
 void ClangEditorDocumentProcessor::semanticRehighlight()
 {
     m_semanticHighlighter.updateFormatMapFromFontSettings();
-    m_semanticHighlighter.run();
+    requestDiagnosticsAndHighlighting(DocumentChangedCheck::NoCheck);
 }
 
 CppTools::SemanticInfo ClangEditorDocumentProcessor::recalculateSemanticInfo()
@@ -201,6 +172,36 @@ void ClangEditorDocumentProcessor::updateCodeWarnings(const QVector<ClangBackEnd
     }
 }
 
+static QList<TextEditor::BlockRange>
+toTextEditorBlocks(const QVector<ClangBackEnd::SourceRangeContainer> &ifdefedOutRanges)
+{
+    QList<TextEditor::BlockRange> blockRanges;
+    blockRanges.reserve(ifdefedOutRanges.size());
+
+    for (const auto &range : ifdefedOutRanges)
+        blockRanges.append(TextEditor::BlockRange(range.start().offset(),range.end().offset()));
+
+    return blockRanges;
+}
+
+void ClangEditorDocumentProcessor::updateHighlighting(
+        const QVector<ClangBackEnd::HighlightingMarkContainer> &highlightingMarks,
+        const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,
+        uint documentRevision)
+{
+    if (documentRevision == revision()) {
+        const auto skippedPreprocessorBlocks = toTextEditorBlocks(skippedPreprocessorRanges);
+        emit ifdefedOutBlocksUpdated(documentRevision, skippedPreprocessorBlocks);
+
+        m_semanticHighlighter.setHighlightingRunner(
+            [highlightingMarks]() {
+                auto *reporter = new HighlightingMarksReporter(highlightingMarks);
+                return reporter->start();
+            });
+        m_semanticHighlighter.run();
+    }
+}
+
 static int currentLine(const TextEditor::AssistInterface &assistInterface)
 {
     int line, column;
@@ -240,23 +241,16 @@ static bool isProjectPartLoadedOrIsFallback(CppTools::ProjectPart::Ptr projectPa
         && (projectPart->id().isEmpty() || ClangCodeModel::Utils::isProjectPartLoaded(projectPart));
 }
 
-void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor(
-        CppTools::ProjectPart::Ptr projectPart)
+void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor()
 {
-    QTC_ASSERT(projectPart, return);
+    const CppTools::ProjectPart::Ptr projectPart = m_parser->projectPart();
 
     if (isProjectPartLoadedOrIsFallback(projectPart)) {
         updateTranslationUnitForEditor(projectPart.data());
-        requestDiagnostics(projectPart.data());
+        requestDiagnosticsAndHighlighting(projectPart.data());
 
         m_projectPart = projectPart;
     }
-}
-
-void ClangEditorDocumentProcessor::onParserDeterminedProjectPart(
-        CppTools::ProjectPart::Ptr projectPart)
-{
-    updateProjectPartAndTranslationUnitForEditor(projectPart);
 }
 
 void ClangEditorDocumentProcessor::onParserFinished()
@@ -264,12 +258,7 @@ void ClangEditorDocumentProcessor::onParserFinished()
     if (revision() != m_parserRevision)
         return;
 
-    // Emit ifdefed out blocks
-    const auto ifdefoutBlocks = toTextEditorBlocks(m_parser->ifdefedOutBlocks());
-    emit ifdefedOutBlocksUpdated(revision(), ifdefoutBlocks);
-
-    // Run semantic highlighter
-    m_semanticHighlighter.run();
+    updateProjectPartAndTranslationUnitForEditor();
 }
 
 void ClangEditorDocumentProcessor::updateTranslationUnitForEditor(CppTools::ProjectPart *projectPart)
@@ -287,25 +276,38 @@ void ClangEditorDocumentProcessor::updateTranslationUnitForEditor(CppTools::Proj
     }
 }
 
-void ClangEditorDocumentProcessor::requestDiagnostics(CppTools::ProjectPart *projectPart)
+void ClangEditorDocumentProcessor::requestDiagnosticsAndHighlighting(CppTools::ProjectPart *projectPart)
 {
     if (!m_projectPart || projectPart->id() != m_projectPart->id()) {
         IpcCommunicator &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
 
-        ipcCommunicator.requestDiagnostics({fileContainer(projectPart)});
+        const ClangBackEnd::FileContainer fileContainer_ = fileContainer(projectPart);
+        ipcCommunicator.requestDiagnosticsAndHighlighting(fileContainer_);
     }
 }
 
-void ClangEditorDocumentProcessor::requestDiagnostics()
+IpcCommunicator::DocumentChangedCheck
+toIpcCommunicatorDocumentChangedCheck(ClangEditorDocumentProcessor::DocumentChangedCheck condition)
 {
-    // Get diagnostics
+    return condition == ClangEditorDocumentProcessor::DocumentChangedCheck::RevisionCheck
+            ? IpcCommunicator::DocumentChangedCheck::RevisionCheck
+            : IpcCommunicator::DocumentChangedCheck::NoCheck;
+}
+
+void ClangEditorDocumentProcessor::requestDiagnosticsAndHighlighting(DocumentChangedCheck documentChangedCheck)
+{
     if (m_projectPart) {
         auto  &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
-        ipcCommunicator.requestDiagnostics({filePath(),
-                                            m_projectPart->id(),
-                                            baseTextDocument()->plainText(),
-                                            true,
-                                            revision()});
+
+        const ClangBackEnd::FileContainer fileContainer(filePath(),
+                                                        m_projectPart->id(),
+                                                        baseTextDocument()->plainText(),
+                                                        true,
+                                                        revision());
+
+        const auto documentCheck = toIpcCommunicatorDocumentChangedCheck(documentChangedCheck);
+
+        ipcCommunicator.requestDiagnosticsAndHighlighting(fileContainer, documentCheck);
     }
 }
 

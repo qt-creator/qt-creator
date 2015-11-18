@@ -47,9 +47,11 @@
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
 #include <diagnosticschangedmessage.h>
+#include <highlightingchangedmessage.h>
 #include <readmessageblock.h>
 #include <registerunsavedfilesforeditormessage.h>
 #include <requestdiagnosticsmessage.h>
+#include <requesthighlightingmessage.h>
 #include <translationunitdoesnotexistmessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
 #include <updatetranslationunitsforeditormessage.h>
@@ -197,6 +199,17 @@ TEST_F(ClientServerInProcess, SendRequestDiagnosticsMessage)
     scheduleServerMessages();
 }
 
+TEST_F(ClientServerInProcess, SendRequestHighlightingMessage)
+{
+    ClangBackEnd::RequestHighlightingMessage message({Utf8StringLiteral("foo.cpp"),
+                                                     Utf8StringLiteral("projectId")});
+
+    EXPECT_CALL(mockIpcServer, requestHighlighting(message))
+        .Times(1);
+
+    serverProxy.requestHighlighting(message);
+    scheduleServerMessages();
+}
 
 TEST_F(ClientServerInProcess, SendCodeCompletedMessage)
 {
@@ -286,6 +299,21 @@ TEST_F(ClientServerInProcess, SendDiagnosticsChangedMessage)
         .Times(1);
 
     clientProxy.diagnosticsChanged(message);
+    scheduleClientMessages();
+}
+
+TEST_F(ClientServerInProcess, SendHighlightingChangedMessage)
+{
+    ClangBackEnd::HighlightingMarkContainer container(1, 1, 1, ClangBackEnd::HighlightingType::Keyword);
+
+    ClangBackEnd::HighlightingChangedMessage message(fileContainer,
+                                                     {container},
+                                                     QVector<SourceRangeContainer>());
+
+    EXPECT_CALL(mockIpcClient, highlightingChanged(message))
+        .Times(1);
+
+    clientProxy.highlightingChanged(message);
     scheduleClientMessages();
 }
 
