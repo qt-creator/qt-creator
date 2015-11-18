@@ -205,6 +205,33 @@ void TimelineRenderer::hoverMoveEvent(QHoverEvent *event)
         event->setAccepted(false);
 }
 
+void TimelineRenderer::wheelEvent(QWheelEvent *event)
+{
+    // ctrl-wheel means zoom
+    if (event->modifiers() & Qt::ControlModifier) {
+        event->setAccepted(true);
+        TimelineZoomControl *zoom = zoomer();
+
+        int degrees = (event->angleDelta().x() + event->angleDelta().y()) / 8;
+        const qint64 circle = 360;
+        qint64 mouseTime = event->pos().x() * zoom->windowDuration() / width() +
+                zoom->windowStart();
+        qint64 beforeMouse = (mouseTime - zoom->rangeStart()) * (circle - degrees) / circle;
+        qint64 afterMouse = (zoom->rangeEnd() - mouseTime) * (circle - degrees) / circle;
+
+        qint64 newStart = qBound(zoom->traceStart(), zoom->traceEnd(), mouseTime - beforeMouse);
+        if (newStart + zoom->minimumRangeLength() > zoom->traceEnd())
+            return; // too close to trace end
+
+        qint64 newEnd = qBound(newStart + zoom->minimumRangeLength(), zoom->traceEnd(),
+                               mouseTime + afterMouse);
+
+        zoom->setRange(newStart, newEnd);
+    } else {
+        TimelineAbstractRenderer::wheelEvent(event);
+    }
+}
+
 void TimelineRenderer::TimelineRendererPrivate::manageClicked()
 {
     Q_Q(TimelineRenderer);
