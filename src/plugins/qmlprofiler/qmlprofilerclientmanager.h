@@ -81,6 +81,7 @@ private slots:
     void retryMessageBoxFinished(int result);
 
     void qmlComplete(qint64 maximumTime);
+    void qmlNewEngine(int engineId);
 
     void profilerStateChanged();
     void clientRecordingChanged();

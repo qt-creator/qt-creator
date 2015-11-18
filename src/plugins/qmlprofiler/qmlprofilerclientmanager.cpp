@@ -185,6 +185,8 @@ void QmlProfilerClientManager::connectClientSignals()
     if (d->qmlclientplugin) {
         connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::complete,
                 this, &QmlProfilerClientManager::qmlComplete);
+        connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::newEngine,
+                this, &QmlProfilerClientManager::qmlNewEngine);
         connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::rangedEvent,
                 d->modelManager, &QmlProfilerModelManager::addQmlEvent);
         connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::debugMessage,
@@ -193,8 +195,6 @@ void QmlProfilerClientManager::connectClientSignals()
                 d->modelManager->traceTime(), &QmlProfilerTraceTime::increaseEndTime);
         connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::traceStarted,
                 d->modelManager->traceTime(), &QmlProfilerTraceTime::decreaseStartTime);
-        connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::enabledChanged,
-                d->qmlclientplugin.data(), &QmlProfilerTraceClient::sendRecordingStatus);
         connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::recordingChanged,
                 d->profilerState, &QmlProfilerStateManager::setServerRecording);
         connect(d->profilerState, &QmlProfilerStateManager::requestedFeaturesChanged,
@@ -209,6 +209,8 @@ void QmlProfilerClientManager::disconnectClientSignals()
     if (d->qmlclientplugin) {
         disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::complete,
                    this, &QmlProfilerClientManager::qmlComplete);
+        disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::newEngine,
+                   this, &QmlProfilerClientManager::qmlNewEngine);
         disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::rangedEvent,
                    d->modelManager, &QmlProfilerModelManager::addQmlEvent);
         disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::debugMessage,
@@ -217,8 +219,6 @@ void QmlProfilerClientManager::disconnectClientSignals()
                    d->modelManager->traceTime(), &QmlProfilerTraceTime::increaseEndTime);
         disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::traceStarted,
                    d->modelManager->traceTime(), &QmlProfilerTraceTime::decreaseStartTime);
-        disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::enabledChanged,
-                   d->qmlclientplugin.data(), &QmlProfilerTraceClient::sendRecordingStatus);
         disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::recordingChanged,
                    d->profilerState, &QmlProfilerStateManager::setServerRecording);
         disconnect(d->profilerState, &QmlProfilerStateManager::requestedFeaturesChanged,
@@ -351,6 +351,14 @@ void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)
     d->modelManager->traceTime()->increaseEndTime(maximumTime);
     if (d->modelManager)
         d->modelManager->acquiringDone();
+}
+
+void QmlProfilerClientManager::qmlNewEngine(int engineId)
+{
+    if (d->qmlclientplugin->isRecording() != d->profilerState->clientRecording())
+        d->qmlclientplugin->setRecording(d->profilerState->clientRecording());
+    else
+        d->qmlclientplugin->sendRecordingStatus(engineId);
 }
 
 void QmlProfilerClientManager::registerProfilerStateManager( QmlProfilerStateManager *profilerState )

@@ -44,7 +44,6 @@ namespace QmlDebug {
 class QMLDEBUG_EXPORT QmlProfilerTraceClient : public QmlDebug::QmlDebugClient
 {
     Q_OBJECT
-    Q_PROPERTY(bool enabled READ isEnabled NOTIFY enabledChanged)
     Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
 
     // don't hide by signal
@@ -54,14 +53,13 @@ public:
     QmlProfilerTraceClient(QmlDebugConnection *client, quint64 features);
     ~QmlProfilerTraceClient();
 
-    bool isEnabled() const;
     bool isRecording() const;
     void setRecording(bool);
     quint64 recordedFeatures() const;
 
 public slots:
     void clearData();
-    void sendRecordingStatus();
+    void sendRecordingStatus(int engineId = -1);
     void setRequestedFeatures(quint64 features);
     void setFlushInterval(quint32 flushInterval);
 
@@ -77,8 +75,8 @@ signals:
                       const QmlDebug::QmlEventLocation &location);
     void recordingChanged(bool arg);
     void recordedFeaturesChanged(quint64 features);
+    void newEngine(int engineId);
 
-    void enabledChanged();
     void cleared();
 
 protected:
