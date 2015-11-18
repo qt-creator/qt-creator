@@ -67,7 +67,6 @@ public slots:
 
 signals:
     void complete(qint64 maximumTime);
-    void gap(qint64 time);
     void traceFinished(qint64 time, const QList<int> &engineIds);
     void traceStarted(qint64 time, const QList<int> &engineIds);
     void rangedEvent(QmlDebug::Message, QmlDebug::RangeType, int detailType, qint64 startTime,

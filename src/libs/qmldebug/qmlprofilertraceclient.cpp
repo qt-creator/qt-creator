@@ -73,8 +73,6 @@ public:
 
 using namespace QmlDebug;
 
-static const int GAP_TIME = 150;
-
 void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
 {
     QPacket stream(q->connection()->currentDataStreamVersion());
@@ -212,9 +210,6 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         stream >> subtype;
     else
         subtype = -1;
-
-    if (time > (d->maximumTime + GAP_TIME) && 0 == d->inProgressRanges)
-        emit gap(time);
 
     switch (messageType) {
     case Event: {
