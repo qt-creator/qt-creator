@@ -187,6 +187,8 @@ void QmlProfilerClientManager::connectClientSignals()
                 this, &QmlProfilerClientManager::qmlComplete);
         connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::rangedEvent,
                 d->modelManager, &QmlProfilerModelManager::addQmlEvent);
+        connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::debugMessage,
+                d->modelManager, &QmlProfilerModelManager::addDebugMessage);
         connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::traceFinished,
                 d->modelManager->traceTime(), &QmlProfilerTraceTime::increaseEndTime);
         connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::traceStarted,
@@ -209,6 +211,8 @@ void QmlProfilerClientManager::disconnectClientSignals()
                    this, &QmlProfilerClientManager::qmlComplete);
         disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::rangedEvent,
                    d->modelManager, &QmlProfilerModelManager::addQmlEvent);
+        disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::debugMessage,
+                   d->modelManager, &QmlProfilerModelManager::addDebugMessage);
         disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::traceFinished,
                    d->modelManager->traceTime(), &QmlProfilerTraceTime::increaseEndTime);
         disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::traceStarted,

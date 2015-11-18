@@ -135,6 +135,8 @@ public slots:
                      qint64 startTime, qint64 length, const QString &data,
                      const QmlDebug::QmlEventLocation &location,
                      qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
+    void addDebugMessage(QtMsgType type, qint64 timestamp, const QString &text,
+                         const QmlDebug::QmlEventLocation &location);
 
     void save(const QString &filename);
     void load(const QString &filename);

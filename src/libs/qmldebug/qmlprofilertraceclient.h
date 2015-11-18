@@ -73,6 +73,8 @@ signals:
                      qint64 length, const QString &data,
                      const QmlDebug::QmlEventLocation &location, qint64 param1, qint64 param2,
                      qint64 param3, qint64 param4, qint64 param5);
+    void debugMessage(QtMsgType type, qint64 timestamp, const QString &text,
+                      const QmlDebug::QmlEventLocation &location);
     void recordingChanged(bool arg);
     void recordedFeaturesChanged(quint64 features);
 

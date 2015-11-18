@@ -157,10 +157,8 @@ void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
         connect(d->messageClient.data(), &QDebugMessageClient::message, this, [this](QtMsgType type,
                 const QString &text, const QmlDebug::QDebugContextInfo &context)
         {
-            emit this->rangedEvent(QmlDebug::DebugMessage, QmlDebug::MaximumRangeType,
-                                   type, context.timestamp, 0, text,
-                                   QmlDebug::QmlEventLocation(context.file, context.line, 1), 0, 0,
-                                   0, 0, 0);
+            emit debugMessage(type, context.timestamp, text,
+                              QmlDebug::QmlEventLocation(context.file, context.line, 1));
         });
     } else {
         d->messageClient.reset();

@@ -296,6 +296,14 @@ void QmlProfilerModelManager::addQmlEvent(QmlDebug::Message message,
                           ndata1, ndata2, ndata3, ndata4, ndata5);
 }
 
+void QmlProfilerModelManager::addDebugMessage(QtMsgType type, qint64 timestamp, const QString &text,
+                                              const QmlDebug::QmlEventLocation &location)
+{
+    if (state() == AcquiringData)
+        d->model->addQmlEvent(QmlDebug::DebugMessage, QmlDebug::MaximumRangeType, type, timestamp,
+                              0, text, location, 0, 0, 0, 0, 0);
+}
+
 void QmlProfilerModelManager::acquiringDone()
 {
     QTC_ASSERT(state() == AcquiringData, /**/);
