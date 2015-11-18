@@ -221,7 +221,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
                 stream >> id;
                 engineIds << id;
             }
-            emit this->traceStarted(time, engineIds);
+            emit traceStarted(time, engineIds);
             d->maximumTime = time;
             break;
         }
@@ -232,7 +232,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
                 stream >> id;
                 engineIds << id;
             }
-            emit this->traceFinished(time, engineIds);
+            emit traceFinished(time, engineIds);
             d->maximumTime = time;
             d->maximumTime = qMax(time, d->maximumTime);
             break;

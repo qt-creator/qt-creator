@@ -219,7 +219,6 @@ void QmlProfilerClientManager::disconnectClientSignals()
                    d->modelManager->traceTime(), &QmlProfilerTraceTime::decreaseStartTime);
         disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::enabledChanged,
                    d->qmlclientplugin.data(), &QmlProfilerTraceClient::sendRecordingStatus);
-        // fixme: this should be unified for both clients
         disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::recordingChanged,
                    d->profilerState, &QmlProfilerStateManager::setServerRecording);
         disconnect(d->profilerState, &QmlProfilerStateManager::requestedFeaturesChanged,

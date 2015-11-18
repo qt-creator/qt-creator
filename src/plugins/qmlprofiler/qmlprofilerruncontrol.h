@@ -54,7 +54,6 @@ public:
 
 signals:
     void processRunning(quint16 port);
-    void timeUpdate();
 
 public slots:
     bool startEngine();

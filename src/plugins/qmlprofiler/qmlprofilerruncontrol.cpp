@@ -268,7 +268,7 @@ void QmlProfilerRunControl::profilerStateChanged()
     }
 }
 
-RunControl::StopResult QmlProfiler::QmlProfilerRunControl::stop()
+RunControl::StopResult QmlProfilerRunControl::stop()
 {
     StopResult result = Analyzer::AnalyzerRunControl::stop();
     if (d->m_profilerState->currentState() != QmlProfilerStateManager::Idle)
