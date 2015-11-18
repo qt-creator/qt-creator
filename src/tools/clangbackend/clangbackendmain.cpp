@@ -53,6 +53,8 @@ int main(int argc, char *argv[])
 
     ClangBackEnd::Messages::registerMessages();
 
+    clang_toggleCrashRecovery(true);
+
     ClangBackEnd::ClangIpcServer clangIpcServer;
     ClangBackEnd::ConnectionServer connectionServer(application.arguments()[1]);
     connectionServer.start();
