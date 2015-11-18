@@ -241,11 +241,23 @@ HighlightingType literalKind(const Cursor &cursor)
     Q_UNREACHABLE();
 }
 
+bool hasOperatorName(const char *operatorString)
+{
+    return std::strncmp(operatorString, "operator", 8) == 0;
+}
+
+HighlightingType operatorKind(const Cursor &cursor)
+{
+    if (hasOperatorName(cursor.spelling().cString()))
+        return HighlightingType::Operator;
+    else
+        return HighlightingType::Invalid;
+}
 
 HighlightingType punctationKind(const Cursor &cursor)
 {
     switch (cursor.kind()) {
-        case CXCursor_DeclRefExpr: return HighlightingType::Operator;
+        case CXCursor_DeclRefExpr: return operatorKind(cursor);
         default:                   return HighlightingType::Invalid;
     }
 }

@@ -881,6 +881,20 @@ TEST_F(HighlightingInformations, TemplatedTypeDeclaration)
     ASSERT_THAT(infos[0], HasType(HighlightingType::Type));
 }
 
+TEST_F(HighlightingInformations, NoOperator)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(389, 24));
+
+    ASSERT_THAT(infos[2], HasType(HighlightingType::Invalid));
+}
+
+TEST_F(HighlightingInformations, ScopeOperator)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(400, 33));
+
+    ASSERT_THAT(infos[1], HasType(HighlightingType::Invalid));
+}
+
 Data *HighlightingInformations::d;
 
 void HighlightingInformations::SetUpTestCase()
