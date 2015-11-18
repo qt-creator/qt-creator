@@ -40,6 +40,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -358,7 +359,6 @@ CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizard
 
 QList<Core::IWizardFactory *> CustomWizard::createWizards()
 {
-    QList<Core::IWizardFactory *> rc;
     QString errorMessage;
     QString verboseLog;
     const QString templateDirName = Core::ICore::resourcePath() +
@@ -371,28 +371,31 @@ QList<Core::IWizardFactory *> CustomWizard::createWizards()
 
     const QDir templateDir(templateDirName);
     if (CustomWizardPrivate::verbose)
-        verboseLog = QString::fromLatin1("### CustomWizard: Checking \"%1\"\n").arg(templateDirName);
+        verboseLog += QString::fromLatin1("### CustomWizard: Checking \"%1\"\n").arg(templateDirName);
     if (!templateDir.exists()) {
         if (CustomWizardPrivate::verbose)
            qWarning("Custom project template path %s does not exist.", qPrintable(templateDir.absolutePath()));
-        return rc;
+        return QList<Core::IWizardFactory *>();
     }
 
     const QDir userTemplateDir(userTemplateDirName);
     if (CustomWizardPrivate::verbose)
-        verboseLog = QString::fromLatin1("### CustomWizard: Checking \"%1\"\n").arg(userTemplateDirName);
+        verboseLog += QString::fromLatin1("### CustomWizard: Checking \"%1\"\n").arg(userTemplateDirName);
 
     const QDir::Filters filters = QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot;
     const QDir::SortFlags sortflags = QDir::Name|QDir::IgnoreCase;
-    QList<QFileInfo> dirs = templateDir.entryInfoList(filters, sortflags);
+    QList<QFileInfo> dirs;
     if (userTemplateDir.exists()) {
         if (CustomWizardPrivate::verbose)
-            verboseLog = QString::fromLatin1("### CustomWizard: userTemplateDir \"%1\" found, adding\n").arg(userTemplateDirName);
+            verboseLog += QString::fromLatin1("### CustomWizard: userTemplateDir \"%1\" found, adding\n").arg(userTemplateDirName);
         dirs += userTemplateDir.entryInfoList(filters, sortflags);
     }
+    dirs += templateDir.entryInfoList(filters, sortflags);
 
     const QString configFile = QLatin1String(configFileC);
     // Check and parse config file in each directory.
+
+    QList<CustomWizardParametersPtr> toCreate;
 
     while (!dirs.isEmpty()) {
         const QFileInfo dirFi = dirs.takeFirst();
@@ -403,11 +406,13 @@ QList<Core::IWizardFactory *> CustomWizard::createWizards()
             CustomWizardParametersPtr parameters(new CustomWizardParameters);
             switch (parameters->parse(dir.absoluteFilePath(configFile), &errorMessage)) {
             case CustomWizardParameters::ParseOk:
-                parameters->directory = dir.absolutePath();
-                if (CustomWizard *w = createWizard(parameters))
-                    rc.push_back(w);
-                else
-                    qWarning("Custom wizard factory function failed for %s", qPrintable(parameters->id.toString()));
+                if (!Utils::contains(toCreate, [parameters](CustomWizardParametersPtr p) { return parameters->id == p->id; })) {
+                    parameters->directory = dir.absolutePath();
+                    toCreate.append(parameters);
+                } else {
+                    verboseLog += QString::fromLatin1("Customwizard: Ignoring wizard in %1 due to duplicate Id %2.\n")
+                            .arg(dir.absolutePath()).arg(parameters->id.toString());
+                }
                 break;
             case CustomWizardParameters::ParseDisabled:
                 if (CustomWizardPrivate::verbose)
@@ -429,6 +434,18 @@ QList<Core::IWizardFactory *> CustomWizard::createWizards()
             }
         }
     }
+
+    QList<Core::IWizardFactory *> rc;
+    foreach (CustomWizardParametersPtr p, toCreate) {
+        if (CustomWizard *w = createWizard(p)) {
+            rc.push_back(w);
+        } else {
+            qWarning("Custom wizard factory function failed for %s from %s.",
+                     qPrintable(p->id.toString()), qPrintable(p->directory));
+        }
+    }
+
+
     if (CustomWizardPrivate::verbose) { // Print to output pane for Windows.
         qWarning("%s", qPrintable(verboseLog));
         Core::MessageManager::write(verboseLog, Core::MessageManager::ModeSwitch);
