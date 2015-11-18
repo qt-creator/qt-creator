@@ -30,6 +30,8 @@
 
 #include "qmlprofilerstatewidget.h"
 
+#include <utils/qtcassert.h>
+
 #include <QPainter>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -202,11 +204,23 @@ void QmlProfilerStateWidget::updateDisplay()
             return;
         }
     } else if (d->m_modelManager->progress() != 0 && !d->m_modelManager->isEmpty()) {
-        // When datamodel is acquiring data
-        if (d->m_profilerState->currentState() != QmlProfilerStateManager::Idle)
-            showText(tr("Loading data"), true);
-        else // Application died before all data could be read
-            showText(tr("Application stopped before loading all data"), true);
+        // When datamodel is acquiring or processing data
+        if (state == QmlProfilerModelManager::ProcessingData) {
+            showText(tr("Processing data"), true);
+        } else  if (d->m_profilerState->currentState() != QmlProfilerStateManager::Idle) {
+            if (state == QmlProfilerModelManager::AcquiringData) {
+                // we don't know how much more, so progress numbers are strange here
+                showText(tr("Waiting for more data"));
+            } else if (state == QmlProfilerModelManager::ClearingData) {
+                // when starting a second recording from the same process without aggregation
+                showText(tr("Clearing old trace"));
+            }
+        } else if (state == QmlProfilerModelManager::AcquiringData) {
+            // Application died before all data could be read
+            showText(tr("Application stopped before loading all data"));
+        } else if (state == QmlProfilerModelManager::ClearingData) {
+            showText(tr("Clearing old trace"));
+        }
         return;
     } else if (state == QmlProfilerModelManager::AcquiringData) {
         showText(tr("Waiting for data"));

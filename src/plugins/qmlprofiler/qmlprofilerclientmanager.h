@@ -61,6 +61,9 @@ public:
     void setModelManager(QmlProfilerModelManager *m);
     void setFlushInterval(quint32 flushInterval);
 
+    bool aggregateTraces() const;
+    void setAggregateTraces(bool aggregateTraces);
+
 signals:
     void connectionFailed();
     void connectionClosed();

@@ -45,6 +45,7 @@ QmlProfilerSettings::QmlProfilerSettings()
     defaults.insert(QLatin1String(Constants::FLUSH_INTERVAL), 1000);
     defaults.insert(QLatin1String(Constants::FLUSH_ENABLED), false);
     defaults.insert(QLatin1String(Constants::LAST_TRACE_FILE), QString());
+    defaults.insert(QLatin1String(Constants::AGGREGATE_TRACES), false);
 
     // Read stored values
     QSettings *settings = Core::ICore::settings();
@@ -106,6 +107,19 @@ void QmlProfilerSettings::setLastTraceFile(const QString &lastTracePath)
     }
 }
 
+bool QmlProfilerSettings::aggregateTraces() const
+{
+    return m_aggregateTraces;
+}
+
+void QmlProfilerSettings::setAggregateTraces(bool aggregateTraces)
+{
+    if (m_aggregateTraces != aggregateTraces) {
+        m_aggregateTraces = aggregateTraces;
+        emit changed();
+    }
+}
+
 void QmlProfilerSettings::writeGlobalSettings() const
 {
     QSettings *settings = Core::ICore::settings();
@@ -122,6 +136,7 @@ void QmlProfilerSettings::toMap(QVariantMap &map) const
     map[QLatin1String(Constants::FLUSH_INTERVAL)] = m_flushInterval;
     map[QLatin1String(Constants::FLUSH_ENABLED)] = m_flushEnabled;
     map[QLatin1String(Constants::LAST_TRACE_FILE)] = m_lastTraceFile;
+    map[QLatin1String(Constants::AGGREGATE_TRACES)] = m_aggregateTraces;
 }
 
 void QmlProfilerSettings::fromMap(const QVariantMap &map)
@@ -129,6 +144,7 @@ void QmlProfilerSettings::fromMap(const QVariantMap &map)
     m_flushEnabled = map.value(QLatin1String(Constants::FLUSH_ENABLED)).toBool();
     m_flushInterval = map.value(QLatin1String(Constants::FLUSH_INTERVAL)).toUInt();
     m_lastTraceFile = map.value(QLatin1String(Constants::LAST_TRACE_FILE)).toString();
+    m_aggregateTraces = map.value(QLatin1String(Constants::AGGREGATE_TRACES)).toBool();
     emit changed();
 }
 

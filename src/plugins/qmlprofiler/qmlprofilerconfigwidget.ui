@@ -47,6 +47,23 @@ itself takes time. </string>
      </property>
     </widget>
    </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="aggregateTracesLabel">
+     <property name="text">
+      <string>Process data only when process ends:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="aggregateTraces">
+     <property name="toolTip">
+      <string>Only process data when the process being profiled ends, not when the current recording
+session ends. This way multiple recording sessions can be aggregated in a single trace,
+for example if multiple QML engines start and stop sequentially during a single run of
+the program.</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

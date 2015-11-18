@@ -63,6 +63,7 @@ public:
     quint64 tcpPort;
     QString sysroot;
     quint32 flushInterval;
+    bool aggregateTraces;
 
     QmlProfilerModelManager *modelManager;
 };
@@ -77,6 +78,7 @@ QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) :
     d->connection = 0;
     d->connectionAttempts = 0;
     d->flushInterval = 0;
+    d->aggregateTraces = true;
 
     d->modelManager = 0;
 
@@ -99,6 +101,16 @@ void QmlProfilerClientManager::setModelManager(QmlProfilerModelManager *m)
 void QmlProfilerClientManager::setFlushInterval(quint32 flushInterval)
 {
     d->flushInterval = flushInterval;
+}
+
+bool QmlProfilerClientManager::aggregateTraces() const
+{
+    return d->aggregateTraces;
+}
+
+void QmlProfilerClientManager::setAggregateTraces(bool aggregateTraces)
+{
+    d->aggregateTraces = aggregateTraces;
 }
 
 void QmlProfilerClientManager::setTcpConnection(QString host, quint64 port)
@@ -349,7 +361,7 @@ void QmlProfilerClientManager::retryMessageBoxFinished(int result)
 void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)
 {
     d->modelManager->traceTime()->increaseEndTime(maximumTime);
-    if (d->modelManager)
+    if (d->modelManager && !d->aggregateTraces)
         d->modelManager->acquiringDone();
 }
 

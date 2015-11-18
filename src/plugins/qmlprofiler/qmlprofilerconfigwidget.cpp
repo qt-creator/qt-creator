@@ -46,6 +46,9 @@ QmlProfilerConfigWidget::QmlProfilerConfigWidget(QmlProfilerSettings *settings, 
     connect(m_ui->flushInterval, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             m_settings, &QmlProfilerSettings::setFlushInterval);
 
+    connect(m_ui->aggregateTraces, &QCheckBox::toggled,
+            m_settings, &QmlProfilerSettings::setAggregateTraces);
+
     connect(m_settings, &QmlProfilerSettings::changed, this, &QmlProfilerConfigWidget::updateUi);
 }
 
@@ -59,6 +62,7 @@ void QmlProfilerConfigWidget::updateUi()
     m_ui->flushEnabled->setChecked(m_settings->flushEnabled());
     m_ui->flushInterval->setEnabled(m_settings->flushEnabled());
     m_ui->flushInterval->setValue(m_settings->flushInterval());
+    m_ui->aggregateTraces->setChecked(m_settings->aggregateTraces());
 }
 
 } // Internal

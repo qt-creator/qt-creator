@@ -209,6 +209,7 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParamet
 
     d->m_profilerConnections->setFlushInterval(settings->flushEnabled() ?
                                                    settings->flushInterval() : 0);
+    d->m_profilerConnections->setAggregateTraces(settings->aggregateTraces());
 
     QmlProfilerRunControl *engine = new QmlProfilerRunControl(sp, runConfiguration);
 
@@ -373,7 +374,9 @@ void QmlProfilerTool::recordingButtonChanged(bool recording)
 
     if (recording && d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
         if (checkForUnsavedNotes()) {
-            clearData(); // clear right away, before the application starts
+            if (!d->m_profilerConnections->aggregateTraces() ||
+                    d->m_profilerModelManager->state() == QmlProfilerModelManager::Done)
+                clearData(); // clear before the recording starts, unless we aggregate recordings
             if (d->m_profilerState->clientRecording())
                 d->m_profilerState->setClientRecording(false);
             d->m_profilerState->setClientRecording(true);
@@ -652,9 +655,13 @@ void QmlProfilerTool::clientsDisconnected()
     if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppDying ||
             d->m_profilerState->currentState() == QmlProfilerStateManager::Idle) {
         if (d->m_profilerModelManager->state() == QmlProfilerModelManager::AcquiringData) {
-            showNonmodalWarning(tr("Application finished before loading profiled data.\n"
-                                   "Please use the stop button instead."));
-            d->m_profilerModelManager->clear();
+            if (d->m_profilerConnections->aggregateTraces()) {
+                d->m_profilerModelManager->acquiringDone();
+            } else {
+                showNonmodalWarning(tr("Application finished before loading profiled data.\n"
+                                       "Please use the stop button instead."));
+                d->m_profilerModelManager->clear();
+            }
         }
 
         // ... and return to the "base" state
@@ -822,13 +829,16 @@ void QmlProfilerTool::serverRecordingChanged()
                 showSaveDialog();
 
             setRecording(true);
-            clearData();
+            if (!d->m_profilerConnections->aggregateTraces() ||
+                    d->m_profilerModelManager->state() == QmlProfilerModelManager::Done)
+                clearData();
             d->m_profilerModelManager->prepareForWriting();
         } else {
             setRecording(false);
 
             // changes back once loading is finished, see profilerDataModelStateChanged()
-            d->m_recordButton->setEnabled(false);
+            if (!d->m_profilerConnections->aggregateTraces())
+                d->m_recordButton->setEnabled(false);
         }
     }
 }

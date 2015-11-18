@@ -53,6 +53,9 @@ public:
     QString lastTraceFile() const;
     void setLastTraceFile(const QString &lastTraceFile);
 
+    bool aggregateTraces() const;
+    void setAggregateTraces(bool aggregateTraces);
+
     void writeGlobalSettings() const;
 
 signals:
@@ -66,6 +69,7 @@ private:
     bool m_flushEnabled;
     quint32 m_flushInterval;
     QString m_lastTraceFile;
+    bool m_aggregateTraces;
 };
 
 } // Internal
