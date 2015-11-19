@@ -477,7 +477,7 @@ void SubmitEditorWidget::diffActivated(const QModelIndex &index)
     // We need to delay the signal, otherwise, the diff editor will not
     // be in the foreground.
     d->m_activatedRow = index.row();
-    QTimer::singleShot(0, this, SLOT(diffActivatedDelayed()));
+    QTimer::singleShot(0, this, &SubmitEditorWidget::diffActivatedDelayed);
 }
 
 void SubmitEditorWidget::updateActions()
