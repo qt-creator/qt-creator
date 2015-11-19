@@ -429,8 +429,7 @@ void QmlEngine::connectionStartupFailed()
 
 void QmlEngine::appStartupFailed(const QString &errorMessage)
 {
-    QString error = tr("Could not connect to the in-process QML debugger."
-                       "\n%1").arg(errorMessage);
+    QString error = tr("Could not connect to the in-process QML debugger. %1").arg(errorMessage);
 
     if (isMasterEngine()) {
         QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
