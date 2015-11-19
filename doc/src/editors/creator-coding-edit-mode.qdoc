@@ -64,7 +64,11 @@
 
     To show the file encoding of the current file on the editor toolbar (4),
     select \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
-    \uicontrol Display > \uicontrol {Display file encoding}.
+    \uicontrol Display > \uicontrol {Display file encoding}. To change the
+    encoding, click it on the toolbar and select new encoding in the
+    \uicontrol {Text Encoding} dialog. To reload the file with the selected
+    encoding, select \uicontrol {Reload with Encoding}. To save the file with
+    the new encoding, select \uicontrol {Save with Encoding}.
 
     \note Other convenient ways of navigating in \QC are provided by the
     \l{Searching with the Locator}{locator}, \l{Keyboard Shortcuts}
