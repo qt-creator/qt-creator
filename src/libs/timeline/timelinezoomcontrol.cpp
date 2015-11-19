@@ -120,13 +120,13 @@ void TimelineZoomControl::rebuildWindow()
 
     qint64 oldWindowStart = m_windowStart;
     qint64 oldWindowEnd = m_windowEnd;
-    if (traceDuration() / shownDuration < MAX_ZOOM_FACTOR) {
+    if (traceDuration() / shownDuration < maximumZoomFactor()) {
         m_windowStart = m_traceStart;
         m_windowEnd = m_traceEnd;
-    } else if (windowDuration() / shownDuration > MAX_ZOOM_FACTOR ||
-               windowDuration() / shownDuration * 2 < MAX_ZOOM_FACTOR ||
+    } else if (windowDuration() / shownDuration > maximumZoomFactor() ||
+               windowDuration() / shownDuration * 2 < maximumZoomFactor() ||
                m_rangeStart < m_windowStart || m_rangeEnd > m_windowEnd) {
-        qint64 keep = shownDuration * MAX_ZOOM_FACTOR / 2 - shownDuration;
+        qint64 keep = shownDuration * maximumZoomFactor() / 2 - shownDuration;
         m_windowStart = m_rangeStart - keep;
         if (m_windowStart < m_traceStart) {
             keep += m_traceStart - m_windowStart;
@@ -139,7 +139,7 @@ void TimelineZoomControl::rebuildWindow()
             m_windowEnd = m_traceEnd;
         }
     } else {
-        m_timer.start(500);
+        m_timer.start(501);
     }
     if (oldWindowStart != m_windowStart || oldWindowEnd != m_windowEnd) {
         bool runTimer = m_timer.isActive();

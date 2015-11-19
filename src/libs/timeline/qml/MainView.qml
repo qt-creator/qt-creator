@@ -307,7 +307,7 @@ Rectangle {
             zoomer: zoomControl
 
             onRangeDoubleClicked: {
-                var diff = 500 - zoomer.selectionDuration;
+                var diff = zoomer.minimumRangeLength - zoomer.selectionDuration;
                 if (diff > 0)
                     zoomControl.setRange(zoomer.selectionStart - diff / 2,
                                          zoomer.selectionEnd + diff / 2);

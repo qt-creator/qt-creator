@@ -48,7 +48,8 @@ Rectangle {
                 zoomer.traceStart;
         var newEndTime = rangeMover.rangeRight * zoomer.traceDuration / width +
                 zoomer.traceStart;
-        if (isFinite(newStartTime) && isFinite(newEndTime) && newEndTime - newStartTime > 500)
+        if (isFinite(newStartTime) && isFinite(newEndTime) &&
+                newEndTime - newStartTime > zoomer.minimumRangeLength)
             zoomer.setRange(newStartTime, newEndTime);
         recursionGuard = false;
     }

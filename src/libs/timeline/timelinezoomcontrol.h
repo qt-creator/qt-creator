@@ -58,8 +58,12 @@ class TIMELINE_EXPORT TimelineZoomControl : public QObject {
     Q_PROPERTY(bool windowLocked READ windowLocked WRITE setWindowLocked NOTIFY windowLockedChanged)
     Q_PROPERTY(bool windowMoving READ windowMoving NOTIFY windowMovingChanged)
 
+    Q_PROPERTY(qint64 maximumZoomFactor READ maximumZoomFactor CONSTANT)
+    Q_PROPERTY(qint64 minimumRangeLength READ minimumRangeLength CONSTANT)
+
 public:
-    static const qint64 MAX_ZOOM_FACTOR = 1 << 10;
+    qint64 maximumZoomFactor() const { return 1 << 10; }
+    qint64 minimumRangeLength() const { return 500; }
 
     TimelineZoomControl(QObject *parent = 0);
     qint64 traceStart() const { return m_traceStart; }
