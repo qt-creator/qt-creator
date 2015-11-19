@@ -75,7 +75,18 @@ public:
     static MercurialPlugin *instance() { return m_instance; }
     static MercurialClient *client() { return m_instance->m_client; }
 
+#ifdef WITH_TESTS
 private slots:
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+#endif
+
+protected:
+    void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    bool submitEditorAboutToClose();
+
+private:
     // File menu action slots
     void addCurrentFile();
     void annotateCurrentFile();
@@ -101,14 +112,9 @@ private slots:
     void showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status);
     void commitFromEditor();
     void diffFromEditorSelected(const QStringList &files);
-#ifdef WITH_TESTS
-    void testDiffFileResolving_data();
-    void testDiffFileResolving();
-    void testLogResolving();
-#endif
 
     //TODO implement
-   /* //repository management action slots
+    /* //repository management action slots
     void merge();
     void branch();
     void heads();
@@ -121,11 +127,6 @@ private slots:
     void init();
     void serve();*/
 
-protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose();
-
-private:
     void createMenu(const Core::Context &context);
     void createSubmitEditorActions();
     void createFileActions(const Core::Context &context);
