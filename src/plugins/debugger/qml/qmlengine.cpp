@@ -442,7 +442,7 @@ void QmlEngine::appStartupFailed(const QString &errorMessage)
                 this, &QmlEngine::errorMessageBoxFinished);
         infoBox->show();
     } else {
-        showMessage(error, StatusBar);
+        ConsoleManagerInterface::instance()->printToConsolePane(ConsoleItem::WarningType, error);
     }
 
     notifyEngineRunFailed();
