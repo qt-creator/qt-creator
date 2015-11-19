@@ -65,12 +65,11 @@ signals:
     void succeeded(const QString &repositoryRoot);
     void failed(const QString &errorMessage);
 
-private slots:
+private:
     void slotError(QProcess::ProcessError error);
     void slotFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void slotTimeOut();
 
-private:
     void emitFailed(const QString &);
     void emitSucceeded(const QString &);
     void parseOutput(const QString &);

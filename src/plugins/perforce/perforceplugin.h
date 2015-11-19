@@ -112,7 +112,17 @@ public slots:
                      const QString &revision, int lineNumber);
     void p4Diff(const Perforce::Internal::PerforceDiffParameters &p);
 
+#ifdef WITH_TESTS
 private slots:
+    void testLogResolving();
+#endif
+
+protected:
+    void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    bool submitEditorAboutToClose();
+
+
+private:
     void openCurrentFile();
     void addCurrentFile();
     void revertCurrentFile();
@@ -139,15 +149,6 @@ private slots:
     void setTopLevel(const QString &);
     void slotTopLevelFailed(const QString &);
 
-#ifdef WITH_TESTS
-    void testLogResolving();
-#endif
-protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose();
-
-
-private:
     class DirectoryCacheEntry
     {
     public:

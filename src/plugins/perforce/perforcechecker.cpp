@@ -108,7 +108,7 @@ void PerforceChecker::start(const QString &binary, const QString &workingDirecto
     m_timeOutMS = timeoutMS;
     m_timedOut = false;
     if (timeoutMS > 0)
-        QTimer::singleShot(m_timeOutMS, this, SLOT(slotTimeOut()));
+        QTimer::singleShot(m_timeOutMS, this, &PerforceChecker::slotTimeOut);
     // Cursor
     if (m_useOverideCursor) {
         m_isOverrideCursor = true;

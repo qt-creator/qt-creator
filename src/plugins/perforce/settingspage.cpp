@@ -59,8 +59,8 @@ void SettingsPageWidget::slotTest()
     if (!m_checker) {
         m_checker = new PerforceChecker(this);
         m_checker->setUseOverideCursor(true);
-        connect(m_checker.data(), SIGNAL(failed(QString)), this, SLOT(setStatusError(QString)));
-        connect(m_checker.data(), SIGNAL(succeeded(QString)), this, SLOT(testSucceeded(QString)));
+        connect(m_checker.data(), &PerforceChecker::failed, this, &SettingsPageWidget::setStatusError);
+        connect(m_checker.data(), &PerforceChecker::succeeded, this, &SettingsPageWidget::testSucceeded);
     }
 
     if (m_checker->isRunning())

@@ -55,13 +55,11 @@ public:
     void setSettings(const PerforceSettings &);
     Settings settings() const;
 
-private slots:
+private:
     void slotTest();
     void setStatusText(const QString &);
     void setStatusError(const QString &);
     void testSucceeded(const QString &repo);
-
-private:
 
     Ui::SettingsPage m_ui;
     QPointer<PerforceChecker> m_checker;
