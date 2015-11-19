@@ -39,17 +39,15 @@
 #include <QMouseEvent>
 #include <QPainter>
 
-#include <utils/themehelper.h>
-
 namespace QmlDesigner {
 
 IconCheckboxItemDelegate::IconCheckboxItemDelegate(QObject *parent,
-                                                   QString checkedPixmapURL,
-                                                   QString uncheckedPixmapURL,
+                                                   const QPixmap &checkedPixmap,
+                                                   const QPixmap &uncheckedPixmap,
                                                    NavigatorTreeModel *treeModel)
     : QStyledItemDelegate(parent),
-      offPixmap(Utils::ThemeHelper::themedIconPixmap(uncheckedPixmapURL)),
-      onPixmap(Utils::ThemeHelper::themedIconPixmap(checkedPixmapURL)),
+      m_checkedPixmap(checkedPixmap),
+      m_uncheckedPixmap(uncheckedPixmap),
       m_navigatorTreeModel(treeModel)
 {}
 
@@ -77,7 +75,7 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
                                      const QModelIndex &modelIndex) const
 {
     const int yOffset = (styleOption.rect.height()
-                         - (onPixmap.height() / painter->device()->devicePixelRatio())) / 2;
+                         - (m_checkedPixmap.height() / painter->device()->devicePixelRatio())) / 2;
     const int xOffset = 2;
     if (indexIsHolingModelNode(modelIndex)) {
         painter->save();
@@ -89,10 +87,9 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
             if (m_navigatorTreeModel->isNodeInvisible(modelIndex))
                 painter->setOpacity(0.5);
 
-            if (isChecked(m_navigatorTreeModel, modelIndex))
-                painter->drawPixmap(styleOption.rect.x() + xOffset, styleOption.rect.y() + yOffset, onPixmap);
-            else
-                painter->drawPixmap(styleOption.rect.x() + xOffset, styleOption.rect.y() + yOffset, offPixmap);
+            const bool checked = isChecked(m_navigatorTreeModel, modelIndex);
+            painter->drawPixmap(styleOption.rect.x() + xOffset, styleOption.rect.y() + yOffset,
+                                checked ? m_checkedPixmap : m_uncheckedPixmap);
         }
 
         painter->restore();

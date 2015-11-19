@@ -32,6 +32,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <utils/themehelper.h>
+
 #include <bindingproperty.h>
 #include <designmodecontext.h>
 #include <nodeproperty.h>
@@ -80,15 +82,17 @@ NavigatorView::NavigatorView(QObject* parent) :
 
     NameItemDelegate *idDelegate = new NameItemDelegate(this,
                                                         m_treeModel.data());
-    IconCheckboxItemDelegate *showDelegate = new IconCheckboxItemDelegate(this,
-                                                                          QLatin1String(":/navigator/icon/eye_open.png"),
-                                                                          QLatin1String(":/navigator/icon/eye_closed.png"),
-                                                                          m_treeModel.data());
+    IconCheckboxItemDelegate *showDelegate =
+            new IconCheckboxItemDelegate(this,
+                                         Utils::ThemeHelper::themedIconPixmap(QLatin1String(":/navigator/icon/eye_open.png")),
+                                         Utils::ThemeHelper::themedIconPixmap(QLatin1String(":/navigator/icon/eye_closed.png")),
+                                         m_treeModel.data());
 
-    IconCheckboxItemDelegate *exportDelegate = new IconCheckboxItemDelegate(this,
-                                                                          QLatin1String(":/navigator/icon/export_checked.png"),
-                                                                          QLatin1String(":/navigator/icon/export_unchecked.png"),
-                                                                          m_treeModel.data());
+    IconCheckboxItemDelegate *exportDelegate =
+            new IconCheckboxItemDelegate(this,
+                                         Utils::ThemeHelper::themedIconPixmap(QLatin1String(":/navigator/icon/export_checked.png")),
+                                         Utils::ThemeHelper::themedIconPixmap(QLatin1String(":/navigator/icon/export_unchecked.png")),
+                                         m_treeModel.data());
 
 #ifdef _LOCK_ITEMS_
     IconCheckboxItemDelegate *lockDelegate = new IconCheckboxItemDelegate(this,":/qmldesigner/images/lock.png",
