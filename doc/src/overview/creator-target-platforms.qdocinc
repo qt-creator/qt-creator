@@ -29,7 +29,7 @@
 
     For more information about the supported device groups and reference devices,
     see \l{http://doc.qt.io/QtForDeviceCreation/qtee-supported-platforms.html}
-    {Supported Platforms} in the {http://doc.qt.io/QtForDeviceCreation/index.html}
+    {Supported Platforms} in the \l{http://doc.qt.io/QtForDeviceCreation/index.html}
     {Qt for Device Creation} documentation.
 
     \section2 Mobile Devices
