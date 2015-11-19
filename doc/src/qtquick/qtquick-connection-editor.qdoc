@@ -31,7 +31,7 @@
     \contentspage {Qt Creator Manual}
     \previouspage qmldesigner-pathview-editor.html
     \page qmldesigner-connections.html
-    \nextpage quick-export-to-qml.html
+    \nextpage quick-components.html
 
     \title Adding Connections
 
