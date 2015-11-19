@@ -213,6 +213,7 @@ void QmlProfilerRunControl::wrongSetupMessageBox(const QString &errorMessage)
 
     // KILL
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
+    d->m_noDebugOutputTimer.stop();
     AnalyzerManager::stopTool();
     emit finished();
 }
