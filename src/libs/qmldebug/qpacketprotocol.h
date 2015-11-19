@@ -60,11 +60,6 @@ Q_SIGNALS:
     void readyRead();
     void invalidPacket();
 
-private Q_SLOTS:
-    void aboutToClose();
-    void bytesWritten(qint64 bytes);
-    void readyToRead();
-
 private:
     QPacketProtocolPrivate *d;
 };
