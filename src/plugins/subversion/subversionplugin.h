@@ -95,10 +95,22 @@ public:
                               unsigned flags, QTextCodec *outputCodec = 0) const;
 
 public slots:
+    void annotateVersion(const QString &workingDirectory, const QString &file,
+                         const QString &revision, int lineNumber);
+    void describe(const QString &source, const QString &changeNr);
     void vcsAnnotate(const QString &workingDir, const QString &file,
                      const QString &revision = QString(), int lineNumber = -1);
 
+#ifdef WITH_TESTS
 private slots:
+    void testLogResolving();
+#endif
+
+protected:
+    void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    bool submitEditorAboutToClose();
+
+private:
     void addCurrentFile();
     void revertCurrentFile();
     void diffProject();
@@ -110,10 +122,7 @@ private slots:
     void revertAll();
     void filelogCurrentFile();
     void annotateCurrentFile();
-    void annotateVersion(const QString &workingDirectory, const QString &file,
-                         const QString &revision, int lineNumber);
     void projectStatus();
-    void describe(const QString &source, const QString &changeNr);
     void slotDescribe();
     void updateProject();
     void submitCurrentLog();
@@ -123,15 +132,7 @@ private slots:
     void diffRepository();
     void statusRepository();
     void updateRepository();
-#ifdef WITH_TESTS
-    void testLogResolving();
-#endif
 
-protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose();
-
-private:
     inline bool isCommitEditorOpen() const;
     Core::IEditor *showOutputInEditor(const QString &title, const QString &output,
                                       int editorType, const QString &source,
