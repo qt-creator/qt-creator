@@ -216,8 +216,8 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
     addAutoReleasedObject(m_fileFactory);
     addAutoReleasedObject(new StopMonitoringHandler);
 
-    connect(SessionManager::instance(), SIGNAL(sessionLoaded(QString)),
-            this, SLOT(loadDataFromSession()));
+    connect(SessionManager::instance(), &SessionManager::sessionLoaded,
+            this, &TaskListPlugin::loadDataFromSession);
 
     return true;
 }
