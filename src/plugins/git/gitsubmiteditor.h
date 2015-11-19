@@ -68,12 +68,11 @@ protected:
     QByteArray fileContents() const override;
     void updateFileModel() override;
 
-private slots:
+private:
     void slotDiffSelected(const QList<int> &rows);
     void showCommit(const QString &commit);
     void commitDataRetrieved(bool success);
 
-private:
     inline GitSubmitEditorWidget *submitEditorWidget();
     inline const GitSubmitEditorWidget *submitEditorWidget() const;
     void resetCommitDataFetcher();

@@ -108,8 +108,7 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
         logChangeGroupBox->setLayout(logChangeLayout);
         m_logChangeWidget = new LogChangeWidget;
         m_logChangeWidget->init(repository);
-        connect(m_logChangeWidget, &LogChangeWidget::activated,
-                this, &GitSubmitEditorWidget::show);
+        connect(m_logChangeWidget, &LogChangeWidget::commitActivated, this, &GitSubmitEditorWidget::show);
         logChangeLayout->addWidget(m_logChangeWidget);
         insertLeftWidget(logChangeGroupBox);
         m_gitSubmitPanelUi.editGroup->hide();
@@ -121,9 +120,12 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
 
     if (enablePush) {
         auto menu = new QMenu(this);
-        menu->addAction(tr("&Commit only"), this, SLOT(commitOnlySlot()));
-        menu->addAction(tr("Commit and &Push"), this, SLOT(commitAndPushSlot()));
-        menu->addAction(tr("Commit and Push to &Gerrit"), this, SLOT(commitAndPushToGerritSlot()));
+        connect(menu->addAction(tr("&Commit only")), &QAction::triggered,
+                this, &GitSubmitEditorWidget::commitOnlySlot);
+        connect(menu->addAction(tr("Commit and &Push")), &QAction::triggered,
+                this, &GitSubmitEditorWidget::commitAndPushSlot);
+        connect(menu->addAction(tr("Commit and Push to &Gerrit")), &QAction::triggered,
+                this, &GitSubmitEditorWidget::commitAndPushToGerritSlot);
         addSubmitButtonMenu(menu);
     }
 }

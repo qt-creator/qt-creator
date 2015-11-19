@@ -290,7 +290,7 @@ void ChangeSelectionDialog::changeTextChanged(const QString &text)
     if (QCompleter *comp = m_ui->changeNumberEdit->completer()) {
         if (text.isEmpty() && !comp->popup()->isVisible()) {
             comp->setCompletionPrefix(text);
-            QTimer::singleShot(0, comp, SLOT(complete()));
+            QTimer::singleShot(0, comp, [comp]{ comp->complete(); });
         }
     }
     recalculateDetails();

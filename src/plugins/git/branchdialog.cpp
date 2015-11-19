@@ -67,23 +67,23 @@ BranchDialog::BranchDialog(QWidget *parent) :
 
     m_ui->setupUi(this);
 
-    connect(m_ui->refreshButton, SIGNAL(clicked()), this, SLOT(refresh()));
-    connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(add()));
-    connect(m_ui->checkoutButton, SIGNAL(clicked()), this, SLOT(checkout()));
-    connect(m_ui->removeButton, SIGNAL(clicked()), this, SLOT(remove()));
-    connect(m_ui->renameButton, SIGNAL(clicked()), this, SLOT(rename()));
-    connect(m_ui->diffButton, SIGNAL(clicked()), this, SLOT(diff()));
-    connect(m_ui->logButton, SIGNAL(clicked()), this, SLOT(log()));
-    connect(m_ui->resetButton, SIGNAL(clicked()), this, SLOT(reset()));
-    connect(m_ui->mergeButton, SIGNAL(clicked()), this, SLOT(merge()));
-    connect(m_ui->rebaseButton, SIGNAL(clicked()), this, SLOT(rebase()));
-    connect(m_ui->cherryPickButton, SIGNAL(clicked()), this, SLOT(cherryPick()));
-    connect(m_ui->trackButton, SIGNAL(clicked()), this, SLOT(setRemoteTracking()));
+    connect(m_ui->refreshButton, &QAbstractButton::clicked, this, &BranchDialog::refreshCurrentRepository);
+    connect(m_ui->addButton, &QAbstractButton::clicked, this, &BranchDialog::add);
+    connect(m_ui->checkoutButton, &QAbstractButton::clicked, this, &BranchDialog::checkout);
+    connect(m_ui->removeButton, &QAbstractButton::clicked, this, &BranchDialog::remove);
+    connect(m_ui->renameButton, &QAbstractButton::clicked, this, &BranchDialog::rename);
+    connect(m_ui->diffButton, &QAbstractButton::clicked, this, &BranchDialog::diff);
+    connect(m_ui->logButton, &QAbstractButton::clicked, this, &BranchDialog::log);
+    connect(m_ui->resetButton, &QAbstractButton::clicked, this, &BranchDialog::reset);
+    connect(m_ui->mergeButton, &QAbstractButton::clicked, this, &BranchDialog::merge);
+    connect(m_ui->rebaseButton, &QAbstractButton::clicked, this, &BranchDialog::rebase);
+    connect(m_ui->cherryPickButton, &QAbstractButton::clicked, this, &BranchDialog::cherryPick);
+    connect(m_ui->trackButton, &QAbstractButton::clicked, this, &BranchDialog::setRemoteTracking);
 
     m_ui->branchView->setModel(m_model);
 
-    connect(m_ui->branchView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(enableButtons()));
+    connect(m_ui->branchView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &BranchDialog::enableButtons);
 
     enableButtons();
 }
@@ -110,7 +110,7 @@ void BranchDialog::refresh(const QString &repository, bool force)
 void BranchDialog::refreshIfSame(const QString &repository)
 {
     if (m_repository == repository)
-        refresh();
+        refreshCurrentRepository();
 }
 
 void BranchDialog::enableButtons()
@@ -137,7 +137,7 @@ void BranchDialog::enableButtons()
     m_ui->trackButton->setEnabled(hasActions && currentLocal && !currentSelected && !isTag);
 }
 
-void BranchDialog::refresh()
+void BranchDialog::refreshCurrentRepository()
 {
     refresh(m_repository, true);
 }
@@ -306,7 +306,7 @@ void BranchDialog::rename()
             m_model->renameTag(oldName, branchAddDialog.branchName());
         else
             m_model->renameBranch(oldName, branchAddDialog.branchName());
-        refresh();
+        refreshCurrentRepository();
     }
     enableButtons();
 }

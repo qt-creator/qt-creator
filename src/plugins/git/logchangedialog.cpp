@@ -73,7 +73,7 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
     setRootIsDecorated(false);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setActivationMode(Utils::DoubleClickActivation);
-    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(emitActivated(QModelIndex)));
+    connect(this, &LogChangeWidget::activated, this, &LogChangeWidget::emitCommitActivated);
 }
 
 bool LogChangeWidget::init(const QString &repository, const QString &commit, LogFlags flags)
@@ -120,12 +120,12 @@ void LogChangeWidget::setItemDelegate(QAbstractItemDelegate *delegate)
     m_hasCustomDelegate = true;
 }
 
-void LogChangeWidget::emitActivated(const QModelIndex &index)
+void LogChangeWidget::emitCommitActivated(const QModelIndex &index)
 {
     if (index.isValid()) {
         QString commit = index.sibling(index.row(), Sha1Column).data().toString();
         if (!commit.isEmpty())
-            emit activated(commit);
+            emit commitActivated(commit);
     }
 }
 
@@ -228,10 +228,10 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     QPushButton *okButton = m_dialogButtonBox->addButton(QDialogButtonBox::Ok);
     layout->addLayout(popUpLayout);
 
-    connect(m_dialogButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_dialogButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    connect(m_widget, SIGNAL(activated(QModelIndex)), okButton, SLOT(animateClick()));
+    connect(m_widget, &LogChangeWidget::activated, okButton, [okButton] { okButton->animateClick(); });
 
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     resize(600, 400);

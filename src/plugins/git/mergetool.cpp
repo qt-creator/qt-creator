@@ -106,8 +106,8 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     VcsOutputWindow::appendCommand(workingDirectory, binary, arguments);
     m_process->start(binary.toString(), arguments);
     if (m_process->waitForStarted()) {
-        connect(m_process, SIGNAL(finished(int)), this, SLOT(done()));
-        connect(m_process, SIGNAL(readyRead()), this, SLOT(readData()));
+        connect(m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, &MergeTool::done);
+        connect(m_process, &QIODevice::readyRead, this, &MergeTool::readData);
     } else {
         delete m_process;
         m_process = 0;

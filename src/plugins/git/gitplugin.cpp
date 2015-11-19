@@ -206,7 +206,7 @@ ParameterAction *GitPlugin::createParameterAction(ActionContainer *ac,
     return action;
 }
 
-// Create an action to act on a file with a slot.
+// Create an action to act on a file.
 QAction *GitPlugin::createFileAction(ActionContainer *ac,
                                      const QString &defaultText, const QString &parameterText,
                                      Id id, const Context &context, bool addToLocator,
@@ -241,7 +241,7 @@ QAction *GitPlugin::createProjectAction(ActionContainer *ac, const QString &defa
     return action;
 }
 
-// Create an action to act on the repository with slot
+// Create an action to act on the repository
 QAction *GitPlugin::createRepositoryAction(ActionContainer *ac, const QString &text, Id id,
                                            const Context &context, bool addToLocator,
                                            const std::function<void()> &callback,
@@ -270,7 +270,7 @@ QAction *GitPlugin::createRepositoryAction(ActionContainer *ac, const QString &t
         QTC_ASSERT(currentState().hasTopLevel(), return);
         (m_gitClient->*func)(currentState().topLevel());
     };
-    // Set the member func as data and connect to generic slot
+    // Set the member func as data and connect to GitClient method
     return createRepositoryAction(ac, text, id, context, addToLocator, cb, keys);
 }
 
@@ -959,9 +959,10 @@ IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &
     IDocument *document = submitEditor->document();
     document->setPreferredDisplayName(title);
     VcsBasePlugin::setSource(document, m_submitRepository);
-    connect(submitEditor, SIGNAL(diff(QStringList,QStringList)), this, SLOT(submitEditorDiff(QStringList,QStringList)));
-    connect(submitEditor, SIGNAL(merge(QStringList)), this, SLOT(submitEditorMerge(QStringList)));
-    connect(submitEditor, SIGNAL(show(QString,QString)), m_gitClient, SLOT(show(QString,QString)));
+    connect(submitEditor, &GitSubmitEditor::diff, this, &GitPlugin::submitEditorDiff);
+    connect(submitEditor, &GitSubmitEditor::merge, this, &GitPlugin::submitEditorMerge);
+    connect(submitEditor, &GitSubmitEditor::show,
+            m_gitClient, [this](const QString &wd, const QString &c) { m_gitClient->show(wd, c); });
     return editor;
 }
 
@@ -1036,7 +1037,7 @@ bool GitPlugin::submitEditorAboutToClose()
         if (editor->panelData().pushAction == NormalPush)
             m_gitClient->push(m_submitRepository);
         else if (editor->panelData().pushAction == PushToGerrit)
-            connect(editor, SIGNAL(destroyed()), this, SLOT(delayedPushToGerrit()));
+            connect(editor, &QObject::destroyed, this, &GitPlugin::delayedPushToGerrit);
     }
 
     return true;

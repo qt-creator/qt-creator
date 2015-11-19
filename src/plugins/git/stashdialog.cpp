@@ -148,10 +148,10 @@ StashDialog::StashDialog(QWidget *parent) :
     ui->stashView->setUniformRowHeights(true);
     connect(ui->filterLineEdit, &Utils::FancyLineEdit::filterChanged,
             m_proxyModel, &QSortFilterProxyModel::setFilterFixedString);
-    connect(ui->stashView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            this, SLOT(enableButtons()));
-    connect(ui->stashView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(enableButtons()));
+    connect(ui->stashView->selectionModel(), &QItemSelectionModel::currentRowChanged,
+            this, &StashDialog::enableButtons);
+    connect(ui->stashView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &StashDialog::enableButtons);
     connect(ui->stashView, &Utils::TreeView::activated,
             this, &StashDialog::showCurrent);
     ui->stashView->setFocus();

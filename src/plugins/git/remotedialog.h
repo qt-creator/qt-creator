@@ -80,6 +80,7 @@ public:
 public slots:
     void refresh(const QString &repository, bool force);
 
+private:
     void refreshRemotes();
     void addRemote();
     void removeRemote();
@@ -88,7 +89,6 @@ public slots:
 
     void updateButtonState();
 
-private:
     Ui::RemoteDialog *m_ui;
 
     RemoteModel *m_remoteModel;

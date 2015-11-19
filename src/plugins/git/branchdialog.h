@@ -62,9 +62,9 @@ public slots:
     void refresh(const QString &repository, bool force);
     void refreshIfSame(const QString &repository);
 
-private slots:
+private:
     void enableButtons();
-    void refresh();
+    void refreshCurrentRepository();
     void add();
     void checkout();
     void remove();
@@ -77,7 +77,6 @@ private slots:
     void cherryPick();
     void setRemoteTracking();
 
-private:
     QModelIndex selectedIndex();
 
     Ui::BranchDialog *m_ui;

@@ -346,9 +346,7 @@ public:
     static QString msgNoCommits(bool includeRemote);
 
 public slots:
-    void show(const QString &source,
-              const QString &id,
-              const QString &name = QString());
+    void show(const QString &source, const QString &id, const QString &name = QString());
 
 private slots:
     void finishSubmoduleUpdate();

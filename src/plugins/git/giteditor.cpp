@@ -325,10 +325,15 @@ void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
 {
     m_currentChange = change;
     if (contentType() != OtherContent) {
-        menu->addAction(tr("Cherr&y-Pick Change %1").arg(change), this, SLOT(cherryPickChange()));
-        menu->addAction(tr("Re&vert Change %1").arg(change), this, SLOT(revertChange()));
-        menu->addAction(tr("C&heckout Change %1").arg(change), this, SLOT(checkoutChange()));
-        menu->addAction(tr("&Log for Change %1").arg(change), this, SLOT(logChange()));
+        connect(menu->addAction(tr("Cherr&y-Pick Change %1").arg(change)), &QAction::triggered,
+                this, &GitEditorWidget::cherryPickChange);
+        connect(menu->addAction(tr("Re&vert Change %1").arg(change)), &QAction::triggered,
+                this, &GitEditorWidget::revertChange);
+        connect(menu->addAction(tr("C&heckout Change %1").arg(change)), &QAction::triggered,
+                this, &GitEditorWidget::checkoutChange);
+        connect(menu->addAction(tr("&Log for Change %1").arg(change)), &QAction::triggered,
+                this, &GitEditorWidget::logChange);
+
         QMenu *resetMenu = new QMenu(tr("&Reset to Change %1").arg(change), menu);
         connect(resetMenu->addAction(tr("&Hard")), &QAction::triggered,
                 this, [this]() { resetChange("hard"); });

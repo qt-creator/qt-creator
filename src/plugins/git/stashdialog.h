@@ -63,15 +63,6 @@ public:
 public slots:
     void refresh(const QString &repository, bool force);
 
-private slots:
-    void deleteAll();
-    void deleteSelection();
-    void showCurrent();
-    void restoreCurrent();
-    void restoreCurrentInBranch();
-    void enableButtons();
-    void forceRefresh();
-
 private:
     // Prompt dialog for modified repositories. Ask to undo or stash away.
     enum ModifiedRepositoryAction {
@@ -79,6 +70,14 @@ private:
         ModifiedRepositoryStash,
         ModifiedRepositoryDiscard
     };
+
+    void deleteAll();
+    void deleteSelection();
+    void showCurrent();
+    void restoreCurrent();
+    void restoreCurrentInBranch();
+    void enableButtons();
+    void forceRefresh();
 
     ModifiedRepositoryAction promptModifiedRepository(const QString &stash);
     bool promptForRestore(QString *stash, QString *branch /* = 0 */, QString *errorMessage);

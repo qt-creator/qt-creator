@@ -96,7 +96,20 @@ public slots:
     void startCommit();
     void updateBranches(const QString &repository);
 
+protected:
+    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
+    bool submitEditorAboutToClose() override;
+
+#ifdef WITH_TESTS
 private slots:
+    void testStatusParsing_data();
+    void testStatusParsing();
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+#endif
+
+private:
     void diffCurrentFile();
     void diffCurrentProject();
     void submitEditorDiff(const QStringList &unstaged, const QStringList &staged);
@@ -138,21 +151,10 @@ private slots:
     void updateContinueAndAbortCommands();
     void delayedPushToGerrit();
 
-#ifdef WITH_TESTS
-    void testStatusParsing_data();
-    void testStatusParsing();
-    void testDiffFileResolving_data();
-    void testDiffFileResolving();
-    void testLogResolving();
-#endif
-protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
-    bool submitEditorAboutToClose() override;
-
-private:
     Core::Command *createCommand(QAction *action, Core::ActionContainer *ac, Core::Id id,
                                  const Core::Context &context, bool addToLocator,
                                  const std::function<void()> &callback, const QKeySequence &keys);
+
     Utils::ParameterAction *createParameterAction(Core::ActionContainer *ac,
                                                   const QString &defaultText, const QString &parameterText,
                                                   Core::Id id, const Core::Context &context, bool addToLocator,

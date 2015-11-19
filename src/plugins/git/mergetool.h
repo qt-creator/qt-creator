@@ -69,11 +69,10 @@ public:
         SymbolicLinkMerge
     };
 
-private slots:
+private:
     void readData();
     void done();
 
-private:
     FileState waitAndReadStatus(QString &extraInfo);
     QString mergeTypeName();
     QString stateName(FileState state, const QString &extraInfo);

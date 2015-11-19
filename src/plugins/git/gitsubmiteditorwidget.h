@@ -85,13 +85,12 @@ protected:
 signals:
     void show(const QString &commit);
 
-private slots:
+private:
     void authorInformationChanged();
     void commitOnlySlot();
     void commitAndPushSlot();
     void commitAndPushToGerritSlot();
 
-private:
     bool emailIsValid() const;
     void setPanelData(const GitSubmitEditorPanelData &data);
     void setPanelInfo(const GitSubmitEditorPanelInfo &info);

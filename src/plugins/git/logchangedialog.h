@@ -72,12 +72,11 @@ public:
     void setItemDelegate(QAbstractItemDelegate *delegate);
 
 signals:
-    void activated(const QString &commit);
-
-private slots:
-    void emitActivated(const QModelIndex &index);
+    void commitActivated(const QString &commit);
 
 private:
+    void emitCommitActivated(const QModelIndex &index);
+
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override;
     bool populateLog(const QString &repository, const QString &commit, LogFlags flags);
     const QStandardItem *currentItem(int column = 0) const;

@@ -132,9 +132,8 @@ GitSubmitEditor::GitSubmitEditor(const VcsBaseSubmitEditorParameters *parameters
     m_firstUpdate(true),
     m_commitDataFetcher(0)
 {
-    connect(this, &VcsBaseSubmitEditor::diffSelectedRows,
-            this, &GitSubmitEditor::slotDiffSelected);
-    connect(submitEditorWidget(), SIGNAL(show(QString)), this, SLOT(showCommit(QString)));
+    connect(this, &VcsBaseSubmitEditor::diffSelectedRows, this, &GitSubmitEditor::slotDiffSelected);
+    connect(submitEditorWidget(), &GitSubmitEditorWidget::show, this, &GitSubmitEditor::showCommit);
 }
 
 GitSubmitEditor::~GitSubmitEditor()
@@ -156,8 +155,8 @@ void GitSubmitEditor::resetCommitDataFetcher()
 {
     if (!m_commitDataFetcher)
         return;
-    disconnect(m_commitDataFetcher, SIGNAL(finished(bool)), this, SLOT(commitDataRetrieved(bool)));
-    connect(m_commitDataFetcher, SIGNAL(finished(bool)), m_commitDataFetcher, SLOT(deleteLater()));
+    disconnect(m_commitDataFetcher, &CommitDataFetcher::finished, this, &GitSubmitEditor::commitDataRetrieved);
+    connect(m_commitDataFetcher, &CommitDataFetcher::finished, m_commitDataFetcher, &QObject::deleteLater);
 }
 
 void GitSubmitEditor::setCommitData(const CommitData &d)
@@ -264,7 +263,7 @@ void GitSubmitEditor::updateFileModel()
     w->setUpdateInProgress(true);
     resetCommitDataFetcher();
     m_commitDataFetcher = new CommitDataFetcher(m_commitType, m_workingDirectory);
-    connect(m_commitDataFetcher, SIGNAL(finished(bool)), this, SLOT(commitDataRetrieved(bool)));
+    connect(m_commitDataFetcher, &CommitDataFetcher::finished, this, &GitSubmitEditor::commitDataRetrieved);
     QFuture<void> future = QtConcurrent::run(m_commitDataFetcher, &CommitDataFetcher::start);
     Core::ProgressManager::addTask(future, tr("Refreshing Commit Data"), TASK_UPDATE_COMMIT);
 
