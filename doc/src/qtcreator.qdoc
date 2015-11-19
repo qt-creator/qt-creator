@@ -72,11 +72,11 @@
                 \endlist
             \li \b {\l{Coding}}
                 \list
-                    \li \l{Modeling}
                     \li \l{Writing Code}
                     \li \l{Finding}
                     \li \l{Refactoring}
                     \li \l{Configuring the Editor}
+                    \li \l{Modeling}
                 \endlist
         \row
             \li \inlineimage creator_buildingrunning.png
@@ -194,7 +194,6 @@
         \endlist
         \li \l{Coding}
         \list
-        \li \l{Modeling}
         \li \l{Writing Code}
             \list
                 \li \l{Working in Edit Mode}
@@ -221,6 +220,7 @@
                 \li \l{Using FakeVim Mode}
             \endlist
             \li \l{Editing MIME Types}
+            \li \l{Modeling}
         \endlist
         \li \l{Building and Running}
         \list
