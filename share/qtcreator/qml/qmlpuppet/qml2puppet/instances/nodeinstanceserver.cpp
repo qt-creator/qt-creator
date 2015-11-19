@@ -126,7 +126,7 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
 {
     qmlRegisterType<DummyContextObject>("QmlDesigner", 1, 0, "DummyContextObject");
 
-    connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitParentChanged(QObject*)));
+    connect(m_childrenChangeEventFilter.data(), &Internal::ChildrenChangeEventFilter::childrenChanged, this, &NodeInstanceServer::emitParentChanged);
     nodeInstanceServerInstance = this;
     Internal::QmlPrivateGate::registerNotifyPropertyChangeCallBack(notifyPropertyChangeCallBackPointer);
 }
@@ -714,7 +714,7 @@ QFileSystemWatcher *NodeInstanceServer::dummydataFileSystemWatcher()
 {
     if (m_dummdataFileSystemWatcher.isNull()) {
         m_dummdataFileSystemWatcher = new QFileSystemWatcher(this);
-        connect(m_dummdataFileSystemWatcher.data(), SIGNAL(fileChanged(QString)), this, SLOT(refreshDummyData(QString)));
+        connect(m_dummdataFileSystemWatcher.data(), &QFileSystemWatcher::fileChanged, this, &NodeInstanceServer::refreshDummyData);
     }
 
     return m_dummdataFileSystemWatcher.data();
@@ -724,7 +724,7 @@ QFileSystemWatcher *NodeInstanceServer::fileSystemWatcher()
 {
     if (m_fileSystemWatcher.isNull()) {
         m_fileSystemWatcher = new QFileSystemWatcher(this);
-        connect(m_fileSystemWatcher.data(), SIGNAL(fileChanged(QString)), this, SLOT(refreshLocalFileProperty(QString)));
+        connect(m_fileSystemWatcher.data(), &QFileSystemWatcher::fileChanged, this, &NodeInstanceServer::refreshLocalFileProperty);
     }
 
     return m_fileSystemWatcher.data();
@@ -796,7 +796,7 @@ Internal::ChildrenChangeEventFilter *NodeInstanceServer::childrenChangeEventFilt
 {
     if (m_childrenChangeEventFilter.isNull()) {
         m_childrenChangeEventFilter = new Internal::ChildrenChangeEventFilter(this);
-        connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitParentChanged(QObject*)));
+        connect(m_childrenChangeEventFilter.data(), &Internal::ChildrenChangeEventFilter::childrenChanged, this, &NodeInstanceServer::emitParentChanged);
     }
 
     return m_childrenChangeEventFilter.data();

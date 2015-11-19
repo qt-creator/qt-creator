@@ -78,7 +78,7 @@ NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
       m_writeCommandCounter(0),
       m_synchronizeId(-1)
 {
-    connect(&m_puppetAliveTimer, SIGNAL(timeout()), this, SLOT(sendPuppetAliveCommand()));
+    connect(&m_puppetAliveTimer, &QTimer::timeout, this, &NodeInstanceClientProxy::sendPuppetAliveCommand);
     m_puppetAliveTimer.setInterval(300);
     m_puppetAliveTimer.start();
 }
@@ -86,9 +86,9 @@ NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
 void NodeInstanceClientProxy::initializeSocket()
 {
     QLocalSocket *localSocket = new QLocalSocket(this);
-    connect(localSocket, SIGNAL(readyRead()), this, SLOT(readDataStream()));
+    connect(localSocket, &QIODevice::readyRead, this, &NodeInstanceClientProxy::readDataStream);
     connect(localSocket, SIGNAL(error(QLocalSocket::LocalSocketError)), QCoreApplication::instance(), SLOT(quit()));
-    connect(localSocket, SIGNAL(disconnected()), QCoreApplication::instance(), SLOT(quit()));
+    connect(localSocket, &QLocalSocket::disconnected, QCoreApplication::instance(), &QCoreApplication::quit);
     localSocket->connectToServer(QCoreApplication::arguments().at(1), QIODevice::ReadWrite | QIODevice::Unbuffered);
     localSocket->waitForConnected(-1);
 
