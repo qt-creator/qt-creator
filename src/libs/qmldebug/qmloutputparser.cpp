@@ -77,7 +77,6 @@ void QmlOutputParser::processOutput(const QString &output)
             static QString waitingForConnection = QLatin1String(Constants::STR_WAITING_FOR_CONNECTION);
             static QString unableToListen = QLatin1String(Constants::STR_UNABLE_TO_LISTEN);
             static QString debuggingNotEnabled = QLatin1String(Constants::STR_IGNORING_DEBUGGER);
-            static QString debuggingNotEnabled2 = QLatin1String(Constants::STR_IGNORING_DEBUGGER2);
             static QString connectionEstablished = QLatin1String(Constants::STR_CONNECTION_ESTABLISHED);
             static QString connectingToSocket = QLatin1String(Constants::STR_CONNECTING_TO_SOCKET);
 
@@ -96,7 +95,7 @@ void QmlOutputParser::processOutput(const QString &output)
             } else if (status.startsWith(unableToListen)) {
                 //: Error message shown after 'Could not connect ... debugger:"
                 emit errorMessage(tr("The port seems to be in use."));
-            } else if (status.startsWith(debuggingNotEnabled) || status.startsWith(debuggingNotEnabled2)) {
+            } else if (status.startsWith(debuggingNotEnabled)) {
                 //: Error message shown after 'Could not connect ... debugger:"
                 emit errorMessage(tr("The application is not set up for QML/JS debugging."));
             } else if (status.startsWith(connectionEstablished)) {
