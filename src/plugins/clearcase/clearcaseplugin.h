@@ -179,29 +179,10 @@ public slots:
     void updateStreamAndView();
 
 private slots:
-    void checkOutCurrentFile();
-    void addCurrentFile();
-    void undoCheckOutCurrent();
-    void undoHijackCurrent();
-    void diffActivity();
-    void diffCurrentFile();
-    void startCheckInAll();
-    void startCheckInActivity();
-    void startCheckInCurrentFile();
-    void historyCurrentFile();
-    void annotateCurrentFile();
     void annotateVersion(const QString &workingDirectory, const QString &file, const QString &revision, int lineNumber);
     void describe(const QString &source, const QString &changeNr);
-    void viewStatus();
-    void checkInSelected();
-    void diffCheckInFiles(const QStringList &);
-    void updateIndex();
-    void updateView();
-    void projectChanged(ProjectExplorer::Project *project);
-    void tasksFinished(Core::Id type);
     void syncSlot();
-    void closing();
-    void updateStatusActions();
+
 #ifdef WITH_TESTS
     void initTestCase();
     void cleanupTestCase();
@@ -227,6 +208,27 @@ protected:
     QList<QStringPair> ccGetActivities() const;
 
 private:
+    void checkOutCurrentFile();
+    void addCurrentFile();
+    void undoCheckOutCurrent();
+    void undoHijackCurrent();
+    void diffActivity();
+    void diffCurrentFile();
+    void startCheckInAll();
+    void startCheckInActivity();
+    void startCheckInCurrentFile();
+    void historyCurrentFile();
+    void annotateCurrentFile();
+    void viewStatus();
+    void checkInSelected();
+    void diffCheckInFiles(const QStringList &);
+    void updateIndex();
+    void updateView();
+    void projectChanged(ProjectExplorer::Project *project);
+    void tasksFinished(Core::Id type);
+    void closing();
+    void updateStatusActions();
+
     inline bool isCheckInEditorOpen() const;
     QStringList getVobList() const;
     QString ccManagesDirectory(const QString &directory) const;
