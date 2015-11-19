@@ -366,16 +366,9 @@ public:
 
     Template *newTemplate(unsigned sourceLocation, const Name *name)
     {
-        Template *templ = new Template(translationUnit, sourceLocation, name);
-        symbols.push_back(templ);
-        return templ;
-    }
-
-    ExplicitInstantiation *newExplicitInstantiation(unsigned sourceLocation, const Name *name)
-    {
-        ExplicitInstantiation *inst = new ExplicitInstantiation(translationUnit, sourceLocation, name);
-        symbols.push_back(inst);
-        return inst;
+        Template *ns = new Template(translationUnit, sourceLocation, name);
+        symbols.push_back(ns);
+        return ns;
     }
 
     NamespaceAlias *newNamespaceAlias(unsigned sourceLocation, const Name *name)
@@ -698,9 +691,6 @@ Namespace *Control::newNamespace(unsigned sourceLocation, const Name *name)
 
 Template *Control::newTemplate(unsigned sourceLocation, const Name *name)
 { return d->newTemplate(sourceLocation, name); }
-
-ExplicitInstantiation *Control::newExplicitInstantiation(unsigned sourceLocation, const Name *name)
-{ return d->newExplicitInstantiation(sourceLocation, name); }
 
 NamespaceAlias *Control::newNamespaceAlias(unsigned sourceLocation, const Name *name)
 { return d->newNamespaceAlias(sourceLocation, name); }

@@ -133,7 +133,7 @@ void tst_Lookup::base_class_defined_1()
 
     const LookupContext ctx(doc, snapshot);
 
-    LookupScope *klass = ctx.lookupType(derivedClass->baseClassAt(0)->name(), derivedClass->enclosingScope());
+    ClassOrNamespace *klass = ctx.lookupType(derivedClass->baseClassAt(0)->name(), derivedClass->enclosingScope());
     QVERIFY(klass != 0);
 
     QCOMPARE(klass->symbols().size(), 1);
@@ -272,7 +272,7 @@ void tst_Lookup::simple_class_1()
     const LookupContext context(doc, snapshot);
 
     // check class resolving:
-    LookupScope *klass = context.lookupType(impl->name(), impl->enclosingScope());
+    ClassOrNamespace *klass = context.lookupType(impl->name(), impl->enclosingScope());
     QVERIFY(klass != 0);
     QCOMPARE(klass->symbols().size(), 2);
     QVERIFY(klass->symbols().contains(iface));
@@ -336,7 +336,7 @@ void tst_Lookup::class_with_baseclass()
 
     const LookupContext context(doc, snapshot);
 
-    LookupScope *objClass = context.lookupType(baseZoo->name(), zooImpl->enclosingScope());
+    ClassOrNamespace *objClass = context.lookupType(baseZoo->name(), zooImpl->enclosingScope());
     QVERIFY(objClass != 0);
     QVERIFY(objClass->symbols().contains(baseZoo));
 

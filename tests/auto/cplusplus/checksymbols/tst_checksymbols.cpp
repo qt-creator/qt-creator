@@ -115,7 +115,6 @@ public:
 
         // Process source
         const Document::Ptr document = createDocument(filePath, source);
-        QVERIFY(document);
         Snapshot snapshot;
         snapshot.insert(document);
 
@@ -224,8 +223,6 @@ private slots:
 
     void test_checksymbols_infiniteLoop_data();
     void test_checksymbols_infiniteLoop();
-
-    void test_checksymbols_infiniteLoop_BUG15141();
 
     void test_parentOfBlock();
 
@@ -1173,25 +1170,6 @@ void tst_CheckSymbols::test_checksymbols_infiniteLoop()
     TestCase::runCheckSymbols(document1, snapshot);
 }
 
-void tst_CheckSymbols::test_checksymbols_infiniteLoop_BUG15141()
-{
-    QByteArray source =
-            "template <class R1>\n"
-            "struct Base\n"
-            "{\n"
-            "};\n"
-            "\n"
-            "template<typename R>\n"
-            "struct Derived :\n"
-            "  Base<\n"
-            "    typename Derived<typename Base<R>::type>::type,\n"
-            "    typename Derived<typename Base<R>::type>::type\n"
-            "  >::type\n"
-            "{};\n";
-
-    BaseTestCase tc(source);
-}
-
 void tst_CheckSymbols::test_parentOfBlock()
 {
     const QByteArray source = "void C::f()\n"
@@ -1286,8 +1264,13 @@ void tst_CheckSymbols::findField()
     source[position] = ' ';
     BaseTestCase tc(source);
     Use use = tc.findUse(line, column);
-
+    QEXPECT_FAIL("pointer_indirect_specialization", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("pointer_indirect_specialization_typedef", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("pointer_indirect_specialization_double_indirection", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("instantiation_of_pointer_typedef_in_block", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("pointer_indirect_specialization_double_indirection_with_base", "QTCREATORBUG-14141", Abort);
     QEXPECT_FAIL("recursive_instantiation_of_template_type", "QTCREATORBUG-14237", Abort);
+    QEXPECT_FAIL("recursive_instantiation_of_template_type_2", "QTCREATORBUG-14141", Abort);
     QVERIFY(use.isValid());
     QVERIFY(use.kind == Highlighting::FieldUse);
 }
@@ -1361,26 +1344,6 @@ void tst_CheckSymbols::findField_data()
         "   typedef Foo *pointer;\n"
         "   Temp<pointer> t;\n"
         "   t.p->@bar;\n"
-        "}\n"
-    );
-
-    QTest::newRow("instantiation_of_indirect_typedef") << _(
-        "template<typename _Tp>\n"
-        "struct Indirect { _Tp t; };\n"
-        "\n"
-        "template<typename T>\n"
-        "struct Temp\n"
-        "{\n"
-        "   typedef T MyT;\n"
-        "   typedef Indirect<MyT> indirect;\n"
-        "};\n"
-        "\n"
-        "struct Foo { int bar; };\n"
-        "\n"
-        "void func()\n"
-        "{\n"
-        "   Temp<Foo>::indirect i;\n"
-        "   i.t.@bar;\n"
         "}\n"
     );
 
@@ -1473,100 +1436,6 @@ void tst_CheckSymbols::findField_data()
         "{\n"
         "   Temp<Temp<Foo>::value_type>::value_type *p;\n"
         "   p->@bar;\n"
-        "}\n"
-    );
-
-    QTest::newRow("std vector") << _(
-        "namespace std\n"
-        "{\n"
-        "template<typename _Tp>\n"
-        "struct allocator\n"
-        "{\n"
-        "    typedef _Tp value_type;\n"
-        "\n"
-        "    template<typename _Tp1>\n"
-        "    struct rebind\n"
-        "    { typedef allocator<_Tp1> other; };\n"
-        "};\n"
-        "\n"
-        "template<typename _Alloc, typename _Tp>\n"
-        "struct __alloctr_rebind\n"
-        "{\n"
-        "    typedef typename _Alloc::template rebind<_Tp>::other __type;\n"
-        "};\n"
-        "\n"
-        "template<typename _Alloc>\n"
-        "struct allocator_traits\n"
-        "{\n"
-        "    typedef typename _Alloc::value_type value_type;\n"
-        "\n"
-        "    template<typename _Tp>\n"
-        "    using rebind_alloc = typename __alloctr_rebind<_Alloc, _Tp>::__type;\n"
-        "};\n"
-        "\n"
-        "template<typename _Iterator>\n"
-        "struct iterator_traits { };\n"
-        "\n"
-        "template<typename _Tp>\n"
-        "struct iterator_traits<_Tp*>\n"
-        "{\n"
-        "    typedef _Tp* pointer;\n"
-        "};\n"
-        "} // namespace std\n"
-        "\n"
-        "namespace __gnu_cxx\n"
-        "{\n"
-        "template<typename _Alloc>\n"
-        "struct __alloc_traits\n"
-        "{\n"
-        "    typedef _Alloc allocator_type;\n"
-        "    typedef std::allocator_traits<_Alloc> _Base_type;\n"
-        "    typedef typename _Alloc::value_type value_type;\n"
-        "\n"
-        "    static value_type *_S_pointer_helper(...);\n"
-        "    typedef decltype(_S_pointer_helper((_Alloc*)0)) __pointer;\n"
-        "    typedef __pointer pointer;\n"
-        "\n"
-        "    template<typename _Tp>\n"
-        "    struct rebind\n"
-        "    { typedef typename _Base_type::template rebind_alloc<_Tp> other; };\n"
-        "};\n"
-        "\n"
-        "template<typename _Iterator, typename _Container>\n"
-        "struct __normal_iterator\n"
-        "{\n"
-        "    typedef std::iterator_traits<_Iterator> __traits_type;\n"
-        "    typedef typename __traits_type::pointer pointer;\n"
-        "\n"
-        "    pointer p;\n"
-        "};\n"
-        "} // namespace __gnu_cxx\n"
-        "\n"
-        "namespace std {\n"
-        "template<typename _Tp, typename _Alloc>\n"
-        "struct _Vector_Base\n"
-        "{\n"
-        "    typedef typename __gnu_cxx::__alloc_traits<_Alloc>::template\n"
-        "    rebind<_Tp>::other _Tp_alloc_type;\n"
-        "    typedef typename __gnu_cxx::__alloc_traits<_Tp_alloc_type>::pointer\n"
-        "    pointer;\n"
-        "};\n"
-        "\n"
-        "template<typename _Tp, typename _Alloc = std::allocator<_Tp> >\n"
-        "struct vector : protected _Vector_Base<_Tp, _Alloc>\n"
-        "{\n"
-        "    typedef _Vector_Base<_Tp, _Alloc> _Base;\n"
-        "    typedef typename _Base::pointer pointer;\n"
-        "    typedef __gnu_cxx::__normal_iterator<pointer, vector> iterator;\n"
-        "};\n"
-        "} // namespace std\n"
-        "\n"
-        "struct Foo { int bar; };\n"
-        "\n"
-        "void func()\n"
-        "{\n"
-        "    std::vector<Foo>::iterator it;\n"
-        "    it.p->@bar;\n"
         "}\n"
     );
 }

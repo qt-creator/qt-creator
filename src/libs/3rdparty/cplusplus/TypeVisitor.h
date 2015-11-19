@@ -51,7 +51,6 @@ public:
     virtual void visit(Function *) {}
     virtual void visit(Namespace *) {}
     virtual void visit(Template *) {}
-    virtual void visit(ExplicitInstantiation *) {}
     virtual void visit(Class *) {}
     virtual void visit(Enum *) {}
     virtual void visit(ForwardClassDeclaration *) {}

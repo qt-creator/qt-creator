@@ -1917,19 +1917,9 @@ bool Bind::visit(SimpleDeclarationAST *ast)
         methodKey = methodKeyForInvokableToken(tokenKind(ast->qt_invokable_token));
 
     // unsigned qt_invokable_token = ast->qt_invokable_token;
-    const ExpressionAST *declTypeExpression = 0;
-    bool isTypedef = false;
     FullySpecifiedType type;
     for (SpecifierListAST *it = ast->decl_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
-        if (type.isTypedef())
-            isTypedef = true;
-
-        type.setTypedef(isTypedef);
-        if (type.isDecltype()) {
-            if (DecltypeSpecifierAST *decltypeSpec = it->value->asDecltypeSpecifier())
-                declTypeExpression = decltypeSpec->expression;
-        }
     }
 
     List<Symbol *> **symbolTail = &ast->symbols;
@@ -1985,8 +1975,6 @@ bool Bind::visit(SimpleDeclarationAST *ast)
                 translationUnit()->error(location(declaratorId->name, ast->firstToken()), "auto-initialized variable must have an initializer");
             else if (initializer)
                 decl->setInitializer(asStringLiteral(initializer));
-        } else if (declTy.isDecltype()) {
-            decl->setInitializer(asStringLiteral(declTypeExpression));
         }
 
         if (_scope->isClass()) {
@@ -2367,15 +2355,11 @@ bool Bind::visit(ParameterDeclarationAST *ast)
 
 bool Bind::visit(TemplateDeclarationAST *ast)
 {
-    Scope *scope = 0;
-    if (ast->less_token)
-        scope = control()->newTemplate(ast->firstToken(), 0);
-    else
-        scope = control()->newExplicitInstantiation(ast->firstToken(), 0);
-    scope->setStartOffset(tokenAt(ast->firstToken()).utf16charsBegin());
-    scope->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
-    ast->symbol = scope;
-    Scope *previousScope = switchScope(scope);
+    Template *templ = control()->newTemplate(ast->firstToken(), 0);
+    templ->setStartOffset(tokenAt(ast->firstToken()).utf16charsBegin());
+    templ->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
+    ast->symbol = templ;
+    Scope *previousScope = switchScope(templ);
 
     for (DeclarationListAST *it = ast->template_parameter_list; it; it = it->next) {
         this->declaration(it->value);
@@ -2384,17 +2368,12 @@ bool Bind::visit(TemplateDeclarationAST *ast)
     this->declaration(ast->declaration);
     (void) switchScope(previousScope);
 
-    Symbol *decl = 0;
-    if (Template *templ = scope->asTemplate())
-        decl = templ->declaration();
-    else if (ExplicitInstantiation *inst = scope->asExplicitInstantiation())
-        decl = inst->declaration();
-    if (decl) {
-        scope->setSourceLocation(decl->sourceLocation(), translationUnit());
-        scope->setName(decl->name());
+    if (Symbol *decl = templ->declaration()) {
+        templ->setSourceLocation(decl->sourceLocation(), translationUnit());
+        templ->setName(decl->name());
     }
 
-    _scope->addMember(scope);
+    _scope->addMember(templ);
     return false;
 }
 
@@ -3039,7 +3018,6 @@ bool Bind::visit(TypeofSpecifierAST *ast)
 bool Bind::visit(DecltypeSpecifierAST *ast)
 {
     _type = this->expression(ast->expression);
-    _type.setDecltype(true);
     return false;
 }
 

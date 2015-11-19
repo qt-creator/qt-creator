@@ -151,7 +151,7 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
 
             QList<Function *> viableFunctions;
 
-            LookupScope *enclosingType = context.lookupType(declaration);
+            ClassOrNamespace *enclosingType = context.lookupType(declaration);
             if (!enclosingType)
                 continue; // nothing to do
 
@@ -214,15 +214,13 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
     return 0;
 }
 
-Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Snapshot &snapshot,
-                                                  const LookupContext *context)
+Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Snapshot &snapshot)
 {
     if (!declaration->identifier())
         return 0;
 
     QString declFile = QString::fromUtf8(declaration->fileName(), declaration->fileNameLength());
 
-    const bool useLocalContext = !context;
     foreach (const QString &file, fileIterationOrder(declFile, snapshot)) {
         Document::Ptr doc = snapshot.document(file);
         if (!doc) {
@@ -234,13 +232,9 @@ Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Sna
                                             declaration->identifier()->size()))
             continue;
 
-        QScopedPointer<LookupContext> localContext;
-        if (useLocalContext) {
-            localContext.reset(new LookupContext(doc, snapshot));
-            context = localContext.data();
-        }
+        LookupContext context(doc, snapshot);
 
-        LookupScope *type = context->lookupType(declaration);
+        ClassOrNamespace *type = context.lookupType(declaration);
         if (!type)
             continue;
 
@@ -289,7 +283,7 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
     if (!functionName)
         return;
 
-    LookupScope *binding = 0;
+    ClassOrNamespace *binding = 0;
     const QualifiedNameId *qName = functionName->asQualifiedNameId();
     if (qName) {
         if (qName->base())

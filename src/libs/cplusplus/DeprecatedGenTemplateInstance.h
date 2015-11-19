@@ -28,41 +28,36 @@
 **
 ****************************************************************************/
 
-#ifndef TYPERESOLVER_H
-#define TYPERESOLVER_H
+#ifndef CPLUSPLUS_DEPRECATEDGENTEMPLATEINSTANCE_H
+#define CPLUSPLUS_DEPRECATEDGENTEMPLATEINSTANCE_H
 
-#include "LookupContext.h"
+#include <cplusplus/TypeVisitor.h>
+#include <cplusplus/NameVisitor.h>
+#include <cplusplus/FullySpecifiedType.h>
+
+#include <QList>
+#include <QPair>
+#include <QSharedPointer>
 
 namespace CPlusPlus {
 
-class TypeResolver
+class CPLUSPLUS_EXPORT DeprecatedGenTemplateInstance
 {
 public:
-    TypeResolver(CreateBindings &factory) : _factory(factory) {}
-    void resolve(FullySpecifiedType *type, Scope **scope, LookupScope *binding);
-    static QList<LookupItem> resolveDeclInitializer(
-            CreateBindings &factory, const Declaration *decl,
-            const QSet<const Declaration *> &declarationsBeingResolved,
-            const Identifier *id = 0);
+    typedef QList< QPair<const Identifier *, FullySpecifiedType> > Substitution;
+
+public:
+    static FullySpecifiedType instantiate(const Name *className, Symbol *candidate, QSharedPointer<Control> control);
 
 private:
-    NamedType *getNamedType(FullySpecifiedType& type) const;
+    DeprecatedGenTemplateInstance(QSharedPointer<Control> control, const Substitution &substitution);
+    FullySpecifiedType gen(Symbol *symbol);
 
-    QList<LookupItem> getNamedTypeItems(const Name *name, Scope *scope,
-                                        LookupScope *binding) const;
-
-    static QList<LookupItem> typedefsFromScopeUpToFunctionScope(const Name *name, Scope *scope);
-
-    static bool isTypedefWithName(const Declaration *declaration, const Name *name);
-
-    bool findTypedef(const QList<LookupItem>& namedTypeItems, FullySpecifiedType *type,
-                     Scope **scope, QSet<Symbol *>& visited);
-
-    CreateBindings &_factory;
-    // binding has to be remembered in case of resolving typedefs for templates
-    LookupScope *_binding;
+private:
+    QSharedPointer<Control> _control;
+    const Substitution _substitution;
 };
 
 } // namespace CPlusPlus
 
-#endif // TYPERESOLVER_H
+#endif // CPLUSPLUS_DEPRECATEDGENTEMPLATEINSTANCE_H

@@ -219,7 +219,7 @@ Class *isMemberFunction(const LookupContext &context, Function *function)
     if (!q->base())
         return 0;
 
-    if (LookupScope *binding = context.lookupType(q->base(), enclosingScope)) {
+    if (ClassOrNamespace *binding = context.lookupType(q->base(), enclosingScope)) {
         foreach (Symbol *s, binding->symbols()) {
             if (Class *matchingClass = s->asClass())
                 return matchingClass;
@@ -257,7 +257,7 @@ Namespace *isNamespaceFunction(const LookupContext &context, Function *function)
     if (!q->base())
         return 0;
 
-    if (LookupScope *binding = context.lookupType(q->base(), enclosingScope)) {
+    if (ClassOrNamespace *binding = context.lookupType(q->base(), enclosingScope)) {
         foreach (Symbol *s, binding->symbols()) {
             if (Namespace *matchingNamespace = s->asNamespace())
                 return matchingNamespace;
@@ -1331,7 +1331,7 @@ void TranslateStringLiteral::match(const CppQuickFixInterface &interface,
     for (int i = path.size() - 1; i >= 0; --i) {
         if (FunctionDefinitionAST *definition = path.at(i)->asFunctionDefinition()) {
             Function *function = definition->symbol;
-            LookupScope *b = interface.context().lookupType(function);
+            ClassOrNamespace *b = interface.context().lookupType(function);
             if (b) {
                 // Do we have a tr function?
                 foreach (const LookupItem &r, b->find(trName)) {
@@ -1592,7 +1592,7 @@ public:
             SubstitutionEnvironment env;
             env.setContext(context());
             env.switchScope(result.first().scope());
-            LookupScope *con = typeOfExpression.context().lookupType(scope);
+            ClassOrNamespace *con = typeOfExpression.context().lookupType(scope);
             if (!con)
                 con = typeOfExpression.context().globalNamespace();
             UseMinimalNames q(con);
@@ -2284,7 +2284,7 @@ Enum *findEnum(const QList<LookupItem> &results, const LookupContext &ctxt)
         if (Enum *e = type->asEnumType())
             return e;
         if (const NamedType *namedType = type->asNamedType()) {
-            if (LookupScope *con = ctxt.lookupType(namedType->name(), result.scope())) {
+            if (ClassOrNamespace *con = ctxt.lookupType(namedType->name(), result.scope())) {
                 const QList<Enum *> enums = con->unscopedEnums();
                 const Name *referenceName = namedType->name();
                 if (const QualifiedNameId *qualifiedName = referenceName->asQualifiedNameId())
@@ -2581,7 +2581,7 @@ public:
             Document::Ptr targetDoc = targetFile->cppDocument();
             Scope *targetScope = targetDoc->scopeAt(m_loc.line(), m_loc.column());
             LookupContext targetContext(targetDoc, snapshot());
-            LookupScope *targetCoN = targetContext.lookupType(targetScope);
+            ClassOrNamespace *targetCoN = targetContext.lookupType(targetScope);
             if (!targetCoN)
                 targetCoN = targetContext.globalNamespace();
 
@@ -3215,7 +3215,7 @@ public:
         SubstitutionEnvironment env;
         env.setContext(context());
         env.switchScope(refFunc);
-        LookupScope *targetCoN = context().lookupType(refFunc->enclosingScope());
+        ClassOrNamespace *targetCoN = context().lookupType(refFunc->enclosingScope());
         if (!targetCoN)
             targetCoN = context().globalNamespace();
         UseMinimalNames subs(targetCoN);
@@ -4644,7 +4644,7 @@ QString definitionSignature(const CppQuickFixInterface *assist,
     QTC_ASSERT(func, return QString());
 
     LookupContext cppContext(targetFile->cppDocument(), assist->snapshot());
-    LookupScope *cppCoN = cppContext.lookupType(scope);
+    ClassOrNamespace *cppCoN = cppContext.lookupType(scope);
     if (!cppCoN)
         cppCoN = cppContext.globalNamespace();
     SubstitutionEnvironment env;
@@ -5125,7 +5125,7 @@ public:
             SubstitutionEnvironment env;
             env.setContext(context());
             env.switchScope(result.first().scope());
-            LookupScope *con = typeOfExpression.context().lookupType(scope);
+            ClassOrNamespace *con = typeOfExpression.context().lookupType(scope);
             if (!con)
                 con = typeOfExpression.context().globalNamespace();
             UseMinimalNames q(con);
@@ -5724,7 +5724,7 @@ PointerType *determineConvertedType(NamedType *namedType, const LookupContext &c
 {
     if (!namedType)
         return 0;
-    if (LookupScope *binding = context.lookupType(namedType->name(), scope)) {
+    if (ClassOrNamespace *binding = context.lookupType(namedType->name(), scope)) {
         if (Symbol *objectClassSymbol = skipForwardDeclarations(binding->symbols())) {
             if (Class *klass = objectClassSymbol->asClass()) {
                 for (auto it = klass->memberBegin(), end = klass->memberEnd(); it != end; ++it) {
@@ -5782,7 +5782,7 @@ Class *senderOrReceiverClass(const CppQuickFixInterface &interface,
     NamedType *objectType = objectTypeBase->asNamedType();
     QTC_ASSERT(objectType, return 0);
 
-    LookupScope *objectClassCON = context.lookupType(objectType->name(), objectPointerScope);
+    ClassOrNamespace *objectClassCON = context.lookupType(objectType->name(), objectPointerScope);
     QTC_ASSERT(objectClassCON, return 0);
     QTC_ASSERT(!objectClassCON->symbols().isEmpty(), return 0);
 
@@ -5834,7 +5834,7 @@ bool findConnectReplacement(const CppQuickFixInterface &interface,
 
     // Minimize qualification
     Control *control = context.bindings()->control().data();
-    LookupScope *functionCON = context.lookupParent(scope);
+    ClassOrNamespace *functionCON = context.lookupParent(scope);
     const Name *shortName = LookupContext::minimalName(method, functionCON, control);
     if (!shortName->asQualifiedNameId())
         shortName = control->qualifiedNameId(classOfMethod->name(), shortName);

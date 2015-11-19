@@ -36,7 +36,6 @@ HEADERS += \
     $$PWD/NamePrettyPrinter.h \
     $$PWD/TypeOfExpression.h \
     $$PWD/TypePrettyPrinter.h \
-    $$PWD/TypeResolver.h \
     $$PWD/ResolveExpression.h \
     $$PWD/LookupItem.h \
     $$PWD/AlreadyConsideredClassContainer.h \
@@ -45,6 +44,7 @@ HEADERS += \
     $$PWD/ASTPath.h \
     $$PWD/SnapshotSymbolVisitor.h \
     $$PWD/SymbolNameVisitor.h \
+    $$PWD/DeprecatedGenTemplateInstance.h \
     $$PWD/FindUsages.h \
     $$PWD/DependencyTable.h \
     $$PWD/PreprocessorClient.h \
@@ -67,7 +67,6 @@ SOURCES += \
     $$PWD/NamePrettyPrinter.cpp \
     $$PWD/TypeOfExpression.cpp \
     $$PWD/TypePrettyPrinter.cpp \
-    $$PWD/TypeResolver.cpp \
     $$PWD/ResolveExpression.cpp \
     $$PWD/LookupItem.cpp \
     $$PWD/LookupContext.cpp \
@@ -75,6 +74,7 @@ SOURCES += \
     $$PWD/ASTPath.cpp \
     $$PWD/SnapshotSymbolVisitor.cpp \
     $$PWD/SymbolNameVisitor.cpp \
+    $$PWD/DeprecatedGenTemplateInstance.cpp \
     $$PWD/FindUsages.cpp \
     $$PWD/DependencyTable.cpp \
     $$PWD/PreprocessorClient.cpp \

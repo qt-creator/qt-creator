@@ -89,13 +89,13 @@ private:
 class CPLUSPLUS_EXPORT UseMinimalNames: public Substitution
 {
 public:
-    UseMinimalNames(LookupScope *target);
+    UseMinimalNames(ClassOrNamespace *target);
     virtual ~UseMinimalNames();
 
     virtual FullySpecifiedType apply(const Name *name, Rewrite *rewrite) const;
 
 private:
-    LookupScope *_target;
+    ClassOrNamespace *_target;
 };
 
 class CPLUSPLUS_EXPORT UseQualifiedNames: public UseMinimalNames
