@@ -97,6 +97,8 @@ void QmlConsoleManager::printToConsolePane(ConsoleItem::ItemType itemType,
     if (bringToForeground)
         d->qmlConsolePane->popup(Core::IOutputPane::ModeSwitch);
     d->qmlConsoleItemModel->appendMessage(itemType, text);
+    if (itemType == ConsoleItem::WarningType)
+        d->qmlConsolePane->flash();
 }
 
 void QmlConsoleManager::printToConsolePane(ConsoleItem *item, bool bringToForeground)
