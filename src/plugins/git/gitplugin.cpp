@@ -748,8 +748,6 @@ void GitPlugin::undoFileChanges(bool revertStaging)
 
 void GitPlugin::undoUnstagedFileChanges()
 {
-    if (!DocumentManager::saveAllModifiedDocuments())
-        return;
     undoFileChanges(false);
 }
 
