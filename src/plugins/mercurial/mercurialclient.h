@@ -75,6 +75,8 @@ public:
                 const QStringList &extraOptions = QStringList());
     void revertAll(const QString &workingDir, const QString &revision = QString(),
                    const QStringList &extraOptions = QStringList());
+
+public slots:
     void view(const QString &source, const QString &id,
               const QStringList &extraOptions = QStringList());
 
