@@ -108,8 +108,7 @@ private slots:
     void logProject();
     void logRepository();
     void reflogRepository();
-    void undoFileChanges(bool revertStaging = true);
-    void undoUnstagedFileChanges();
+    void undoFileChanges(bool revertStaging);
     void resetRepository();
     void startRebase();
     void startChangeRelatedAction(const Core::Id &id);
@@ -161,7 +160,12 @@ private:
     QAction *createFileAction(Core::ActionContainer *ac,
                               const QString &defaultText, const QString &parameterText,
                               Core::Id id, const Core::Context &context, bool addToLocator,
-                              const char *pluginSlot,
+                              const std::function<void()> &callback,
+                              const QKeySequence &keys = QKeySequence());
+    QAction *createFileAction(Core::ActionContainer *ac,
+                              const QString &defaultText, const QString &parameterText,
+                              Core::Id id, const Core::Context &context, bool addToLocator,
+                              void (GitPlugin::*func)(),
                               const QKeySequence &keys = QKeySequence());
 
     QAction *createProjectAction(Core::ActionContainer *ac,

@@ -199,12 +199,22 @@ ParameterAction *GitPlugin::createParameterAction(ActionContainer *ac,
 QAction *GitPlugin::createFileAction(ActionContainer *ac,
                                      const QString &defaultText, const QString &parameterText,
                                      Id id, const Context &context, bool addToLocator,
-                                     const char *pluginSlot, const QKeySequence &keys)
+                                     const std::function<void()> &callback,
+                                     const QKeySequence &keys)
 {
     ParameterAction *action = createParameterAction(ac, defaultText, parameterText, id, context, addToLocator, keys);
     m_fileActions.push_back(action);
-    connect(action, SIGNAL(triggered()), this, pluginSlot);
+    connect(action, &QAction::triggered, this, callback);
     return action;
+}
+
+QAction *GitPlugin::createFileAction(ActionContainer *ac, const QString &defaultText,
+                                     const QString &parameterText, Id id, const Context &context,
+                                     bool addToLocator, void (GitPlugin::*func)(),
+                                     const QKeySequence &keys)
+{
+    return createFileAction(ac, defaultText, parameterText, id, context, addToLocator,
+                            [this, func]() { return (this->*func)(); }, keys);
 }
 
 // Create an action to act on a project with slot.
@@ -305,33 +315,33 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     gitContainer->addMenu(currentFileMenu);
 
     createFileAction(currentFileMenu, tr("Diff Current File"), tr("Diff of \"%1\""),
-                     "Git.Diff", context, true, SLOT(diffCurrentFile()),
+                     "Git.Diff", context, true, &GitPlugin::diffCurrentFile,
                       QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+D") : tr("Alt+G,Alt+D")));
 
     createFileAction(currentFileMenu, tr("Log Current File"), tr("Log of \"%1\""),
-                     "Git.Log", context, true, SLOT(logFile()),
+                     "Git.Log", context, true, &GitPlugin::logFile,
                      QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+L") : tr("Alt+G,Alt+L")));
 
     createFileAction(currentFileMenu, tr("Blame Current File"), tr("Blame for \"%1\""),
-                     "Git.Blame", context, true, SLOT(blameFile()),
+                     "Git.Blame", context, true, &GitPlugin::blameFile,
                      QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+B") : tr("Alt+G,Alt+B")));
 
     currentFileMenu->addSeparator(context);
 
     createFileAction(currentFileMenu, tr("Stage File for Commit"), tr("Stage \"%1\" for Commit"),
-                     "Git.Stage", context, true, SLOT(stageFile()),
+                     "Git.Stage", context, true, &GitPlugin::stageFile,
                      QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+A") : tr("Alt+G,Alt+A")));
 
     createFileAction(currentFileMenu, tr("Unstage File from Commit"), tr("Unstage \"%1\" from Commit"),
-                     "Git.Unstage", context, true, SLOT(unstageFile()));
+                     "Git.Unstage", context, true, &GitPlugin::unstageFile);
 
     createFileAction(currentFileMenu, tr("Undo Unstaged Changes"), tr("Undo Unstaged Changes for \"%1\""),
                      "Git.UndoUnstaged", context,
-                     true, SLOT(undoUnstagedFileChanges()));
+                     true, [this]() { return undoFileChanges(false); });
 
     createFileAction(currentFileMenu, tr("Undo Uncommitted Changes"), tr("Undo Uncommitted Changes for \"%1\""),
                      "Git.Undo", context,
-                     true, SLOT(undoFileChanges()),
+                     true, [this]() { return undoFileChanges(true); },
                      QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+U") : tr("Alt+G,Alt+U")));
 
 
@@ -577,10 +587,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            context, true, &GitClient::launchGitK);
 
     createFileAction(gitToolsMenu, tr("Gitk Current File"), tr("Gitk of \"%1\""),
-                     "Git.GitkFile", context, true, SLOT(gitkForCurrentFile()));
+                     "Git.GitkFile", context, true, &GitPlugin::gitkForCurrentFile);
 
     createFileAction(gitToolsMenu, tr("Gitk for folder of Current File"), tr("Gitk for folder of \"%1\""),
-                     "Git.GitkFolder", context, true, SLOT(gitkForCurrentFolder()));
+                     "Git.GitkFolder", context, true, &GitPlugin::gitkForCurrentFolder);
 
     // --------------
     gitToolsMenu->addSeparator(context);
@@ -731,13 +741,6 @@ void GitPlugin::undoFileChanges(bool revertStaging)
     QTC_ASSERT(state.hasFile(), return);
     FileChangeBlocker fcb(state.currentFile());
     m_gitClient->revert(QStringList(state.currentFile()), revertStaging);
-}
-
-void GitPlugin::undoUnstagedFileChanges()
-{
-    if (!DocumentManager::saveAllModifiedDocuments())
-        return;
-    undoFileChanges(false);
 }
 
 class ResetItemDelegate : public LogItemDelegate
