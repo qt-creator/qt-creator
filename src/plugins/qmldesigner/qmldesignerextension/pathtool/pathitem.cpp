@@ -885,7 +885,7 @@ void PathItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         if (pickedControlPoint.isEditPoint()) {
             createEditPointContextMenu(pickedControlPoint, event->screenPos());
         } else {
-            double t;
+            double t = 0.0;
             CubicSegment minimumDistanceSegment = getMinimumDistanceSegment(event->pos(), m_cubicSegments, 20., &t);
             if (minimumDistanceSegment.isValid())
                 createCubicSegmentContextMenu(minimumDistanceSegment, event->screenPos(), t);
