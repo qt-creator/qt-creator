@@ -249,13 +249,11 @@ QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
     return action;
 }
 
-QAction *GitPlugin::createChangeRelatedRepositoryAction(ActionContainer *ac,
-                                                        const QString &text, Id id,
-                                                        const Context &context, bool addToLocator,
-                                                        const QKeySequence &keys)
+QAction *GitPlugin::createChangeRelatedRepositoryAction(const QString &text, Id id,
+                                                        const Context &context)
 {
-    return createRepositoryAction(ac, text, id, context, addToLocator,
-                                  [this, id] { startChangeRelatedAction(id); }, keys);
+    return createRepositoryAction(nullptr, text, id, context, true,
+                                  [this, id] { startChangeRelatedAction(id); }, QKeySequence());
 }
 
 // Action to act on the repository forwarded to a git client member function
@@ -546,17 +544,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     // --------------
 
     /*  Actions only in locator */
-    createChangeRelatedRepositoryAction(0, tr("Show..."), "Git.Show",
-                                        context, true);
-
-    createChangeRelatedRepositoryAction(0, tr("Revert..."), "Git.Revert",
-                                        context, true);
-
-    createChangeRelatedRepositoryAction(0, tr("Cherry Pick..."), "Git.CherryPick",
-                                        context, true);
-
-    createChangeRelatedRepositoryAction(0, tr("Checkout..."), "Git.Checkout",
-                                        context, true);
+    createChangeRelatedRepositoryAction(tr("Show..."), "Git.Show", context);
+    createChangeRelatedRepositoryAction(tr("Revert..."), "Git.Revert", context);
+    createChangeRelatedRepositoryAction(tr("Cherry Pick..."), "Git.CherryPick", context);
+    createChangeRelatedRepositoryAction(tr("Checkout..."), "Git.Checkout", context);
 
     createRepositoryAction(0, tr("Rebase..."), "Git.Rebase", context, true, [this] { branchList(); });
     createRepositoryAction(0, tr("Merge..."), "Git.Merge", context, true, [this] { branchList(); });

@@ -176,14 +176,12 @@ private:
                                     const Core::Context &context, bool addToLocator,
                                     const std::function<void()> &callback,
                                     const QKeySequence &keys = QKeySequence());
-    QAction *createChangeRelatedRepositoryAction(Core::ActionContainer *ac,
-                                                 const QString &text, Core::Id id,
-                                                 const Core::Context &context,
-                                                 bool addToLocator,
-                                                 const QKeySequence &keys = QKeySequence());
     QAction *createRepositoryAction(Core::ActionContainer *ac, const QString &text, Core::Id id,
                                     const Core::Context &context, bool addToLocator,
                                     GitClientMemberFunc, const QKeySequence &keys = QKeySequence());
+
+    QAction *createChangeRelatedRepositoryAction(const QString &text, Core::Id id,
+                                                 const Core::Context &context);
 
     void updateRepositoryBrowserAction();
     bool isCommitEditorOpen() const;
