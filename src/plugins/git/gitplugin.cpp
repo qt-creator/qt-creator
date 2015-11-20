@@ -217,15 +217,15 @@ QAction *GitPlugin::createFileAction(ActionContainer *ac, const QString &default
                             [this, func]() { return (this->*func)(); }, keys);
 }
 
-// Create an action to act on a project with slot.
-QAction *GitPlugin::createProjectAction(ActionContainer *ac,
-                                        const QString &defaultText, const QString &parameterText,
-                                        Id id, const Context &context, bool addToLocator,
-                                        const char *pluginSlot, const QKeySequence &keys)
+QAction *GitPlugin::createProjectAction(ActionContainer *ac, const QString &defaultText,
+                                        const QString &parameterText, Id id, const Context &context,
+                                        bool addToLocator, void (GitPlugin::*func)(),
+                                        const QKeySequence &keys)
 {
-    ParameterAction *action = createParameterAction(ac, defaultText, parameterText, id, context, addToLocator, keys);
+    ParameterAction *action = createParameterAction(ac, defaultText, parameterText, id, context,
+                                                    addToLocator, keys);
     m_projectActions.push_back(action);
-    connect(action, SIGNAL(triggered()), this, pluginSlot);
+    connect(action, &QAction::triggered, this, [this, func]() { return (this->*func)(); });
     return action;
 }
 
@@ -351,15 +351,15 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     gitContainer->addMenu(currentProjectMenu);
 
     createProjectAction(currentProjectMenu, tr("Diff Current Project"), tr("Diff Project \"%1\""),
-                        "Git.DiffProject", context, true, SLOT(diffCurrentProject()),
+                        "Git.DiffProject", context, true, &GitPlugin::diffCurrentProject,
                         QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+Shift+D") : tr("Alt+G,Alt+Shift+D")));
 
     createProjectAction(currentProjectMenu, tr("Log Project"), tr("Log Project \"%1\""),
-                        "Git.LogProject", context, true, SLOT(logProject()),
+                        "Git.LogProject", context, true, &GitPlugin::logProject,
                         QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+K") : tr("Alt+G,Alt+K")));
 
     createProjectAction(currentProjectMenu, tr("Clean Project..."), tr("Clean Project \"%1\"..."),
-                        "Git.CleanProject", context, true, SLOT(cleanProject()));
+                        "Git.CleanProject", context, true, &GitPlugin::cleanProject);
 
 
     /*  "Local Repository" menu */

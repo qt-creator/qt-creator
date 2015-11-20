@@ -171,8 +171,8 @@ private:
     QAction *createProjectAction(Core::ActionContainer *ac,
                                  const QString &defaultText, const QString &parameterText,
                                  Core::Id id, const Core::Context &context, bool addToLocator,
-                                 const char *pluginSlot, const QKeySequence &keys = QKeySequence());
-
+                                 void (GitPlugin::*func)(),
+                                 const QKeySequence &keys = QKeySequence());
 
     QAction *createRepositoryAction(Core::ActionContainer *ac,
                                     const QString &text, Core::Id id,
