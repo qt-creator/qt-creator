@@ -245,6 +245,8 @@ void QmlProfilerClientManager::tryToConnect()
     } else if (d->connectionAttempts == 50) {
         d->connectionTimer.stop();
         d->connectionAttempts = 0;
+        delete d->connection; // delete directly.
+        d->connection = 0;
 
         QMessageBox *infoBox = QmlProfilerTool::requestMessageBox();
         infoBox->setIcon(QMessageBox::Critical);
@@ -300,14 +302,11 @@ void QmlProfilerClientManager::logState(const QString &msg)
 
 void QmlProfilerClientManager::retryMessageBoxFinished(int result)
 {
-    if (d->connection) {
-        QTC_ASSERT(!d->connection->isOpen(), return);
-        if (d->connection->isConnecting())
-            d->connection->disconnect();
-    }
+    QTC_ASSERT(!d->connection, disconnectClient());
 
     switch (result) {
     case QMessageBox::Retry: {
+        connectClient(d->tcpPort);
         d->connectionAttempts = 0;
         d->connectionTimer.start();
         break;
