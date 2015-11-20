@@ -99,7 +99,6 @@ public slots:
 private slots:
     void diffCurrentFile();
     void diffCurrentProject();
-    void diffRepository();
     void submitEditorDiff(const QStringList &unstaged, const QStringList &staged);
     void submitEditorMerge(const QStringList &unmerged);
     void submitCurrentLog();
@@ -107,7 +106,6 @@ private slots:
     void blameFile();
     void logProject();
     void logRepository();
-    void reflogRepository();
     void undoFileChanges(bool revertStaging);
     void resetRepository();
     void startRebase();
@@ -174,21 +172,18 @@ private:
                                  void (GitPlugin::*func)(),
                                  const QKeySequence &keys = QKeySequence());
 
-    QAction *createRepositoryAction(Core::ActionContainer *ac,
-                                    const QString &text, Core::Id id,
-                                    const Core::Context &context,
-                                    bool addToLocator, const std::function<void()> &callback,
+    QAction *createRepositoryAction(Core::ActionContainer *ac, const QString &text, Core::Id id,
+                                    const Core::Context &context, bool addToLocator,
+                                    const std::function<void()> &callback,
                                     const QKeySequence &keys = QKeySequence());
     QAction *createChangeRelatedRepositoryAction(Core::ActionContainer *ac,
                                                  const QString &text, Core::Id id,
                                                  const Core::Context &context,
                                                  bool addToLocator,
                                                  const QKeySequence &keys = QKeySequence());
-    QAction *createRepositoryAction(Core::ActionContainer *ac,
-                                    const QString &text, Core::Id id,
-                                    const Core::Context &context,
-                                    bool addToLocator, GitClientMemberFunc,
-                                    const QKeySequence &keys = QKeySequence());
+    QAction *createRepositoryAction(Core::ActionContainer *ac, const QString &text, Core::Id id,
+                                    const Core::Context &context, bool addToLocator,
+                                    GitClientMemberFunc, const QKeySequence &keys = QKeySequence());
 
     void updateRepositoryBrowserAction();
     bool isCommitEditorOpen() const;

@@ -784,7 +784,7 @@ void GitClient::diffProject(const QString &workingDirectory, const QString &proj
                   });
 }
 
-void GitClient::diffRepository(const QString &workingDirectory) const
+void GitClient::diffRepository(const QString &workingDirectory)
 {
     requestReload(QLatin1String("Repository:") + workingDirectory,
                   workingDirectory, tr("Git Diff Repository"),

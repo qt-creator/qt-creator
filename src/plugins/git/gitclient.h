@@ -155,7 +155,7 @@ public:
                    const QStringList &stagedFileNames) const;
     void diffProject(const QString &workingDirectory,
                      const QString &projectDirectory) const;
-    void diffRepository(const QString &workingDirectory) const;
+    void diffRepository(const QString &workingDirectory);
     void diffBranch(const QString &workingDirectory,
                     const QString &branchName) const;
     void merge(const QString &workingDirectory, const QStringList &unmergedFileNames = QStringList());
