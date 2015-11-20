@@ -33,6 +33,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <cmath>
 #include <iostream>
 #include <limits>
 #include <string>
