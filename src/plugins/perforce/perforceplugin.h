@@ -137,9 +137,9 @@ private:
     void startSubmitProject();
     void describeChange();
     void annotateCurrentFile();
-    void annotate();
+    void annotateFile();
     void filelogCurrentFile();
-    void filelog();
+    void filelogFile();
     void logProject();
     void logRepository();
 

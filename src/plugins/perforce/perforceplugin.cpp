@@ -414,12 +414,12 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     m_annotateAction = new QAction(tr("Annotate..."), this);
     command = ActionManager::registerAction(m_annotateAction, CMD_ID_ANNOTATE, context);
-    connect(m_annotateAction, SIGNAL(triggered()), this, SLOT(annotate()));
+    connect(m_annotateAction, &QAction::triggered, this, &PerforcePlugin::annotateFile);
     perforceContainer->addAction(command);
 
     m_filelogAction = new QAction(tr("Filelog..."), this);
     command = ActionManager::registerAction(m_filelogAction, CMD_ID_FILELOG, context);
-    connect(m_filelogAction, SIGNAL(triggered()), this, SLOT(filelog()));
+    connect(m_filelogAction, &QAction::triggered, this, &PerforcePlugin::filelogFile);
     perforceContainer->addAction(command);
 
     m_submitCurrentLogAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Submit"), this);
@@ -699,7 +699,7 @@ void PerforcePlugin::annotateCurrentFile()
     annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void PerforcePlugin::annotate()
+void PerforcePlugin::annotateFile()
 {
     const QString file = QFileDialog::getOpenFileName(ICore::dialogParent(), tr("p4 annotate"));
     if (!file.isEmpty()) {
@@ -749,7 +749,7 @@ void PerforcePlugin::filelogCurrentFile()
     filelog(state.currentFileTopLevel(), state.relativeCurrentFile(), true);
 }
 
-void PerforcePlugin::filelog()
+void PerforcePlugin::filelogFile()
 {
     const QString file = QFileDialog::getOpenFileName(ICore::dialogParent(), tr("p4 filelog"));
     if (!file.isEmpty()) {
@@ -1265,12 +1265,10 @@ class PerforceDiffParameterWidget : public VcsBaseEditorParameterWidget
     Q_OBJECT
 public:
     explicit PerforceDiffParameterWidget(const PerforceDiffParameters &p, QWidget *parent = 0);
+    void triggerReRun();
 
 signals:
     void reRunDiff(const Perforce::Internal::PerforceDiffParameters &);
-
-private slots:
-    void triggerReRun();
 
 private:
     const PerforceDiffParameters m_parameters;
@@ -1339,8 +1337,8 @@ void PerforcePlugin::p4Diff(const PerforceDiffParameters &p)
     auto pw = new PerforceDiffParameterWidget(p);
     connect(pw, SIGNAL(reRunDiff(Perforce::Internal::PerforceDiffParameters)),
             this, SLOT(p4Diff(Perforce::Internal::PerforceDiffParameters)));
-    connect(diffEditorWidget, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)),
-            pw, SLOT(triggerReRun()));
+    connect(diffEditorWidget, &VcsBaseEditorWidget::diffChunkReverted,
+            pw, &PerforceDiffParameterWidget::triggerReRun);
     diffEditorWidget->setConfigurationWidget(pw);
 }
 
