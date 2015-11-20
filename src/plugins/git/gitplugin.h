@@ -150,9 +150,13 @@ protected:
     bool submitEditorAboutToClose() override;
 
 private:
+    Core::Command *createCommand(QAction *action, Core::ActionContainer *ac, Core::Id id,
+                                 const Core::Context &context, bool addToLocator,
+                                 const std::function<void()> &callback, const QKeySequence &keys);
     Utils::ParameterAction *createParameterAction(Core::ActionContainer *ac,
                                                   const QString &defaultText, const QString &parameterText,
                                                   Core::Id id, const Core::Context &context, bool addToLocator,
+                                                  const std::function<void()> &callback,
                                                   const QKeySequence &keys = QKeySequence());
 
     QAction *createFileAction(Core::ActionContainer *ac,

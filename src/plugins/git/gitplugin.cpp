@@ -178,20 +178,31 @@ const VcsBaseSubmitEditorParameters submitParameters = {
     VcsBaseSubmitEditorParameters::DiffRows
 };
 
+Command *GitPlugin::createCommand(QAction *action, ActionContainer *ac, Id id,
+                                  const Context &context, bool addToLocator,
+                                  const std::function<void()> &callback, const QKeySequence &keys)
+{
+    Command *command = ActionManager::registerAction(action, id, context);
+    if (!keys.isEmpty())
+        command->setDefaultKeySequence(keys);
+    if (ac)
+        ac->addAction(command);
+    if (addToLocator)
+        m_commandLocator->appendCommand(command);
+    connect(action, &QAction::triggered, this, callback);
+    return command;
+}
+
 // Create a parameter action
 ParameterAction *GitPlugin::createParameterAction(ActionContainer *ac,
                                                   const QString &defaultText, const QString &parameterText,
                                                   Id id, const Context &context,
-                                                  bool addToLocator, const QKeySequence &keys)
+                                                  bool addToLocator, const std::function<void()> &callback,
+                                                  const QKeySequence &keys)
 {
     auto action = new ParameterAction(defaultText, parameterText, ParameterAction::EnabledWithParameter, this);
-    Command *command = ActionManager::registerAction(action, id, context);
-    if (!keys.isEmpty())
-        command->setDefaultKeySequence(keys);
+    Command *command = createCommand(action, ac, id, context, addToLocator, callback, keys);
     command->setAttribute(Command::CA_UpdateText);
-    ac->addAction(command);
-    if (addToLocator)
-        m_commandLocator->appendCommand(command);
     return action;
 }
 
@@ -202,9 +213,9 @@ QAction *GitPlugin::createFileAction(ActionContainer *ac,
                                      const std::function<void()> &callback,
                                      const QKeySequence &keys)
 {
-    ParameterAction *action = createParameterAction(ac, defaultText, parameterText, id, context, addToLocator, keys);
+    ParameterAction *action = createParameterAction(ac, defaultText, parameterText, id, context,
+                                                    addToLocator, callback, keys);
     m_fileActions.push_back(action);
-    connect(action, &QAction::triggered, this, callback);
     return action;
 }
 
@@ -223,29 +234,22 @@ QAction *GitPlugin::createProjectAction(ActionContainer *ac, const QString &defa
                                         const QKeySequence &keys)
 {
     ParameterAction *action = createParameterAction(ac, defaultText, parameterText, id, context,
-                                                    addToLocator, keys);
+                                                    addToLocator,
+                                                    [this, func]() { return (this->*func)(); },
+                                                    keys);
     m_projectActions.push_back(action);
-    connect(action, &QAction::triggered, this, [this, func]() { return (this->*func)(); });
     return action;
 }
 
 // Create an action to act on the repository with slot
-QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
-                                           const QString &text, Id id,
+QAction *GitPlugin::createRepositoryAction(ActionContainer *ac, const QString &text, Id id,
                                            const Context &context, bool addToLocator,
                                            const std::function<void()> &callback,
                                            const QKeySequence &keys)
 {
     auto action = new QAction(text, this);
-    Command *command = ActionManager::registerAction(action, id, context);
-    if (!keys.isEmpty())
-        command->setDefaultKeySequence(keys);
-    if (ac)
-        ac->addAction(command);
+    createCommand(action, ac, id, context, addToLocator, callback, keys);
     m_repositoryActions.push_back(action);
-    if (addToLocator)
-        m_commandLocator->appendCommand(command);
-    connect(action, &QAction::triggered, this, callback);
     return action;
 }
 
@@ -459,15 +463,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     localRepositoryMenu->addMenu(patchMenu);
 
     // Apply current file as patch is handled specially.
-    m_applyCurrentFilePatchAction =
-            createParameterAction(patchMenu,
-                                  tr("Apply from Editor"), tr("Apply \"%1\""),
-                                  "Git.ApplyCurrentFilePatch",
-                                  context, true);
-
-    connect(m_applyCurrentFilePatchAction, &QAction::triggered,
-            this, &GitPlugin::applyCurrentFilePatch);
-
+    m_applyCurrentFilePatchAction
+            = createParameterAction(patchMenu,
+                                    tr("Apply from Editor"), tr("Apply \"%1\""),
+                                    "Git.ApplyCurrentFilePatch",
+                                    context, true, [this] { applyCurrentFilePatch(); });
     createRepositoryAction(patchMenu, tr("Apply from File..."), "Git.ApplyPatch",
                            context, true, [this] { promptApplyPatch(); });
 
