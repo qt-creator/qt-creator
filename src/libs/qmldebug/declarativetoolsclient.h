@@ -41,8 +41,6 @@ class QMLDEBUG_EXPORT DeclarativeToolsClient : public BaseToolsClient
 public:
     DeclarativeToolsClient(QmlDebugConnection *client);
 
-    void reload(const QHash<QString, QByteArray> &changesHash);
-    bool supportReload() const { return false; }
     void setDesignModeBehavior(bool inDesignMode);
     void changeToSelectTool();
     void changeToSelectMarqueeTool();

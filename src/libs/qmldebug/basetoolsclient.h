@@ -42,8 +42,6 @@ class QMLDEBUG_EXPORT BaseToolsClient : public QmlDebugClient
 public:
     BaseToolsClient(QmlDebugConnection *client, QLatin1String clientName);
 
-    virtual void reload(const QHash<QString, QByteArray> &changesHash) = 0;
-    virtual bool supportReload() const = 0;
     virtual void setDesignModeBehavior(bool inDesignMode) = 0;
     virtual void changeToSelectTool() = 0;
     virtual void changeToSelectMarqueeTool() = 0;

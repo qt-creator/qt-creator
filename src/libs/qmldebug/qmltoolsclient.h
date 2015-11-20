@@ -41,8 +41,6 @@ class QMLDEBUG_EXPORT QmlToolsClient : public BaseToolsClient
 public:
     explicit QmlToolsClient(QmlDebugConnection *client);
 
-    void reload(const QHash<QString, QByteArray> &changesHash);
-    bool supportReload() const { return true; }
     void setDesignModeBehavior(bool inDesignMode);
     void changeToSelectTool();
     void changeToSelectMarqueeTool();
@@ -63,7 +61,6 @@ private:
 private:
     QmlDebugConnection *m_connection;
     int m_requestId;
-    int m_reloadQueryId;
 };
 
 } // namespace QmlDebug

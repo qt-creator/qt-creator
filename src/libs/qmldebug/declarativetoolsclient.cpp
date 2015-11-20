@@ -227,25 +227,6 @@ void DeclarativeToolsClient::setObjectIdList(
     sendMessage(message);
 }
 
-void DeclarativeToolsClient::reload(const QHash<QString,
-                                          QByteArray> &changesHash)
-{
-    Q_UNUSED(changesHash);
-
-    if (!m_connection || !m_connection->isConnected())
-        return;
-
-    QByteArray message;
-    QDataStream ds(&message, QIODevice::WriteOnly);
-
-    InspectorProtocol::Message cmd = InspectorProtocol::Reload;
-    ds << cmd;
-
-    log(LogSend, cmd);
-
-    sendMessage(message);
-}
-
 void DeclarativeToolsClient::setDesignModeBehavior(bool inDesignMode)
 {
     if (!m_connection || !m_connection->isConnected())

@@ -45,7 +45,6 @@ const char EVENT[] = "event";
 const char ENABLE[] = "enable";
 const char DISABLE[] = "disable";
 const char SELECT[] = "select";
-const char RELOAD[] = "reload";
 const char SHOW_APP_ON_TOP[] = "showAppOnTop";
 
 namespace QmlDebug {
@@ -53,8 +52,7 @@ namespace QmlDebug {
 QmlToolsClient::QmlToolsClient(QmlDebugConnection *client)
     : BaseToolsClient(client, QLatin1String("QmlInspector")),
       m_connection(client),
-      m_requestId(0),
-      m_reloadQueryId(-1)
+      m_requestId(0)
 {
     setObjectName(name());
 }
@@ -70,9 +68,6 @@ void QmlToolsClient::messageReceived(const QByteArray &message)
     if (type == QByteArray(RESPONSE)) {
         bool success = false;
         ds >> success;
-
-        if ((m_reloadQueryId != -1) && (m_reloadQueryId == requestId) && success)
-            emit reloaded();
 
         log(LogReceive, type, QString::fromLatin1("requestId: %1 success: %2")
             .arg(QString::number(requestId)).arg(QString::number(success)));
@@ -102,23 +97,6 @@ void QmlToolsClient::setObjectIdList(
         const QList<ObjectReference> &/*objectRoots*/)
 {
     //NOT IMPLEMENTED
-}
-
-void QmlToolsClient::reload(const QHash<QString, QByteArray> &changesHash)
-{
-    if (!m_connection || !m_connection->isConnected())
-        return;
-
-    m_reloadQueryId = m_requestId;
-
-    QByteArray message;
-    QDataStream ds(&message, QIODevice::WriteOnly);
-    ds << QByteArray(REQUEST) << m_requestId++
-       << QByteArray(RELOAD) << changesHash;
-
-    log(LogSend, RELOAD);
-
-    sendMessage(message);
 }
 
 void QmlToolsClient::setDesignModeBehavior(bool inDesignMode)
