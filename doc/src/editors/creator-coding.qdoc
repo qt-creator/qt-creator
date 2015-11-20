@@ -34,12 +34,6 @@
 
     \list
 
-        \li \l{Modeling}
-
-            You can use the experimental model editor to create Universal
-            Modeling Language (UML) style models with structured diagrams and
-            store them in XML format.
-
         \li \l{Writing Code}
 
             Writing, editing, and navigating in source code are core tasks in
@@ -85,18 +79,11 @@
             to use for opening the file. If your files do not match the
             predefined MIME types, you can edit the MIME types.
 
-        \li \l{Comparing Files}
+        \li \l{Modeling}
 
-            You can use a diff editor to compare two versions of a file and
-            view the differences side-by-side in the \uicontrol Edit mode.
-
-        \li \l{Parsing C++ Files}
-
-            An experimental Clang code model plugin enables you to replace the
-            built-in \QC code model with the Clang code model. Clang is a C
-            language family front end for LLVM. Clang provides you with more
-            accurate information than the built-in code model but can be slower
-            to use for large projects.
+            You can use the experimental model editor to create Universal
+            Modeling Language (UML) style models with structured diagrams and
+            store them in XML format.
 
     \endlist
 
