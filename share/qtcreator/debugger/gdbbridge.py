@@ -1633,7 +1633,11 @@ class Dumper(DumperBase):
                     symtab = sal.symtab
                     if not symtab is None:
                         objfile = fromNativePath(symtab.objfile.filename)
-                        fileName = fromNativePath(symtab.fullname())
+                        fullname = symtab.fullname()
+                        if fullname is None:
+                            fileName = ""
+                        else:
+                            fileName = fromNativePath(fullname)
 
                 if self.nativeMixed and functionName == "qt_qmlDebugMessageAvailable":
                     interpreterStack = self.extractInterpreterStack()
