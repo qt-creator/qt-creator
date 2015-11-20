@@ -250,6 +250,10 @@ PathChooser::PathChooser(QWidget *parent) :
 
 PathChooser::~PathChooser()
 {
+    // Since it is our focusProxy it can receive focus-out and emit the signal
+    // even when the possible ancestor-receiver is in mid of its destruction.
+    disconnect(d->m_lineEdit, &QLineEdit::editingFinished, this, &PathChooser::editingFinished);
+
     delete d;
 }
 
