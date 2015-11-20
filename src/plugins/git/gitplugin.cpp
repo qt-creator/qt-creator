@@ -219,10 +219,11 @@ QAction *GitPlugin::createProjectAction(ActionContainer *ac,
     return action;
 }
 
-// Create an action to act on the repository
+// Create an action to act on the repository with slot
 QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
                                            const QString &text, Id id,
                                            const Context &context, bool addToLocator,
+                                           const std::function<void()> &callback,
                                            const QKeySequence &keys)
 {
     auto action = new QAction(text, this);
@@ -234,16 +235,6 @@ QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
     m_repositoryActions.push_back(action);
     if (addToLocator)
         m_commandLocator->appendCommand(command);
-    return action;
-}
-
-// Create an action to act on the repository with slot
-QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
-                                           const QString &text, Id id,
-                                           const Context &context, bool addToLocator,
-                                           const std::function<void()> &callback, const QKeySequence &keys)
-{
-    QAction *action = createRepositoryAction(ac, text, id, context, addToLocator, keys);
     connect(action, &QAction::triggered, this, callback);
     return action;
 }
@@ -251,12 +242,10 @@ QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
 QAction *GitPlugin::createChangeRelatedRepositoryAction(ActionContainer *ac,
                                                         const QString &text, Id id,
                                                         const Context &context, bool addToLocator,
-                                                        const std::function<void(Id)> &callback,
                                                         const QKeySequence &keys)
 {
-    QAction *action = createRepositoryAction(ac, text, id, context, addToLocator, keys);
-    connect(action, &QAction::triggered, this, [callback, id] { callback(id); });
-    return action;
+    return createRepositoryAction(ac, text, id, context, addToLocator,
+                                  [this, id] { startChangeRelatedAction(id); }, keys);
 }
 
 // Action to act on the repository forwarded to a git client member function
@@ -266,13 +255,12 @@ QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
                                            const Context &context, bool addToLocator,
                                            GitClientMemberFunc func, const QKeySequence &keys)
 {
-    // Set the member func as data and connect to generic slot
-    QAction *action = createRepositoryAction(ac, text, id, context, addToLocator, keys);
-    connect(action, &QAction::triggered, [this, func]() -> void {
+    auto cb = [this, func]() -> void {
         QTC_ASSERT(currentState().hasTopLevel(), return);
         (m_gitClient->*func)(currentState().topLevel());
-    });
-    return action;
+    };
+    // Set the member func as data and connect to generic slot
+    return createRepositoryAction(ac, text, id, context, addToLocator, cb, keys);
 }
 
 bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -557,18 +545,17 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     // --------------
 
     /*  Actions only in locator */
-    const auto startChangeRelated = [this](Id id) { startChangeRelatedAction(id); };
     createChangeRelatedRepositoryAction(0, tr("Show..."), "Git.Show",
-                                        context, true, startChangeRelated);
+                                        context, true);
 
     createChangeRelatedRepositoryAction(0, tr("Revert..."), "Git.Revert",
-                                        context, true, startChangeRelated);
+                                        context, true);
 
     createChangeRelatedRepositoryAction(0, tr("Cherry Pick..."), "Git.CherryPick",
-                                        context, true, startChangeRelated);
+                                        context, true);
 
     createChangeRelatedRepositoryAction(0, tr("Checkout..."), "Git.Checkout",
-                                        context, true, startChangeRelated);
+                                        context, true);
 
     createRepositoryAction(0, tr("Rebase..."), "Git.Rebase",
                            context, true, [this] { branchList(); });

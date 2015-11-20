@@ -172,10 +172,6 @@ private:
 
     QAction *createRepositoryAction(Core::ActionContainer *ac,
                                     const QString &text, Core::Id id,
-                                    const Core::Context &context, bool addToLocator,
-                                    const QKeySequence &keys = QKeySequence());
-    QAction *createRepositoryAction(Core::ActionContainer *ac,
-                                    const QString &text, Core::Id id,
                                     const Core::Context &context,
                                     bool addToLocator, const std::function<void()> &callback,
                                     const QKeySequence &keys = QKeySequence());
@@ -183,7 +179,6 @@ private:
                                                  const QString &text, Core::Id id,
                                                  const Core::Context &context,
                                                  bool addToLocator,
-                                                 const std::function<void(Core::Id)> &callback,
                                                  const QKeySequence &keys = QKeySequence());
     QAction *createRepositoryAction(Core::ActionContainer *ac,
                                     const QString &text, Core::Id id,
