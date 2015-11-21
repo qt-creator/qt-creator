@@ -67,7 +67,7 @@ void DiagramsView::openDiagram(MDiagram *diagram)
     DiagramView *diagramView = m_diagramViews.value(diagram->uid());
     if (!diagramView) {
         DiagramSceneModel *diagramSceneModel = m_diagramsManager->bindDiagramSceneModel(diagram);
-        DiagramView *diagramView = new DiagramView(this);
+        auto diagramView = new DiagramView(this);
         diagramView->setDiagramSceneModel(diagramSceneModel);
         int tabIndex = addTab(diagramView, diagram->name());
         setCurrentIndex(tabIndex);
@@ -95,7 +95,7 @@ void DiagramsView::closeDiagram(const MDiagram *diagram)
 void DiagramsView::closeAllDiagrams()
 {
     for (int i = count() - 1; i >= 0; --i) {
-        DiagramView *diagramView = dynamic_cast<DiagramView *>(widget(i));
+        auto diagramView = dynamic_cast<DiagramView *>(widget(i));
         if (diagramView) {
             removeTab(i);
             delete diagramView;
@@ -126,7 +126,7 @@ void DiagramsView::onDiagramRenamed(const MDiagram *diagram)
 
 MDiagram *DiagramsView::diagram(int tabIndex) const
 {
-    DiagramView *diagramView = dynamic_cast<DiagramView *>(widget(tabIndex));
+    auto diagramView = dynamic_cast<DiagramView *>(widget(tabIndex));
     return diagram(diagramView);
 }
 

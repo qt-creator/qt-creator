@@ -402,7 +402,7 @@ MElement *TreeModel::element(const QModelIndex &index) const
     QStandardItem *item = itemFromIndex(index);
     if (item) {
         if (item->parent()) {
-            ModelItem *parentModelItem = dynamic_cast<ModelItem *>(item->parent());
+            auto parentModelItem = dynamic_cast<ModelItem *>(item->parent());
             QMT_CHECK(parentModelItem);
             const MObject *parentObject = m_itemToObjectMap.value(parentModelItem);
             QMT_CHECK(parentObject);
@@ -429,7 +429,7 @@ MElement *TreeModel::element(const QModelIndex &index) const
 
 QModelIndex TreeModel::indexOf(const MElement *element) const
 {
-    if (const MObject *object = dynamic_cast<const MObject *>(element)) {
+    if (auto object = dynamic_cast<const MObject *>(element)) {
         if (!object->owner()) {
             QMT_CHECK(element == m_modelController->rootPackage());
             return QStandardItemModel::index(0, 0);
@@ -443,7 +443,7 @@ QModelIndex TreeModel::indexOf(const MElement *element) const
         QModelIndex parentIndex = indexFromItem(item);
         int row = parentObject->children().indexOf(object);
         return QStandardItemModel::index(row, 0, parentIndex);
-    } else if (const MRelation *relation = dynamic_cast<const MRelation *>(element)) {
+    } else if (auto relation = dynamic_cast<const MRelation *>(element)) {
         QMT_CHECK(relation->owner());
         MObject *owner = relation->owner();
         ModelItem *item = m_objectToItemMap.value(owner);
@@ -519,9 +519,9 @@ void TreeModel::onEndUpdateObject(int row, const MObject *parent)
     QModelIndex elementIndex = this->QStandardItemModel::index(row, 0, parentIndex);
     MElement *element = TreeModel::element(elementIndex);
     if (element) {
-        MObject *object = dynamic_cast<MObject *>(element);
+        auto object = dynamic_cast<MObject *>(element);
         if (object) {
-            ModelItem *item = dynamic_cast<ModelItem *>(itemFromIndex(elementIndex));
+            auto item = dynamic_cast<ModelItem *>(itemFromIndex(elementIndex));
             QMT_CHECK(item);
             ItemUpdater visitor(this, item);
             element->accept(&visitor);
@@ -620,9 +620,9 @@ void TreeModel::onEndUpdateRelation(int row, const MObject *parent)
     QModelIndex elementIndex = QStandardItemModel::index(row, 0, parentIndex);
     MElement *element = TreeModel::element(elementIndex);
     if (element) {
-        MRelation *relation = dynamic_cast<MRelation *>(element);
+        auto relation = dynamic_cast<MRelation *>(element);
         if (relation) {
-            ModelItem *item = dynamic_cast<ModelItem *>(itemFromIndex(elementIndex));
+            auto item = dynamic_cast<ModelItem *>(itemFromIndex(elementIndex));
             QMT_CHECK(item);
             ItemUpdater visitor(this, item);
             element->accept(&visitor);
@@ -710,7 +710,7 @@ void TreeModel::onRelationEndChanged(MRelation *relation, MObject *endObject)
     QModelIndex elementIndex = QStandardItemModel::index(row, 0, parentIndex);
     QMT_CHECK(elementIndex.isValid());
 
-    ModelItem *item = dynamic_cast<ModelItem *>(itemFromIndex(elementIndex));
+    auto item = dynamic_cast<ModelItem *>(itemFromIndex(elementIndex));
     QMT_CHECK(item);
 
     QString label = createRelationLabel(relation);
@@ -788,14 +788,14 @@ QString TreeModel::createObjectLabel(const MObject *object)
     QMT_CHECK(object);
 
     if (object->name().isEmpty()) {
-        if (const MItem *item = dynamic_cast<const MItem *>(object)) {
+        if (auto item = dynamic_cast<const MItem *>(object)) {
             if (!item->variety().isEmpty())
                 return QString(QStringLiteral("[%1]")).arg(item->variety());
         }
         return tr("[unnamed]");
     }
 
-    if (const MClass *klass = dynamic_cast<const MClass *>(object)) {
+    if (auto klass = dynamic_cast<const MClass *>(object)) {
         if (!klass->umlNamespace().isEmpty())
             return QString(QStringLiteral("%1 [%2]")).arg(klass->name()).arg(klass->umlNamespace());
     }

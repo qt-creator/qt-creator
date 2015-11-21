@@ -387,9 +387,9 @@ void PropertiesView::beginUpdate(MElement *modelElement)
 {
     QMT_CHECK(modelElement);
 
-    if (MObject *object = dynamic_cast<MObject *>(modelElement)) {
+    if (auto object = dynamic_cast<MObject *>(modelElement)) {
         m_modelController->startUpdateObject(object);
-    } else if (MRelation *relation = dynamic_cast<MRelation *>(modelElement)) {
+    } else if (auto relation = dynamic_cast<MRelation *>(modelElement)) {
         m_modelController->startUpdateRelation(relation);
     } else {
         QMT_CHECK(false);
@@ -400,9 +400,9 @@ void PropertiesView::endUpdate(MElement *modelElement, bool cancelled)
 {
     QMT_CHECK(modelElement);
 
-    if (MObject *object = dynamic_cast<MObject *>(modelElement)) {
+    if (auto object = dynamic_cast<MObject *>(modelElement)) {
         m_modelController->finishUpdateObject(object, cancelled);
-    } else if (MRelation *relation = dynamic_cast<MRelation *>(modelElement)) {
+    } else if (auto relation = dynamic_cast<MRelation *>(modelElement)) {
         m_modelController->finishUpdateRelation(relation, cancelled);
     } else {
         QMT_CHECK(false);

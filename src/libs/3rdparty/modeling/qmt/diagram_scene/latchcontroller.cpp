@@ -116,7 +116,7 @@ void LatchController::mouseMoveEventLatching(QGraphicsSceneMouseEvent *event)
     if (!m_diagramSceneModel->focusItem())
         return;
 
-    ILatchable *palpedLatchable = dynamic_cast<ILatchable *>(m_diagramSceneModel->focusItem());
+    auto palpedLatchable = dynamic_cast<ILatchable *>(m_diagramSceneModel->focusItem());
     if (!palpedLatchable)
         return;
 
@@ -135,7 +135,7 @@ void LatchController::mouseMoveEventLatching(QGraphicsSceneMouseEvent *event)
 
     foreach (QGraphicsItem *item, m_diagramSceneModel->graphicsItems()) {
         if (item != m_diagramSceneModel->focusItem() && !m_diagramSceneModel->isSelectedItem(item)) {
-            if (ILatchable *latchable = dynamic_cast<ILatchable *>(item)) {
+            if (auto latchable = dynamic_cast<ILatchable *>(item)) {
                 QList<ILatchable::Latch> horizontals = latchable->horizontalLatches(horizAction, false);
                 foreach (const ILatchable::Latch &palpedLatch, palpedHorizontals) {
                     foreach (const ILatchable::Latch &latch, horizontals) {
@@ -226,7 +226,7 @@ void LatchController::mouseReleaseEventLatching(QGraphicsSceneMouseEvent *event)
         case ILatchable::Hcenter:
             foreach (QGraphicsItem *item, m_diagramSceneModel->selectedItems()) {
                 DElement *element = m_diagramSceneModel->element(item);
-                if (DObject *selectedObject = dynamic_cast<DObject *>(element)) {
+                if (auto selectedObject = dynamic_cast<DObject *>(element)) {
                     m_diagramSceneModel->diagramController()->startUpdateElement(selectedObject, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
                     QPointF newPos = selectedObject->pos();
                     newPos.setX(newPos.x() + m_horizontalDist);
@@ -251,7 +251,7 @@ void LatchController::mouseReleaseEventLatching(QGraphicsSceneMouseEvent *event)
         case ILatchable::Vcenter:
             foreach (QGraphicsItem *item, m_diagramSceneModel->selectedItems()) {
                 DElement *element = m_diagramSceneModel->element(item);
-                if (DObject *selectedObject = dynamic_cast<DObject *>(element)) {
+                if (auto selectedObject = dynamic_cast<DObject *>(element)) {
                     m_diagramSceneModel->diagramController()->startUpdateElement(selectedObject, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
                     QPointF newPos = selectedObject->pos();
                     newPos.setY(newPos.y() + m_verticalDist);

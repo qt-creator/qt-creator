@@ -310,7 +310,7 @@ public:
 
     void append(const Tag &tag)
     {
-        TagNode *node = new TagNode(tag);
+        auto node = new TagNode(tag);
         if (!m_nodeStack.empty())
             m_nodeStack.top()->append(node);
         m_nodeStack.push(node);
@@ -319,7 +319,7 @@ public:
     template<class T>
     void append(const Object<T> &object)
     {
-        ObjectNode<T> *node = new ObjectNode<T>(object);
+        auto node = new ObjectNode<T>(object);
         if (!m_nodeStack.empty())
             m_nodeStack.top()->append(node);
         m_nodeStack.push(node);
@@ -528,7 +528,7 @@ private:
                 return;
             } else {
                 bool foundTag = false;
-                for (Node::ChildrenType::const_iterator it = node->children().begin();
+                for (auto it = node->children().begin();
                      it != node->children().end(); ++it)
                 {
                     if ((*it)->qualifiedName() == xmlTag.m_tagName) {

@@ -83,7 +83,7 @@ void RelationStarter::addArrow(const QString &id, ArrowItem::Shaft shaft,
 {
     QMT_CHECK(!id.isEmpty());
     prepareGeometryChange();
-    ArrowItem *arrow = new ArrowItem(this);
+    auto arrow = new ArrowItem(this);
     arrow->setArrowSize(10.0);
     arrow->setDiamondSize(15.0);
     arrow->setShaft(shaft);

@@ -87,7 +87,7 @@ public:
 
     bool mergeWith(const UndoCommand *other)
     {
-        const UpdateObjectCommand *updateCommand = dynamic_cast<const UpdateObjectCommand *>(other);
+        auto updateCommand = dynamic_cast<const UpdateObjectCommand *>(other);
         if (!updateCommand)
             return false;
         if (m_object->uid() != updateCommand->m_object->uid())
@@ -125,7 +125,7 @@ private:
         emit m_modelController->beginUpdateObject(row, parent);
         MCloneVisitor cloneVisitor;
         object->accept(&cloneVisitor);
-        MObject *newObject = dynamic_cast<MObject *>(cloneVisitor.cloned());
+        auto newObject = dynamic_cast<MObject *>(cloneVisitor.cloned());
         QMT_CHECK(newObject);
         MFlatAssignmentVisitor assignVisitor(object);
         m_object->accept(&assignVisitor);
@@ -162,7 +162,7 @@ public:
 
     bool mergeWith(const UndoCommand *other)
     {
-        const UpdateRelationCommand *updateCommand = dynamic_cast<const UpdateRelationCommand *>(other);
+        auto updateCommand = dynamic_cast<const UpdateRelationCommand *>(other);
         if (!updateCommand)
             return false;
         if (m_relation->uid() != updateCommand->m_relation->uid())
@@ -196,7 +196,7 @@ private:
         emit m_modelController->beginUpdateRelation(row, owner);
         MCloneVisitor cloneVisitor;
         relation->accept(&cloneVisitor);
-        MRelation *newRelation = dynamic_cast<MRelation *>(cloneVisitor.cloned());
+        auto newRelation = dynamic_cast<MRelation *>(cloneVisitor.cloned());
         QMT_CHECK(newRelation);
         MFlatAssignmentVisitor assignVisitor(relation);
         m_relation->accept(&assignVisitor);
@@ -251,7 +251,7 @@ public:
                 case TypeObject:
                 {
                     emit m_modelController->beginInsertObject(clone.m_indexOfElement, owner);
-                    MObject *object = dynamic_cast<MObject *>(clone.m_clonedElement);
+                    auto object = dynamic_cast<MObject *>(clone.m_clonedElement);
                     QMT_CHECK(object);
                     m_modelController->mapObject(object);
                     owner->insertChild(clone.m_indexOfElement, object);
@@ -263,7 +263,7 @@ public:
                 case TypeRelation:
                 {
                     emit m_modelController->beginInsertRelation(clone.m_indexOfElement, owner);
-                    MRelation *relation = dynamic_cast<MRelation *>(clone.m_clonedElement);
+                    auto relation = dynamic_cast<MRelation *>(clone.m_clonedElement);
                     QMT_CHECK(relation);
                     m_modelController->mapRelation(relation);
                     owner->insertRelation(clone.m_indexOfElement, relation);
@@ -362,11 +362,11 @@ public:
 
         clone.m_elementKey = element->uid();
         clone.m_ownerKey = owner->uid();
-        if (MObject *object = dynamic_cast<MObject *>(element)) {
+        if (auto object = dynamic_cast<MObject *>(element)) {
             clone.m_elementType = TypeObject;
             clone.m_indexOfElement = owner->children().indexOf(object);
             QMT_CHECK(clone.m_indexOfElement >= 0);
-        } else if (MRelation *relation = dynamic_cast<MRelation *>(element)) {
+        } else if (auto relation = dynamic_cast<MRelation *>(element)) {
             clone.m_elementType = TypeRelation;
             clone.m_indexOfElement = owner->relations().indexOf(relation);
             QMT_CHECK(clone.m_indexOfElement >= 0);
@@ -447,7 +447,7 @@ public:
             case TypeObject:
             {
                 emit m_modelController->beginInsertObject(clone.m_indexOfElement, owner);
-                MObject *object = dynamic_cast<MObject *>(clone.m_clonedElement);
+                auto object = dynamic_cast<MObject *>(clone.m_clonedElement);
                 QMT_CHECK(object);
                 m_modelController->mapObject(object);
                 owner->insertChild(clone.m_indexOfElement, object);
@@ -459,7 +459,7 @@ public:
             case TypeRelation:
             {
                 emit m_modelController->beginInsertRelation(clone.m_indexOfElement, owner);
-                MRelation *relation = dynamic_cast<MRelation *>(clone.m_clonedElement);
+                auto relation = dynamic_cast<MRelation *>(clone.m_clonedElement);
                 QMT_CHECK(relation);
                 m_modelController->mapRelation(relation);
                 owner->insertRelation(clone.m_indexOfElement, relation);
@@ -681,7 +681,7 @@ void ModelController::addObject(MPackage *parentPackage, MObject *object)
         emit beginInsertObject(row, parentPackage);
     mapObject(object);
     if (m_undoController) {
-        AddElementsCommand *undoCommand = new AddElementsCommand(this, tr("Add Object"));
+        auto undoCommand = new AddElementsCommand(this, tr("Add Object"));
         m_undoController->push(undoCommand);
         undoCommand->add(TypeObject, object->uid(), parentPackage->uid());
     }
@@ -706,7 +706,7 @@ void ModelController::removeObject(MObject *object)
     if (!m_isResettingModel)
         emit beginRemoveObject(row, owner);
     if (m_undoController) {
-        RemoveElementsCommand *undoCommand = new RemoveElementsCommand(this, tr("Delete Object"));
+        auto undoCommand = new RemoveElementsCommand(this, tr("Delete Object"));
         m_undoController->push(undoCommand);
         undoCommand->add(object, object->owner());
     }
@@ -731,7 +731,7 @@ void ModelController::startUpdateObject(MObject *object)
     } else {
         row = parent->children().indexOf(object);
     }
-    if (MPackage *package = dynamic_cast<MPackage *>(object))
+    if (auto package = dynamic_cast<MPackage *>(object))
         m_oldPackageName = package->name();
     if (!m_isResettingModel)
         emit beginUpdateObject(row, parent);
@@ -756,7 +756,7 @@ void ModelController::finishUpdateObject(MObject *object, bool cancelled)
             QList<MRelation *> relations = findRelationsOfObject(object);
             foreach (MRelation *relation, relations)
                 emit relationEndChanged(relation, object);
-            if (MPackage *package = dynamic_cast<MPackage *>(object)) {
+            if (auto package = dynamic_cast<MPackage *>(object)) {
                 if (m_oldPackageName != package->name())
                     emit packageNameChanged(package, m_oldPackageName);
             }
@@ -780,7 +780,7 @@ void ModelController::moveObject(MPackage *newOwner, MObject *object)
         if (!m_isResettingModel)
             emit beginMoveObject(formerRow, formerOwner);
         if (m_undoController) {
-            MoveObjectCommand *undoCommand = new MoveObjectCommand(this, object);
+            auto undoCommand = new MoveObjectCommand(this, object);
             m_undoController->push(undoCommand);
         }
         formerOwner->decontrolChild(object);
@@ -811,7 +811,7 @@ void ModelController::addRelation(MObject *owner, MRelation *relation)
         emit beginInsertRelation(row, owner);
     mapRelation(relation);
     if (m_undoController) {
-        AddElementsCommand *undoCommand = new AddElementsCommand(this, tr("Add Relation"));
+        auto undoCommand = new AddElementsCommand(this, tr("Add Relation"));
         m_undoController->push(undoCommand);
         undoCommand->add(TypeRelation, relation->uid(), owner->uid());
     }
@@ -832,7 +832,7 @@ void ModelController::removeRelation(MRelation *relation)
     if (!m_isResettingModel)
         emit beginRemoveRelation(row, owner);
     if (m_undoController) {
-        RemoveElementsCommand *undoCommand = new RemoveElementsCommand(this, tr("Delete Relation"));
+        auto undoCommand = new RemoveElementsCommand(this, tr("Delete Relation"));
         m_undoController->push(undoCommand);
         undoCommand->add(relation, owner);
     }
@@ -884,7 +884,7 @@ void ModelController::moveRelation(MObject *newOwner, MRelation *relation)
         if (!m_isResettingModel)
             emit beginMoveRelation(formerRow, formerOwner);
         if (m_undoController) {
-            MoveRelationCommand *undoCommand = new MoveRelationCommand(this, relation);
+            auto undoCommand = new MoveRelationCommand(this, relation);
             m_undoController->push(undoCommand);
         }
         formerOwner->decontrolRelation(relation);
@@ -945,7 +945,7 @@ void ModelController::pasteElements(MObject *owner, const MContainer &modelConta
     // insert all elements
     bool added = false;
     foreach (MElement *clonedElement, clonedElements) {
-        if (MObject *object = dynamic_cast<MObject *>(clonedElement)) {
+        if (auto object = dynamic_cast<MObject *>(clonedElement)) {
             MObject *objectOwner = owner;
             if (!dynamic_cast<MPackage*>(owner))
                 objectOwner = owner->owner();
@@ -954,19 +954,19 @@ void ModelController::pasteElements(MObject *owner, const MContainer &modelConta
             emit beginInsertObject(row, objectOwner);
             mapObject(object);
             if (m_undoController) {
-                AddElementsCommand *undoCommand = new AddElementsCommand(this, tr("Paste"));
+                auto undoCommand = new AddElementsCommand(this, tr("Paste"));
                 m_undoController->push(undoCommand);
                 undoCommand->add(TypeObject, object->uid(), objectOwner->uid());
             }
             objectOwner->insertChild(row, object);
             emit endInsertObject(row, objectOwner);
             added = true;
-        } else if (MRelation *relation = dynamic_cast<MRelation *>(clonedElement)) {
+        } else if (auto relation = dynamic_cast<MRelation *>(clonedElement)) {
             int row = owner->relations().size();
             emit beginInsertRelation(row, owner);
             mapRelation(relation);
             if (m_undoController) {
-                AddElementsCommand *undoCommand = new AddElementsCommand(this, tr("Paste"));
+                auto undoCommand = new AddElementsCommand(this, tr("Paste"));
                 m_undoController->push(undoCommand);
                 undoCommand->add(TypeRelation, relation->uid(), owner->uid());
             }
@@ -998,13 +998,13 @@ void ModelController::deleteElements(const MSelection &modelSelection, const QSt
     foreach (MElement *element, simplifiedSelection.elements()) {
         // element may have been deleted indirectly by predecessor element in loop
         if ((element = findElement(element->uid()))) {
-            if (MObject *object = dynamic_cast<MObject *>(element)) {
+            if (auto object = dynamic_cast<MObject *>(element)) {
                 removeRelatedRelations(object);
                 MObject *owner = object->owner();
                 int row = owner->children().indexOf(object);
                 emit beginRemoveObject(row, owner);
                 if (m_undoController) {
-                    RemoveElementsCommand *cutCommand = new RemoveElementsCommand(this, commandLabel);
+                    auto cutCommand = new RemoveElementsCommand(this, commandLabel);
                     m_undoController->push(cutCommand);
                     cutCommand->add(element, owner);
                 }
@@ -1012,12 +1012,12 @@ void ModelController::deleteElements(const MSelection &modelSelection, const QSt
                 owner->removeChild(object);
                 emit endRemoveObject(row, owner);
                 removed = true;
-            } else if (MRelation *relation = dynamic_cast<MRelation *>(element)) {
+            } else if (auto relation = dynamic_cast<MRelation *>(element)) {
                 MObject *owner = relation->owner();
                 int row = owner->relations().indexOf(relation);
                 emit beginRemoveRelation(row, owner);
                 if (m_undoController) {
-                    RemoveElementsCommand *cutCommand = new RemoveElementsCommand(this, commandLabel);
+                    auto cutCommand = new RemoveElementsCommand(this, commandLabel);
                     m_undoController->push(cutCommand);
                     cutCommand->add(element, owner);
                 }
@@ -1057,7 +1057,7 @@ void ModelController::renewElementKey(MElement *element, QHash<Uid, Uid> *renewe
             Uid newKey = element->uid();
             renewedKeys->insert(oldKey, newKey);
         }
-        MObject *object = dynamic_cast<MObject *>(element);
+        auto object = dynamic_cast<MObject *>(element);
         if (object) {
             foreach (const Handle<MObject> &child, object->children())
                 renewElementKey(child.target(), renewedKeys);
@@ -1069,12 +1069,12 @@ void ModelController::renewElementKey(MElement *element, QHash<Uid, Uid> *renewe
 
 void ModelController::updateRelationKeys(MElement *element, const QHash<Uid, Uid> &renewedKeys)
 {
-    if (MObject *object = dynamic_cast<MObject *>(element)) {
+    if (auto object = dynamic_cast<MObject *>(element)) {
         foreach (const Handle<MRelation> &handle, object->relations())
             updateRelationEndKeys(handle.target(), renewedKeys);
         foreach (const Handle<MObject> &child, object->children())
             updateRelationKeys(child.target(), renewedKeys);
-    } else if (MRelation *relation = dynamic_cast<MRelation *>(element)) {
+    } else if (auto relation = dynamic_cast<MRelation *>(element)) {
         updateRelationEndKeys(relation, renewedKeys);
     }
 }
@@ -1195,7 +1195,7 @@ void ModelController::verifyModelIntegrity() const
             QMT_CHECK(relationsMap.contains(relation->uid()));
         }
         QMT_CHECK(objectRelationsMap.size() == m_objectRelationsMap.size());
-        for (QMultiHash<Uid, MRelation *>::const_iterator it = m_objectRelationsMap.cbegin(); it != m_objectRelationsMap.cend(); ++it) {
+        for (auto it = m_objectRelationsMap.cbegin(); it != m_objectRelationsMap.cend(); ++it) {
             QMT_CHECK(objectRelationsMap.contains(it.key(), it.value()));
         }
     }

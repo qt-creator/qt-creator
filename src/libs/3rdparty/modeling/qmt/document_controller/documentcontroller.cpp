@@ -219,7 +219,7 @@ void DocumentController::selectAllOnDiagram(MDiagram *diagram)
 
 MPackage *DocumentController::createNewPackage(MPackage *parent)
 {
-    MPackage *newPackage = new MPackage();
+    auto newPackage = new MPackage();
     newPackage->setName(tr("New Package"));
     m_modelController->addObject(parent, newPackage);
     return newPackage;
@@ -227,7 +227,7 @@ MPackage *DocumentController::createNewPackage(MPackage *parent)
 
 MClass *DocumentController::createNewClass(MPackage *parent)
 {
-    MClass *newClass = new MClass();
+    auto newClass = new MClass();
     newClass->setName(tr("New Class"));
     m_modelController->addObject(parent, newClass);
     return newClass;
@@ -235,7 +235,7 @@ MClass *DocumentController::createNewClass(MPackage *parent)
 
 MComponent *DocumentController::createNewComponent(MPackage *parent)
 {
-    MComponent *newComponent = new MComponent();
+    auto newComponent = new MComponent();
     newComponent->setName(tr("New Component"));
     m_modelController->addObject(parent, newComponent);
     return newComponent;
@@ -243,7 +243,7 @@ MComponent *DocumentController::createNewComponent(MPackage *parent)
 
 MCanvasDiagram *DocumentController::createNewCanvasDiagram(MPackage *parent)
 {
-    MCanvasDiagram *newDiagram = new MCanvasDiagram();
+    auto newDiagram = new MCanvasDiagram();
     if (!m_diagramSceneController->findDiagramBySearchId(parent, parent->name()))
         newDiagram->setName(parent->name());
     else

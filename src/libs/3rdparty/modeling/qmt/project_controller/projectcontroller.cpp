@@ -60,7 +60,7 @@ ProjectController::~ProjectController()
 void ProjectController::newProject(const QString &fileName)
 {
     m_project.reset(new Project());
-    MPackage *rootPackage = new MPackage();
+    auto rootPackage = new MPackage();
     rootPackage->setName(tr("Model"));
     m_project->setRootPackage(rootPackage);
     m_project->setFileName(fileName);

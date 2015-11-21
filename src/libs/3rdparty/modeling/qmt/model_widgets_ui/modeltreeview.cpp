@@ -144,7 +144,7 @@ void ModelTreeView::startDrag(Qt::DropActions supportedActions)
         }
     }
 
-    QMimeData *mimeData = new QMimeData;
+    auto mimeData = new QMimeData;
     mimeData->setData(QStringLiteral("text/model-elements"), dragData);
 
     if (dragIcon.isNull())
@@ -153,7 +153,7 @@ void ModelTreeView::startDrag(Qt::DropActions supportedActions)
     QPixmap pixmap(48, 48);
     pixmap = dragIcon.pixmap(48, 48);
 
-    QDrag *drag = new QDrag(this);
+    auto drag = new QDrag(this);
     drag->setMimeData(mimeData);
     drag->setHotSpot(QPoint(pixmap.width()/2, pixmap.height()/2));
     drag->setPixmap(pixmap);
@@ -209,7 +209,7 @@ void ModelTreeView::dropEvent(QDropEvent *event)
             TreeModel *treeModel = m_sortedTreeModel->treeModel();
             QMT_CHECK(treeModel);
             MElement *targetModelElement = treeModel->element(dropSourceModelIndex);
-            if (MObject *targetModelObject = dynamic_cast<MObject *>(targetModelElement)) {
+            if (auto targetModelObject = dynamic_cast<MObject *>(targetModelElement)) {
                 QDataStream dataStream(event->mimeData()->data(QStringLiteral("text/model-elements")));
                 while (dataStream.status() == QDataStream::Ok) {
                     QString key;
@@ -217,15 +217,15 @@ void ModelTreeView::dropEvent(QDropEvent *event)
                     if (!key.isEmpty()) {
                         MElement *modelElement = treeModel->modelController()->findElement(Uid(key));
                         if (modelElement) {
-                            if (MObject *modelObject = dynamic_cast<MObject*>(modelElement)) {
-                                if (MPackage *targetModelPackage = dynamic_cast<MPackage *>(targetModelObject)) {
+                            if (auto modelObject = dynamic_cast<MObject*>(modelElement)) {
+                                if (auto targetModelPackage = dynamic_cast<MPackage *>(targetModelObject)) {
                                     treeModel->modelController()->moveObject(targetModelPackage, modelObject);
                                 } else if ((targetModelPackage = dynamic_cast<MPackage *>(targetModelObject->owner()))) {
                                     treeModel->modelController()->moveObject(targetModelPackage, modelObject);
                                 } else {
                                     QMT_CHECK(false);
                                 }
-                            } else if (MRelation *modelRelation = dynamic_cast<MRelation *>(modelElement)) {
+                            } else if (auto modelRelation = dynamic_cast<MRelation *>(modelElement)) {
                                 treeModel->modelController()->moveRelation(targetModelObject, modelRelation);
                             }
                         }
@@ -272,7 +272,7 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
         }
         QAction *selectedAction = menu.exec(event->globalPos());
         if (selectedAction) {
-            ContextMenuAction *action = dynamic_cast<ContextMenuAction *>(selectedAction);
+            auto action = dynamic_cast<ContextMenuAction *>(selectedAction);
             QMT_CHECK(action);
             if (action->id() == QStringLiteral("showDefinition")) {
                 m_elementTasks->openClassDefinition(melement);

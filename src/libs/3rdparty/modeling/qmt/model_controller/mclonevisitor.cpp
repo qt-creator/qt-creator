@@ -89,7 +89,7 @@ void MCloneVisitor::visitMComponent(const MComponent *component)
 void MCloneVisitor::visitMDiagram(const MDiagram *diagram)
 {
     QMT_CHECK(m_cloned);
-    MDiagram *cloned = dynamic_cast<MDiagram *>(m_cloned);
+    auto cloned = dynamic_cast<MDiagram *>(m_cloned);
     QMT_CHECK(cloned);
     foreach (const DElement *element, diagram->diagramElements()) {
         DCloneDeepVisitor visitor;
@@ -156,13 +156,13 @@ void MCloneDeepVisitor::visitMObject(const MObject *object)
 {
     QMT_CHECK(m_cloned);
     visitMElement(object);
-    MObject *cloned = dynamic_cast<MObject *>(m_cloned);
+    auto cloned = dynamic_cast<MObject *>(m_cloned);
     QMT_CHECK(cloned);
     foreach (const Handle<MObject> &handle, object->children()) {
         if (handle.hasTarget()) {
             MCloneDeepVisitor visitor;
             handle.target()->accept(&visitor);
-            MObject *clonedChild = dynamic_cast<MObject *>(visitor.cloned());
+            auto clonedChild = dynamic_cast<MObject *>(visitor.cloned());
             QMT_CHECK(clonedChild);
             cloned->addChild(clonedChild);
         } else {
@@ -173,7 +173,7 @@ void MCloneDeepVisitor::visitMObject(const MObject *object)
         if (handle.hasTarget()) {
             MCloneDeepVisitor visitor;
             handle.target()->accept(&visitor);
-            MRelation *clonedRelation = dynamic_cast<MRelation *>(visitor.cloned());
+            auto clonedRelation = dynamic_cast<MRelation *>(visitor.cloned());
             QMT_CHECK(clonedRelation);
             cloned->addRelation(clonedRelation);
         } else {
@@ -206,7 +206,7 @@ void MCloneDeepVisitor::visitMComponent(const MComponent *component)
 void MCloneDeepVisitor::visitMDiagram(const MDiagram *diagram)
 {
     QMT_CHECK(m_cloned);
-    MDiagram *cloned = dynamic_cast<MDiagram *>(m_cloned);
+    auto cloned = dynamic_cast<MDiagram *>(m_cloned);
     QMT_CHECK(cloned);
     foreach (const DElement *element, diagram->diagramElements()) {
         DCloneDeepVisitor visitor;
@@ -235,7 +235,7 @@ void MCloneDeepVisitor::visitMRelation(const MRelation *relation)
 {
     QMT_CHECK(m_cloned);
     visitMElement(relation);
-    MRelation *cloned = dynamic_cast<MRelation *>(m_cloned);
+    auto cloned = dynamic_cast<MRelation *>(m_cloned);
     QMT_CHECK(cloned);
     cloned->setEndAUid(relation->endAUid());
     cloned->setEndBUid(relation->endBUid());

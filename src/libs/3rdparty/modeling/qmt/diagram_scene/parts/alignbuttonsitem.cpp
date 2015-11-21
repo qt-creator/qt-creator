@@ -126,7 +126,7 @@ void AlignButtonsItem::clear()
 
 void AlignButtonsItem::addButton(IAlignable::AlignType alignType, const QString &identifier, qreal pos)
 {
-    AlignButtonItem *item = new AlignButtonItem(alignType, identifier, m_alignable, this);
+    auto item = new AlignButtonItem(alignType, identifier, m_alignable, this);
     switch (alignType) {
     case IAlignable::AlignLeft:
     {

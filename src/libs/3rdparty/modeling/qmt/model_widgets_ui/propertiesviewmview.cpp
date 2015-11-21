@@ -504,7 +504,7 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
         QMT_CHECK(!m_classMembersParseButton);
         m_classMembersStatusLabel = new QLabel(m_topWidget);
         m_classMembersParseButton = new QPushButton(QStringLiteral("Clean Up"), m_topWidget);
-        QHBoxLayout *layout = new QHBoxLayout();
+        auto layout = new QHBoxLayout();
         layout->addWidget(m_classMembersStatusLabel);
         layout->addWidget(m_classMembersParseButton);
         layout->setStretch(0, 1);
@@ -1392,7 +1392,7 @@ QList<T *> PropertiesView::MView::filter(const QList<V *> &elements)
 {
     QList<T *> filtered;
     foreach (V *element, elements) {
-        T *t = dynamic_cast<T *>(element);
+        auto t = dynamic_cast<T *>(element);
         if (t)
             filtered.append(t);
     }

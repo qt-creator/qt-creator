@@ -254,7 +254,7 @@ DElement *DiagramSceneModel::element(QGraphicsItem *item) const
 
 bool DiagramSceneModel::isElementEditable(const DElement *element) const
 {
-    IEditable *editable = dynamic_cast<IEditable *>(m_elementToItemMap.value(element));
+   auto editable = dynamic_cast<IEditable *>(m_elementToItemMap.value(element));
     return editable != 0 && editable->isEditable();
 }
 
@@ -277,14 +277,14 @@ void DiagramSceneModel::selectElement(DElement *element)
 
 void DiagramSceneModel::editElement(DElement *element)
 {
-    IEditable *editable = dynamic_cast<IEditable *>(m_elementToItemMap.value(element));
+    auto editable = dynamic_cast<IEditable *>(m_elementToItemMap.value(element));
     if (editable != 0 && editable->isEditable())
         editable->edit();
 }
 
 void DiagramSceneModel::copyToClipboard()
 {
-    QMimeData *mimeData = new QMimeData();
+    auto mimeData = new QMimeData();
 
     // Selections would also render to the clipboard
     m_graphicsScene->clearSelection();
@@ -461,11 +461,11 @@ void DiagramSceneModel::moveSelectedItems(QGraphicsItem *grabbedItem, const QPoi
 
     if (delta != QPointF(0.0, 0.0)) {
         foreach (QGraphicsItem *item, m_selectedItems) {
-            if (IMoveable *moveable = dynamic_cast<IMoveable *>(item))
+            if (auto moveable = dynamic_cast<IMoveable *>(item))
                 moveable->moveDelta(delta);
         }
         foreach (QGraphicsItem *item, m_secondarySelectedItems) {
-            if (IMoveable *moveable = dynamic_cast<IMoveable *>(item))
+            if (auto moveable = dynamic_cast<IMoveable *>(item))
                 moveable->moveDelta(delta);
         }
     }
@@ -474,11 +474,11 @@ void DiagramSceneModel::moveSelectedItems(QGraphicsItem *grabbedItem, const QPoi
 void DiagramSceneModel::alignSelectedItemsPositionOnRaster()
 {
     foreach (QGraphicsItem *item, m_selectedItems) {
-        if (IMoveable *moveable = dynamic_cast<IMoveable *>(item))
+        if (auto moveable = dynamic_cast<IMoveable *>(item))
             moveable->alignItemPositionToRaster(RASTER_WIDTH, RASTER_HEIGHT);
     }
     foreach (QGraphicsItem *item, m_secondarySelectedItems) {
-        if (IMoveable *moveable = dynamic_cast<IMoveable *>(item))
+        if (auto moveable = dynamic_cast<IMoveable *>(item))
             moveable->alignItemPositionToRaster(RASTER_WIDTH, RASTER_HEIGHT);
     }
 }
@@ -495,7 +495,7 @@ QList<QGraphicsItem *> DiagramSceneModel::collectCollidingObjectItems(const QGra
 {
     QList<QGraphicsItem *> collidingItems;
 
-    const IResizable *resizable = dynamic_cast<const IResizable *>(item);
+    auto resizable = dynamic_cast<const IResizable *>(item);
     if (!resizable)
         return collidingItems;
     QRectF rect = resizable->rect();
@@ -504,7 +504,7 @@ QList<QGraphicsItem *> DiagramSceneModel::collectCollidingObjectItems(const QGra
     switch (collidingMode) {
     case CollidingInnerItems:
         foreach (QGraphicsItem *candidate, m_graphicsItems) {
-            if (const IResizable *candidateResizable = dynamic_cast<const IResizable *>(candidate)) {
+            if (auto candidateResizable = dynamic_cast<const IResizable *>(candidate)) {
                 QRectF candidateRect = candidateResizable->rect();
                 candidateRect.translate(candidateResizable->pos());
                 if (candidateRect.left() >= rect.left() && candidateRect.right() <= rect.right()
@@ -516,7 +516,7 @@ QList<QGraphicsItem *> DiagramSceneModel::collectCollidingObjectItems(const QGra
         break;
     case CollidingItems:
         foreach (QGraphicsItem *candidate, m_graphicsItems) {
-            if (const IResizable *candidateResizable = dynamic_cast<const IResizable *>(candidate)) {
+            if (auto candidateResizable = dynamic_cast<const IResizable *>(candidate)) {
                 QRectF candidateRect = candidateResizable->rect();
                 candidateRect.translate(candidateResizable->pos());
                 if (candidateRect.left() <= rect.right() && candidateRect.right() >= rect.left()
@@ -528,7 +528,7 @@ QList<QGraphicsItem *> DiagramSceneModel::collectCollidingObjectItems(const QGra
         break;
     case CollidingOuterItems:
         foreach (QGraphicsItem *candidate, m_graphicsItems) {
-            if (const IResizable *candidateResizable = dynamic_cast<const IResizable *>(candidate)) {
+            if (auto candidateResizable = dynamic_cast<const IResizable *>(candidate)) {
                 QRectF candidateRect = candidateResizable->rect();
                 candidateRect.translate(candidateResizable->pos());
                 if (candidateRect.left() <= rect.left() && candidateRect.right() >= rect.right()
@@ -761,7 +761,7 @@ void DiagramSceneModel::onSelectionChanged()
 
     // select all relations where both ends are primary or secondary selected
     foreach (DElement *element, m_diagram->diagramElements()) {
-        DRelation *relation = dynamic_cast<DRelation *>(element);
+        auto relation = dynamic_cast<DRelation *>(element);
         if (relation) {
             QGraphicsItem *relationItem = m_elementToItemMap.value(relation);
             QMT_CHECK(relationItem);
@@ -784,7 +784,7 @@ void DiagramSceneModel::onSelectionChanged()
 
     foreach (QGraphicsItem *item, m_secondarySelectedItems) {
         if (!newSecondarySelectedItems.contains(item)) {
-            ISelectable *selectable = dynamic_cast<ISelectable *>(item);
+            auto selectable = dynamic_cast<ISelectable *>(item);
             QMT_CHECK(selectable);
             selectable->setSecondarySelected(false);
             selectionChanged = true;
@@ -792,7 +792,7 @@ void DiagramSceneModel::onSelectionChanged()
     }
     foreach (QGraphicsItem *item, newSecondarySelectedItems) {
         if (!m_secondarySelectedItems.contains(item)) {
-            ISelectable *selectable = dynamic_cast<ISelectable *>(item);
+            auto selectable = dynamic_cast<ISelectable *>(item);
             QMT_CHECK(selectable);
             selectable->setSecondarySelected(true);
             selectionChanged = true;
@@ -894,7 +894,7 @@ void DiagramSceneModel::updateFocusItem(const QSet<QGraphicsItem *> &selectedIte
 void DiagramSceneModel::unsetFocusItem()
 {
     if (m_focusItem) {
-        if (ISelectable *oldSelectable = dynamic_cast<ISelectable *>(m_focusItem))
+        if (auto oldSelectable = dynamic_cast<ISelectable *>(m_focusItem))
             oldSelectable->setFocusSelected(false);
         else
             QMT_CHECK(false);

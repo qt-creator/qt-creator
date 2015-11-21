@@ -128,7 +128,7 @@ void DiagramsManager::setStereotypeController(StereotypeController *stereotypeCo
 DiagramSceneModel *DiagramsManager::bindDiagramSceneModel(MDiagram *diagram)
 {
     if (!m_diagramUidToManagedDiagramMap.contains(diagram->uid())) {
-        DiagramSceneModel *diagramSceneModel = new DiagramSceneModel();
+        auto diagramSceneModel = new DiagramSceneModel();
         diagramSceneModel->setDiagramController(m_diagramController);
         diagramSceneModel->setDiagramSceneController(m_diagramSceneController);
         diagramSceneModel->setStyleController(m_styleController);
@@ -138,7 +138,7 @@ DiagramSceneModel *DiagramsManager::bindDiagramSceneModel(MDiagram *diagram)
                 this, &DiagramsManager::diagramActivated);
         connect(diagramSceneModel, &DiagramSceneModel::selectionHasChanged,
                 this, &DiagramsManager::diagramSelectionChanged);
-        ManagedDiagram *managedDiagram = new ManagedDiagram(diagramSceneModel, diagram->name());
+        auto managedDiagram = new ManagedDiagram(diagramSceneModel, diagram->name());
         m_diagramUidToManagedDiagramMap.insert(diagram->uid(), managedDiagram);
     }
     return diagramSceneModel(diagram);
@@ -191,7 +191,7 @@ void DiagramsManager::onDataChanged(const QModelIndex &topleft, const QModelInde
 {
     for (int row = topleft.row(); row <= bottomright.row(); ++row) {
         QModelIndex index = m_model->QStandardItemModel::index(row, 0, topleft.parent());
-        MDiagram *diagram = dynamic_cast<MDiagram *>(m_model->element(index));
+        auto diagram = dynamic_cast<MDiagram *>(m_model->element(index));
         if (diagram) {
             ManagedDiagram *managedDiagram = m_diagramUidToManagedDiagramMap.value(diagram->uid());
             if (managedDiagram && managedDiagram->diagramName() != diagram->name()) {

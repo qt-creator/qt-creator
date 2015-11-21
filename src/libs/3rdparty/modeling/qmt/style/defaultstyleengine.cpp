@@ -201,7 +201,7 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, StyleE
             headerFont.setBold(true);
         }
 
-        Style *style = new Style(baseStyle->type());
+        auto style = new Style(baseStyle->type());
         QPen linePen = baseStyle->linePen();
         linePen.setColor(lineColor);
         linePen.setWidth(lineWidth);
@@ -335,7 +335,7 @@ const Style *DefaultStyleEngine::applyRelationStyle(const Style *baseStyle, cons
     RelationStyleKey key(elementType, styledRelation.endA() ? styledRelation.endA()->visualPrimaryRole() : DObject::PrimaryRoleNormal);
     const Style *derivedStyle = m_relationStyleMap.value(key);
     if (!derivedStyle) {
-        Style *style = new Style(baseStyle->type());
+        auto style = new Style(baseStyle->type());
 
         const DObject *object = styledRelation.endA();
         ObjectVisuals objectVisuals(object ? object->visualPrimaryRole() : DObject::PrimaryRoleNormal,
@@ -389,7 +389,7 @@ const Style *DefaultStyleEngine::applyAnnotationStyle(const Style *baseStyle, DA
     AnnotationStyleKey key(visualRole);
     const Style *derivedStyle = m_annotationStyleMap.value(key);
     if (!derivedStyle) {
-        Style *style = new Style(baseStyle->type());
+        auto style = new Style(baseStyle->type());
         QFont normalFont;
         QBrush textBrush = baseStyle->textBrush();
         switch (visualRole) {
@@ -430,7 +430,7 @@ const Style *DefaultStyleEngine::applyBoundaryStyle(const Style *baseStyle, cons
     BoundaryStyleKey key;
     const Style *derivedStyle = m_boundaryStyleMap.value(key);
     if (!derivedStyle) {
-        Style *style = new Style(baseStyle->type());
+        auto style = new Style(baseStyle->type());
         style->setNormalFont(baseStyle->normalFont());
         style->setTextBrush(baseStyle->textBrush());
         m_boundaryStyleMap.insert(key, style);

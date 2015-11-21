@@ -70,7 +70,7 @@ void DFactory::visitMElement(const MElement *element)
 
 void DFactory::visitMObject(const MObject *object)
 {
-    DObject *diagramObject = dynamic_cast<DObject *>(m_product);
+    auto diagramObject = dynamic_cast<DObject *>(m_product);
     QMT_CHECK(diagramObject);
     diagramObject->setModelUid(object->uid());
     visitMElement(object);
@@ -79,7 +79,7 @@ void DFactory::visitMObject(const MObject *object)
 void DFactory::visitMPackage(const MPackage *package)
 {
     QMT_CHECK(!m_product);
-    DPackage *diagramPackage = new DPackage();
+    auto diagramPackage = new DPackage();
     m_product = diagramPackage;
     visitMObject(package);
 }
@@ -87,7 +87,7 @@ void DFactory::visitMPackage(const MPackage *package)
 void DFactory::visitMClass(const MClass *klass)
 {
     QMT_CHECK(!m_product);
-    DClass *diagramKlass = new DClass();
+    auto diagramKlass = new DClass();
     m_product = diagramKlass;
     visitMObject(klass);
 }
@@ -95,7 +95,7 @@ void DFactory::visitMClass(const MClass *klass)
 void DFactory::visitMComponent(const MComponent *component)
 {
     QMT_CHECK(!m_product);
-    DComponent *diagramComponent = new DComponent();
+    auto diagramComponent = new DComponent();
     m_product = diagramComponent;
     visitMObject(component);
 }
@@ -103,7 +103,7 @@ void DFactory::visitMComponent(const MComponent *component)
 void DFactory::visitMDiagram(const MDiagram *diagram)
 {
     QMT_CHECK(!m_product);
-    DDiagram *diagramDiagram = new DDiagram();
+    auto diagramDiagram = new DDiagram();
     m_product = diagramDiagram;
     visitMObject(diagram);
 }
@@ -117,14 +117,14 @@ void DFactory::visitMCanvasDiagram(const MCanvasDiagram *diagram)
 void DFactory::visitMItem(const MItem *item)
 {
     QMT_CHECK(!m_product);
-    DItem *diagramItem = new DItem();
+    auto diagramItem = new DItem();
     m_product = diagramItem;
     visitMObject(item);
 }
 
 void DFactory::visitMRelation(const MRelation *relation)
 {
-    DRelation *diagramRelation = dynamic_cast<DRelation *>(m_product);
+    auto diagramRelation = dynamic_cast<DRelation *>(m_product);
     QMT_CHECK(diagramRelation);
     diagramRelation->setModelUid(relation->uid());
     visitMElement(relation);
@@ -133,7 +133,7 @@ void DFactory::visitMRelation(const MRelation *relation)
 void DFactory::visitMDependency(const MDependency *dependency)
 {
     QMT_CHECK(!m_product);
-    DDependency *diagramDependency = new DDependency();
+    auto diagramDependency = new DDependency();
     m_product = diagramDependency;
     visitMRelation(dependency);
 }
@@ -141,7 +141,7 @@ void DFactory::visitMDependency(const MDependency *dependency)
 void DFactory::visitMInheritance(const MInheritance *inheritance)
 {
     QMT_CHECK(!m_product);
-    DInheritance *diagramInheritance = new DInheritance();
+    auto diagramInheritance = new DInheritance();
     m_product = diagramInheritance;
     visitMRelation(inheritance);
 }
@@ -149,7 +149,7 @@ void DFactory::visitMInheritance(const MInheritance *inheritance)
 void DFactory::visitMAssociation(const MAssociation *association)
 {
     QMT_CHECK(!m_product);
-    DAssociation *diagramAssociation = new DAssociation();
+    auto diagramAssociation = new DAssociation();
     m_product = diagramAssociation;
     visitMRelation(association);
 }

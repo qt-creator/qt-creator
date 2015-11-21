@@ -242,7 +242,7 @@ void ComponentItem::relationDrawn(const QString &id, const QPointF &toScenePos, 
     DElement *targetElement = diagramSceneModel()->findTopmostElement(toScenePos);
     if (targetElement) {
        if (id == QStringLiteral("dependency")) {
-            DObject *dependantObject = dynamic_cast<DObject *>(targetElement);
+            auto dependantObject = dynamic_cast<DObject *>(targetElement);
             if (dependantObject)
                 diagramSceneModel()->diagramSceneController()->createDependency(object(), dependantObject, intermediatePoints, diagramSceneModel()->diagram());
         }
@@ -251,7 +251,7 @@ void ComponentItem::relationDrawn(const QString &id, const QPointF &toScenePos, 
 
 bool ComponentItem::hasPlainShape() const
 {
-    DComponent *diagramComponent = dynamic_cast<DComponent *>(object());
+    auto diagramComponent = dynamic_cast<DComponent *>(object());
     QMT_CHECK(diagramComponent);
     return diagramComponent->isPlainShape();
 }

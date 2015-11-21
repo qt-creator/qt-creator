@@ -561,7 +561,7 @@ const Style *ObjectItem::adaptedStyle(const QString &stereotypeIconId)
 {
     QList<const DObject *> collidingObjects;
     foreach (const QGraphicsItem *item, m_diagramSceneModel->collectCollidingObjectItems(this, DiagramSceneModel::CollidingItems)) {
-        if (const ObjectItem *objectItem = dynamic_cast<const ObjectItem *>(item))
+        if (auto objectItem = dynamic_cast<const ObjectItem *>(item))
             collidingObjects.append(objectItem->object());
     }
     QColor baseColor;
@@ -591,7 +591,7 @@ bool ObjectItem::showContext() const
         MObject *owner = mobject->owner();
         if (owner) {
             foreach (QGraphicsItem *item, m_diagramSceneModel->collectCollidingObjectItems(this, DiagramSceneModel::CollidingOuterItems)) {
-                if (ObjectItem *objectItem = dynamic_cast<ObjectItem *>(item)) {
+                if (auto objectItem = dynamic_cast<ObjectItem *>(item)) {
                     if (objectItem->object()->modelUid().isValid() && objectItem->object()->modelUid() == owner->uid()) {
                         showContext = false;
                         break;
@@ -688,7 +688,7 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     QAction *selectedAction = menu.exec(event->screenPos());
     if (selectedAction) {
         if (!handleSelectedContextMenuAction(selectedAction)) {
-            ContextMenuAction *action = dynamic_cast<ContextMenuAction *>(selectedAction);
+            auto action = dynamic_cast<ContextMenuAction *>(selectedAction);
             QMT_CHECK(action);
             if (action->id() == QStringLiteral("openDiagram")) {
                 m_diagramSceneModel->diagramSceneController()->elementTasks()->openDiagram(m_object, m_diagramSceneModel->diagram());
@@ -733,7 +733,7 @@ QSizeF ObjectItem::minimumSize(const QSet<QGraphicsItem *> &items) const
 {
     QSizeF minimumSize(0.0, 0.0);
     foreach (QGraphicsItem *item, items) {
-        if (IResizable *resizable = dynamic_cast<IResizable *>(item)) {
+        if (auto resizable = dynamic_cast<IResizable *>(item)) {
             QSizeF size = resizable->minimumSize();
             if (size.width() > minimumSize.width())
                 minimumSize.setWidth(size.width());

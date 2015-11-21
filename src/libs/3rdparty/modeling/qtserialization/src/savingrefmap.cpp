@@ -36,7 +36,7 @@ namespace impl {
 int SavingRefMap::countDanglingReferences()
 {
     int dangling = 0;
-    for (MapType::const_iterator it = m_references.begin(); it != m_references.end(); ++it) {
+    for (auto it = m_references.begin(); it != m_references.end(); ++it) {
         if (!it.value().second)
             ++dangling;
     }

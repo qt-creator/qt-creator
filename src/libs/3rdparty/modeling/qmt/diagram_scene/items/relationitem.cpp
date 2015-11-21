@@ -468,7 +468,7 @@ QPointF RelationItem::calcEndPoint(const Uid &end, const QPointF &otherEndPos, i
 {
     QGraphicsItem *endItem = m_diagramSceneModel->graphicsItem(end);
     QMT_CHECK(endItem);
-    IIntersectionable *endObjectItem = dynamic_cast<IIntersectionable *>(endItem);
+    auto endObjectItem = dynamic_cast<IIntersectionable *>(endItem);
     QPointF endPos;
     if (endObjectItem) {
         DObject *endObject = m_diagramSceneModel->diagramController()->findElement<DObject>(end, m_diagramSceneModel->diagram());

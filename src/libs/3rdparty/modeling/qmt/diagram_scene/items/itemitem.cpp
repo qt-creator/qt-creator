@@ -78,7 +78,7 @@ void ItemItem::update()
     prepareGeometryChange();
     updateStereotypeIconDisplay();
 
-    DItem *diagramItem = dynamic_cast<DItem *>(object());
+    auto diagramItem = dynamic_cast<DItem *>(object());
     Q_UNUSED(diagramItem); // avoid warning about unsed variable
     QMT_CHECK(diagramItem);
 
@@ -198,7 +198,7 @@ void ItemItem::relationDrawn(const QString &id, const QPointF &toScenePos, const
     DElement *targetElement = diagramSceneModel()->findTopmostElement(toScenePos);
     if (targetElement) {
        if (id == QStringLiteral("dependency")) {
-            DObject *dependantObject = dynamic_cast<DObject *>(targetElement);
+            auto dependantObject = dynamic_cast<DObject *>(targetElement);
             if (dependantObject)
                 diagramSceneModel()->diagramSceneController()->createDependency(object(), dependantObject, intermediatePoints, diagramSceneModel()->diagram());
         }

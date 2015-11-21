@@ -66,7 +66,7 @@ void TreeModelManager::setModelTreeView(ModelTreeViewInterface *modelTreeView)
 bool TreeModelManager::isRootPackageSelected() const
 {
     foreach (const QModelIndex &index, m_modelTreeView->selectedSourceModelIndexes()) {
-        MObject *object = dynamic_cast<MObject *>(m_treeModel->element(index));
+        auto object = dynamic_cast<MObject *>(m_treeModel->element(index));
         if (object && !object->owner())
             return true;
     }
@@ -90,9 +90,9 @@ MPackage *TreeModelManager::selectedPackage() const
     {
         MElement *element = m_treeModel->element(m_modelTreeView->currentSourceModelIndex());
         QMT_CHECK(element);
-        if (MPackage *package = dynamic_cast<MPackage *>(element)) {
+        if (auto package = dynamic_cast<MPackage *>(element)) {
             return package;
-        } else if (MObject *object = dynamic_cast<MObject *>(element)) {
+        } else if (auto object = dynamic_cast<MObject *>(element)) {
             package = dynamic_cast<MPackage *>(object->owner());
             if (package)
                 return package;
@@ -106,9 +106,9 @@ MSelection TreeModelManager::selectedObjects() const
     MSelection modelSelection;
     foreach (const QModelIndex &index, m_modelTreeView->selectedSourceModelIndexes()) {
         MElement *element = m_treeModel->element(index);
-        if (MObject *object = dynamic_cast<MObject *>(element))
+        if (auto object = dynamic_cast<MObject *>(element))
             modelSelection.append(object->uid(), m_treeModel->modelController()->ownerKey(object));
-        else if (MRelation *relation = dynamic_cast<MRelation *>(element))
+        else if (auto relation = dynamic_cast<MRelation *>(element))
             modelSelection.append(relation->uid(), m_treeModel->modelController()->ownerKey(relation));
     }
     return modelSelection;

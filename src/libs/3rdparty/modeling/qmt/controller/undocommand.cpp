@@ -57,7 +57,7 @@ void UndoCommand::setDoNotMerge(bool doNotMerge)
 
 bool UndoCommand::mergeWith(const QUndoCommand *other)
 {
-    const UndoCommand *otherCommand = dynamic_cast<const UndoCommand *>(other);
+    auto otherCommand = dynamic_cast<const UndoCommand *>(other);
     if (!otherCommand)
         return false;
     if (otherCommand->m_doNotMerge)

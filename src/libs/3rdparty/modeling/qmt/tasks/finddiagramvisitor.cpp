@@ -49,7 +49,7 @@ void FindDiagramVisitor::visitMObject(const MObject *object)
 {
     foreach (const Handle<MObject> &child, object->children()) {
         if (child.hasTarget()) {
-            if (MDiagram *diagram = dynamic_cast<MDiagram *>(child.target())) {
+            if (auto diagram = dynamic_cast<MDiagram *>(child.target())) {
                 m_diagram = diagram;
                 return;
             }

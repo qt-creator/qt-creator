@@ -213,7 +213,7 @@ void PackageItem::relationDrawn(const QString &id, const QPointF &toScenePos, co
     DElement *targetElement = diagramSceneModel()->findTopmostElement(toScenePos);
     if (targetElement) {
         if (id == QStringLiteral("dependency")) {
-            DObject *dependantObject = dynamic_cast<DObject *>(targetElement);
+            auto dependantObject = dynamic_cast<DObject *>(targetElement);
             if (dependantObject)
                 diagramSceneModel()->diagramSceneController()->createDependency(object(), dependantObject, intermediatePoints, diagramSceneModel()->diagram());
         }

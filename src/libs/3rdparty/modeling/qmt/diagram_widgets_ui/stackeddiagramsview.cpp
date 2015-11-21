@@ -63,7 +63,7 @@ void StackedDiagramsView::openDiagram(MDiagram *diagram)
     DiagramView *diagramView = m_diagramViews.value(diagram->uid());
     if (!diagramView) {
         DiagramSceneModel *diagramSceneModel = m_diagramsManager->bindDiagramSceneModel(diagram);
-        DiagramView *diagramView = new DiagramView(this);
+        auto diagramView = new DiagramView(this);
         diagramView->setDiagramSceneModel(diagramSceneModel);
         int tabIndex = addWidget(diagramView);
         setCurrentIndex(tabIndex);
@@ -91,7 +91,7 @@ void StackedDiagramsView::closeDiagram(const MDiagram *diagram)
 void StackedDiagramsView::closeAllDiagrams()
 {
     for (int i = count() - 1; i >= 0; --i) {
-        DiagramView *diagramView = dynamic_cast<DiagramView *>(widget(i));
+        auto diagramView = dynamic_cast<DiagramView *>(widget(i));
         if (diagramView) {
             removeWidget(diagramView);
             delete diagramView;
@@ -115,7 +115,7 @@ void StackedDiagramsView::onDiagramRenamed(const MDiagram *diagram)
 
 MDiagram *StackedDiagramsView::diagram(int tabIndex) const
 {
-    DiagramView *diagramView = dynamic_cast<DiagramView *>(widget(tabIndex));
+    auto diagramView = dynamic_cast<DiagramView *>(widget(tabIndex));
     return diagram(diagramView);
 }
 

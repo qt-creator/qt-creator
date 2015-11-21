@@ -70,7 +70,7 @@ QSizeF SceneInspector::minimalSize(const DElement *element, const MDiagram *diag
         const QGraphicsItem *item = diagramSceneModel->graphicsItem(const_cast<DElement *>(element));
         QMT_CHECK(item);
         if (item) {
-            if (const IResizable *resizable = dynamic_cast<const IResizable *>(item))
+            if (auto resizable = dynamic_cast<const IResizable *>(item))
                 return resizable->minimumSize();
         }
     }
@@ -86,7 +86,7 @@ IMoveable *SceneInspector::moveable(const DElement *element, const MDiagram *dia
         QGraphicsItem *item = diagramSceneModel->graphicsItem(const_cast<DElement *>(element));
         QMT_CHECK(item);
         if (item) {
-            if (IMoveable *moveable = dynamic_cast<IMoveable *>(item))
+            if (auto moveable = dynamic_cast<IMoveable *>(item))
                 return moveable;
         }
     }
@@ -102,7 +102,7 @@ IResizable *SceneInspector::resizable(const DElement *element, const MDiagram *d
         QGraphicsItem *item = diagramSceneModel->graphicsItem(const_cast<DElement *>(element));
         QMT_CHECK(item);
         if (item) {
-            if (IResizable *resizeable = dynamic_cast<IResizable *>(item))
+            if (auto resizeable = dynamic_cast<IResizable *>(item))
                 return resizeable;
         }
     }

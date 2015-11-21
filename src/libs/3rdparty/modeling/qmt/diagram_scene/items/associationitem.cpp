@@ -140,7 +140,7 @@ void AssociationItem::placeEndLabels(const QLineF &lineSegment, QGraphicsItem *e
         QPointF rectPlacement;
         GeometryUtilities::Side alignedSide = GeometryUtilities::SideUnspecified;
 
-        if (IIntersectionable *objectItem = dynamic_cast<IIntersectionable *>(endItem)) {
+        if (auto objectItem = dynamic_cast<IIntersectionable *>(endItem)) {
             QPointF intersectionPoint;
             QLineF intersectionLine;
 

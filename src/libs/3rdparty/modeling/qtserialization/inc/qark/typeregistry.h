@@ -201,7 +201,7 @@ Archive &savePointer(Archive &ar, BASE * const &p)
 template<class Archive, class BASE, class DERIVED>
 Archive &loadPointer(Archive &ar, BASE *&p)
 {
-    DERIVED *t = new DERIVED();
+    auto t = new DERIVED();
     load(ar, *t, Parameters());
     p = t;
     return ar;

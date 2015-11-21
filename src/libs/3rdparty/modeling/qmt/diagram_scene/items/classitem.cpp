@@ -93,7 +93,7 @@ void ClassItem::update()
 
     updateStereotypeIconDisplay();
 
-    DClass *diagramClass = dynamic_cast<DClass *>(object());
+    auto diagramClass = dynamic_cast<DClass *>(object());
     QMT_CHECK(diagramClass);
 
     const Style *style = adaptedStyle(stereotypeIconId());
@@ -315,20 +315,20 @@ void ClassItem::relationDrawn(const QString &id, const QPointF &toScenePos, cons
     DElement *targetElement = diagramSceneModel()->findTopmostElement(toScenePos);
     if (targetElement) {
         if (id == QLatin1String("inheritance")) {
-            DClass *baseClass = dynamic_cast<DClass *>(targetElement);
+            auto baseClass = dynamic_cast<DClass *>(targetElement);
             if (baseClass) {
-                DClass *derivedClass = dynamic_cast<DClass *>(object());
+                auto derivedClass = dynamic_cast<DClass *>(object());
                 QMT_CHECK(derivedClass);
                 diagramSceneModel()->diagramSceneController()->createInheritance(derivedClass, baseClass, intermediatePoints, diagramSceneModel()->diagram());
             }
         } else if (id == QLatin1String("dependency")) {
-            DObject *dependantObject = dynamic_cast<DObject *>(targetElement);
+            auto dependantObject = dynamic_cast<DObject *>(targetElement);
             if (dependantObject)
                 diagramSceneModel()->diagramSceneController()->createDependency(object(), dependantObject, intermediatePoints, diagramSceneModel()->diagram());
         } else if (id == QLatin1String("association")) {
-            DClass *assoziatedClass = dynamic_cast<DClass *>(targetElement);
+            auto assoziatedClass = dynamic_cast<DClass *>(targetElement);
             if (assoziatedClass) {
-                DClass *derivedClass = dynamic_cast<DClass *>(object());
+                auto derivedClass = dynamic_cast<DClass *>(object());
                 QMT_CHECK(derivedClass);
                 diagramSceneModel()->diagramSceneController()->createAssociation(derivedClass, assoziatedClass, intermediatePoints, diagramSceneModel()->diagram());
             }
@@ -348,7 +348,7 @@ bool ClassItem::extendContextMenu(QMenu *menu)
 
 bool ClassItem::handleSelectedContextMenuAction(QAction *action)
 {
-    ContextMenuAction *klassAction = dynamic_cast<ContextMenuAction *>(action);
+    auto klassAction = dynamic_cast<ContextMenuAction *>(action);
     if (klassAction) {
         if (klassAction->id() == QStringLiteral("showDefinition")) {
             diagramSceneModel()->diagramSceneController()->elementTasks()->openClassDefinition(object(), diagramSceneModel()->diagram());
@@ -543,7 +543,7 @@ void ClassItem::updateMembers(const Style *style)
     QString *currentGroup = 0;
     QString *text = 0;
 
-    DClass *dclass = dynamic_cast<DClass *>(object());
+    auto dclass = dynamic_cast<DClass *>(object());
     QMT_CHECK(dclass);
 
     // TODO move bool haveIconFonts into class Style?

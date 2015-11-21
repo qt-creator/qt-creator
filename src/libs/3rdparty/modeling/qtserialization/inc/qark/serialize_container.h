@@ -180,7 +180,7 @@ template<class Archive, class KEY, class VALUE>
 inline void save(Archive &archive, const QHash<KEY, VALUE> &hash, const Parameters &)
 {
     archive << tag(QStringLiteral("qhash"));
-    for (typename QHash<KEY, VALUE>::const_iterator it = hash.begin(); it != hash.end(); ++it) {
+    for (auto it = hash.begin(); it != hash.end(); ++it) {
         impl::KeyValuePair<KEY, VALUE> pair(it.key(), it.value());
         archive << attr("item", pair);
     }
