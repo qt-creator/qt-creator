@@ -43,7 +43,6 @@ public:
     StringTextSource();
     ~StringTextSource();
 
-public:
     void setText(const QString &text);
     int sourceId() const { return m_sourceId; }
     void setSourceId(int sourceId);

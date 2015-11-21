@@ -57,7 +57,6 @@ public:
     void setLinePen(int index, const QPen &pen);
     int currentIndex() const { return m_currentIndex; }
 
-public slots:
     void clear();
     void setCurrentIndex(int index);
 

@@ -102,7 +102,7 @@ public:
     void update(QList<DElement *> &diagramElements, MDiagram *diagram);
     void edit();
 
-private slots:
+private:
     void onStereotypesChanged(const QString &stereotypes);
     void onObjectNameChanged(const QString &name);
     void onNamespaceChanged(const QString &umlNamespace);
@@ -133,7 +133,6 @@ private slots:
     void onAutoWidthChanged(bool autoWidthed);
     void onAnnotationVisualRoleChanged(int visualRoleIndex);
 
-private:
     void prepare();
     template<class T, class V>
     void setTitle(const QList<V *> &elements, const QString &singularTitle,

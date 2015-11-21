@@ -128,7 +128,7 @@ public:
     void pasteElements(const DContainer &diagramContainer, MDiagram *diagram);
     void deleteElements(const DSelection &diagramSelection, MDiagram *diagram);
 
-private slots:
+private:
     void onBeginResetModel();
     void onEndResetModel();
     void onBeginUpdateObject(int row, const MObject *parent);
@@ -146,7 +146,6 @@ private slots:
     void onBeginMoveRelation(int formerRow, const MObject *formerOwner);
     void onEndMoveRelation(int row, const MObject *owner);
 
-private:
     void deleteElements(const DSelection &diagramSelection, MDiagram *diagram,
                         const QString &commandLabel);
 

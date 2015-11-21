@@ -53,11 +53,10 @@ public:
 
     void readStereotypeDefinitions(const QString &path);
 
-private slots:
+private:
     void onStereotypeIconParsed(const StereotypeIcon &stereotypeIcon);
     void onToolbarParsed(const Toolbar &toolbar);
 
-private:
     ConfigControllerPrivate *d;
 };
 

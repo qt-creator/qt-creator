@@ -80,16 +80,18 @@ DocumentController::DocumentController(QObject *parent) :
     m_diagramClipboard(new DContainer())
 {
     // project controller
-    QObject::connect(m_projectController, SIGNAL(changed()), this, SIGNAL(changed()));
+    connect(m_projectController, &ProjectController::changed, this, &DocumentController::changed);
 
     // model controller
     m_modelController->setUndoController(m_undoController);
-    QObject::connect(m_modelController, SIGNAL(modified()), m_projectController, SLOT(setModified()));
+    connect(m_modelController, &ModelController::modified,
+            m_projectController, &ProjectController::setModified);
 
     // diagram controller
     m_diagramController->setModelController(m_modelController);
     m_diagramController->setUndoController(m_undoController);
-    QObject::connect(m_diagramController, SIGNAL(modified(const MDiagram*)), m_projectController, SLOT(setModified()));
+    connect(m_diagramController, &DiagramController::modified,
+            m_projectController, &ProjectController::setModified);
 
     // diagram scene controller
     m_diagramSceneController->setModelController(m_modelController);

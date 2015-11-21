@@ -48,8 +48,8 @@ DiagramsView::DiagramsView(QWidget *parent)
     setTabsClosable(true);
     setMovable(true);
     setDocumentMode(false);
-    connect(this, SIGNAL(currentChanged(int)), this, SLOT(onCurrentChanged(int)));
-    connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(onTabCloseRequested(int)));
+    connect(this, &QTabWidget::currentChanged, this, &DiagramsView::onCurrentChanged);
+    connect(this, &QTabWidget::tabCloseRequested, this, &DiagramsView::onTabCloseRequested);
 }
 
 DiagramsView::~DiagramsView()

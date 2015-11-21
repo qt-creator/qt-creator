@@ -350,38 +350,40 @@ void DiagramController::setModelController(ModelController *modelController)
     }
     if (modelController) {
         m_modelController = modelController;
-        connect(modelController, SIGNAL(beginResetModel()), this, SLOT(onBeginResetModel()));
-        connect(modelController, SIGNAL(endResetModel()), this, SLOT(onEndResetModel()));
+        connect(modelController, &ModelController::beginResetModel,
+                this, &DiagramController::onBeginResetModel);
+        connect(modelController, &ModelController::endResetModel,
+                this, &DiagramController::onEndResetModel);
 
-        connect(modelController, SIGNAL(beginUpdateObject(int,const MObject*)),
-                this, SLOT(onBeginUpdateObject(int,const MObject*)));
-        connect(modelController, SIGNAL(endUpdateObject(int,const MObject*)),
-                this, SLOT(onEndUpdateObject(int,const MObject*)));
-        connect(modelController, SIGNAL(beginInsertObject(int,const MObject*)),
-                this, SLOT(onBeginInsertObject(int,const MObject*)));
-        connect(modelController, SIGNAL(endInsertObject(int,const MObject*)),
-                this, SLOT(onEndInsertObject(int,const MObject*)));
-        connect(modelController, SIGNAL(beginRemoveObject(int,const MObject*)),
-                this, SLOT(onBeginRemoveObject(int,const MObject*)));
-        connect(modelController, SIGNAL(endRemoveObject(int,const MObject*)),
-                this, SLOT(onEndRemoveObject(int,const MObject*)));
-        connect(modelController, SIGNAL(beginMoveObject(int,const MObject*)),
-                this, SLOT(onBeginMoveObject(int,const MObject*)));
-        connect(modelController, SIGNAL(endMoveObject(int,const MObject*)),
-                this, SLOT(onEndMoveObject(int,const MObject*)));
+        connect(modelController, &ModelController::beginUpdateObject,
+                this, &DiagramController::onBeginUpdateObject);
+        connect(modelController, &ModelController::endUpdateObject,
+                this, &DiagramController::onEndUpdateObject);
+        connect(modelController, &ModelController::beginInsertObject,
+                this, &DiagramController::onBeginInsertObject);
+        connect(modelController, &ModelController::endInsertObject,
+                this, &DiagramController::onEndInsertObject);
+        connect(modelController, &ModelController::beginRemoveObject,
+                this, &DiagramController::onBeginRemoveObject);
+        connect(modelController, &ModelController::endRemoveObject,
+                this, &DiagramController::onEndRemoveObject);
+        connect(modelController, &ModelController::beginMoveObject,
+                this, &DiagramController::onBeginMoveObject);
+        connect(modelController, &ModelController::endMoveObject,
+                this, &DiagramController::onEndMoveObject);
 
-        connect(modelController, SIGNAL(beginUpdateRelation(int,const MObject*)),
-                this, SLOT(onBeginUpdateRelation(int,const MObject*)));
-        connect(modelController, SIGNAL(endUpdateRelation(int,const MObject*)),
-                this, SLOT(onEndUpdateRelation(int,const MObject*)));
-        connect(modelController, SIGNAL(beginRemoveRelation(int,const MObject*)),
-                this, SLOT(onBeginRemoveRelation(int,const MObject*)));
-        connect(modelController, SIGNAL(endRemoveRelation(int,const MObject*)),
-                this, SLOT(onEndRemoveRelation(int,const MObject*)));
-        connect(modelController, SIGNAL(beginMoveRelation(int,const MObject*)),
-                this, SLOT(onBeginMoveRelation(int,const MObject*)));
-        connect(modelController, SIGNAL(endMoveRelation(int,const MObject*)),
-                this, SLOT(onEndMoveRelation(int,const MObject*)));
+        connect(modelController, &ModelController::beginUpdateRelation,
+                this, &DiagramController::onBeginUpdateRelation);
+        connect(modelController, &ModelController::endUpdateRelation,
+                this, &DiagramController::onEndUpdateRelation);
+        connect(modelController, &ModelController::beginRemoveRelation,
+                this, &DiagramController::onBeginRemoveRelation);
+        connect(modelController, &ModelController::endRemoveRelation,
+                this, &DiagramController::onEndRemoveRelation);
+        connect(modelController, &ModelController::beginMoveRelation,
+                this, &DiagramController::onBeginMoveRelation);
+        connect(modelController, &ModelController::endMoveRelation,
+                this, &DiagramController::onEndMoveRelation);
     }
 }
 

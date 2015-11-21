@@ -289,7 +289,7 @@ ClassMembersEdit::ClassMembersEdit(QWidget *parent)
       d(new ClassMembersEditPrivate)
 {
     setTabChangesFocus(true);
-    connect(this, SIGNAL(textChanged()), this, SLOT(onTextChanged()));
+    connect(this, &QPlainTextEdit::textChanged, this, &ClassMembersEdit::onTextChanged);
 }
 
 ClassMembersEdit::~ClassMembersEdit()

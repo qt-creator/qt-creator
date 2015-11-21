@@ -74,8 +74,10 @@ void ConfigController::setStereotypeController(StereotypeController *stereotypeC
 void ConfigController::readStereotypeDefinitions(const QString &path)
 {
     StereotypeDefinitionParser parser;
-    connect(&parser, SIGNAL(iconParsed(StereotypeIcon)), this, SLOT(onStereotypeIconParsed(StereotypeIcon)));
-    connect(&parser, SIGNAL(toolbarParsed(Toolbar)), this, SLOT(onToolbarParsed(Toolbar)));
+    connect(&parser, &StereotypeDefinitionParser::iconParsed,
+            this, &ConfigController::onStereotypeIconParsed);
+    connect(&parser, &StereotypeDefinitionParser::toolbarParsed,
+            this, &ConfigController::onToolbarParsed);
 
     QDir dir(path);
     dir.setNameFilters(QStringList() << QStringLiteral("*.def"));

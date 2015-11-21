@@ -98,10 +98,9 @@ protected:
 
     bool sceneEventFilter(QGraphicsItem *watched, QEvent *event);
 
-private slots:
+private:
     void onContentsChanged();
 
-private:
     QSizeF calcMinimumGeometry() const;
     void updateGeometry();
 

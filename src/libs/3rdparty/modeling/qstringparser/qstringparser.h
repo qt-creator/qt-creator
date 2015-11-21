@@ -127,7 +127,6 @@ private:
 
         void evaluate();
 
-    private:
         const QString m_source;
         const QString m_pattern;
         bool m_isEvaluated;

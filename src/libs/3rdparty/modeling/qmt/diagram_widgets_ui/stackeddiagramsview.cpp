@@ -45,7 +45,7 @@ StackedDiagramsView::StackedDiagramsView(QWidget *parent)
     : QStackedWidget(parent),
       m_diagramsManager(0)
 {
-    connect(this, SIGNAL(currentChanged(int)), this, SLOT(onCurrentChanged(int)));
+    connect(this, &QStackedWidget::currentChanged, this, &StackedDiagramsView::onCurrentChanged);
 }
 
 StackedDiagramsView::~StackedDiagramsView()

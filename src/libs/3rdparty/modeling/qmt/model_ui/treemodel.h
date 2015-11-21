@@ -91,7 +91,7 @@ public:
     Qt::DropActions supportedDropActions() const;
     QStringList mimeTypes() const;
 
-private slots:
+private:
     void onBeginResetModel();
     void onEndResetModel();
     void onBeginUpdateObject(int row, const MObject *parent);
@@ -113,7 +113,6 @@ private slots:
     void onRelationEndChanged(MRelation *relation, MObject *endObject);
     void onModelDataChanged(const QModelIndex &topleft, const QModelIndex &bottomright);
 
-private:
     void clear();
     ModelItem *createItem(const MElement *element);
     void createChildren(const MObject *parentObject, ModelItem *parentItem);

@@ -62,16 +62,14 @@ signals:
 public:
     void setDiagramsManager(DiagramsManager *diagramsManager);
 
-public slots:
     void openDiagram(MDiagram *diagram);
     void closeDiagram(const MDiagram *diagram);
     void closeAllDiagrams();
     void onDiagramRenamed(const MDiagram *diagram);
 
-private slots:
+private:
     void onCurrentChanged(int tabIndex);
 
-private:
     MDiagram *diagram(int tabIndex) const;
     MDiagram *diagram(DiagramView * diagramView) const;
 

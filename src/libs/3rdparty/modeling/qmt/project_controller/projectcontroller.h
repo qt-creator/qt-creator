@@ -69,7 +69,6 @@ public:
     Project *project() const { return m_project.data(); }
     bool isModified() const { return m_isModified; }
 
-public slots:
     void newProject(const QString &fileName);
     void setFileName(const QString &fileName);
     void setModified();

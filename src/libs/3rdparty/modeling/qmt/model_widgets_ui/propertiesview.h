@@ -80,10 +80,9 @@ public:
 
     QWidget *widget() const;
 
-public slots:
     void editSelectedElement();
 
-private slots:
+private:
     void onBeginResetModel();
     void onEndResetModel();
     void onBeginUpdateObject(int row, const MObject *parent);
@@ -115,7 +114,6 @@ private slots:
     void onBeginRemoveElement(int row, const MDiagram *diagram);
     void onEndRemoveElement(int row, const MDiagram *diagram);
 
-private:
     void beginUpdate(MElement *modelElement);
     void endUpdate(MElement *modelElement, bool cancelled);
     void beginUpdate(DElement *diagramElement);

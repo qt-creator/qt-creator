@@ -54,12 +54,11 @@ public:
 protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 
-private slots:
+private:
     void onTreeModelRowsInserted(const QModelIndex &parent, int start, int end);
     void onDataChanged(const QModelIndex &, const QModelIndex &, const QVector<int> &);
     void onDelayedSortTimeout();
 
-private:
     void startDelayedSortTimer();
 
     TreeModel *m_treeModel;

@@ -108,7 +108,8 @@ DiagramSceneModel::DiagramSceneModel(QObject *parent)
       m_focusItem(0)
 {
     m_latchController->setDiagramSceneModel(this);
-    connect(m_graphicsScene, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
+    connect(m_graphicsScene, &QGraphicsScene::selectionChanged,
+            this, &DiagramSceneModel::onSelectionChanged);
 
     // add one item at origin to force scene rect to include origin always
     m_graphicsScene->addItem(m_originItem);
@@ -137,24 +138,26 @@ void DiagramSceneModel::setDiagramController(DiagramController *diagramControlle
     }
     m_diagramController = diagramController;
     if (diagramController) {
-        connect(m_diagramController, SIGNAL(beginResetAllDiagrams()), this, SLOT(onBeginResetAllDiagrams()));
-        connect(m_diagramController, SIGNAL(endResetAllDiagrams()), this, SLOT(onEndResetAllDiagrams()));
-        connect(m_diagramController, SIGNAL(beginResetDiagram(const MDiagram*)),
-                this, SLOT(onBeginResetDiagram(const MDiagram*)));
-        connect(m_diagramController, SIGNAL(endResetDiagram(const MDiagram*)),
-                this, SLOT(onEndResetDiagram(const MDiagram*)));
-        connect(m_diagramController, SIGNAL(beginUpdateElement(int,const MDiagram*)),
-                this, SLOT(onBeginUpdateElement(int,const MDiagram*)));
-        connect(m_diagramController, SIGNAL(endUpdateElement(int,const MDiagram*)),
-                this, SLOT(onEndUpdateElement(int,const MDiagram*)));
-        connect(m_diagramController, SIGNAL(beginInsertElement(int,const MDiagram*)),
-                this, SLOT(onBeginInsertElement(int,const MDiagram*)));
-        connect(m_diagramController, SIGNAL(endInsertElement(int,const MDiagram*)),
-                this, SLOT(onEndInsertElement(int,const MDiagram*)));
-        connect(m_diagramController, SIGNAL(beginRemoveElement(int,const MDiagram*)),
-                this, SLOT(onBeginRemoveElement(int,const MDiagram*)));
-        connect(m_diagramController, SIGNAL(endRemoveElement(int,const MDiagram*)),
-                this, SLOT(onEndRemoveElement(int,const MDiagram*)));
+        connect(m_diagramController, &DiagramController::beginResetAllDiagrams,
+                this, &DiagramSceneModel::onBeginResetAllDiagrams);
+        connect(m_diagramController, &DiagramController::endResetAllDiagrams,
+                this, &DiagramSceneModel::onEndResetAllDiagrams);
+        connect(m_diagramController, &DiagramController::beginResetDiagram,
+                this, &DiagramSceneModel::onBeginResetDiagram);
+        connect(m_diagramController, &DiagramController::endResetDiagram,
+                this, &DiagramSceneModel::onEndResetDiagram);
+        connect(m_diagramController, &DiagramController::beginUpdateElement,
+                this, &DiagramSceneModel::onBeginUpdateElement);
+        connect(m_diagramController, &DiagramController::endUpdateElement,
+                this, &DiagramSceneModel::onEndUpdateElement);
+        connect(m_diagramController, &DiagramController::beginInsertElement,
+                this, &DiagramSceneModel::onBeginInsertElement);
+        connect(m_diagramController, &DiagramController::endInsertElement,
+                this, &DiagramSceneModel::onEndInsertElement);
+        connect(m_diagramController, &DiagramController::beginRemoveElement,
+                this, &DiagramSceneModel::onBeginRemoveElement);
+        connect(m_diagramController, &DiagramController::endRemoveElement,
+                this, &DiagramSceneModel::onEndRemoveElement);
     }
 }
 

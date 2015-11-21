@@ -82,15 +82,13 @@ public:
     DiagramSceneModel *diagramSceneModel(const MDiagram *diagram) const;
     void unbindDiagramSceneModel(const MDiagram *diagram);
 
-public slots:
     void openDiagram(MDiagram *diagram);
     void removeDiagram(const MDiagram *diagram);
     void removeAllDiagrams();
 
-private slots:
+private:
     void onDataChanged(const QModelIndex &topleft, const QModelIndex &bottomright);
 
-private:
     QPointer<TreeModel> m_model;
     DiagramsViewInterface *m_diagramsView;
     DiagramController *m_diagramController;

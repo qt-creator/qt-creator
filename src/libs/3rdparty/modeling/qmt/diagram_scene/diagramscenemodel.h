@@ -135,7 +135,6 @@ private:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEventReparenting(QGraphicsSceneMouseEvent *event);
 
-private slots:
     void onBeginResetAllDiagrams();
     void onEndResetAllDiagrams();
     void onBeginResetDiagram(const MDiagram *diagram);
@@ -149,7 +148,6 @@ private slots:
 
     void onSelectionChanged();
 
-private:
     void clearGraphicsScene();
     void removeExtraSceneItems();
     void addExtraSceneItems();

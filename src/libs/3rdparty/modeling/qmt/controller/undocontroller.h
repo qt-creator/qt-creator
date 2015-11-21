@@ -52,12 +52,10 @@ public:
 
     QUndoStack *undoStack() const { return m_undoStack; }
 
-public slots:
     void push(UndoCommand *cmd);
     void beginMergeSequence(const QString &text);
     void endMergeSequence();
 
-public:
     void reset();
     void doNotMerge();
 

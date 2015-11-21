@@ -56,13 +56,11 @@ public:
     QList<MClassMember> members() const;
     void setMembers(const QList<MClassMember> &members);
 
-public slots:
     void reparse();
 
-private slots:
+private:
     void onTextChanged();
 
-private:
     QString build(const QList<MClassMember> &members);
     QList<MClassMember> parse(const QString &text, bool *ok);
 

@@ -41,12 +41,12 @@ SortedTreeModel::SortedTreeModel(QObject *parent)
     setSortCaseSensitivity(Qt::CaseInsensitive);
 
     m_delayedSortTimer.setSingleShot(true);
-    connect(&m_delayedSortTimer, SIGNAL(timeout()), this, SLOT(onDelayedSortTimeout()));
+    connect(&m_delayedSortTimer, &QTimer::timeout, this, &SortedTreeModel::onDelayedSortTimeout);
 
-    connect(this, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this, SLOT(onTreeModelRowsInserted(QModelIndex,int,int)));
-    connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-            this, SLOT(onDataChanged(QModelIndex,QModelIndex,QVector<int>)));
+    connect(this, &QAbstractItemModel::rowsInserted,
+            this, &SortedTreeModel::onTreeModelRowsInserted);
+    connect(this, &QAbstractItemModel::dataChanged,
+            this, &SortedTreeModel::onDataChanged);
 }
 
 SortedTreeModel::~SortedTreeModel()
