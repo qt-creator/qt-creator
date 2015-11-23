@@ -51,6 +51,8 @@ public:
 
     operator Utf8String() const;
 
+    const char *cString() const;
+
     bool isNull() const;
 
 private:

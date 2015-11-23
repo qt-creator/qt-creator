@@ -28,41 +28,60 @@
 **
 ****************************************************************************/
 
-#ifndef TYPERESOLVER_H
-#define TYPERESOLVER_H
+#ifndef CLANGBACKEND_TYPE_H
+#define CLANGBACKEND_TYPE_H
 
-#include "LookupContext.h"
+#include <clang-c/Index.h>
 
-namespace CPlusPlus {
+#include <iosfwd>
 
-class TypeResolver
+class Utf8String;
+
+namespace ClangBackEnd {
+
+class Cursor;
+class ClangString;
+
+class Type
 {
+    friend class Cursor;
+    friend bool operator==(Type first, Type second);
+
 public:
-    TypeResolver(CreateBindings &factory) : _factory(factory) {}
-    void resolve(FullySpecifiedType *type, Scope **scope, LookupScope *binding);
-    static QList<LookupItem> resolveDeclInitializer(
-            CreateBindings &factory, const Declaration *decl,
-            const QSet<const Declaration *> &declarationsBeingResolved,
-            const Identifier *id = 0);
+    bool isConstant() const;
+    bool isConstantReference();
+    bool isPointer() const;
+    bool isPointerToConstant() const;
+    bool isConstantPointer() const;
+    bool isLValueReference() const;
+    bool isReferencingConstant() const;
+    bool isOutputParameter() const;
+
+    Utf8String utf8Spelling() const;
+    ClangString spelling() const;
+    int argumentCount() const;
+
+    Type alias() const;
+    Type canonical() const;
+    Type classType() const;
+    Type pointeeType() const;
+    Type argument(int index) const;
+
+    Cursor declaration() const;
+
+    CXTypeKind kind() const;
 
 private:
-    NamedType *getNamedType(FullySpecifiedType& type) const;
+    Type(CXType cxType);
 
-    QList<LookupItem> getNamedTypeItems(const Name *name, Scope *scope,
-                                        LookupScope *binding) const;
-
-    static QList<LookupItem> typedefsFromScopeUpToFunctionScope(const Name *name, Scope *scope);
-
-    static bool isTypedefWithName(const Declaration *declaration, const Name *name);
-
-    bool findTypedef(const QList<LookupItem>& namedTypeItems, FullySpecifiedType *type,
-                     Scope **scope, QSet<Symbol *>& visited);
-
-    CreateBindings &_factory;
-    // binding has to be remembered in case of resolving typedefs for templates
-    LookupScope *_binding;
+private:
+    CXType cxType;
 };
 
-} // namespace CPlusPlus
+bool operator==(Type first, Type second);
 
-#endif // TYPERESOLVER_H
+void PrintTo(CXTypeKind typeKind, ::std::ostream* os);
+void PrintTo(const Type &type, ::std::ostream* os);
+} // namespace ClangBackEnd
+
+#endif // CLANGBACKEND_TYPE_H

@@ -669,7 +669,7 @@ bool CheckSymbols::visit(NewExpressionAST *ast)
     if (highlightCtorDtorAsType) {
         accept(ast->new_type_id);
     } else {
-        LookupScope *binding = 0;
+        ClassOrNamespace *binding = 0;
         NameAST *nameAST = 0;
         if (ast->new_type_id) {
             for (SpecifierListAST *it = ast->new_type_id->type_specifier_list; it; it = it->next) {
@@ -735,7 +735,7 @@ void CheckSymbols::checkNamespace(NameAST *name)
     unsigned line, column;
     getTokenStartPosition(name->firstToken(), &line, &column);
 
-    if (LookupScope *b = _context.lookupType(name->name, enclosingScope())) {
+    if (ClassOrNamespace *b = _context.lookupType(name->name, enclosingScope())) {
         foreach (Symbol *s, b->symbols()) {
             if (s->isNamespace())
                 return;
@@ -768,14 +768,14 @@ bool CheckSymbols::hasVirtualDestructor(Class *klass) const
     return false;
 }
 
-bool CheckSymbols::hasVirtualDestructor(LookupScope *binding) const
+bool CheckSymbols::hasVirtualDestructor(ClassOrNamespace *binding) const
 {
-    QSet<LookupScope *> processed;
-    QList<LookupScope *> todo;
+    QSet<ClassOrNamespace *> processed;
+    QList<ClassOrNamespace *> todo;
     todo.append(binding);
 
     while (!todo.isEmpty()) {
-        LookupScope *b = todo.takeFirst();
+        ClassOrNamespace *b = todo.takeFirst();
         if (b && !processed.contains(b)) {
             processed.insert(b);
             foreach (Symbol *s, b->symbols()) {
@@ -857,7 +857,7 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
 {
     if (ast->name) {
 
-        LookupScope *binding = checkNestedName(ast);
+        ClassOrNamespace *binding = checkNestedName(ast);
 
         if (binding && ast->unqualified_name) {
             if (ast->unqualified_name->asDestructorName() != 0) {
@@ -886,9 +886,9 @@ bool CheckSymbols::visit(QualifiedNameAST *ast)
     return false;
 }
 
-LookupScope *CheckSymbols::checkNestedName(QualifiedNameAST *ast)
+ClassOrNamespace *CheckSymbols::checkNestedName(QualifiedNameAST *ast)
 {
-    LookupScope *binding = 0;
+    ClassOrNamespace *binding = 0;
 
     if (ast->name) {
         if (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list) {
@@ -954,7 +954,7 @@ bool CheckSymbols::visit(MemInitializerAST *ast)
 {
     if (FunctionDefinitionAST *enclosingFunction = enclosingFunctionDefinition()) {
         if (ast->name && enclosingFunction->symbol) {
-            if (LookupScope *binding = _context.lookupType(enclosingFunction->symbol)) {
+            if (ClassOrNamespace *binding = _context.lookupType(enclosingFunction->symbol)) {
                 foreach (Symbol *s, binding->symbols()) {
                     if (Class *klass = s->asClass()) {
                         NameAST *nameAST = ast->name;
@@ -1157,7 +1157,7 @@ void CheckSymbols::addUse(const Result &use)
     _usages.append(use);
 }
 
-void CheckSymbols::addType(LookupScope *b, NameAST *ast)
+void CheckSymbols::addType(ClassOrNamespace *b, NameAST *ast)
 {
     unsigned startToken;
     if (!b || !acceptName(ast, &startToken))
@@ -1296,8 +1296,12 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
         isConstructor = isConstructorDeclaration(c);
 
         Function *funTy = c->type()->asFunctionType();
-        if (!funTy) // Template function has an overridden type
-            funTy = r.type()->asFunctionType();
+        if (!funTy) {
+            //Try to find a template function
+            if (Template * t = r.type()->asTemplateType())
+                if ((c = t->declaration()))
+                    funTy = c->type()->asFunctionType();
+        }
         if (!funTy || funTy->isAmbiguous())
             continue; // TODO: add diagnostic messages and color call-operators calls too?
 

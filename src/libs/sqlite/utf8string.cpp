@@ -158,6 +158,11 @@ bool Utf8String::endsWith(const Utf8String &text) const
     return byteArray.endsWith(text.byteArray);
 }
 
+bool Utf8String::isNull() const
+{
+    return byteArray.isNull();
+}
+
 bool Utf8String::isEmpty() const
 {
     return byteArray.isEmpty();

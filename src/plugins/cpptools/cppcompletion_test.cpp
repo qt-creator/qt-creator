@@ -328,17 +328,16 @@ void CppToolsPlugin::test_completion()
     actualCompletions.sort();
     expectedCompletions.sort();
 
-    QEXPECT_FAIL("template_as_base: typedef not available in derived",
-                 "We can live with that...", Abort);
-    QEXPECT_FAIL("template_specialization_with_reference", "test of reverted change", Abort);
-    QEXPECT_FAIL("specialization_multiple_arguments", "test of reverted change", Abort);
-    QEXPECT_FAIL("specialization_with_default_value", "test of reverted change", Abort);
+    QEXPECT_FAIL("template_as_base: explicit typedef from base", "QTCREATORBUG-14218", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_cxx11", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_function_in_struct_in_function_anon", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_cxx11", "QTCREATORBUG-13757", Abort);
     QEXPECT_FAIL("enum_in_class_accessed_in_member_func_inline_cxx11", "QTCREATORBUG-13757", Abort);
-    QEXPECT_FAIL("recursive_instantiation_of_template_type", "QTCREATORBUG-14237", Abort);
+    QEXPECT_FAIL("pointer_indirect_specialization", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("pointer_indirect_specialization_typedef", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("pointer_indirect_specialization_double_indirection", "QTCREATORBUG-14141", Abort);
+    QEXPECT_FAIL("pointer_indirect_specialization_double_indirection_with_base", "QTCREATORBUG-14141", Abort);
     QCOMPARE(actualCompletions, expectedCompletions);
 }
 
@@ -801,21 +800,6 @@ void CppToolsPlugin::test_completion_data()
         ) << _("d.f.") << (QStringList()
             << QLatin1String("Data")
             << QLatin1String("dataMember"));
-
-    QTest::newRow("explicit_instantiation") << _(
-            "template<class T>\n"
-            "struct Foo { T bar; };\n"
-            "\n"
-            "template class Foo<int>;\n"
-            "\n"
-            "void func()\n"
-            "{\n"
-            "    Foo<int> foo;\n"
-            "    @\n"
-            "}\n"
-        ) << _("foo.") << (QStringList()
-            << QLatin1String("Foo")
-            << QLatin1String("bar"));
 
     QTest::newRow("use_global_identifier_as_base_class: derived as global and base as global") << _(
             "struct Global\n"
@@ -1327,28 +1311,21 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("Template1"));
 
     QTest::newRow("template_specialization_with_pointer") << _(
-            "template <typename T> struct Temp { T variable; };\n"
-            "template <typename T> struct Temp<T *> { T *pointer; };\n"
-            "void func()\n"
+            "template <typename T>\n"
+            "struct Template\n"
             "{\n"
-            "    Temp<int*> templ;\n"
-            "    @\n"
-            "}"
+            "    T variable;\n"
+            "};\n"
+            "template <typename T>\n"
+            "struct Template<T *>\n"
+            "{\n"
+            "    T *pointer;\n"
+            "};\n"
+            "Template<int*> templ;\n"
+            "@\n"
         ) << _("templ.") << (QStringList()
-            << QLatin1String("Temp")
+            << QLatin1String("Template")
             << QLatin1String("pointer"));
-
-    QTest::newRow("template_specialization_with_reference") << _(
-            "template <typename T> struct Temp { T variable; };\n"
-            "template <typename T> struct Temp<T &> { T reference; };\n"
-            "void func()\n"
-            "{\n"
-            "    Temp<int&> templ;\n"
-            "    @\n"
-            "}"
-        ) << _("templ.") << (QStringList()
-            << QLatin1String("Temp")
-            << QLatin1String("reference"));
 
     QTest::newRow("typedef_using_templates1") << _(
             "namespace NS1\n"
@@ -1571,29 +1548,6 @@ void CppToolsPlugin::test_completion_data()
         ) << _("c.") << (QStringList()
             << QLatin1String("C")
             << QLatin1String("m"));
-
-    QTest::newRow("type_and_using_declaration: type in nested namespace and using in global") << _(
-            "namespace Ns {\n"
-            "namespace Nested {\n"
-            "struct Foo\n"
-            "{\n"
-            "    void func();\n"
-            "    int m_bar;\n"
-            "};\n"
-            "}\n"
-            "}\n"
-            "\n"
-            "using namespace Ns::Nested;\n"
-            "\n"
-            "namespace Ns\n"
-            "{\n"
-            "void Foo::func()\n"
-            "{\n"
-            "    @\n"
-            "}\n"
-            "}\n"
-        ) << _("m_") << (QStringList()
-            << QLatin1String("m_bar"));
 
     QTest::newRow("instantiate_template_with_anonymous_class") << _(
             "template <typename T>\n"
@@ -2568,21 +2522,6 @@ void CppToolsPlugin::test_completion_data()
         ) << _("ar") << (QStringList()
             << QLatin1String("arg1"));
 
-    QTest::newRow("local_typedef_access_in_lambda") << _(
-            "struct Foo { int bar; };\n"
-            "\n"
-            "void func()\n"
-            "{\n"
-            "    typedef Foo F;\n"
-            "    []() {\n"
-            "        F f;\n"
-            "        @\n"
-            "    };\n"
-            "}\n"
-    ) << _("f.") << (QStringList()
-            << QLatin1String("Foo")
-            << QLatin1String("bar"));
-
     QTest::newRow("default_arguments_for_class_templates_and_base_class_QTCREATORBUG-12605") << _(
             "struct Foo { int foo; };\n"
             "template <typename T = Foo>\n"
@@ -2688,78 +2627,6 @@ void CppToolsPlugin::test_completion_data()
             "}\n"
     ) << _("s.") << (QStringList()
         << QLatin1String("S"));
-
-    QTest::newRow("partial_specialization") << _(
-            "struct b {};\n"
-            "template<class X, class Y> struct s { float f; };\n"
-            "template<class X> struct s<X, b> { int i; };\n"
-            "\n"
-            "void f()\n"
-            "{\n"
-            "    s<int, b> var;\n"
-            "    @\n"
-            "}\n"
-    ) << _("var.") << (QStringList()
-        << QLatin1String("i")
-        << QLatin1String("s"));
-
-//    QTest::newRow("partial_specialization_with_pointer") << _(
-//            "struct b {};\n"
-//            "struct a : b {};\n"
-//            "template<class X, class Y> struct s { float f; };\n"
-//            "template<class X> struct s<X, b*> { int i; };\n"
-//            "template<class X> struct s<X, a*> { char j; };\n"
-//            "\n"
-//            "void f()\n"
-//            "{\n"
-//            "    s<int, a*> var;\n"
-//            "    @\n"
-//            "}\n"
-//    ) << _("var.") << (QStringList()
-//        << QLatin1String("j")
-//        << QLatin1String("s"));
-
-    QTest::newRow("partial_specialization_templated_argument") << _(
-            "template<class T> struct t {};\n"
-            "\n"
-            "template<class> struct s { float f; };\n"
-            "template<class X> struct s<t<X>> { int i; };\n"
-            "\n"
-            "void f()\n"
-            "{\n"
-            "    s<t<char>> var;\n"
-            "    @\n"
-            "}\n"
-    ) << _("var.") << (QStringList()
-        << QLatin1String("i")
-        << QLatin1String("s"));
-
-    QTest::newRow("specialization_multiple_arguments") << _(
-            "class false_type {};\n"
-            "class true_type {};\n"
-            "template<class T1, class T2> class and_type { false_type f; };\n"
-            "template<> class and_type<true_type, true_type> { true_type t; };\n"
-            "void func()\n"
-            "{\n"
-            "    and_type<true_type, false_type> a;\n"
-            "    @;\n"
-            "}\n"
-     ) << _("a.") << (QStringList()
-        << QLatin1String("f")
-        << QLatin1String("and_type"));
-
-    QTest::newRow("specialization_with_default_value") << _(
-            "class Foo {};\n"
-            "template<class T1 = Foo> class Temp;\n"
-            "template<> class Temp<Foo> { int var; };\n"
-            "void func()\n"
-            "{\n"
-            "    Temp<> t;\n"
-            "    @\n"
-            "}\n"
-     ) << _("t.") << (QStringList()
-        << QLatin1String("var")
-        << QLatin1String("Temp"));
 
     QTest::newRow("auto_declaration_in_if_condition") << _(
             "struct Foo { int bar; };\n"
@@ -2966,28 +2833,6 @@ void CppToolsPlugin::test_completion_data()
         << QLatin1String("Foo")
         << QLatin1String("bar"));
 
-    QTest::newRow("instantiation_of_indirect_typedef") << _(
-        "template<typename _Tp>\n"
-        "struct Indirect { _Tp t; };\n"
-        "\n"
-        "template<typename T>\n"
-        "struct Temp\n"
-        "{\n"
-        "   typedef T MyT;\n"
-        "   typedef Indirect<MyT> indirect;\n"
-        "};\n"
-        "\n"
-        "struct Foo { int bar; };\n"
-        "\n"
-        "void func()\n"
-        "{\n"
-        "   Temp<Foo>::indirect i;\n"
-        "   @\n"
-        "}\n"
-    ) << _("i.t.") << (QStringList()
-        << QLatin1String("Foo")
-        << QLatin1String("bar"));;
-
     QTest::newRow("pointer_indirect_specialization_double_indirection_with_base") << _(
             "template<typename _Tp>\n"
             "struct Traits { };\n"
@@ -3024,337 +2869,6 @@ void CppToolsPlugin::test_completion_data()
     ) << _("t.p->") << (QStringList()
         << QLatin1String("Foo")
         << QLatin1String("bar"));
-
-    QTest::newRow("recursive_instantiation_of_template_type") << _(
-            "template<typename _Tp>\n"
-            "struct Temp { typedef _Tp value_type; };\n"
-            "\n"
-            "struct Foo { int bar; };\n"
-            "\n"
-            "void func()\n"
-            "{\n"
-            "   Temp<Temp<Foo> >::value_type::value_type *p;\n"
-            "   @\n"
-            "}\n"
-    ) << _("p->") << (QStringList()
-        << QLatin1String("Foo")
-        << QLatin1String("bar"));
-
-    QTest::newRow("recursive_instantiation_of_template_type_2") << _(
-            "template<typename _Tp>\n"
-            "struct Temp { typedef _Tp value_type; };\n"
-            "\n"
-            "struct Foo { int bar; };\n"
-            "\n"
-            "void func()\n"
-            "{\n"
-            "   Temp<Temp<Foo>::value_type>::value_type *p;\n"
-            "   @\n"
-            "}\n"
-    ) << _("p->") << (QStringList()
-        << QLatin1String("Foo")
-        << QLatin1String("bar"));
-
-    QTest::newRow("template_using_instantiation") << _(
-            "template<typename _Tp>\n"
-            "using T = _Tp;\n"
-            "\n"
-            "struct Foo { int bar; };\n"
-            "\n"
-            "void func()\n"
-            "{\n"
-            "    T<Foo> p;\n"
-            "    @\n"
-            "}\n"
-    ) << _("p.") << (QStringList()
-        << QLatin1String("Foo")
-        << QLatin1String("bar"));
-
-    QTest::newRow("nested_template_using_instantiation") << _(
-            "struct Parent {\n"
-            "    template<typename _Tp>\n"
-            "    using T = _Tp;\n"
-            "};\n"
-            "\n"
-            "struct Foo { int bar; };\n"
-            "\n"
-            "void func()\n"
-            "{\n"
-            "    Parent::T<Foo> p;\n"
-            "    @;\n"
-            "}\n"
-     ) << _("p.") << (QStringList()
-        << QLatin1String("Foo")
-        << QLatin1String("bar"));
-
-    QTest::newRow("nested_template_using_instantiation_in_template_class") << _(
-            "template<typename ParentT>\n"
-            "struct Parent {\n"
-            "    template<typename _Tp>\n"
-            "    using T = _Tp;\n"
-            "};\n"
-            "\n"
-            "struct Foo { int bar; };\n"
-            "\n"
-            "void func()\n"
-            "{\n"
-            "    Parent<Foo>::T<Foo> p;\n"
-            "    @;\n"
-            "}\n"
-     ) << _("p.") << (QStringList()
-        << QLatin1String("Foo")
-        << QLatin1String("bar"));
-
-    QTest::newRow("recursive_nested_template_using_instantiation") << _(
-            "struct Foo { int bar; };\n"
-            "\n"
-            "struct A { typedef Foo value_type; };\n"
-            "\n"
-            "template<typename T>\n"
-            "struct Traits\n"
-            "{\n"
-            "    typedef Foo value_type;\n"
-            "\n"
-            "    template<typename _Tp>\n"
-            "    using U = T;\n"
-            "};\n"
-            "\n"
-            "template<typename T>\n"
-            "struct Temp\n"
-            "{\n"
-            "    typedef Traits<T> TraitsT;\n"
-            "    typedef typename T::value_type value_type;\n"
-            "    typedef typename TraitsT::template U<Foo> rebind;\n"
-            "};\n"
-            "\n"
-            "void func()\n"
-            "{\n"
-            "    typename Temp<typename Temp<A>::rebind>::value_type p;\n"
-            "    @\n"
-            "}\n"
-    ) << _("p.") << (QStringList()
-        << QLatin1String("Foo")
-        << QLatin1String("bar"));
-
-    QTest::newRow("qualified_name_in_nested_type") << _(
-            "template<typename _Tp>\n"
-            "struct Temp {\n"
-            "    struct Nested {\n"
-            "        typedef typename _Tp::Nested2 N;\n"
-            "    };\n"
-            "};\n"
-            "\n"
-            "struct Foo {\n"
-            "    struct Nested2 {\n"
-            "        int bar;\n"
-            "    };\n"
-            "};\n"
-            "\n"
-            "void func()\n"
-            "{\n"
-            "    Temp<Foo>::Nested::N p;\n"
-            "    @;\n"
-            "}\n"
-    ) << _("p.") << (QStringList()
-        << QLatin1String("Nested2")
-        << QLatin1String("bar"));
-
-    QTest::newRow("simple_decltype_declaration") << _(
-            "struct Foo { int bar; };\n"
-            "Foo foo;\n"
-            "void fun() {\n"
-            "   decltype(foo) s;\n"
-            "   @\n"
-            "}\n"
-    ) << _("s.") << (QStringList()
-            << QLatin1String("Foo")
-            << QLatin1String("bar"));
-
-    QTest::newRow("typedefed_decltype_declaration") << _(
-            "struct Foo { int bar; };\n"
-            "Foo foo;\n"
-            "typedef decltype(foo) TypedefedFooWithDecltype;\n"
-            "void fun() {\n"
-            "   TypedefedFooWithDecltype s;\n"
-            "   @\n"
-            "}\n"
-    ) << _("s.") << (QStringList()
-            << QLatin1String("Foo")
-            << QLatin1String("bar"));
-
-    QTest::newRow("nested_instantiation_typedefed_decltype_declaration") << _(
-            "template <typename T>\n"
-            "struct Temp\n"
-            "{\n"
-            "    struct Nested\n"
-            "    {\n"
-            "        static T f();\n"
-            "        typedef decltype(f()) type;\n"
-            "    };\n"
-            "};\n"
-            "\n"
-            "struct Foo { int bar; };\n"
-            "\n"
-            "void fun()\n"
-            "{\n"
-            "    Temp<Foo>::Nested::type s;\n"
-            "    @\n"
-            "}\n"
-    ) << _("s.") << (QStringList()
-            << QLatin1String("Foo")
-            << QLatin1String("bar"));
-
-    QTest::newRow("typedefed_decltype_of_template_function") << _(
-            "template<typename T>\n"
-            "static T f();\n"
-            "\n"
-            "struct Foo { int bar; };\n"
-            "\n"
-            "void fun()\n"
-            "{\n"
-            "    decltype(f<Foo>()) s;\n"
-            "    @\n"
-            "}\n"
-    ) << _("s.") << (QStringList()
-            << QLatin1String("Foo")
-            << QLatin1String("bar"));
-
-    QTest::newRow("nested_instantiation_typedefed_decltype_declaration_of_template_function") << _(
-            "template <typename T, typename D = T>\n"
-            "struct Temp\n"
-            "{\n"
-            "    struct Nested\n"
-            "    {\n"
-            "        template<typename U> static T* __test(...);\n"
-            "        typedef decltype(__test<D>(0)) type;\n"
-            "    };\n"
-            "};\n"
-            "\n"
-            "struct Foo { int bar; };\n"
-            "\n"
-            "void func()\n"
-            "{\n"
-            "    Temp<Foo>::Nested::type s;\n"
-            "    @\n"
-            "}\n"
-    ) << _("s.") << (QStringList()
-            << QLatin1String("Foo")
-            << QLatin1String("bar"));
-
-    QTest::newRow("typedef for templates in namespace") << _(
-             "namespace N {\n"
-             "\n"
-             "struct Data { int x; };\n"
-             "template <typename T> struct Foo { T member; };\n"
-             "typedef Foo<Data> Bar;\n"
-             "\n"
-             "} // N\n"
-             "\n"
-             "\n"
-             "void f()\n"
-             "{\n"
-             "    N::Bar o;\n"
-             "    @\n"
-             "}\n"
-    ) << _("o.member.") << (QStringList()
-            << QLatin1String("Data")
-            << QLatin1String("x"));
-
-    QTest::newRow("std vector") << _(
-             "namespace std\n"
-             "{\n"
-             "template<typename _Tp>\n"
-             "struct allocator\n"
-             "{\n"
-             "    typedef _Tp value_type;\n"
-             "\n"
-             "    template<typename _Tp1>\n"
-             "    struct rebind\n"
-             "    { typedef allocator<_Tp1> other; };\n"
-             "};\n"
-             "\n"
-             "template<typename _Alloc, typename _Tp>\n"
-             "struct __alloctr_rebind\n"
-             "{\n"
-             "    typedef typename _Alloc::template rebind<_Tp>::other __type;\n"
-             "};\n"
-             "\n"
-             "template<typename _Alloc>\n"
-             "struct allocator_traits\n"
-             "{\n"
-             "    typedef typename _Alloc::value_type value_type;\n"
-             "\n"
-             "    template<typename _Tp>\n"
-             "    using rebind_alloc = typename __alloctr_rebind<_Alloc, _Tp>::__type;\n"
-             "};\n"
-             "\n"
-             "template<typename _Iterator>\n"
-             "struct iterator_traits { };\n"
-             "\n"
-             "template<typename _Tp>\n"
-             "struct iterator_traits<_Tp*>\n"
-             "{\n"
-             "    typedef _Tp* pointer;\n"
-             "};\n"
-             "} // namespace std\n"
-             "\n"
-             "namespace __gnu_cxx\n"
-             "{\n"
-             "template<typename _Alloc>\n"
-             "struct __alloc_traits\n"
-             "{\n"
-             "    typedef _Alloc allocator_type;\n"
-             "    typedef std::allocator_traits<_Alloc> _Base_type;\n"
-             "    typedef typename _Alloc::value_type value_type;\n"
-             "\n"
-             "    static value_type *_S_pointer_helper(...);\n"
-             "    typedef decltype(_S_pointer_helper((_Alloc*)0)) __pointer;\n"
-             "    typedef __pointer pointer;\n"
-             "\n"
-             "    template<typename _Tp>\n"
-             "    struct rebind\n"
-             "    { typedef typename _Base_type::template rebind_alloc<_Tp> other; };\n"
-             "};\n"
-             "\n"
-             "template<typename _Iterator, typename _Container>\n"
-             "struct __normal_iterator\n"
-             "{\n"
-             "    typedef std::iterator_traits<_Iterator> __traits_type;\n"
-             "    typedef typename __traits_type::pointer pointer;\n"
-             "\n"
-             "    pointer p;\n"
-             "};\n"
-             "} // namespace __gnu_cxx\n"
-             "\n"
-             "namespace std {\n"
-             "template<typename _Tp, typename _Alloc>\n"
-             "struct _Vector_Base\n"
-             "{\n"
-             "    typedef typename __gnu_cxx::__alloc_traits<_Alloc>::template\n"
-             "    rebind<_Tp>::other _Tp_alloc_type;\n"
-             "    typedef typename __gnu_cxx::__alloc_traits<_Tp_alloc_type>::pointer\n"
-             "    pointer;\n"
-             "};\n"
-             "\n"
-             "template<typename _Tp, typename _Alloc = std::allocator<_Tp> >\n"
-             "struct vector : protected _Vector_Base<_Tp, _Alloc>\n"
-             "{\n"
-             "    typedef _Vector_Base<_Tp, _Alloc> _Base;\n"
-             "    typedef typename _Base::pointer pointer;\n"
-             "    typedef __gnu_cxx::__normal_iterator<pointer, vector> iterator;\n"
-             "};\n"
-             "} // namespace std\n"
-             "\n"
-             "struct Foo { int bar; };\n"
-             "\n"
-             "void func()\n"
-             "{\n"
-             "    std::vector<Foo>::iterator it;\n"
-             "    @;\n"
-             "}\n"
-    ) << _("it.p->") << (QStringList()
-            << QLatin1String("Foo")
-            << QLatin1String("bar"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()

@@ -68,6 +68,9 @@ QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<Q
                 relativeFilePath.chop(1);
         }
 
+        if (relativeFilePath == QLatin1String("."))
+            relativeFilePath.clear();
+
         filesInPath[relativeFilePath].append(absoluteFileName);
     }
     return filesInPath;

@@ -50,7 +50,7 @@ TypeOfExpression::TypeOfExpression():
 }
 
 void TypeOfExpression::init(Document::Ptr thisDocument, const Snapshot &snapshot,
-                            CreateBindings::Ptr bindings,
+                            QSharedPointer<CreateBindings> bindings,
                             const QSet<const Declaration *> &autoDeclarationsBeingResolved)
 {
     m_thisDocument = thisDocument;
@@ -62,7 +62,7 @@ void TypeOfExpression::init(Document::Ptr thisDocument, const Snapshot &snapshot
     Q_ASSERT(m_bindings.isNull());
     m_bindings = bindings;
     if (m_bindings.isNull())
-        m_bindings = CreateBindings::Ptr(new CreateBindings(thisDocument, snapshot));
+        m_bindings = QSharedPointer<CreateBindings>(new CreateBindings(thisDocument, snapshot));
 
     m_environment.clear();
     m_autoDeclarationsBeingResolved = autoDeclarationsBeingResolved;
@@ -105,7 +105,7 @@ QList<LookupItem> TypeOfExpression::operator()(ExpressionAST *expression,
 
     m_scope = scope;
 
-    m_bindings->addExpressionDocument(document);
+    m_documents.append(document);
     m_lookupContext = LookupContext(document, m_thisDocument, m_snapshot, m_bindings);
     Q_ASSERT(!m_bindings.isNull());
     m_lookupContext.setExpandTemplates(m_expandTemplates);
@@ -122,7 +122,7 @@ QList<LookupItem> TypeOfExpression::reference(ExpressionAST *expression,
 
     m_scope = scope;
 
-    m_bindings->addExpressionDocument(document);
+    m_documents.append(document);
     m_lookupContext = LookupContext(document, m_thisDocument, m_snapshot, m_bindings);
     Q_ASSERT(!m_bindings.isNull());
     m_lookupContext.setExpandTemplates(m_expandTemplates);

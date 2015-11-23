@@ -104,16 +104,24 @@ void QmlProfilerTraceTime::setTime(qint64 startTime, qint64 endTime)
 
 void QmlProfilerTraceTime::decreaseStartTime(qint64 time)
 {
-    if (m_startTime > time) {
+    if (m_startTime > time || m_startTime == -1) {
         m_startTime = time;
+        if (m_endTime == -1)
+            m_endTime = m_startTime;
+        else
+            QTC_ASSERT(m_endTime >= m_startTime, m_endTime = m_startTime);
         emit timeChanged(time, m_endTime);
     }
 }
 
 void QmlProfilerTraceTime::increaseEndTime(qint64 time)
 {
-    if (m_endTime < time) {
+    if (m_endTime < time || m_endTime == -1) {
         m_endTime = time;
+        if (m_startTime == -1)
+            m_startTime = m_endTime;
+        else
+            QTC_ASSERT(m_endTime >= m_startTime, m_startTime = m_endTime);
         emit timeChanged(m_startTime, time);
     }
 }
@@ -152,6 +160,8 @@ QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *fin
     QObject(parent), d(new QmlProfilerModelManagerPrivate(this))
 {
     d->totalWeight = 0;
+    d->previousProgress = 0;
+    d->progress = 0;
     d->availableFeatures = 0;
     d->visibleFeatures = 0;
     d->recordedFeatures = 0;

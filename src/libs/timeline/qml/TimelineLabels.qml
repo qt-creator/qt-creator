@@ -102,7 +102,7 @@ Flickable {
                         draggerParent: categories
                         width: 150
                         height: parent.height
-                        dragOffset: parent.y
+                        dragOffset: loader.y
 
                         onDropped: {
                             categories.moveCategories(sourceIndex, targetIndex);

@@ -53,7 +53,7 @@
 
 namespace CPlusPlus {
 class LookupItem;
-class LookupScope;
+class ClassOrNamespace;
 class Function;
 class LookupContext;
 } // namespace CPlusPlus
@@ -121,7 +121,7 @@ private:
                                 const QString &expression,
                                 int endOfExpression);
 
-    void completeObjCMsgSend(CPlusPlus::LookupScope *binding, bool staticClassAccess);
+    void completeObjCMsgSend(CPlusPlus::ClassOrNamespace *binding, bool staticClassAccess);
     bool completeInclude(const QTextCursor &cursor);
     void completeInclude(const QString &realPath, const QStringList &suffixes);
     void completePreprocessor();
@@ -130,8 +130,8 @@ private:
                                        bool toolTipOnly);
     bool completeMember(const QList<CPlusPlus::LookupItem> &results);
     bool completeScope(const QList<CPlusPlus::LookupItem> &results);
-    void completeNamespace(CPlusPlus::LookupScope *binding);
-    void completeClass(CPlusPlus::LookupScope *b, bool staticLookup = true);
+    void completeNamespace(CPlusPlus::ClassOrNamespace *binding);
+    void completeClass(CPlusPlus::ClassOrNamespace *b, bool staticLookup = true);
     void addClassMembersToCompletion(CPlusPlus::Scope *scope, bool staticLookup);
     enum CompleteQtMethodMode {
         CompleteQt4Signals,

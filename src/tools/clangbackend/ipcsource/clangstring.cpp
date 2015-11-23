@@ -61,6 +61,11 @@ ClangString &ClangString::operator=(ClangString &&other)
     return *this;
 }
 
+const char *ClangString::cString() const
+{
+    return clang_getCString(cxString);
+}
+
 ClangString::ClangString(ClangString &&other)
     : cxString(std::move(other.cxString))
 {
@@ -70,7 +75,7 @@ ClangString::ClangString(ClangString &&other)
 
 ClangString::operator Utf8String() const
 {
-    return Utf8String(clang_getCString(cxString), -1);
+    return Utf8String(cString(), -1);
 }
 
 } // namespace ClangBackEnd

@@ -32,9 +32,9 @@
 
 #include "LookupContext.h"
 #include "Overview.h"
+#include "DeprecatedGenTemplateInstance.h"
 #include "CppRewriter.h"
 #include "TypeOfExpression.h"
-#include "TypeResolver.h"
 
 #include <cplusplus/Control.h>
 #include <cplusplus/AST.h>
@@ -74,6 +74,131 @@ static QList<T> removeDuplicates(const QList<T> &results)
 
     return uniqueList;
 }
+
+class TypedefsResolver
+{
+public:
+    TypedefsResolver(const LookupContext &context) : _context(context) {}
+    void resolve(FullySpecifiedType *type, Scope **scope, ClassOrNamespace *binding)
+    {
+        QSet<Symbol *> visited;
+        _binding = binding;
+        // Use a hard limit when trying to resolve typedefs. Typedefs in templates can refer to
+        // each other, each time enhancing the template argument and thus making it impossible to
+        // use an "alreadyResolved" container. FIXME: We might overcome this by resolving the
+        // template parameters.
+        unsigned maxDepth = 15;
+        for (NamedType *namedTy = 0; maxDepth && (namedTy = getNamedType(*type)); --maxDepth) {
+            QList<LookupItem> namedTypeItems = getNamedTypeItems(namedTy->name(), *scope, _binding);
+
+            if (Q_UNLIKELY(debug))
+                qDebug() << "-- we have" << namedTypeItems.size() << "candidates";
+
+            if (!findTypedef(namedTypeItems, type, scope, visited))
+                break;
+        }
+    }
+
+private:
+    NamedType *getNamedType(FullySpecifiedType& type) const
+    {
+        NamedType *namedTy = type->asNamedType();
+        if (! namedTy) {
+            if (PointerType *pointerTy = type->asPointerType())
+                namedTy = pointerTy->elementType()->asNamedType();
+        }
+        return namedTy;
+    }
+
+    QList<LookupItem> getNamedTypeItems(const Name *name, Scope *scope,
+                                        ClassOrNamespace *binding) const
+    {
+        QList<LookupItem> namedTypeItems = typedefsFromScopeUpToFunctionScope(name, scope);
+        if (namedTypeItems.isEmpty()) {
+            if (binding)
+                namedTypeItems = binding->lookup(name);
+            if (ClassOrNamespace *scopeCon = _context.lookupType(scope))
+                namedTypeItems += scopeCon->lookup(name);
+        }
+
+        return namedTypeItems;
+    }
+
+    /// Return all typedefs with given name from given scope up to function scope.
+    static QList<LookupItem> typedefsFromScopeUpToFunctionScope(const Name *name, Scope *scope)
+    {
+        QList<LookupItem> results;
+        if (!scope)
+            return results;
+        Scope *enclosingBlockScope = 0;
+        for (Block *block = scope->asBlock(); block;
+             block = enclosingBlockScope ? enclosingBlockScope->asBlock() : 0) {
+            const unsigned memberCount = block->memberCount();
+            for (unsigned i = 0; i < memberCount; ++i) {
+                Symbol *symbol = block->memberAt(i);
+                if (Declaration *declaration = symbol->asDeclaration()) {
+                    if (isTypedefWithName(declaration, name)) {
+                        LookupItem item;
+                        item.setDeclaration(declaration);
+                        item.setScope(block);
+                        item.setType(declaration->type());
+                        results.append(item);
+                    }
+                }
+            }
+            enclosingBlockScope = block->enclosingScope();
+        }
+        return results;
+    }
+
+    static bool isTypedefWithName(const Declaration *declaration, const Name *name)
+    {
+        if (declaration->isTypedef()) {
+            const Identifier *identifier = declaration->name()->identifier();
+            if (name->identifier()->match(identifier))
+                return true;
+        }
+        return false;
+    }
+
+    bool findTypedef(const QList<LookupItem>& namedTypeItems, FullySpecifiedType *type,
+                     Scope **scope, QSet<Symbol *>& visited)
+    {
+        bool foundTypedef = false;
+        foreach (const LookupItem &it, namedTypeItems) {
+            Symbol *declaration = it.declaration();
+            if (declaration && declaration->isTypedef()) {
+                if (visited.contains(declaration))
+                    break;
+                visited.insert(declaration);
+
+                // continue working with the typedefed type and scope
+                if (type->type()->isPointerType()) {
+                    *type = FullySpecifiedType(
+                            _context.bindings()->control()->pointerType(declaration->type()));
+                } else if (type->type()->isReferenceType()) {
+                    *type = FullySpecifiedType(
+                            _context.bindings()->control()->referenceType(
+                                declaration->type(),
+                                declaration->type()->asReferenceType()->isRvalueReference()));
+                } else {
+                    *type = declaration->type();
+                }
+
+                *scope = it.scope();
+                _binding = it.binding();
+                foundTypedef = true;
+                break;
+            }
+        }
+
+        return foundTypedef;
+    }
+
+    const LookupContext &_context;
+    // binding has to be remembered in case of resolving typedefs for templates
+    ClassOrNamespace *_binding;
+};
 
 static int evaluateFunctionArgument(const FullySpecifiedType &actualTy,
                                     const FullySpecifiedType &formalTy)
@@ -176,7 +301,7 @@ void ResolveExpression::addResults(const QList<LookupItem> &items)
 }
 
 void ResolveExpression::addResult(const FullySpecifiedType &ty, Scope *scope,
-                                  LookupScope *binding)
+                                  ClassOrNamespace *binding)
 {
     LookupItem item;
     item.setType(ty);
@@ -206,7 +331,7 @@ bool ResolveExpression::visit(BinaryExpressionAST *ast)
             if (d->core_declarator) {
                 if (DeclaratorIdAST *declaratorId = d->core_declarator->asDeclaratorId()) {
                     if (NameAST *nameAST = declaratorId->name) {
-                        if (LookupScope *binding = baseExpression(_results, T_ARROW)) {
+                        if (ClassOrNamespace *binding = baseExpression(_results, T_ARROW)) {
                             _results.clear();
                             addResults(binding->lookup(nameAST->name));
                         }
@@ -487,17 +612,19 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
                 added = true;
             } else if (namedTy != 0) {
                 const Name *starOp = control()->operatorNameId(OperatorNameId::StarOp);
-                if (LookupScope *b = _context.lookupType(namedTy->name(), p.scope(), p.binding())) {
+                if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), p.scope(), p.binding())) {
                     foreach (const LookupItem &r, b->find(starOp)) {
                         Symbol *overload = r.declaration();
                         if (Function *funTy = overload->type()->asFunctionType()) {
                             if (maybeValidPrototype(funTy, 0)) {
-                                FullySpecifiedType retTy = funTy->returnType().simplified();
-                                p.setType(retTy);
-                                p.setScope(funTy->enclosingScope());
-                                it.setValue(p);
-                                added = true;
-                                break;
+                                if (Function *proto = instantiate(b->templateId(), funTy)->asFunctionType()) {
+                                    FullySpecifiedType retTy = proto->returnType().simplified();
+                                    p.setType(retTy);
+                                    p.setScope(proto->enclosingScope());
+                                    it.setValue(p);
+                                    added = true;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -526,6 +653,48 @@ bool ResolveExpression::visit(QualifiedNameAST *ast)
     return false;
 }
 
+namespace {
+
+class DeduceAutoCheck : public ASTVisitor
+{
+public:
+    DeduceAutoCheck(const Identifier *id, TranslationUnit *tu)
+        : ASTVisitor(tu), _id(id), _block(false)
+    {
+        accept(tu->ast());
+    }
+
+    virtual bool preVisit(AST *)
+    {
+        if (_block)
+            return false;
+
+        return true;
+    }
+
+    virtual bool visit(SimpleNameAST *ast)
+    {
+        if (ast->name
+                && ast->name->identifier()
+                && strcmp(ast->name->identifier()->chars(), _id->chars()) == 0) {
+            _block = true;
+        }
+
+        return false;
+    }
+
+    virtual bool visit(MemberAccessAST *ast)
+    {
+        accept(ast->base_expression);
+        return false;
+    }
+
+    const Identifier *_id;
+    bool _block;
+};
+
+} // namespace anonymous
+
 bool ResolveExpression::visit(SimpleNameAST *ast)
 {
     QList<LookupItem> candidates = _context.lookup(ast->name, _scope);
@@ -539,7 +708,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
         if (item.declaration() == 0)
             continue;
 
-        if (item.type().isAuto() || item.type().isDecltype()) {
+        if (item.type().isAuto()) {
             const Declaration *decl = item.declaration()->asDeclaration();
             if (!decl)
                 continue;
@@ -548,10 +717,53 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
             if (_autoDeclarationsBeingResolved.contains(decl))
                 continue;
 
-            newCandidates +=
-                    TypeResolver::resolveDeclInitializer(*_context.bindings(), decl,
-                                                         _autoDeclarationsBeingResolved << decl,
-                                                         ast->name->identifier());
+            const StringLiteral *initializationString = decl->getInitializer();
+            if (initializationString == 0)
+                continue;
+
+            const QByteArray &initializer =
+                    QByteArray::fromRawData(initializationString->chars(),
+                                            initializationString->size()).trimmed();
+
+            // Skip lambda-function initializers
+            if (initializer.length() > 0 && initializer[0] == '[')
+                continue;
+
+            TypeOfExpression exprTyper;
+            exprTyper.setExpandTemplates(true);
+            Document::Ptr doc = _context.snapshot().document(QString::fromLocal8Bit(decl->fileName()));
+            exprTyper.init(doc, _context.snapshot(), _context.bindings(),
+                           QSet<const Declaration* >(_autoDeclarationsBeingResolved) << decl);
+
+            Document::Ptr exprDoc =
+                    documentForExpression(exprTyper.preprocessedExpression(initializer));
+            exprDoc->check();
+
+            DeduceAutoCheck deduceAuto(ast->name->identifier(), exprDoc->translationUnit());
+            if (deduceAuto._block)
+                continue;
+
+            const QList<LookupItem> &typeItems = exprTyper(extractExpressionAST(exprDoc), exprDoc,
+                                                           decl->enclosingScope());
+            if (typeItems.empty())
+                continue;
+
+            Clone cloner(_context.bindings()->control().data());
+
+            for (int n = 0; n < typeItems.size(); ++ n) {
+                FullySpecifiedType newType = cloner.type(typeItems[n].type(), 0);
+                if (n == 0) {
+                    item.setType(newType);
+                    item.setScope(typeItems[n].scope());
+                    item.setBinding(typeItems[n].binding());
+                } else {
+                    LookupItem newItem(item);
+                    newItem.setType(newType);
+                    newItem.setScope(typeItems[n].scope());
+                    newItem.setBinding(typeItems[n].binding());
+                    newCandidates.push_back(newItem);
+                }
+            }
         } else {
             item.setType(item.declaration()->type());
             item.setScope(item.declaration()->enclosingScope());
@@ -661,12 +873,14 @@ bool ResolveExpression::visit(CallAST *ast)
         Scope *scope = result.scope();
 
         if (NamedType *namedTy = ty->asNamedType()) {
-            if (LookupScope *b = _context.lookupType(namedTy->name(), scope)) {
+            if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), scope)) {
                 foreach (const LookupItem &r, b->find(functionCallOp)) {
                     Symbol *overload = r.declaration();
                     if (Function *funTy = overload->type()->asFunctionType()) {
-                        if (maybeValidPrototype(funTy, actualArgumentCount))
-                            addResult(funTy->returnType().simplified(), scope);
+                        if (maybeValidPrototype(funTy, actualArgumentCount)) {
+                            if (Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType())
+                                addResult(proto->returnType().simplified(), scope);
+                        }
                     }
                 }
             }
@@ -679,6 +893,14 @@ bool ResolveExpression::visit(CallAST *ast)
             // Constructor call
             FullySpecifiedType ctorTy = control()->namedType(classTy->name());
             addResult(ctorTy, scope);
+        } else if (Template *templateTy = ty->asTemplateType()) {
+            // template function
+            if (Symbol *declaration = templateTy->declaration()) {
+                if (Function *funTy = declaration->asFunction()) {
+                    if (maybeValidPrototype(funTy, actualArgumentCount))
+                        addResult(funTy->returnType().simplified(), scope);
+                }
+            }
         }
     }
 
@@ -694,8 +916,8 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
         FullySpecifiedType ty = result.type().simplified();
         Scope *scope = result.scope();
 
-        TypeResolver typeResolver(*_context.bindings());
-        typeResolver.resolve(&ty, &scope, result.binding());
+        TypedefsResolver typedefsResolver(_context);
+        typedefsResolver.resolve(&ty, &scope, result.binding());
 
         if (PointerType *ptrTy = ty->asPointerType()) {
             addResult(ptrTy->elementType().simplified(), scope);
@@ -704,12 +926,13 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
             addResult(arrTy->elementType().simplified(), scope);
 
         } else if (NamedType *namedTy = ty->asNamedType()) {
-            if (LookupScope *b = _context.lookupType(namedTy->name(), scope)) {
+            if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), scope)) {
                 foreach (const LookupItem &r, b->find(arrayAccessOp)) {
                     Symbol *overload = r.declaration();
                     if (Function *funTy = overload->type()->asFunctionType()) {
-                        // ### TODO: check the actual arguments
-                        addResult(funTy->returnType().simplified(), scope);
+                        if (Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType())
+                            // ### TODO: check the actual arguments
+                            addResult(proto->returnType().simplified(), scope);
                     }
                 }
 
@@ -719,7 +942,7 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
     return false;
 }
 
-QList<LookupItem> ResolveExpression::getMembers(LookupScope *binding, const Name *memberName) const
+QList<LookupItem> ResolveExpression::getMembers(ClassOrNamespace *binding, const Name *memberName) const
 {
     Q_UNUSED(binding);
     Q_UNUSED(memberName);
@@ -788,17 +1011,17 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
     // Remember the access operator.
     const int accessOp = tokenKind(ast->access_token);
 
-    if (LookupScope *binding = baseExpression(baseResults, accessOp))
+    if (ClassOrNamespace *binding = baseExpression(baseResults, accessOp))
         addResults(binding->find(memberName));
 
     return false;
 }
 
-LookupScope *ResolveExpression::findClass(const FullySpecifiedType &originalTy, Scope *scope,
-                                          LookupScope *enclosingBinding) const
+ClassOrNamespace *ResolveExpression::findClass(const FullySpecifiedType &originalTy, Scope *scope,
+                                               ClassOrNamespace *enclosingBinding) const
 {
     FullySpecifiedType ty = originalTy.simplified();
-    LookupScope *binding = 0;
+    ClassOrNamespace *binding = 0;
 
     if (Class *klass = ty->asClassType()) {
         if (scope->isBlock())
@@ -816,14 +1039,15 @@ LookupScope *ResolveExpression::findClass(const FullySpecifiedType &originalTy, 
     return binding;
 }
 
-LookupScope *ResolveExpression::baseExpression(const QList<LookupItem> &baseResults,
-                                               int accessOp,
-                                               bool *replacedDotOperator) const
+ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &baseResults,
+                                                    int accessOp,
+                                                    bool *replacedDotOperator) const
 {
     if (Q_UNLIKELY(debug))
         qDebug() << "In ResolveExpression::baseExpression with" << baseResults.size() << "results...";
     int i = 0;
-    TypeResolver typeResolver(*_context.bindings());
+    Overview oo;
+    TypedefsResolver typedefsResolver(_context);
 
     foreach (const LookupItem &r, baseResults) {
         if (!r.type().type() || !r.scope())
@@ -832,55 +1056,80 @@ LookupScope *ResolveExpression::baseExpression(const QList<LookupItem> &baseResu
         FullySpecifiedType originalType = ty;
         Scope *scope = r.scope();
 
-        if (Q_UNLIKELY(debug))
+        if (Q_UNLIKELY(debug)) {
             qDebug("trying result #%d", ++i);
+            qDebug() << "- before typedef resolving we have:" << oo(ty);
+        }
 
-        typeResolver.resolve(&ty, &scope, r.binding());
+        typedefsResolver.resolve(&ty, &scope, r.binding());
+
+        if (Q_UNLIKELY(debug))
+            qDebug() << "-  after typedef resolving:" << oo(ty);
 
         if (accessOp == T_ARROW) {
             if (PointerType *ptrTy = ty->asPointerType()) {
                 FullySpecifiedType type = ptrTy->elementType();
-                if (LookupScope *binding = findClass(type, scope))
+                if (ClassOrNamespace *binding
+                        = findClassForTemplateParameterInExpressionScope(r.binding(),
+                                                                         type)) {
+                    return binding;
+                }
+                if (ClassOrNamespace *binding = findClass(type, scope))
                     return binding;
 
-            } else if (LookupScope *binding = findClass(ty, scope, r.binding())) {
-                // lookup for overloads of operator->
+            } else {
+                ClassOrNamespace *binding
+                        = findClassForTemplateParameterInExpressionScope(r.binding(),
+                                                                         ty);
 
-                const OperatorNameId *arrowOp
-                        = control()->operatorNameId(OperatorNameId::ArrowOp);
-                foreach (const LookupItem &r, binding->find(arrowOp)) {
-                    Symbol *overload = r.declaration();
-                    if (! overload)
-                        continue;
-                    Scope *functionScope = overload->enclosingScope();
+                if (! binding)
+                    binding = findClass(ty, scope, r.binding());
 
-                    if (Function *funTy = overload->type()->asFunctionType()) {
-                        FullySpecifiedType retTy = funTy->returnType().simplified();
+                if (binding){
+                    // lookup for overloads of operator->
 
-                        typeResolver.resolve(&retTy, &functionScope, r.binding());
-
-                        if (! retTy->isPointerType() && ! retTy->isNamedType())
+                    const OperatorNameId *arrowOp
+                            = control()->operatorNameId(OperatorNameId::ArrowOp);
+                    foreach (const LookupItem &r, binding->find(arrowOp)) {
+                        Symbol *overload = r.declaration();
+                        if (! overload)
                             continue;
+                        Scope *functionScope = overload->enclosingScope();
 
-                        if (PointerType *ptrTy = retTy->asPointerType())
-                            retTy = ptrTy->elementType();
+                        if (overload->type()->isFunctionType()) {
+                            FullySpecifiedType overloadTy
+                                    = instantiate(binding->templateId(), overload);
+                            Function *instantiatedFunction = overloadTy->asFunctionType();
+                            Q_ASSERT(instantiatedFunction != 0);
 
-                        if (LookupScope *retBinding = findClass(retTy, functionScope))
-                            return retBinding;
+                            FullySpecifiedType retTy
+                                    = instantiatedFunction->returnType().simplified();
 
-                        if (scope != functionScope) {
-                            if (LookupScope *retBinding = findClass(retTy, scope))
+                            typedefsResolver.resolve(&retTy, &functionScope, r.binding());
+
+                            if (! retTy->isPointerType() && ! retTy->isNamedType())
+                                continue;
+
+                            if (PointerType *ptrTy = retTy->asPointerType())
+                                retTy = ptrTy->elementType();
+
+                            if (ClassOrNamespace *retBinding = findClass(retTy, functionScope))
                                 return retBinding;
-                        }
 
-                        if (LookupScope *origin = binding->instantiationOrigin()) {
-                            foreach (Symbol *originSymbol, origin->symbols()) {
-                                Scope *originScope = originSymbol->asScope();
-                                if (originScope && originScope != scope
-                                        && originScope != functionScope) {
-                                    if (LookupScope *retBinding
-                                            = findClass(retTy, originScope))
-                                        return retBinding;
+                            if (scope != functionScope) {
+                                if (ClassOrNamespace *retBinding = findClass(retTy, scope))
+                                    return retBinding;
+                            }
+
+                            if (ClassOrNamespace *origin = binding->instantiationOrigin()) {
+                                foreach (Symbol *originSymbol, origin->symbols()) {
+                                    Scope *originScope = originSymbol->asScope();
+                                    if (originScope && originScope != scope
+                                            && originScope != functionScope) {
+                                        if (ClassOrNamespace *retBinding
+                                                = findClass(retTy, originScope))
+                                            return retBinding;
+                                    }
                                 }
                             }
                         }
@@ -894,18 +1143,48 @@ LookupScope *ResolveExpression::baseExpression(const QList<LookupItem> &baseResu
                     ty = ptrTy->elementType();
             }
 
-            LookupScope *enclosingBinding = 0;
-            if (LookupScope *binding = r.binding()) {
+            if (ClassOrNamespace *binding
+                    = findClassForTemplateParameterInExpressionScope(r.binding(),
+                                                                     ty)) {
+                return binding;
+            }
+
+            ClassOrNamespace *enclosingBinding = 0;
+            if (ClassOrNamespace *binding = r.binding()) {
                 if (binding->instantiationOrigin())
                     enclosingBinding = binding;
             }
 
-            if (LookupScope *binding = findClass(ty, scope, enclosingBinding))
+            if (ClassOrNamespace *binding = findClass(ty, scope, enclosingBinding))
                 return binding;
         }
     }
 
     return 0;
+}
+
+ClassOrNamespace *ResolveExpression::findClassForTemplateParameterInExpressionScope(
+        ClassOrNamespace *resultBinding,
+        const FullySpecifiedType &ty) const
+{
+    if (resultBinding) {
+        if (ClassOrNamespace *origin = resultBinding->instantiationOrigin()) {
+            foreach (Symbol *originSymbol, origin->symbols()) {
+                if (Scope *originScope = originSymbol->asScope()) {
+                    if (ClassOrNamespace *retBinding = findClass(ty, originScope))
+                        return retBinding;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+FullySpecifiedType ResolveExpression::instantiate(const Name *className, Symbol *candidate) const
+{
+    return DeprecatedGenTemplateInstance::instantiate(className, candidate,
+                                                      _context.bindings()->control());
 }
 
 bool ResolveExpression::visit(PostIncrDecrAST *ast)
@@ -921,7 +1200,7 @@ bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
 
     foreach (const LookupItem &result, receiverResults) {
         FullySpecifiedType ty = result.type().simplified();
-        LookupScope *binding = 0;
+        ClassOrNamespace *binding = 0;
 
         if (ObjCClass *clazz = ty->asObjCClassType()) {
             // static access, e.g.:

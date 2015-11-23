@@ -379,7 +379,7 @@ FullySpecifiedType SubstitutionMap::apply(const Name *name, Rewrite *) const
 }
 
 
-UseMinimalNames::UseMinimalNames(LookupScope *target)
+UseMinimalNames::UseMinimalNames(ClassOrNamespace *target)
     : _target(target)
 {
 

@@ -61,8 +61,7 @@ public:
                                                 bool strict = false);
 
     CPlusPlus::Class *findMatchingClassDeclaration(CPlusPlus::Symbol *declaration,
-                                                   const CPlusPlus::Snapshot &snapshot,
-                                                   const CPlusPlus::LookupContext *context = 0);
+                                                   const CPlusPlus::Snapshot &snapshot);
 
     void findMatchingDeclaration(const CPlusPlus::LookupContext &context,
                                  CPlusPlus::Function *functionType,

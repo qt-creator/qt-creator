@@ -38,7 +38,6 @@
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/SimpleLexer.h>
-#include <cplusplus/Templates.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/functionutils.h>
@@ -184,7 +183,7 @@ Class *VirtualFunctionHelper::staticClassOfFunctionCallExpression_internal() con
         const QList<LookupItem> items = m_typeOfExpression(memberAccessAST->base_expression,
                                                            m_expressionDocument, m_scope);
         ResolveExpression resolveExpression(m_typeOfExpression.context());
-        LookupScope *binding = resolveExpression.baseExpression(items, m_accessTokenKind);
+        ClassOrNamespace *binding = resolveExpression.baseExpression(items, m_accessTokenKind);
         if (binding) {
             if (Class *klass = binding->rootClass()) {
                 result = klass;

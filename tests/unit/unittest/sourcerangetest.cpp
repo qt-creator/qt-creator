@@ -51,7 +51,9 @@ using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::Diagnostic;
 using ClangBackEnd::SourceRange;
 using ClangBackEnd::TranslationUnits;
+
 using testing::PrintToString;
+using testing::IsEmpty;
 
 namespace {
 
@@ -73,9 +75,7 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
     return true;
 }
 
-class SourceRange : public ::testing::Test
-{
-protected:
+struct Data {
     ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-pedantic")}};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
@@ -88,6 +88,20 @@ protected:
     Diagnostic diagnostic{diagnosticSet.front()};
     Diagnostic diagnosticWithFilteredOutInvalidRange{diagnosticSet.at(1)};
     ::SourceRange sourceRange{diagnostic.ranges().front()};
+};
+
+class SourceRange : public ::testing::Test
+{
+public:
+    static void SetUpTestCase();
+    static void TearDownTestCase();
+
+protected:
+    static Data *d;
+    const ::SourceRange &sourceRange = d->sourceRange;
+    const Diagnostic &diagnostic = d->diagnostic;
+    const Diagnostic &diagnosticWithFilteredOutInvalidRange = d->diagnosticWithFilteredOutInvalidRange;
+    const TranslationUnit &translationUnit = d->translationUnit;
 };
 
 TEST_F(SourceRange, IsNull)
@@ -125,9 +139,34 @@ TEST_F(SourceRange, End)
                                                       44u));
 }
 
+TEST_F(SourceRange, Create)
+{
+    ASSERT_THAT(sourceRange, ::SourceRange(sourceRange.start(), sourceRange.end()));
+}
+
+TEST_F(SourceRange, SourceRangeFromTranslationUnit)
+{
+    auto sourceRangeFromTranslationUnit = translationUnit.sourceRange(8u, 5u, 8u, 6u);
+
+    ASSERT_THAT(sourceRangeFromTranslationUnit, sourceRange);
+}
+
 TEST_F(SourceRange, InvalidRangeIsFilteredOut)
 {
-    ASSERT_TRUE(diagnosticWithFilteredOutInvalidRange.ranges().empty());
+    ASSERT_THAT(diagnosticWithFilteredOutInvalidRange.ranges(), IsEmpty());
+}
+
+Data *SourceRange::d;
+
+void SourceRange::SetUpTestCase()
+{
+    d = new Data;
+}
+
+void SourceRange::TearDownTestCase()
+{
+    delete d;
+    d = nullptr;
 }
 
 }

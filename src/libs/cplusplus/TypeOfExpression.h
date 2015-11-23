@@ -62,7 +62,7 @@ public:
      */
     void init(Document::Ptr thisDocument,
               const Snapshot &snapshot,
-              CreateBindings::Ptr bindings = CreateBindings::Ptr(),
+              QSharedPointer<CreateBindings> bindings = QSharedPointer<CreateBindings>(),
               const QSet<const Declaration *> &autoDeclarationsBeingResolved
                 = QSet<const Declaration *>());
 
@@ -135,6 +135,7 @@ public:
     }
 
 private:
+
     void processEnvironment(Document::Ptr doc, Environment *env,
                             QSet<QString> *processed) const;
 
@@ -142,13 +143,20 @@ private:
 private:
     Document::Ptr m_thisDocument;
     Snapshot m_snapshot;
-    CreateBindings::Ptr m_bindings;
+    QSharedPointer<CreateBindings> m_bindings;
     ExpressionAST *m_ast;
     Scope *m_scope;
     LookupContext m_lookupContext;
     mutable QSharedPointer<Environment> m_environment;
-    QSet<const Declaration *> m_autoDeclarationsBeingResolved;
+
     bool m_expandTemplates;
+
+    // FIXME: This is a temporary hack to avoid dangling pointers.
+    // Keep the expression documents and thus all the symbols and
+    // their types alive until they are not needed any more.
+    QList<Document::Ptr> m_documents;
+
+    QSet<const Declaration *> m_autoDeclarationsBeingResolved;
 };
 
 ExpressionAST CPLUSPLUS_EXPORT *extractExpressionAST(Document::Ptr doc);

@@ -1390,10 +1390,6 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
         <source>Core plugin is disabled.</source>
         <translation>Базовый модуль отключён.</translation>
     </message>
-    <message>
-        <source>No valid theme &quot;%1&quot;</source>
-        <translation>Подходящая тема «%1» не обнаружена</translation>
-    </message>
 </context>
 <context>
     <name>ApplicationWindowSpecifics</name>
@@ -5383,6 +5379,10 @@ Continue?</source>
 <context>
     <name>Core::Internal::CorePlugin</name>
     <message>
+        <source>No themes found in installation.</source>
+        <translation>Темы не установлены.</translation>
+    </message>
+    <message>
         <source>The current date (ISO).</source>
         <translation>Текущая дата (ISO).</translation>
     </message>
@@ -8286,26 +8286,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation></translation>
     </message>
     <message>
-        <source>Code Completion and Semantic Highlighting</source>
-        <translation>Дополнение и подсветка кода</translation>
-    </message>
-    <message>
-        <source>C</source>
-        <translation>C</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
-    <message>
-        <source>Objective C</source>
-        <translation>Objective C</translation>
-    </message>
-    <message>
-        <source>Objective C++</source>
-        <translation>Objective C++</translation>
-    </message>
-    <message>
         <source>Pre-compiled Headers</source>
         <translation>Прекомпилированные заголовки</translation>
     </message>
@@ -8318,8 +8298,20 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>Игнорировать прекомпилированные заголовки</translation>
     </message>
     <message>
-        <source>Headers</source>
-        <translation>Заголовочные</translation>
+        <source>&lt;i&gt;Activate the Clang Code Model plugin to enable the options here.&lt;/i&gt;</source>
+        <translation>&lt;i&gt;Включите модуль Clang Code Model, чтобы менять настройки.&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>Use Clang Code Model</source>
+        <translation>Использовать модель кода Clang</translation>
+    </message>
+    <message>
+        <source>Append additional command line options to Clang, one per line. &lt;i&gt;Use this with care.&lt;/i&gt;</source>
+        <translation>Дополнительные параметры командной строки Clang, по одной на строке.&lt;br&gt;&lt;i&gt;Используйте их с осторожностью.&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>Reset Options</source>
+        <translation>Сбросить</translation>
     </message>
 </context>
 <context>
@@ -10438,14 +10430,6 @@ Flags: %3</source>
         <translation>Менять размер шрифта в окне отладчика при изменении его в основном окне редактора.</translation>
     </message>
     <message>
-        <source>Populates the source file view automatically. This might slow down debugger startup considerably.</source>
-        <translation>Автоматическое заполнение просмотра файлов исходных текстов. Может замедлить процесс запуска отладчика.</translation>
-    </message>
-    <message>
-        <source>Populate source file view automatically</source>
-        <translation>Автоматически заполнять представление исходных текстов</translation>
-    </message>
-    <message>
         <source>Switch to previous mode on debugger exit</source>
         <translation>Переключаться в предыдущий режим при завершении отладчика</translation>
     </message>
@@ -11363,10 +11347,6 @@ Qt Creator не может подключиться к нему.</translation>
     <message>
         <source>Use Tooltips in Stack View when Debugging</source>
         <translation>Подсказки в обзоре стека при отладке</translation>
-    </message>
-    <message>
-        <source>List Source Files</source>
-        <translation>Показать файлы исходников</translation>
     </message>
     <message>
         <source>Skip Known Frames</source>
@@ -22142,6 +22122,10 @@ Ids must begin with a lowercase letter.</source>
 </context>
 <context>
     <name>ProjectExplorer::Internal::DependenciesWidget</name>
+    <message>
+        <source>Synchronize configuration</source>
+        <translation>Синхронизировать конфигурацию</translation>
+    </message>
     <message>
         <source>Synchronize active kit, build, and deploy configuration between projects.</source>
         <translation>Сихронизировать у проектов текущий комплект и конфигурации сборки и установки.</translation>
@@ -34043,7 +34027,7 @@ with a password, which you can enter below.</source>
 <context>
     <name>TextEditor::FindInFiles</name>
     <message>
-        <source>Files on File System</source>
+        <source>Files in File System</source>
         <translation>Файлы в системе</translation>
     </message>
     <message>
@@ -38740,6 +38724,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
 </context>
 <context>
     <name>WinRt::Internal::WinRtDebugSupport</name>
+    <message>
+        <source>Not enough free ports for QML debugging.</source>
+        <translation>Недостаточно свободных портов для отладки QML.</translation>
+    </message>
     <message>
         <source>The WinRT debugging helper is missing from your Qt Creator installation. It was assumed to be located at %1</source>
         <translation>Помощник отладчика WinRT отсутствует в составе установки вашего Qt Creator. Предполагается, что он находится в %1</translation>

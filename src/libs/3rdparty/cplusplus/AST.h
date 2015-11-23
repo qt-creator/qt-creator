@@ -3349,7 +3349,7 @@ public:
     DeclarationAST *declaration;
 
 public: // annotations
-    Scope *symbol;
+    Template *symbol;
 
 public:
     TemplateDeclarationAST()

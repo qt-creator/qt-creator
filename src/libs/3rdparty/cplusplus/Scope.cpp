@@ -215,7 +215,7 @@ unsigned SymbolTable::symbolCount() const
 
 Symbol *SymbolTable::symbolAt(unsigned index) const
 {
-    if (! _symbols || index >= symbolCount())
+    if (! _symbols)
         return 0;
     return _symbols[index];
 }

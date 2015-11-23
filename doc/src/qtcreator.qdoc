@@ -72,11 +72,11 @@
                 \endlist
             \li \b {\l{Coding}}
                 \list
-                    \li \l{Modeling}
                     \li \l{Writing Code}
                     \li \l{Finding}
                     \li \l{Refactoring}
                     \li \l{Configuring the Editor}
+                    \li \l{Modeling}
                 \endlist
         \row
             \li \inlineimage creator_buildingrunning.png
@@ -113,7 +113,6 @@
                     \li \l{Known Issues}
                     \li \l{Glossary}
                 \endlist
-            \li
         \row
             \li {4,1} \note To report bugs and suggestions to the Qt Bug
                 Tracker, select \uicontrol {Help > Report Bug}.
@@ -194,7 +193,6 @@
         \endlist
         \li \l{Coding}
         \list
-        \li \l{Modeling}
         \li \l{Writing Code}
             \list
                 \li \l{Working in Edit Mode}
@@ -221,6 +219,7 @@
                 \li \l{Using FakeVim Mode}
             \endlist
             \li \l{Editing MIME Types}
+            \li \l{Modeling}
         \endlist
         \li \l{Building and Running}
         \list

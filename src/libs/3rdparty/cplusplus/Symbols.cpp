@@ -481,12 +481,10 @@ void Enum::visitSymbol0(SymbolVisitor *visitor)
 
 Template::Template(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Scope(translationUnit, sourceLocation, name)
-    , _isExplicitInstantiation(false)
 { }
 
 Template::Template(Clone *clone, Subst *subst, Template *original)
     : Scope(clone, subst, original)
-    , _isExplicitInstantiation(original->_isExplicitInstantiation)
 { }
 
 Template::~Template()
@@ -535,56 +533,6 @@ void Template::accept0(TypeVisitor *visitor)
 bool Template::match0(const Type *otherType, Matcher *matcher) const
 {
     if (const Template *otherTy = otherType->asTemplateType())
-        return matcher->match(this, otherTy);
-    return false;
-}
-
-ExplicitInstantiation::ExplicitInstantiation(TranslationUnit *translationUnit,
-                                             unsigned sourceLocation, const Name *name)
-    : Scope(translationUnit, sourceLocation, name)
-{ }
-
-ExplicitInstantiation::ExplicitInstantiation(Clone *clone, Subst *subst, ExplicitInstantiation *original)
-    : Scope(clone, subst, original)
-{ }
-
-ExplicitInstantiation::~ExplicitInstantiation()
-{ }
-
-Symbol *ExplicitInstantiation::declaration() const
-{
-    if (isEmpty())
-        return 0;
-
-    if (Symbol *s = memberAt(memberCount() - 1)) {
-        if (s->isClass() || s->isForwardClassDeclaration() ||
-            s->isTemplate() || s->isExplicitInstantiation() ||
-            s->isFunction() || s->isDeclaration()) {
-            return s;
-        }
-    }
-
-    return 0;
-}
-
-FullySpecifiedType ExplicitInstantiation::type() const
-{ return FullySpecifiedType(const_cast<ExplicitInstantiation *>(this)); }
-
-void ExplicitInstantiation::visitSymbol0(SymbolVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        for (unsigned i = 0; i < memberCount(); ++i) {
-            visitSymbol(memberAt(i), visitor);
-        }
-    }
-}
-
-void ExplicitInstantiation::accept0(TypeVisitor *visitor)
-{ visitor->visit(this); }
-
-bool ExplicitInstantiation::match0(const Type *otherType, Matcher *matcher) const
-{
-    if (const ExplicitInstantiation *otherTy = otherType->asExplicitInstantiationType())
         return matcher->match(this, otherTy);
     return false;
 }

@@ -25,7 +25,13 @@ HEADERS += $$PWD/clangipcserver.h \
     $$PWD/diagnosticsetiterator.h \
     $$PWD/clangfilesystemwatcher.h \
     $$PWD/translationunitalreadyexistsexception.h \
-    $$PWD/commandlinearguments.h
+    $$PWD/commandlinearguments.h \
+    $$PWD/cursor.h \
+    $$PWD/type.h \
+    $$PWD/highlightinginformations.h \
+    $$PWD/highlightinginformation.h \
+    $$PWD/highlightinginformationsiterator.h \
+    $$PWD/skippedsourceranges.h
 
 SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/codecompleter.cpp \
@@ -51,4 +57,9 @@ SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/fixit.cpp \
     $$PWD/clangfilesystemwatcher.cpp \
     $$PWD/translationunitalreadyexistsexception.cpp \
-    $$PWD/commandlinearguments.cpp
+    $$PWD/commandlinearguments.cpp \
+    $$PWD/cursor.cpp \
+    $$PWD/type.cpp \
+    $$PWD/highlightinginformations.cpp \
+    $$PWD/highlightinginformation.cpp \
+    $$PWD/skippedsourceranges.cpp

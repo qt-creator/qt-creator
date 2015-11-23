@@ -490,7 +490,8 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
                 member.setProperties(member.properties() | MClassMember::PropertyQslot);
                 word = cursor.readWord().toLower();
             } else if (word == QStringLiteral("invokable") || word == QStringLiteral("qInvokable")) {
-                member.setProperties(member.properties() | MClassMember::PropertyQinvokable);
+                member.setProperties(member.getProperties() | MClassMember::PROPERTY_QINVOKABLE);
+                word = cursor.readWord().toLower();
             } else if (word == QStringLiteral(":")) {
                 word = cursor.readWord().toLower();
             } else {

@@ -423,41 +423,8 @@ protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
     virtual bool match0(const Type *otherType, Matcher *matcher) const;
-
-private:
-    bool _isExplicitInstantiation;
 };
 
-class CPLUSPLUS_EXPORT ExplicitInstantiation : public Scope, public Type
-{
-public:
-    ExplicitInstantiation(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
-    ExplicitInstantiation(Clone *clone, Subst *subst, ExplicitInstantiation *original);
-    virtual ~ExplicitInstantiation();
-
-    Symbol *declaration() const;
-
-    // Symbol's interface
-    virtual FullySpecifiedType type() const;
-
-    virtual const ExplicitInstantiation *asExplicitInstantiation() const
-    { return this; }
-
-    virtual ExplicitInstantiation *asExplicitInstantiation()
-    { return this; }
-
-    // Type's interface
-    virtual const ExplicitInstantiation *asExplicitInstantiationType() const
-    { return this; }
-
-    virtual ExplicitInstantiation *asExplicitInstantiationType()
-    { return this; }
-
-protected:
-    virtual void visitSymbol0(SymbolVisitor *visitor);
-    virtual void accept0(TypeVisitor *visitor);
-    virtual bool match0(const Type *otherType, Matcher *matcher) const;
-};
 
 class CPLUSPLUS_EXPORT Namespace: public Scope, public Type
 {

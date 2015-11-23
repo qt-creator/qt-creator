@@ -100,12 +100,6 @@ bool FullySpecifiedType::isAuto() const
 void FullySpecifiedType::setAuto(bool isAuto)
 { f._isAuto = isAuto; }
 
-bool FullySpecifiedType::isDecltype() const
-{ return f._isDecltype; }
-
-void FullySpecifiedType::setDecltype(bool isDecltype)
-{ f._isDecltype = isDecltype; }
-
 bool FullySpecifiedType::isRegister() const
 { return f._isRegister; }
 

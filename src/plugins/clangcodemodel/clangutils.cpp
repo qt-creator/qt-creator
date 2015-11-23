@@ -41,6 +41,8 @@
 #include <cpptools/cppprojects.h>
 #include <cpptools/cppworkingcopy.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -122,7 +124,7 @@ public:
 
         optionsBuilder.addToolchainAndProjectDefines();
 
-        optionsBuilder.addResourceDirOptions();
+        optionsBuilder.addPredefinedMacrosAndHeaderPathsOptions();
         optionsBuilder.addWrappedQtHeadersIncludePath();
         optionsBuilder.addHeaderPathOptions();
         optionsBuilder.addProjectConfigFileInclude();
@@ -154,7 +156,21 @@ private:
         return false;
     }
 
-    void addResourceDirOptions()
+    void addPredefinedMacrosAndHeaderPathsOptions()
+    {
+        if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+            addPredefinedMacrosAndHeaderPathsOptionsForMsvc();
+        else
+            addPredefinedMacrosAndHeaderPathsOptionsForNonMsvc();
+    }
+
+    void addPredefinedMacrosAndHeaderPathsOptionsForMsvc()
+    {
+        add(QLatin1String("-nostdinc"));
+        add(QLatin1String("-undef"));
+    }
+
+    void addPredefinedMacrosAndHeaderPathsOptionsForNonMsvc()
     {
         static const QString resourceDir = getResourceDir();
         if (!resourceDir.isEmpty()) {

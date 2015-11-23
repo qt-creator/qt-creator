@@ -5,7 +5,7 @@
     "category": "H.Project",
     "trDescription": "Creates a Qt Quick 2 UI project with a QML entry point. To use it, you need to have a QML runtime environment such as qmlscene set up. Consider using a Qt Quick Application project instead.",
     "trDisplayName": "Qt Quick UI",
-    "trDisplayCategory": "Application",
+    "trDisplayCategory": "Other Project",
     "icon": "../../qmake/qtquickapplication/qml_wizard.png",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlProjectManager') >= 0}",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuick.Controls.1.3", "QtSupport.Wizards.FeatureQtQuickProject", "QtSupport.Wizards.FeatureQt" ],

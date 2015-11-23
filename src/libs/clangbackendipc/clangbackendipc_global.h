@@ -53,5 +53,28 @@ enum class DiagnosticSeverity // one to one mapping of the clang enum numbers
     Error = 3,
     Fatal = 4
 };
+
+enum class HighlightingType
+{
+    Invalid,
+    Keyword,
+    StringLiteral,
+    NumberLiteral,
+    Comment,
+    Function,
+    VirtualFunction,
+    Type,
+    LocalVariable,
+    Field,
+    GlobalVariable,
+    Enumeration,
+    Operator,
+    Preprocessor,
+    PreprocessorDefinition,
+    PreprocessorExpansion,
+    Label,
+    OutputArgument
+};
+
 }
 #endif // CLANGBACKENDIPC_GLOBAL_H

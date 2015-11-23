@@ -1034,9 +1034,8 @@ class DumperBase:
         # We cannot use str(addr) as it yields rubbish for char pointers
         # that might trigger Unicode encoding errors.
         #return addr.cast(lookupType("void").pointer())
-        # We do not use "hex(...)" as it (sometimes?) adds a "L" suffix.
         try:
-            return "0x%x" % toInteger(addr)
+            return "0x%x" % toInteger(hex(addr), 16)
         except:
             warn("CANNOT CONVERT TYPE: %s" % type(addr))
             try:

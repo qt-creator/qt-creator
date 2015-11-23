@@ -38,13 +38,19 @@
 namespace ClangBackEnd {
 
 class SourceLocationContainer;
+class TranslationUnit;
 
 class SourceLocation
 {
     friend class Diagnostic;
     friend class SourceRange;
+    friend class TranslationUnit;
+    friend class Cursor;
+    friend bool operator==(const SourceLocation &first, const SourceLocation &second);
 
 public:
+    SourceLocation();
+
     const Utf8String &filePath() const;
     uint line() const;
     uint column() const;
@@ -54,13 +60,22 @@ public:
 
 private:
     SourceLocation(CXSourceLocation cxSourceLocation);
+    SourceLocation(CXTranslationUnit cxTranslationUnit,
+                   const Utf8String &filePath,
+                   uint line,
+                   uint column);
+
+    operator CXSourceLocation() const;
 
 private:
+   CXSourceLocation cxSourceLocation;
    Utf8String filePath_;
-   uint line_;
-   uint column_;
-   uint offset_;
+   uint line_ = 0;
+   uint column_ = 0;
+   uint offset_ = 0;
 };
+
+bool operator==(const SourceLocation &first, const SourceLocation &second);
 
 void PrintTo(const SourceLocation &sourceLocation, ::std::ostream* os);
 

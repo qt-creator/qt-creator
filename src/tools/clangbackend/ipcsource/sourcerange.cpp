@@ -32,10 +32,17 @@
 
 #include <sourcerangecontainer.h>
 
+#include <ostream>
+
 namespace ClangBackEnd {
 
 SourceRange::SourceRange()
     : cxSourceRange(clang_getNullRange())
+{
+}
+
+SourceRange::SourceRange(const SourceLocation &start, const SourceLocation &end)
+    : cxSourceRange(clang_getRange(start, end))
 {
 }
 
@@ -65,10 +72,33 @@ SourceRangeContainer SourceRange::toSourceRangeContainer() const
                                 end().toSourceLocationContainer());
 }
 
+ClangBackEnd::SourceRange::operator SourceRangeContainer() const
+{
+    return toSourceRangeContainer();
+}
+
+ClangBackEnd::SourceRange::operator CXSourceRange() const
+{
+    return cxSourceRange;
+}
+
 SourceRange::SourceRange(CXSourceRange cxSourceRange)
     : cxSourceRange(cxSourceRange)
 {
 }
 
+bool operator==(const SourceRange &first, const SourceRange &second)
+{
+    return clang_equalRanges(first.cxSourceRange, second.cxSourceRange);
+}
+
+void PrintTo(const SourceRange &sourceRange, ::std::ostream* os)
+{
+    *os << "[";
+    PrintTo(sourceRange.start(), os);
+    *os << ", ";
+    PrintTo(sourceRange.end(), os);
+    *os << "]";
+}
 } // namespace ClangBackEnd
 

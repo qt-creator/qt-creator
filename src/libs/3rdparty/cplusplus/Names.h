@@ -100,7 +100,7 @@ public:
     TemplateArgumentIterator firstTemplateArgument() const { return _templateArguments.begin(); }
     TemplateArgumentIterator lastTemplateArgument() const { return _templateArguments.end(); }
     bool isSpecialization() const { return _isSpecialization; }
-    // this is temporary solution needed in LookupScope::nestedType
+    // this is temporary solution needed in ClassOrNamespace::nestedType
     // when we try to find correct specialization for instantiation
     void setIsSpecialization(bool isSpecialization) { _isSpecialization = isSpecialization; }
 

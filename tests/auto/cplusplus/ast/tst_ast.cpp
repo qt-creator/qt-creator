@@ -208,6 +208,8 @@ private slots:
     void expensiveExpression();
     void invalidCode_data();
     void invalidCode();
+    void enumDeclaration();
+    void invalidEnumClassDeclaration();
 };
 
 void tst_AST::gcc_attributes_1()
@@ -1978,6 +1980,28 @@ void tst_AST::invalidCode()
     QVERIFY(simpleDecl->decl_specifier_list->value);
     ClassSpecifierAST *classSpecifier = simpleDecl->decl_specifier_list->value->asClassSpecifier();
     QVERIFY(classSpecifier);
+
+    QVERIFY(diag.errorCount != 0);
+}
+
+void tst_AST::enumDeclaration()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement(
+         //Unnamed
+         "enum { ENUMERATOR0 };\n"
+         "enum Enum { ENUMERATOR1 };\n"
+         "enum EnumWithBase : int { ENUMERATOR2 };\n"
+         "enum enum : int { ENUMERATOR2a };\n"
+         "enum class EnumClass { ENUMERATOR3 = 10 };\n", true));
+
+    QVERIFY(unit->ast());
+    QCOMPARE(diag.errorCount, 0);
+}
+
+void tst_AST::invalidEnumClassDeclaration()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement(
+        "enum class operator A { };", true));
 
     QVERIFY(diag.errorCount != 0);
 }

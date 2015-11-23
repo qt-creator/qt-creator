@@ -125,12 +125,6 @@ void CloneType::visit(Template *type)
     _type = templ;
 }
 
-void CloneType::visit(ExplicitInstantiation *type)
-{
-    ExplicitInstantiation *inst = _clone->symbol(type, _subst)->asExplicitInstantiation();
-    _type = inst;
-}
-
 void CloneType::visit(Class *type)
 {
     Class *klass = _clone->symbol(type, _subst)->asClass();
@@ -194,8 +188,10 @@ Symbol *CloneSymbol::cloneSymbol(Symbol *symbol, Subst *subst)
 
     SymbolSubstPair symbolSubstPair = std::make_pair(symbol, subst);
     auto it = _cache.find(symbolSubstPair);
-    if (it != _cache.end())
-        return it->second;
+    if (it != _cache.end()) {
+        if (it->second->enclosingScope() == symbol->enclosingScope())
+            return it->second;
+    }
 
     Symbol *r = 0;
     std::swap(_subst, subst);
@@ -294,14 +290,6 @@ bool CloneSymbol::visit(Template *symbol)
     Template *templ = new Template(_clone, _subst, symbol);
     _symbol = templ;
     _control->addSymbol(templ);
-    return false;
-}
-
-bool CloneSymbol::visit(ExplicitInstantiation *symbol)
-{
-    ExplicitInstantiation *inst = new ExplicitInstantiation(_clone, _subst, symbol);
-    _symbol = inst;
-    _control->addSymbol(inst);
     return false;
 }
 

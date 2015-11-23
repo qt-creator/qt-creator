@@ -568,7 +568,8 @@ static void appendNodeToEndOfTheRow(const ModelNode &modelNode, const ItemRow &n
             parentPropertyItem->appendRow(newItemRow.toList());
         } else {
             QStandardItem *parentDefaultPropertyItem = parentRow.idItem;
-            parentDefaultPropertyItem->appendRow(newItemRow.toList());
+            if (parentDefaultPropertyItem)
+                parentDefaultPropertyItem->appendRow(newItemRow.toList());
         }
     } else { // root node
         treeModel->appendRow(newItemRow.toList());

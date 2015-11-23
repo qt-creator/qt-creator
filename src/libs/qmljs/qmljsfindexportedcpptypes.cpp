@@ -795,7 +795,7 @@ static void buildContextProperties(
                 Scope *typeScope = result.scope();
                 if (!typeScope)
                     typeScope = scope; // incorrect but may be an ok fallback
-                LookupScope *binding = typeOf.context().lookupType(namedType->name(), typeScope);
+                ClassOrNamespace *binding = typeOf.context().lookupType(namedType->name(), typeScope);
                 if (binding && !binding->symbols().isEmpty()) {
                     // find the best 'Class' symbol
                     for (int i = binding->symbols().size() - 1; i >= 0; --i) {
