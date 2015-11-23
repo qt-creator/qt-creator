@@ -40,8 +40,8 @@ template<class T>
 class Handle
 {
 public:
-    Handle() : m_target(0) { }
-    explicit Handle(const Uid &uid) : m_uid(uid), m_target(0) { }
+    Handle() { }
+    explicit Handle(const Uid &uid) : m_uid(uid) { }
     explicit Handle(T *t) : m_uid(t ? t->uid() : Uid()), m_target(t) { }
     Handle(const Handle &rhs) : m_uid(rhs.m_uid), m_target(rhs.m_target) { }
     template<class U>
@@ -74,7 +74,7 @@ public:
 
 private:
     Uid m_uid;
-    T *m_target;
+    T *m_target = 0;
 };
 
 template<class T>

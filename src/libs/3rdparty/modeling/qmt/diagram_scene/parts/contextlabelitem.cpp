@@ -35,8 +35,7 @@
 namespace qmt {
 
 ContextLabelItem::ContextLabelItem(QGraphicsItem *parent)
-    : QGraphicsSimpleTextItem(parent),
-      m_maxWidth(0.0)
+    : QGraphicsSimpleTextItem(parent)
 {
 }
 

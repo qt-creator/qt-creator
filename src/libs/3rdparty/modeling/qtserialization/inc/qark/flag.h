@@ -44,7 +44,7 @@ public:
 
 private:
     static MaskType m_nextMask;
-    MaskType m_mask;
+    MaskType m_mask = 0;
 };
 
 } // namespace qark

@@ -169,21 +169,15 @@ public:
     }
 
 private:
-    DiagramSceneModel *m_diagramSceneModel;
-    ArrowItem *m_arrow;
+    DiagramSceneModel *m_diagramSceneModel = 0;
+    ArrowItem *m_arrow = 0;
     QList<QPointF> m_points;
 };
 
 RelationItem::RelationItem(DRelation *relation, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : QGraphicsItem(parent),
       m_relation(relation),
-      m_diagramSceneModel(diagramSceneModel),
-      m_isSecondarySelected(false),
-      m_isFocusSelected(false),
-      m_arrow(0),
-      m_name(0),
-      m_stereotypes(0),
-      m_selectionHandles(0)
+      m_diagramSceneModel(diagramSceneModel)
 {
     setFlags(QGraphicsItem::ItemIsSelectable);
 }

@@ -45,11 +45,10 @@ namespace qmt {
 class RectangularSelectionItem::GraphicsHandleItem : public QGraphicsRectItem
 {
 public:
-    GraphicsHandleItem(Handle handle, RectangularSelectionItem *parent)
+    GraphicsHandleItem(RectangularSelectionItem::Handle handle, RectangularSelectionItem *parent)
         : QGraphicsRectItem(parent),
           m_owner(parent),
-          m_handle(handle),
-          m_isSecondarySelected(false)
+          m_handle(handle)
     {
         setPen(QPen(Qt::black));
         setBrush(QBrush(Qt::black));
@@ -92,9 +91,9 @@ protected:
     }
 
 private:
-    RectangularSelectionItem *m_owner;
-    Handle m_handle;
-    bool m_isSecondarySelected;
+    RectangularSelectionItem *m_owner = 0;
+    RectangularSelectionItem::Handle m_handle = RectangularSelectionItem::HandleFirst;
+    bool m_isSecondarySelected = false;
     QPointF m_startPos;
 };
 
@@ -102,11 +101,7 @@ RectangularSelectionItem::RectangularSelectionItem(IResizable *itemResizer, QGra
     : QGraphicsItem(parent),
       m_itemResizer(itemResizer),
       m_pointSize(QSizeF(9.0, 9.0)),
-      m_points(8),
-      m_showBorder(false),
-      m_borderItem(0),
-      m_freedom(FreedomAny),
-      m_isSecondarySelected(false)
+      m_points(8)
 {
 }
 

@@ -98,16 +98,16 @@ private:
     QPointF calcEndPoint(const Uid &end, const QPointF &otherEndPos,
                          int nearestIntermediatePointIndex);
 
-    DRelation *m_relation;
+    DRelation *m_relation = 0;
 
 protected:
-    DiagramSceneModel *m_diagramSceneModel;
-    bool m_isSecondarySelected;
-    bool m_isFocusSelected;
-    ArrowItem *m_arrow;
-    QGraphicsSimpleTextItem *m_name;
-    StereotypesItem *m_stereotypes;
-    PathSelectionItem *m_selectionHandles;
+    DiagramSceneModel *m_diagramSceneModel = 0;
+    bool m_isSecondarySelected = false;
+    bool m_isFocusSelected = false;
+    ArrowItem *m_arrow = 0;
+    QGraphicsSimpleTextItem *m_name = 0;
+    StereotypesItem *m_stereotypes = 0;
+    PathSelectionItem *m_selectionHandles = 0;
 };
 
 } // namespace qmt

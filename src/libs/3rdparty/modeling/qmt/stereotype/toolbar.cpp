@@ -33,7 +33,6 @@
 namespace qmt {
 
 Toolbar::Toolbar()
-    : m_priority(-1)
 {
 }
 

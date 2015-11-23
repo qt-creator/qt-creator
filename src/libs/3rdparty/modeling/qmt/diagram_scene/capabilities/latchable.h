@@ -60,11 +60,6 @@ public:
     {
     public:
         Latch()
-            : m_latchType(None),
-              m_pos(0.0),
-              m_otherPos1(0.0),
-              m_otherPos2(0.0),
-              m_identifier()
         {
         }
 
@@ -78,9 +73,10 @@ public:
         {
         }
 
-        LatchType m_latchType;
-        qreal m_pos;
-        qreal m_otherPos1, m_otherPos2;
+        LatchType m_latchType = LatchType::None;
+        qreal m_pos = 0.0;
+        qreal m_otherPos1 = 0.0;
+        qreal m_otherPos2 = 0.0;
         QString m_identifier;
     };
 

@@ -46,12 +46,13 @@ public:
     {
     }
 
-    bool suppressGradients() const {
+    bool suppressGradients() const
+    {
         return m_styleController->suppressGradients();
     }
 
 private:
-    StyleController *m_styleController;
+    StyleController *m_styleController = 0;
 };
 
 StyleController::StyleController(QObject *parent)

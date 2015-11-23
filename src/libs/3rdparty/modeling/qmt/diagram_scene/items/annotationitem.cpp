@@ -76,14 +76,7 @@ public:
 AnnotationItem::AnnotationItem(DAnnotation *annotation, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : QGraphicsItem(parent),
       m_annotation(annotation),
-      m_diagramSceneModel(diagramSceneModel),
-      m_isSecondarySelected(false),
-      m_isFocusSelected(false),
-      m_selectionMarker(0),
-      m_noTextItem(0),
-      m_textItem(0),
-      m_isUpdating(false),
-      m_isChanged(false)
+      m_diagramSceneModel(diagramSceneModel)
 {
     setFlags(QGraphicsItem::ItemIsSelectable);
 }

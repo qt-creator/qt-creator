@@ -216,17 +216,15 @@ public:
     {
     public:
         explicit Element(ElementType element = TypeNone)
-            : m_elementType(element),
-              m_angle1(0.0),
-              m_angle2(0.0)
+            : m_elementType(element)
         {
         }
 
-        ElementType m_elementType;
+        ElementType m_elementType = TypeNone;
         ShapePointF m_position;
         ShapeSizeF m_size;
-        qreal m_angle1;
-        qreal m_angle2;
+        qreal m_angle1 = 0.0;
+        qreal m_angle2 = 0.0;
     };
 
     PathShape();

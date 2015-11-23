@@ -106,12 +106,7 @@ StereotypeDefinitionParserError::~StereotypeDefinitionParserError()
 class StereotypeDefinitionParser::StereotypeDefinitionParserPrivate
 {
 public:
-    StereotypeDefinitionParserPrivate()
-        : m_scanner(0)
-    {
-    }
-
-    TextScanner *m_scanner;
+    TextScanner *m_scanner = 0;
 
 };
 

@@ -50,14 +50,11 @@ void MExpansion::destroy(MElement *element)
 }
 
 MElement::MElement()
-    : m_owner(0),
-      m_expansion(0)
 {
 }
 
 MElement::MElement(const MElement &rhs)
     : m_uid(rhs.m_uid),
-      m_owner(0),
       m_expansion(rhs.m_expansion ? rhs.m_expansion->clone(rhs) : 0),
       m_stereotypes(rhs.m_stereotypes)
 {

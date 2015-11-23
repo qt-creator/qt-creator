@@ -33,14 +33,11 @@
 namespace qmt {
 
 Token::Token()
-    : m_type(TokenUndefined),
-      m_subtype(0)
 {
 }
 
 Token::Token(Type type, const QString &text, const SourcePos &sourcePos)
     : m_type(type),
-      m_subtype(0),
       m_text(text),
       m_sourcePos(sourcePos)
 {

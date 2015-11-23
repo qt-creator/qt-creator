@@ -62,13 +62,13 @@ public:
     void visitDItem(const DItem *item) override;
 
 private:
-    ModelController *m_modelController;
-    StereotypeController *m_stereotypeController;
-    DObject::StereotypeDisplay m_stereotypeDisplay;
+    ModelController *m_modelController = 0;
+    StereotypeController *m_stereotypeController = 0;
+    DObject::StereotypeDisplay m_stereotypeDisplay = DObject::StereotypeNone;
     QString m_stereotypeIconId;
     QString m_shapeIconId;
-    StereotypeIcon::Element m_stereotypeIconElement;
-    DObject::StereotypeDisplay m_stereotypeSmartDisplay;
+    StereotypeIcon::Element m_stereotypeIconElement = StereotypeIcon::ElementAny;
+    DObject::StereotypeDisplay m_stereotypeSmartDisplay = DObject::StereotypeDecoration;
 };
 
 } // namespace qmt

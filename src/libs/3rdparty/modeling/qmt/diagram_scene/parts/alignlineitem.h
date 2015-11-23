@@ -53,9 +53,9 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                QWidget *widget = 0) override;
 
-    Direction m_direction;
-    QGraphicsLineItem *m_alignLine;
-    QGraphicsLineItem *m_highlightLine;
+    Direction m_direction = Horizontal;
+    QGraphicsLineItem *m_alignLine = 0;
+    QGraphicsLineItem *m_highlightLine = 0;
 };
 
 } // namespace qmt

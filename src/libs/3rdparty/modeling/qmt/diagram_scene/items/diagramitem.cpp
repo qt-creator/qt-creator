@@ -58,11 +58,7 @@ static const qreal BODY_HORIZ_BORDER = 4.0;
 static const qreal BODY_VERT_BORDER = 4.0;
 
 DiagramItem::DiagramItem(DDiagram *diagram, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
-    : ObjectItem(diagram, diagramSceneModel, parent),
-      m_customIcon(0),
-      m_body(0),
-      m_fold(0),
-      m_diagramName(0)
+    : ObjectItem(diagram, diagramSceneModel, parent)
 {
 }
 

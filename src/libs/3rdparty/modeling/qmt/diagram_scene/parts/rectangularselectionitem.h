@@ -103,16 +103,16 @@ private:
     void moveHandle(Handle handle, const QPointF &deltaMove, HandleStatus handleStatus,
                     HandleQualifier handleQualifier);
 
-    IResizable *m_itemResizer;
+    IResizable *m_itemResizer = 0;
     QRectF m_rect;
     QSizeF m_pointSize;
     QVector<GraphicsHandleItem *> m_points;
     QPointF m_originalResizePos;
     QRectF m_originalResizeRect;
-    bool m_showBorder;
-    QGraphicsRectItem *m_borderItem;
-    Freedom m_freedom;
-    bool m_isSecondarySelected;
+    bool m_showBorder = false;
+    QGraphicsRectItem *m_borderItem = 0;
+    Freedom m_freedom = FreedomAny;
+    bool m_isSecondarySelected = false;
 };
 
 } // namespace qmt

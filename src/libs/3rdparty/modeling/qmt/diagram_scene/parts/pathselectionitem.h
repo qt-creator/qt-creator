@@ -76,9 +76,9 @@ private:
     void moveHandle(int pointIndex, const QPointF &deltaMove, HandleStatus handleStatus,
                     HandleQualifier handleQualifier);
 
-    IWindable *m_windable;
+    IWindable *m_windable = 0;
     QSizeF m_pointSize;
-    bool m_isSecondarySelected;
+    bool m_isSecondarySelected = false;
     QList<GraphicsHandleItem *> m_handles;
     QPointF m_originalHandlePos;
 };

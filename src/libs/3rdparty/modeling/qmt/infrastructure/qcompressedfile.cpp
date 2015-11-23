@@ -37,18 +37,13 @@
 namespace qmt {
 
 QCompressedDevice::QCompressedDevice(QObject *parent)
-    : QIODevice(parent),
-      m_targetDevice(0),
-      m_bytesInBuffer(0),
-      m_indexInBuffer(0)
+    : QIODevice(parent)
 {
 }
 
 QCompressedDevice::QCompressedDevice(QIODevice *targetDevice, QObject *parent)
     : QIODevice(parent),
-      m_targetDevice(targetDevice),
-      m_bytesInBuffer(0),
-      m_indexInBuffer(0)
+      m_targetDevice(targetDevice)
 {
 }
 

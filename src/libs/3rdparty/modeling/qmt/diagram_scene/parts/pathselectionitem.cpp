@@ -56,8 +56,7 @@ public:
     GraphicsHandleItem(int pointIndex, PathSelectionItem *parent)
         : QGraphicsRectItem(parent),
           m_owner(parent),
-          m_pointIndex(pointIndex),
-          m_selection(NotSelected)
+          m_pointIndex(pointIndex)
     {
     }
 
@@ -118,19 +117,18 @@ private:
         }
     }
 
-    PathSelectionItem *m_owner;
-    int m_pointIndex;
+    PathSelectionItem *m_owner = 0;
+    int m_pointIndex = -1;
     QSizeF m_pointSize;
-    Selection m_selection;
+    Selection m_selection = NotSelected;
     QPointF m_startPos;
-    PathSelectionItem::HandleQualifier m_qualifier;
+    PathSelectionItem::HandleQualifier m_qualifier = PathSelectionItem::None;
 };
 
 PathSelectionItem::PathSelectionItem(IWindable *windable, QGraphicsItem *parent)
     : QGraphicsItem(parent),
       m_windable(windable),
-      m_pointSize(QSizeF(8.0, 8.0)),
-      m_isSecondarySelected(false)
+      m_pointSize(QSizeF(8.0, 8.0))
 {
 }
 

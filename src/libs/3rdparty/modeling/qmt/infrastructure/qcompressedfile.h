@@ -58,10 +58,10 @@ public:
     qint64 flush();
 
 private:
-    QIODevice *m_targetDevice;
+    QIODevice *m_targetDevice = 0;
     QByteArray m_buffer;
-    qint64 m_bytesInBuffer;
-    qint64 m_indexInBuffer;
+    qint64 m_bytesInBuffer = 0;
+    qint64 m_indexInBuffer = 0;
 };
 
 } // namespace qmt

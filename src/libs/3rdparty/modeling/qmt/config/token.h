@@ -68,8 +68,8 @@ public:
     void setSourcePos(const SourcePos &sourcePos);
 
 private:
-    Type m_type;
-    int m_subtype;
+    Type m_type = TokenUndefined;
+    int m_subtype = 0;
     QString m_text;
     SourcePos m_sourcePos;
 };

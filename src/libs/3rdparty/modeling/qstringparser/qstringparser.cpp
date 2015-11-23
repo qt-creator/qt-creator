@@ -52,9 +52,7 @@ QStringParser::Parser QStringParser::parse(const QString &pattern)
 
 QStringParser::Parser::Parser(const QString &source, const QString &pattern)
     : m_source(source),
-      m_pattern(pattern),
-      m_isEvaluated(false),
-      m_evaluationFailed(false)
+      m_pattern(pattern)
 {
 }
 

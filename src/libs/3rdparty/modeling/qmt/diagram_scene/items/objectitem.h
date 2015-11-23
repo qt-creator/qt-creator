@@ -150,18 +150,18 @@ protected:
 private:
     QSizeF minimumSize(const QSet<QGraphicsItem *> &items) const;
 
-    DObject *m_object;
-    DiagramSceneModel *m_diagramSceneModel;
-    bool m_isSecondarySelected;
-    bool m_isFocusSelected;
+    DObject *m_object = 0;
+    DiagramSceneModel *m_diagramSceneModel = 0;
+    bool m_isSecondarySelected = false;
+    bool m_isFocusSelected = false;
     QString m_stereotypeIconId;
     QString m_shapeIconId;
-    StereotypeIcon::Display m_stereotypeIconDisplay;
-    StereotypesItem *m_stereotypes;
-    CustomIconItem *m_stereotypeIcon;
-    RectangularSelectionItem *m_selectionMarker;
-    AlignButtonsItem *m_horizontalAlignButtons;
-    AlignButtonsItem *m_verticalAlignButtons;
+    StereotypeIcon::Display m_stereotypeIconDisplay = StereotypeIcon::DisplayLabel;
+    StereotypesItem *m_stereotypes = 0;
+    CustomIconItem *m_stereotypeIcon = 0;
+    RectangularSelectionItem *m_selectionMarker = 0;
+    AlignButtonsItem *m_horizontalAlignButtons = 0;
+    AlignButtonsItem *m_verticalAlignButtons = 0;
 };
 
 } // namespace qmt

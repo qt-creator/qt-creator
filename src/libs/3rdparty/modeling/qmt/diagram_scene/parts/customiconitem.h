@@ -62,7 +62,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
 private:
-    DiagramSceneModel *m_diagramSceneModel;
+    DiagramSceneModel *m_diagramSceneModel = 0;
     QString m_stereotypeIconId;
     StereotypeIcon m_stereotypeIcon;
     QSizeF m_baseSize;

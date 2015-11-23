@@ -82,12 +82,12 @@ namespace {
 class Candidate
 {
 public:
-    Candidate() : third(GeometryUtilities::SideUnspecified) { }
+    Candidate() { }
     Candidate(const QVector2D &f, const QPointF &s, GeometryUtilities::Side t) : first(f), second(s), third(t) { }
 
     QVector2D first;
     QPointF second;
-    GeometryUtilities::Side third;
+    GeometryUtilities::Side third = GeometryUtilities::SideUnspecified;
 };
 
 }

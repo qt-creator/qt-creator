@@ -63,15 +63,7 @@ namespace qmt {
 ObjectItem::ObjectItem(DObject *object, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : QGraphicsItem(parent),
       m_object(object),
-      m_diagramSceneModel(diagramSceneModel),
-      m_isSecondarySelected(false),
-      m_isFocusSelected(false),
-      m_stereotypeIconDisplay(StereotypeIcon::DisplayLabel),
-      m_stereotypes(0),
-      m_stereotypeIcon(0),
-      m_selectionMarker(0),
-      m_horizontalAlignButtons(0),
-      m_verticalAlignButtons(0)
+      m_diagramSceneModel(diagramSceneModel)
 {
     setFlags(QGraphicsItem::ItemIsSelectable);
 }

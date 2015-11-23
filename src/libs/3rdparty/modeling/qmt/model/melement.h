@@ -87,10 +87,10 @@ public:
 
 private:
     Uid m_uid;
-    MObject *m_owner;
-    MExpansion *m_expansion;
+    MObject *m_owner = 0;
+    MExpansion *m_expansion = 0;
     QList<QString> m_stereotypes;
-    Flags m_flags;
+    Flags m_flags = 0;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(MElement::Flags)

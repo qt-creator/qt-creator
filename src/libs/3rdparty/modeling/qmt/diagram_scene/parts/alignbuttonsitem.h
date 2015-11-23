@@ -64,7 +64,7 @@ public:
     void addButton(IAlignable::AlignType alignType, const QString &identifier, qreal pos);
 
 private:
-    IAlignable *m_alignable;
+    IAlignable *m_alignable = 0;
     QList<AlignButtonItem *> m_alignItems;
 };
 

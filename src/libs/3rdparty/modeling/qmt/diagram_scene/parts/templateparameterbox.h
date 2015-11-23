@@ -51,8 +51,8 @@ private:
     void update();
 
     QList<QString> m_templateParameters;
-    bool m_breakLines;
-    QGraphicsSimpleTextItem *m_parametersText;
+    bool m_breakLines = false;
+    QGraphicsSimpleTextItem *m_parametersText = 0;
 };
 
 } // namespace qmt

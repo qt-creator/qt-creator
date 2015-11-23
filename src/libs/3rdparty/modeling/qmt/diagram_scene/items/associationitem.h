@@ -60,11 +60,11 @@ private:
                         QGraphicsItem *endCardinality,
                         QGraphicsItem *endItem, double headLength);
 
-    DAssociation *m_association;
-    QGraphicsSimpleTextItem *m_endAName;
-    QGraphicsSimpleTextItem *m_endACardinality;
-    QGraphicsSimpleTextItem *m_endBName;
-    QGraphicsSimpleTextItem *m_endBCardinality;
+    DAssociation *m_association = 0;
+    QGraphicsSimpleTextItem *m_endAName = 0;
+    QGraphicsSimpleTextItem *m_endACardinality = 0;
+    QGraphicsSimpleTextItem *m_endBName = 0;
+    QGraphicsSimpleTextItem *m_endBCardinality = 0;
 };
 
 } // namespace qmt

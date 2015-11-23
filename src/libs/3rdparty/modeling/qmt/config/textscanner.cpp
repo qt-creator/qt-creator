@@ -57,18 +57,12 @@ TextScannerError::~TextScannerError()
 class TextScanner::TextScannerPrivate
 {
 public:
-    TextScannerPrivate()
-        : m_maxOperatorLength(0),
-          m_source(0)
-    {
-    }
-
     QHash<QString, int> m_keywordToSubtypeMap;
     QHash<QString, int> m_operatorToSubtypeMap;
-    int m_maxOperatorLength;
+    int m_maxOperatorLength = 0;
     QSet<QChar> m_operatorFirstCharsSet;
     QSet<QChar> m_operatorCharsSet;
-    ITextSource *m_source;
+    ITextSource *m_source = 0;
     QStack<SourceChar> m_unreadSourceChars;
     SourcePos m_lastSourcePos;
     QStack<Token> m_unreadTokens;

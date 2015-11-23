@@ -66,16 +66,13 @@ private:
     QString preparse(const QString &text);
 
     QString m_text;
-    bool m_isValid;
-    int m_pos;
-    int m_lastPos;
+    bool m_isValid = true;
+    int m_pos = 0;
+    int m_lastPos = -1;
 };
 
 ClassMembersEdit::Cursor::Cursor(const QString &text)
-    : m_text(preparse(text)),
-      m_isValid(true),
-      m_pos(0),
-      m_lastPos(-1)
+    : m_text(preparse(text))
 {
 }
 
@@ -275,12 +272,7 @@ QString ClassMembersEdit::Cursor::preparse(const QString &text)
 class ClassMembersEdit::ClassMembersEditPrivate
 {
 public:
-    ClassMembersEditPrivate()
-        : m_isValid(true)
-    {
-    }
-
-    bool m_isValid;
+    bool m_isValid = true;
     QList<MClassMember> m_members;
 };
 

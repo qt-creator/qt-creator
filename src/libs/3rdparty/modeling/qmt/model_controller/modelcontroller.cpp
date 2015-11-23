@@ -50,29 +50,19 @@ namespace qmt {
 class ModelController::Clone
 {
 public:
-    Clone();
-
-    ElementType m_elementType;
+    ModelController::ElementType m_elementType = ModelController::TypeUnknown;
     Uid m_elementKey;
     Uid m_ownerKey;
-    int m_indexOfElement;
-    MElement *m_clonedElement;
+    int m_indexOfElement = -1;
+    MElement *m_clonedElement = 0;
 };
-
-ModelController::Clone::Clone()
-    : m_elementType(TypeUnknown),
-      m_indexOfElement(-1),
-      m_clonedElement(0)
-{
-}
 
 class ModelController::UpdateObjectCommand : public UndoCommand
 {
 public:
     UpdateObjectCommand(ModelController *modelController, MObject *object)
         : UndoCommand(tr("Change Object")),
-          m_modelController(modelController),
-          m_object(0)
+          m_modelController(modelController)
     {
         MCloneVisitor visitor;
         object->accept(&visitor);
@@ -136,8 +126,8 @@ private:
         m_modelController->verifyModelIntegrity();
     }
 
-    ModelController *m_modelController;
-    MObject *m_object;
+    ModelController *m_modelController = 0;
+    MObject *m_object = 0;
 };
 
 class ModelController::UpdateRelationCommand :
@@ -146,8 +136,7 @@ class ModelController::UpdateRelationCommand :
 public:
     UpdateRelationCommand(ModelController *modelController, MRelation *relation)
         : UndoCommand(tr("Change Relation")),
-          m_modelController(modelController),
-          m_relation(0)
+          m_modelController(modelController)
     {
         MCloneVisitor visitor;
         relation->accept(&visitor);
@@ -207,8 +196,8 @@ private:
         m_modelController->verifyModelIntegrity();
     }
 
-    ModelController *m_modelController;
-    MRelation *m_relation;
+    ModelController *m_modelController = 0;
+    MRelation *m_relation = 0;
 };
 
 class ModelController::AddElementsCommand : public UndoCommand
@@ -337,8 +326,8 @@ public:
     }
 
 private:
-    ModelController *m_modelController;
-    QList<Clone> m_clonedElements;
+    ModelController *m_modelController = 0;
+    QList<ModelController::Clone> m_clonedElements;
 };
 
 class ModelController::RemoveElementsCommand : public UndoCommand
@@ -480,8 +469,8 @@ public:
     }
 
 private:
-    ModelController *m_modelController;
-    QList<Clone> m_clonedElements;
+    ModelController *m_modelController = 0;
+    QList<ModelController::Clone> m_clonedElements;
 };
 
 class ModelController::MoveObjectCommand : public UndoCommand
@@ -533,10 +522,10 @@ private:
         m_modelController->verifyModelIntegrity();
     }
 
-    ModelController *m_modelController;
+    ModelController *m_modelController = 0;
     Uid m_objectKey;
     Uid m_ownerKey;
-    int m_indexOfElement;
+    int m_indexOfElement = -1;
 };
 
 class ModelController::MoveRelationCommand : public UndoCommand
@@ -588,10 +577,10 @@ private:
         m_modelController->verifyModelIntegrity();
     }
 
-    ModelController *m_modelController;
+    ModelController *m_modelController = 0;
     Uid m_relationKey;
     Uid m_ownerKey;
-    int m_indexOfElement;
+    int m_indexOfElement = -1;
 };
 
 ModelController::ModelController(QObject *parent)

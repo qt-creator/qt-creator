@@ -60,7 +60,7 @@ public:
 
 private:
     QString m_qualifiedName;
-    T *m_value;
+    T *m_value = 0;
     Parameters m_parameters;
 };
 
@@ -116,7 +116,7 @@ public:
 private:
     QString m_qualifiedName;
     const U &m_u;
-    T (U::*m_getter)() const;
+    T (U::*m_getter)() const = 0;
     Parameters m_parameters;
 };
 
@@ -161,7 +161,7 @@ public:
 private:
     QString m_qualifiedName;
     U &m_u;
-    void (U::*m_setter)(T);
+    void (U::*m_setter)(T) = 0;
     Parameters m_parameters;
 };
 
@@ -223,8 +223,8 @@ public:
 private:
     QString m_qualifiedName;
     U &m_u;
-    T (U::*m_getter)() const;
-    void (U::*m_setter)(V);
+    T (U::*m_getter)() const = 0;
+    void (U::*m_setter)(V) = 0;
     Parameters m_parameters;
 };
 
@@ -285,7 +285,7 @@ public:
 private:
     QString m_qualifiedName;
     const U &m_u;
-    T (*m_getFunc)(const U &);
+    T (*m_getFunc)(const U &) = 0;
     Parameters m_parameters;
 };
 
@@ -330,7 +330,7 @@ public:
 private:
     QString m_qualifiedName;
     U &m_u;
-    void (*m_setFunc)(U &, T);
+    void (*m_setFunc)(U &, T) = 0;
     Parameters m_parameters;
 };
 
@@ -392,8 +392,8 @@ public:
 private:
     QString m_qualifiedName;
     U &m_u;
-    T (*m_getFunc)(const U &);
-    void (*m_setFunc)(U &, V);
+    T (*m_getFunc)(const U &) = 0;
+    void (*m_setFunc)(U &, V) = 0;
     Parameters m_parameters;
 };
 

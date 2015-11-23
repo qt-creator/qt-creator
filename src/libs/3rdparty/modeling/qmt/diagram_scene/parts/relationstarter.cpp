@@ -48,8 +48,7 @@ namespace qmt {
 RelationStarter::RelationStarter(IRelationable *owner, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : QGraphicsRectItem(parent),
       m_owner(owner),
-      m_diagramSceneModel(diagramSceneModel),
-      m_currentPreviewArrow(0)
+      m_diagramSceneModel(diagramSceneModel)
 {
     setBrush(QBrush(QColor(192, 192, 192)));
     setPen(QPen(QColor(64, 64, 64)));

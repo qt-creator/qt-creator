@@ -31,11 +31,13 @@
 #ifndef QMT_EXCEPTIONS_H
 #define QMT_EXCEPTIONS_H
 
+#include "qmt_global.h"
+
 #include <QString>
 
 namespace qmt {
 
-class Exception
+class QMT_EXPORT Exception
 {
 public:
     Exception(const QString &errorMessage);

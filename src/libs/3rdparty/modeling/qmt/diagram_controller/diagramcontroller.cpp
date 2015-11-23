@@ -56,17 +56,10 @@ namespace qmt {
 class DiagramController::Clone
 {
 public:
-    Clone();
     Uid m_elementKey;
-    int m_indexOfElement;
-    DElement *m_clonedElement;
+    int m_indexOfElement = -1;
+    DElement *m_clonedElement = 0;
 };
-
-DiagramController::Clone::Clone()
-    : m_indexOfElement(-1),
-      m_clonedElement(0)
-{
-}
 
 class DiagramController::DiagramUndoCommand : public UndoCommand
 {
@@ -94,7 +87,7 @@ protected:
     }
 
 private:
-    DiagramController *m_diagramController;
+    DiagramController *m_diagramController = 0;
     Uid m_diagramKey;
 };
 
@@ -180,7 +173,7 @@ private:
         diagramController->diagramModified(diagram);
     }
 
-    DiagramController::UpdateAction m_updateAction;
+    DiagramController::UpdateAction m_updateAction = DiagramController::UpdateMajor;
     QHash<Uid, DElement *> m_clonedElements;
 };
 
@@ -241,7 +234,7 @@ protected:
             diagramController->diagramModified(diagram);
     }
 
-    QList<Clone> m_clonedElements;
+    QList<DiagramController::Clone> m_clonedElements;
 };
 
 class DiagramController::AddElementsCommand : public AbstractAddRemCommand
@@ -328,7 +321,7 @@ public:
     }
 
 private:
-    QList<MDiagram *> *m_allDiagrams;
+    QList<MDiagram *> *m_allDiagrams = 0;
 };
 
 DiagramController::DiagramController(QObject *parent)

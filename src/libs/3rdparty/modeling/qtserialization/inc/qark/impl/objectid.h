@@ -46,7 +46,7 @@ public:
     ObjectId operator++(int) { ObjectId id(*this); ++m_id; return id; }
 
 private:
-    int m_id;
+    int m_id = 1;
 };
 
 inline bool operator<(const ObjectId &lhs, const ObjectId &rhs)

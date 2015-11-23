@@ -76,12 +76,7 @@ public:
 };
 
 PackageItem::PackageItem(DPackage *package, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
-    : ObjectItem(package, diagramSceneModel, parent),
-      m_customIcon(0),
-      m_shape(0),
-      m_packageName(0),
-      m_contextLabel(0),
-      m_relationStarter(0)
+    : ObjectItem(package, diagramSceneModel, parent)
 {
 }
 

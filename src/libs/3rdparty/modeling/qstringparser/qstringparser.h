@@ -68,7 +68,7 @@ private:
             void (U::*setter() const)(V) { return m_setter; }
         private:
             U &m_object;
-            void (U::*m_setter)(V);
+            void (U::*m_setter)(V) = 0;
         };
 
     public:
@@ -129,8 +129,8 @@ private:
 
         const QString m_source;
         const QString m_pattern;
-        bool m_isEvaluated;
-        bool m_evaluationFailed;
+        bool m_isEvaluated = false;
+        bool m_evaluationFailed = false;
         QList<Node *> m_nodes;
     };
 

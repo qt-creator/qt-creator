@@ -50,8 +50,7 @@ public:
     explicit Handles(bool takeOwnership = false) : m_takesOwnership(takeOwnership) { }
 
     Handles(const Handles<T> &rhs)
-        : m_handleList(rhs.m_handleList),
-          m_takesOwnership(false)
+        : m_handleList(rhs.m_handleList)
     {
     }
 
@@ -233,7 +232,7 @@ public:
 
 private:
     value_type m_handleList;
-    bool m_takesOwnership;
+    bool m_takesOwnership = false;
 };
 
 template<typename T>

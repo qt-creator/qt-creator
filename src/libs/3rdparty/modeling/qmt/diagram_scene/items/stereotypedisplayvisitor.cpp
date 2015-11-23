@@ -43,12 +43,7 @@
 namespace qmt {
 
 StereotypeDisplayVisitor::StereotypeDisplayVisitor()
-    : DConstVoidVisitor(),
-      m_modelController(0),
-      m_stereotypeController(0),
-      m_stereotypeDisplay(DObject::StereotypeNone),
-      m_stereotypeIconElement(StereotypeIcon::ElementAny),
-      m_stereotypeSmartDisplay(DObject::StereotypeDecoration)
+    : DConstVoidVisitor()
 {
 }
 

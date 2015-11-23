@@ -52,7 +52,7 @@ public:
 
 private:
     QString m_fileName;
-    int m_lineNumber;
+    int m_lineNumber = -1;
 };
 
 class FileNotFoundException : public FileIOException

@@ -49,10 +49,6 @@ namespace qmt {
 class StereotypeController::StereotypeControllerPrivate
 {
 public:
-    StereotypeControllerPrivate()
-    {
-    }
-
     QHash<QPair<StereotypeIcon::Element, QString>, QString> m_stereotypeToIconIdMap;
     QHash<QString, StereotypeIcon> m_iconIdToStereotypeIconsMap;
     QList<Toolbar> m_toolbars;

@@ -63,7 +63,7 @@ public:
         {
         }
 
-        ToolType m_toolType;
+        ToolType m_toolType = ToolType::TooltypeTool;
         QString m_name;
         QString m_elementType;
         QString m_stereotype;
@@ -81,7 +81,7 @@ public:
 
 private:
     QString m_id;
-    int m_priority;
+    int m_priority = -1;
     QList<Tool> m_tools;
 };
 

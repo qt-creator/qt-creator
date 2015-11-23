@@ -49,7 +49,7 @@ public:
 private:
     void update();
 
-    double m_maxWidth;
+    double m_maxWidth = 0.0;
     QString m_context;
 };
 

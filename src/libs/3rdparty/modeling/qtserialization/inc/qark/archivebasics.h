@@ -42,7 +42,7 @@ namespace qark {
 class ArchiveBasics
 {
 public:
-    ArchiveBasics() : m_flags(0) { }
+    ArchiveBasics() { }
 
     void setFlag(const Flag &flag) { m_flags |= flag.mask(); }
     void clearFlag(const Flag &flag) { m_flags &= ~flag.mask(); }
@@ -86,7 +86,7 @@ public:
     }
 
 private:
-    Flag::MaskType m_flags;
+    Flag::MaskType m_flags = 0;
     QHash<QString, QVariant> m_userData;
 };
 

@@ -60,12 +60,7 @@ static const qreal BODY_VERT_BORDER = 4.0;
 static const qreal BODY_HORIZ_BORDER = 4.0;
 
 ItemItem::ItemItem(DItem *item, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
-    : ObjectItem(item, diagramSceneModel, parent),
-      m_customIcon(0),
-      m_shape(0),
-      m_itemName(0),
-      m_contextLabel(0),
-      m_relationStarter(0)
+    : ObjectItem(item, diagramSceneModel, parent)
 {
 }
 

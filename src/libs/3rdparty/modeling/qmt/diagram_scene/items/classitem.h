@@ -78,19 +78,19 @@ private:
     void updateGeometry();
     void updateMembers(const Style *style);
 
-    CustomIconItem *m_customIcon;
-    QGraphicsRectItem *m_shape;
-    QGraphicsSimpleTextItem *m_namespace;
-    QGraphicsSimpleTextItem *m_className;
-    ContextLabelItem *m_contextLabel;
-    QGraphicsLineItem *m_attributesSeparator;
+    CustomIconItem *m_customIcon = 0;
+    QGraphicsRectItem *m_shape = 0;
+    QGraphicsSimpleTextItem *m_namespace = 0;
+    QGraphicsSimpleTextItem *m_className = 0;
+    ContextLabelItem *m_contextLabel = 0;
+    QGraphicsLineItem *m_attributesSeparator = 0;
     QString m_attributesText;
-    QGraphicsTextItem *m_attributes;
-    QGraphicsLineItem *m_methodsSeparator;
+    QGraphicsTextItem *m_attributes = 0;
+    QGraphicsLineItem *m_methodsSeparator = 0;
     QString m_methodsText;
-    QGraphicsTextItem *m_methods;
-    TemplateParameterBox *m_templateParameterBox;
-    RelationStarter *m_relationStarter;
+    QGraphicsTextItem *m_methods = 0;
+    TemplateParameterBox *m_templateParameterBox = 0;
+    RelationStarter *m_relationStarter = 0;
 };
 
 } // namespace qmt

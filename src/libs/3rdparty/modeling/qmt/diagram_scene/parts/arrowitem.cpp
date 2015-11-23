@@ -66,12 +66,7 @@ class ArrowItem::GraphicsHeadItem : public QGraphicsItem
 {
 public:
     GraphicsHeadItem(QGraphicsItem *parent)
-        : QGraphicsItem(parent),
-          m_head(ArrowItem::HeadNone),
-          m_arrowSize(10.0),
-          m_diamondSize(15.0),
-          m_arrowItem(0),
-          m_diamondItem(0)
+        : QGraphicsItem(parent)
     {
     }
 
@@ -245,11 +240,11 @@ public:
     }
 
 private:
-    ArrowItem::Head m_head;
-    double m_arrowSize;
-    double m_diamondSize;
-    ArrowItem::GraphicsPathItem *m_arrowItem;
-    ArrowItem::GraphicsPathItem *m_diamondItem;
+    ArrowItem::Head m_head = ArrowItem::HeadNone;
+    double m_arrowSize = 10.0;
+    double m_diamondSize = 15.0;
+    ArrowItem::GraphicsPathItem *m_arrowItem = 0;
+    ArrowItem::GraphicsPathItem *m_diamondItem = 0;
 };
 
 class ArrowItem::GraphicsShaftItem : public ArrowItem::GraphicsPathItem
@@ -264,13 +259,7 @@ public:
 ArrowItem::ArrowItem(QGraphicsItem *parent)
     : QGraphicsItem(parent),
       m_shaft(ShaftSolid),
-      m_shaftItem(new GraphicsShaftItem(this)),
-      m_arrowSize(10.0),
-      m_diamondSize(15.0),
-      m_startHead(HeadNone),
-      m_startHeadItem(0),
-      m_endHead(HeadNone),
-      m_endHeadItem(0)
+      m_shaftItem(new GraphicsShaftItem(this))
 {
 }
 

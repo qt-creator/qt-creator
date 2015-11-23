@@ -50,11 +50,7 @@ namespace qmt {
 
 AssociationItem::AssociationItem(DAssociation *association, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : RelationItem(association, diagramSceneModel, parent),
-      m_association(association),
-      m_endAName(0),
-      m_endACardinality(0),
-      m_endBName(0),
-      m_endBCardinality(0)
+      m_association(association)
 {
 }
 

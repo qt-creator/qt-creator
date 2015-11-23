@@ -53,7 +53,6 @@ class ObjectStyleKey
 {
 public:
     ObjectStyleKey()
-        : m_elementType(StyleEngine::TypeOther)
     {
     }
 
@@ -63,7 +62,7 @@ public:
     {
     }
 
-    StyleEngine::ElementType m_elementType;
+    StyleEngine::ElementType m_elementType = StyleEngine::TypeOther;
     ObjectVisuals m_objectVisuals;
 };
 
@@ -87,8 +86,8 @@ public:
     {
     }
 
-    StyleEngine::ElementType m_elementType;
-    DObject::VisualPrimaryRole m_visualPrimaryRole;
+    StyleEngine::ElementType m_elementType = StyleEngine::TypeOther;
+    DObject::VisualPrimaryRole m_visualPrimaryRole = DObject::PrimaryRoleNormal;
 };
 
 uint qHash(const RelationStyleKey &styleKey)
@@ -109,7 +108,7 @@ public:
     {
     }
 
-    DAnnotation::VisualRole m_visualRole;
+    DAnnotation::VisualRole m_visualRole = DAnnotation::RoleNormal;
 };
 
 uint qHash(const AnnotationStyleKey &styleKey)
@@ -246,9 +245,6 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
     {
     public:
         DepthProperties()
-            : m_elementType(TypeOther),
-              m_visualPrimaryRole(DObject::PrimaryRoleNormal),
-              m_visualSecondaryRole(DObject::SecondaryRoleNone)
         {
         }
 
@@ -260,9 +256,9 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
         {
         }
 
-        ElementType m_elementType;
-        DObject::VisualPrimaryRole m_visualPrimaryRole;
-        DObject::VisualSecondaryRole m_visualSecondaryRole;
+        ElementType m_elementType = DefaultStyleEngine::TypeOther;
+        DObject::VisualPrimaryRole m_visualPrimaryRole = DObject::PrimaryRoleNormal;
+        DObject::VisualSecondaryRole m_visualSecondaryRole = DObject::SecondaryRoleNone;
     };
 
     // find colliding elements which best match visual appearance of styled object

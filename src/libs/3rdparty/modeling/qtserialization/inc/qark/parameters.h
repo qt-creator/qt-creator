@@ -39,7 +39,6 @@ class Parameters
 {
 public:
     Parameters()
-        : m_flags(0)
     {
     }
 
@@ -60,7 +59,7 @@ public:
     }
 
 private:
-    Flag::MaskType m_flags;
+    Flag::MaskType m_flags = 0;
 };
 
 } // namespace qark

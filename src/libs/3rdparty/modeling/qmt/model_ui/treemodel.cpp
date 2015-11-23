@@ -75,8 +75,7 @@ class TreeModel::ItemFactory : public MConstVisitor
 {
 public:
     ItemFactory(TreeModel *treeModel)
-        : m_treeModel(treeModel),
-          m_item(0)
+        : m_treeModel(treeModel)
     {
         QMT_CHECK(m_treeModel);
     }
@@ -195,8 +194,8 @@ public:
     }
 
 private:
-    TreeModel *m_treeModel;
-    ModelItem *m_item;
+    TreeModel *m_treeModel = 0;
+    TreeModel::ModelItem *m_item = 0;
 };
 
 class TreeModel::ItemUpdater : public MConstVisitor
@@ -295,8 +294,8 @@ private:
     void updateObjectLabel(const MObject *object);
     void updateRelationLabel(const MRelation *relation);
 
-    TreeModel *m_treeModel;
-    ModelItem *m_item;
+    TreeModel *m_treeModel = 0;
+    TreeModel::ModelItem *m_item = 0;
 };
 
 void TreeModel::ItemUpdater::updateObjectLabel(const MObject *object)

@@ -104,15 +104,15 @@ private:
     QSizeF calcMinimumGeometry() const;
     void updateGeometry();
 
-    DAnnotation *m_annotation;
-    DiagramSceneModel *m_diagramSceneModel;
-    bool m_isSecondarySelected;
-    bool m_isFocusSelected;
-    RectangularSelectionItem *m_selectionMarker;
-    QGraphicsRectItem *m_noTextItem;
-    AnnotationTextItem *m_textItem;
-    bool m_isUpdating;
-    bool m_isChanged;
+    DAnnotation *m_annotation = 0;
+    DiagramSceneModel *m_diagramSceneModel = 0;
+    bool m_isSecondarySelected = false;
+    bool m_isFocusSelected = false;
+    RectangularSelectionItem *m_selectionMarker = 0;
+    QGraphicsRectItem *m_noTextItem = 0;
+    AnnotationTextItem *m_textItem = 0;
+    bool m_isUpdating = false;
+    bool m_isChanged = false;
 };
 
 } // namespace qmt

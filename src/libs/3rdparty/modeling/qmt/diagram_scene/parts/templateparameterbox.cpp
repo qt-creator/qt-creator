@@ -37,7 +37,6 @@ namespace qmt {
 
 TemplateParameterBox::TemplateParameterBox(QGraphicsItem *parent)
     : QGraphicsRectItem(parent),
-      m_breakLines(false),
       m_parametersText(new QGraphicsSimpleTextItem(this))
 {
     update();

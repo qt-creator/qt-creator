@@ -94,14 +94,14 @@ private:
                             const QPointF &otherPos);
     void updateGeometry();
 
-    Shaft m_shaft;
-    GraphicsShaftItem *m_shaftItem;
-    double m_arrowSize;
-    double m_diamondSize;
-    Head m_startHead;
-    GraphicsHeadItem *m_startHeadItem;
-    Head m_endHead;
-    GraphicsHeadItem *m_endHeadItem;
+    Shaft m_shaft = ShaftSolid;
+    GraphicsShaftItem *m_shaftItem = 0;
+    double m_arrowSize = 10.0;
+    double m_diamondSize = 15.0;
+    Head m_startHead = HeadNone;
+    GraphicsHeadItem *m_startHeadItem = 0;
+    Head m_endHead = HeadNone;
+    GraphicsHeadItem *m_endHeadItem = 0;
     QList<QPointF> m_points;
 };
 

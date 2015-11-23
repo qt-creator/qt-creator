@@ -65,11 +65,11 @@ protected:
 private:
     void updateCurrentPreviewArrow(const QPointF &headPoint);
 
-    IRelationable *m_owner;
-    DiagramSceneModel *m_diagramSceneModel;
+    IRelationable *m_owner = 0;
+    DiagramSceneModel *m_diagramSceneModel = 0;
     QList<ArrowItem *> m_arrows;
     QHash<ArrowItem *, QString> m_arrowIds;
-    ArrowItem *m_currentPreviewArrow;
+    ArrowItem *m_currentPreviewArrow = 0;
     QString m_currentPreviewArrowId;
     QList<QPointF> m_currentPreviewArrowIntermediatePoints;
 };

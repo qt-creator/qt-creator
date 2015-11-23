@@ -73,11 +73,11 @@ private:
     QSizeF calcMinimumGeometry() const;
     void updateGeometry();
 
-    CustomIconItem *m_customIcon;
-    QGraphicsRectItem *m_shape;
-    QGraphicsSimpleTextItem *m_itemName;
-    ContextLabelItem *m_contextLabel;
-    RelationStarter *m_relationStarter;
+    CustomIconItem *m_customIcon = 0;
+    QGraphicsRectItem *m_shape = 0;
+    QGraphicsSimpleTextItem *m_itemName = 0;
+    ContextLabelItem *m_contextLabel = 0;
+    RelationStarter *m_relationStarter = 0;
 };
 
 } // namespace qmt
