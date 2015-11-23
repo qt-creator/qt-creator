@@ -63,6 +63,11 @@ QVariantList InputEventsModel::labels() const
     return result;
 }
 
+QMetaEnum InputEventsModel::metaEnum(const char *name)
+{
+    return staticQtMetaObject.enumerator(staticQtMetaObject.indexOfEnumerator(name));
+}
+
 QVariantMap InputEventsModel::details(int index) const
 {
     QVariantMap result;
@@ -76,12 +81,11 @@ QVariantMap InputEventsModel::details(int index) const
         if (type.isEmpty())
             type = tr("Key Release");
         if (event.a != 0) {
-            result.insert(tr("Key"), QLatin1String(
-                              QMetaEnum::fromType<Qt::Key>().valueToKey(event.a)));
+            result.insert(tr("Key"), QLatin1String(metaEnum("Key").valueToKey(event.a)));
         }
         if (event.b != 0) {
-            result.insert(tr("Modifiers"), QLatin1String(
-                              QMetaEnum::fromType<Qt::KeyboardModifiers>().valueToKeys(event.b)));
+            result.insert(tr("Modifiers"),
+                          QLatin1String(metaEnum("KeyboardModifiers").valueToKeys(event.b)));
         }
         break;
     case QmlDebug::InputMouseDoubleClick:
@@ -92,10 +96,8 @@ QVariantMap InputEventsModel::details(int index) const
     case QmlDebug::InputMouseRelease:
         if (type.isEmpty())
             type = tr("Mouse Release");
-        result.insert(tr("Button"), QLatin1String(
-                          QMetaEnum::fromType<Qt::MouseButtons>().valueToKey(event.a)));
-        result.insert(tr("Result"), QLatin1String(
-                          QMetaEnum::fromType<Qt::MouseButtons>().valueToKeys(event.b)));
+        result.insert(tr("Button"), QLatin1String(metaEnum("MouseButtons").valueToKey(event.a)));
+        result.insert(tr("Result"), QLatin1String(metaEnum("MouseButtons").valueToKeys(event.b)));
         break;
     case QmlDebug::InputMouseMove:
         type = tr("Mouse Move");

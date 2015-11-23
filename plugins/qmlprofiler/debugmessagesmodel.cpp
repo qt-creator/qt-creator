@@ -30,7 +30,7 @@ bool DebugMessagesModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &
 
 DebugMessagesModel::DebugMessagesModel(QmlProfilerModelManager *manager, QObject *parent) :
     QmlProfilerTimelineModel(manager, QmlDebug::DebugMessage, QmlDebug::MaximumRangeType,
-                             QmlDebug::ProfileDebugMessages, parent)
+                             QmlDebug::ProfileDebugMessages, parent), m_maximumMsgType(-1)
 {
 }
 
@@ -52,13 +52,19 @@ static const char *messageTypes[] = {
     QT_TRANSLATE_NOOP("DebugMessagesModel", "Info Message"),
 };
 
+QString DebugMessagesModel::messageType(uint i)
+{
+    return i < sizeof(messageTypes) / sizeof(char *) ? tr(messageTypes[i]) :
+                                                       tr("Unknown Message %1").arg(i);
+}
+
 QVariantList DebugMessagesModel::labels() const
 {
     QVariantList result;
 
-    for (int i = QtDebugMsg; i <= QtInfoMsg; ++i) {
+    for (int i = 0; i <= m_maximumMsgType; ++i) {
         QVariantMap element;
-        element.insert(QLatin1String("description"), tr(messageTypes[i]));
+        element.insert(QLatin1String("description"), messageType(i));
         element.insert(QLatin1String("id"), i);
         result << element;
     }
@@ -71,7 +77,7 @@ QVariantMap DebugMessagesModel::details(int index) const
             modelManager()->qmlModel()->getEventTypes()[m_data[index].typeId];
 
     QVariantMap result;
-    result.insert(QLatin1String("displayName"), tr(messageTypes[type.detailType]));
+    result.insert(QLatin1String("displayName"), messageType(type.detailType));
     result.insert(tr("Timestamp"), QmlProfilerDataModel::formatTime(startTime(index)));
     result.insert(tr("Message"), m_data[index].text);
     result.insert(tr("Location"), type.displayName);
@@ -104,16 +110,19 @@ void DebugMessagesModel::loadData()
 
         m_data.insert(insert(event.startTime(), 0, type.detailType),
                       MessageData(event.stringData(), event.typeIndex()));
+        if (type.detailType > m_maximumMsgType)
+            m_maximumMsgType = event.typeIndex();
         updateProgress(count(), simpleModel->getEvents().count());
     }
     setCollapsedRowCount(2);
-    setExpandedRowCount(6); // 5 QtMsgTypes + 1
+    setExpandedRowCount(m_maximumMsgType + 2);
     updateProgress(1, 1);
 }
 
 void DebugMessagesModel::clear()
 {
     m_data.clear();
+    m_maximumMsgType = -1;
     QmlProfilerTimelineModel::clear();
 }
 

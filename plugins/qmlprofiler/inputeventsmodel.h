@@ -52,6 +52,7 @@ public:
     void clear();
 
 private:
+    static QMetaEnum metaEnum(const char *name);
     int m_keyTypeId;
     int m_mouseTypeId;
 

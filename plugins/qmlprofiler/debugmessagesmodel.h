@@ -45,6 +45,8 @@ public:
     QVariantMap location(int index) const override;
 
 private:
+    static QString messageType(uint i);
+
     struct MessageData {
         MessageData(const QString &text = QString(), int typeId = -1) :
             text(text), typeId(typeId) {}
@@ -52,6 +54,7 @@ private:
         int typeId;
     };
 
+    int m_maximumMsgType;
     QVector<MessageData> m_data;
 };
 
