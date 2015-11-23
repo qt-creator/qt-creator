@@ -503,7 +503,7 @@ static void updateDocumentation()
 
 void QtVersionManager::updateDumpFor(const FileName &qmakeCommand)
 {
-    foreach (BaseQtVersion *v, versions()) {
+    foreach (BaseQtVersion *v, unsortedVersions()) {
         if (v->qmakeCommand() == qmakeCommand)
             v->recheckDumper();
     }
@@ -631,7 +631,7 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
 
 BaseQtVersion *QtVersionManager::qtVersionForQMakeBinary(const FileName &qmakePath)
 {
-    return Utils::findOrDefault(versions(), Utils::equal(&BaseQtVersion::qmakeCommand, qmakePath));
+    return Utils::findOrDefault(unsortedVersions(), Utils::equal(&BaseQtVersion::qmakeCommand, qmakePath));
 }
 
 } // namespace QtVersion
