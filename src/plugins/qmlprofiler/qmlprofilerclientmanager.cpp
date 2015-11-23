@@ -191,14 +191,16 @@ void QmlProfilerClientManager::disconnectClientSignals()
         disconnect(d->qmlclientplugin.data(), SIGNAL(complete(qint64)),
                    this, SLOT(qmlComplete(qint64)));
         disconnect(d->qmlclientplugin.data(),
-                   SIGNAL(rangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
-                                qint64,qint64,qint64,qint64,qint64)),
+                   SIGNAL(rangedEvent(QmlDebug::Message,QmlDebug::RangeType,int,qint64,qint64,
+                                      QString,QmlDebug::QmlEventLocation,qint64,qint64,qint64,
+                                      qint64,qint64)),
                    d->modelManager,
-                   SLOT(addQmlEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
-                                    qint64,qint64,qint64,qint64,qint64)));
-        disconnect(d->qmlclientplugin.data(), SIGNAL(traceFinished(qint64)),
+                   SLOT(addQmlEvent(QmlDebug::Message,QmlDebug::RangeType,int,qint64,qint64,
+                                    QString,QmlDebug::QmlEventLocation,qint64,qint64,qint64,qint64,
+                                    qint64)));
+        disconnect(d->qmlclientplugin.data(), SIGNAL(traceFinished(qint64,QList<int>)),
                    d->modelManager->traceTime(), SLOT(increaseEndTime(qint64)));
-        disconnect(d->qmlclientplugin.data(), SIGNAL(traceStarted(qint64)),
+        disconnect(d->qmlclientplugin.data(), SIGNAL(traceStarted(qint64,QList<int>)),
                    d->modelManager->traceTime(), SLOT(decreaseStartTime(qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(enabledChanged()),
                    d->qmlclientplugin.data(), SLOT(sendRecordingStatus()));
