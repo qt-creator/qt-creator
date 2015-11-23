@@ -98,6 +98,8 @@ public slots:
                      const QString &revision, int lineNumber);
 
 private slots:
+    void slotDescribe(const QString &source, const QString &changeNr);
+
 #ifdef WITH_TESTS
     void testDiffFileResolving_data();
     void testDiffFileResolving();
@@ -120,7 +122,6 @@ private:
     void filelogCurrentFile();
     void annotateCurrentFile();
     void projectStatus();
-    void slotDescribe(const QString &source, const QString &changeNr);
     void updateDirectory();
     void updateProject();
     void submitCurrentLog();
