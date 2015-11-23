@@ -36,8 +36,6 @@
 #include "settings.h"
 #include "constants.h"
 
-#include <utils/themehelper.h>
-
 namespace Todo {
 namespace Internal {
 

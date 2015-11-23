@@ -33,6 +33,7 @@
 #include "environmentaspect.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
 
@@ -76,7 +77,7 @@ RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfi
 LocalApplicationRunControl::LocalApplicationRunControl(RunConfiguration *rc, Core::Id mode)
     : RunControl(rc, mode), m_runMode(ApplicationLauncher::Console), m_running(false)
 {
-    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
+    setIcon(Icons::RUN_SMALL);
     EnvironmentAspect *environment = rc->extraAspect<EnvironmentAspect>();
     Utils::Environment env;
     if (environment)

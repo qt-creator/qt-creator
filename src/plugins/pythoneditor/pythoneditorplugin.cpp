@@ -51,6 +51,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projectexplorericons.h>
 
 #include <texteditor/texteditorconstants.h>
 
@@ -1096,7 +1097,7 @@ RunControl *PythonRunControlFactory::create(RunConfiguration *runConfiguration, 
 PythonRunControl::PythonRunControl(PythonRunConfiguration *rc, Core::Id mode)
     : RunControl(rc, mode), m_running(false)
 {
-    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
+    setIcon(ProjectExplorer::Icons::RUN_SMALL);
     EnvironmentAspect *environment = rc->extraAspect<EnvironmentAspect>();
     Utils::Environment env;
     if (environment)

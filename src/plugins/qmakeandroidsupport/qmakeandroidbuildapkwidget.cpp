@@ -35,10 +35,9 @@
 
 #include <android/androidbuildapkwidget.h>
 #include <android/androidmanager.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeproject.h>
-#include <utils/themehelper.h>
 
 #include <QFileDialog>
 #include <QLabel>
@@ -66,8 +65,7 @@ QmakeAndroidBuildApkWidget::QmakeAndroidBuildApkWidget(QmakeAndroidBuildApkStep 
     sizePolicy.setVerticalStretch(0);
     sizePolicy.setHeightForWidth(oldFilesWarningIcon->sizePolicy().hasHeightForWidth());
     oldFilesWarningIcon->setSizePolicy(sizePolicy);
-    oldFilesWarningIcon->setPixmap(
-                Utils::ThemeHelper::themedIconPixmap(QLatin1String(Core::Constants::ICON_WARNING)));
+    oldFilesWarningIcon->setPixmap(Core::Icons::WARNING.pixmap());
     oldFilesWarningIcon->setAlignment(Qt::Alignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop));
     qt51WarningLayout->addWidget(oldFilesWarningIcon);
 

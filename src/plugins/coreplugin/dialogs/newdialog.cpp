@@ -31,7 +31,7 @@
 #include "newdialog.h"
 #include "ui_newdialog.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -268,7 +268,7 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
     parentItem->appendRow(filesKindItem);
 
     if (m_dummyIcon.isNull())
-        m_dummyIcon = QIcon(QLatin1String(Core::Constants::ICON_NEWFILE));
+        m_dummyIcon = Core::Icons::NEWFILE.icon();
 
     QStringList availablePlatforms = IWizardFactory::allAvailablePlatforms();
     m_ui->comboBox->addItem(tr("All Templates"), QString());

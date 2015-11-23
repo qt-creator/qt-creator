@@ -30,7 +30,7 @@
 
 #include "opendocumentstreeview.h"
 
-#include "coreconstants.h"
+#include "coreicons.h"
 
 #include <QApplication>
 #include <QHeaderView>
@@ -87,8 +87,9 @@ void OpenDocumentsDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     QStyledItemDelegate::paint(painter, option, index);
 
     if (closeButtonVisible && index.column() == 1 && option.state & QStyle::State_MouseOver) {
-        const QIcon icon(QLatin1String((option.state & QStyle::State_Selected) ?
-                                       Constants::ICON_CLOSE_BUTTON : Constants::ICON_DARK_CLOSE_BUTTON));
+        const QIcon icon = (option.state & QStyle::State_Selected) ?
+                    Icons::CLOSE_BUTTON.icon()
+                  : Icons::DARK_CLOSE_BUTTON.icon();
 
         QRect iconRect(option.rect.right() - option.rect.height(),
                        option.rect.top(),

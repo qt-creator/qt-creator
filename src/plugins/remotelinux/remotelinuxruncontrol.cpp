@@ -34,6 +34,7 @@
 
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/target.h>
 #include <utils/environment.h>
 
@@ -59,7 +60,7 @@ public:
 RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
         : RunControl(rc, ProjectExplorer::Constants::NORMAL_RUN_MODE), d(new RemoteLinuxRunControlPrivate)
 {
-    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
+    setIcon(ProjectExplorer::Icons::RUN_SMALL);
 
     d->running = false;
     d->device = DeviceKitInformation::device(rc->target()->kit());

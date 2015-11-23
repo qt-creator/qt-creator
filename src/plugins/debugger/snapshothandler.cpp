@@ -31,6 +31,7 @@
 #include "snapshothandler.h"
 
 #include "debuggerinternalconstants.h"
+#include "debuggericons.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerstartparameters.h"
@@ -123,8 +124,8 @@ QDebug operator<<(QDebug d, const  SnapshotData &f)
 */
 
 SnapshotHandler::SnapshotHandler()
-  : m_positionIcon(QIcon(QLatin1String(":/debugger/images/location_16.png"))),
-    m_emptyIcon(QIcon(QLatin1String(":/debugger/images/debugger_empty_14.png")))
+  : m_positionIcon(Icons::LOCATION.icon()),
+    m_emptyIcon(Icons::EMPTY.icon())
 {
     m_currentIndex = -1;
 }

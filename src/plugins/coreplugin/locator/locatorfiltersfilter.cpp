@@ -32,9 +32,8 @@
 #include "locatorfiltersfilter.h"
 #include "locatorwidget.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <utils/qtcassert.h>
-#include <utils/themehelper.h>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -45,7 +44,7 @@ LocatorFiltersFilter::LocatorFiltersFilter(Locator *plugin,
                                                LocatorWidget *locatorWidget):
     m_plugin(plugin),
     m_locatorWidget(locatorWidget),
-    m_icon(Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_NEXT)))
+    m_icon(Icons::NEXT.icon())
 {
     setId("FiltersFilter");
     setDisplayName(tr("Available filters"));

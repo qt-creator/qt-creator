@@ -33,7 +33,7 @@
 #include "iosrunconfiguration.h"
 #include "iosrunner.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 using namespace ProjectExplorer;
@@ -46,7 +46,7 @@ IosRunControl::IosRunControl(IosRunConfiguration *rc)
     , m_runner(new IosRunner(this, rc, false, QmlDebug::NoQmlDebugServices))
     , m_running(false)
 {
-    setIcon(QLatin1String(Core::Constants::ICON_DEBUG_START_SMALL));
+    setIcon(Core::Icons::DEBUG_START_SMALL);
 }
 
 IosRunControl::~IosRunControl()

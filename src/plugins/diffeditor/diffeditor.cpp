@@ -30,11 +30,13 @@
 
 #include "diffeditor.h"
 #include "diffeditorconstants.h"
+#include "diffeditoricons.h"
 #include "diffeditordocument.h"
 #include "diffview.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/minisplitter.h>
 
 #include <texteditor/texteditor.h>
@@ -45,7 +47,6 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/themehelper.h>
 
 #include <QAction>
 #include <QStackedWidget>
@@ -283,16 +284,13 @@ DiffEditor::DiffEditor()
     m_whitespaceButtonAction = m_toolBar->addAction(tr("Ignore Whitespace"));
     m_whitespaceButtonAction->setCheckable(true);
 
-    m_toggleDescriptionAction = m_toolBar->addAction(
-                Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_TOP_BAR)), QString());
+    m_toggleDescriptionAction = m_toolBar->addAction(Icons::TOP_BAR.icon(), QString());
     m_toggleDescriptionAction->setCheckable(true);
 
-    m_reloadAction = m_toolBar->addAction(QIcon(QLatin1String(Core::Constants::ICON_RELOAD_GRAY)),
-                                          tr("Reload Diff"));
+    m_reloadAction = m_toolBar->addAction(Core::Icons::RELOAD_GRAY.icon(), tr("Reload Diff"));
     m_reloadAction->setToolTip(tr("Reload Diff"));
 
-    m_toggleSyncAction = m_toolBar->addAction(
-                Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_LINK)), QString());
+    m_toggleSyncAction = m_toolBar->addAction(Core::Icons::LINK.icon(), QString());
     m_toggleSyncAction->setCheckable(true);
 
     m_viewSwitcherAction = m_toolBar->addAction(QIcon(), QString());

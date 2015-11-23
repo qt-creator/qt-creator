@@ -34,7 +34,7 @@
 #include "locatorsearchutils.h"
 #include "ilocatorfilter.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -47,7 +47,6 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/stylehelper.h>
-#include <utils/themehelper.h>
 
 #include <QColor>
 #include <QFileInfo>
@@ -253,9 +252,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     layout->addWidget(m_fileLineEdit);
 
     setWindowIcon(QIcon(QLatin1String(":/locator/images/locator.png")));
-    const QPixmap pixmap = Utils::ThemeHelper::recoloredPixmap(
-                QLatin1String(Constants::ICON_MAGNIFIER),
-                Utils::ThemeHelper::inputfieldIconColor());
+    const QPixmap pixmap = Icons::MAGNIFIER.pixmap();
     m_fileLineEdit->setFiltering(true);
     m_fileLineEdit->setButtonPixmap(Utils::FancyLineEdit::Left, pixmap);
     m_fileLineEdit->setButtonToolTip(Utils::FancyLineEdit::Left, tr("Options"));

@@ -28,11 +28,13 @@
 #include "navigatorwidget.h"
 #include "nameitemdelegate.h"
 #include "iconcheckboxitemdelegate.h"
+#include "qmldesignerconstants.h"
+#include "qmldesignericons.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
-#include <utils/themehelper.h>
+#include <utils/icon.h>
 
 #include <bindingproperty.h>
 #include <designmodecontext.h>
@@ -84,14 +86,14 @@ NavigatorView::NavigatorView(QObject* parent) :
                                                         m_treeModel.data());
     IconCheckboxItemDelegate *showDelegate =
             new IconCheckboxItemDelegate(this,
-                                         Utils::ThemeHelper::themedIconPixmap(QLatin1String(":/navigator/icon/eye_open.png")),
-                                         Utils::ThemeHelper::themedIconPixmap(QLatin1String(":/navigator/icon/eye_closed.png")),
+                                         Icons::EYE_OPEN.pixmap(),
+                                         Icons::EYE_CLOSED.pixmap(),
                                          m_treeModel.data());
 
     IconCheckboxItemDelegate *exportDelegate =
             new IconCheckboxItemDelegate(this,
-                                         Utils::ThemeHelper::themedIconPixmap(QLatin1String(":/navigator/icon/export_checked.png")),
-                                         Utils::ThemeHelper::themedIconPixmap(QLatin1String(":/navigator/icon/export_unchecked.png")),
+                                         Icons::EXPORT_CHECKED.pixmap(),
+                                         Icons::EXPORT_UNCHECKED.pixmap(),
                                          m_treeModel.data());
 
 #ifdef _LOCK_ITEMS_

@@ -232,7 +232,8 @@ HEADERS += corejsextensions.h \
     themeeditor/themesettingsitemdelegate.h \
     messagebox.h \
     iwelcomepage.h \
-    systemsettings.h
+    systemsettings.h \
+    coreicons.h
 
 FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \

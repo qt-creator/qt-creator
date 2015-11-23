@@ -33,20 +33,20 @@
 #include "showoutputtaskhandler.h"
 #include "task.h"
 #include "projectexplorer.h"
+#include "projectexplorericons.h"
 #include "projectexplorersettings.h"
 #include "taskhub.h"
 
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/behaviorsettings.h>
 #include <utils/ansiescapecodehandler.h>
 #include <utils/theme/theme.h>
-#include <utils/themehelper.h>
 
 #include <QIcon>
 #include <QTextCharFormat>
@@ -156,7 +156,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     Core::Context context(Constants::C_COMPILE_OUTPUT);
     m_outputWindow = new CompileOutputTextEdit(context);
     m_outputWindow->setWindowTitle(tr("Compile Output"));
-    m_outputWindow->setWindowIcon(QIcon(QLatin1String(Constants::ICON_WINDOW)));
+    m_outputWindow->setWindowIcon(Icons::WINDOW.icon());
     m_outputWindow->setReadOnly(true);
     m_outputWindow->setUndoRedoEnabled(false);
     m_outputWindow->setMaxLineCount(MAX_LINECOUNT);
@@ -172,11 +172,9 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
 
     m_cancelBuildButton->setDefaultAction(cancelBuildAction);
     m_zoomInButton->setToolTip(tr("Increase Font Size"));
-    m_zoomInButton->setIcon(Utils::ThemeHelper::themedIcon(
-                                QLatin1String(Core::Constants::ICON_PLUS)));
+    m_zoomInButton->setIcon(Core::Icons::PLUS.icon());
     m_zoomOutButton->setToolTip(tr("Decrease Font Size"));
-    m_zoomOutButton->setIcon(Utils::ThemeHelper::themedIcon(
-                                 QLatin1String(Core::Constants::ICON_MINUS)));
+    m_zoomOutButton->setIcon(Core::Icons::MINUS.icon());
 
     updateZoomEnabled();
 

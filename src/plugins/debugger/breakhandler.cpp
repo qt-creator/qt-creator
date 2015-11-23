@@ -33,6 +33,7 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
+#include "debuggericons.h"
 #include "debuggerinternalconstants.h"
 #include "debuggerstringutils.h"
 #include "simplifytype.h"
@@ -265,39 +266,39 @@ BreakHandler::BreakHandler()
 
 QIcon BreakHandler::breakpointIcon()
 {
-    static QIcon icon(_(":/debugger/images/breakpoint_16.png"));
+    static QIcon icon = Icons::BREAKPOINT.icon();
     return icon;
 }
 
 QIcon BreakHandler::disabledBreakpointIcon()
 {
-    static QIcon icon(_(":/debugger/images/breakpoint_disabled_16.png"));
+    static QIcon icon = Icons::BREAKPOINT_DISABLED.icon();
     return icon;
 }
 
 QIcon BreakHandler::pendingBreakpointIcon()
 {
-    static QIcon icon(_(":/debugger/images/breakpoint_pending_16.png"));
+    static QIcon icon = Icons::BREAKPOINT_PENDING.icon();
     return icon;
 }
 
 QIcon BreakHandler::watchpointIcon()
 {
-    static QIcon icon(_(":/debugger/images/watchpoint.png"));
+    static QIcon icon = Icons::WATCHPOINT.icon();
     return icon;
 }
 
 QIcon BreakHandler::tracepointIcon()
 {
-    static QIcon icon(_(":/debugger/images/tracepoint.png"));
+    static QIcon icon = Icons::TRACEPOINT.icon();
     return icon;
 }
 
 QIcon BreakHandler::emptyIcon()
 {
-    static QIcon icon(_(":/debugger/images/breakpoint_pending_16.png"));
-    //static QIcon icon(_(":/debugger/images/watchpoint.png"));
-    //static QIcon icon(_(":/debugger/images/debugger_empty_14.png"));
+    static QIcon icon = Icons::BREAKPOINT_PENDING.icon();
+    //static QIcon icon = Icons::WATCHPOINT.icon();
+    //static QIcon icon = Icons::EMPTY.icon();
     return icon;
 }
 

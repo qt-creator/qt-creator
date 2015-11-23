@@ -38,6 +38,7 @@
 #include "valgrindsettings.h"
 #include "valgrindconfigwidget.h"
 
+#include <analyzerbase/analyzericons.h>
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzerstartparameters.h>
@@ -56,7 +57,6 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/hostosinfo.h>
-#include <utils/themehelper.h>
 
 #include <QtPlugin>
 #include <QCoreApplication>
@@ -249,8 +249,7 @@ void ValgrindPlugin::extensionsInitialized()
         editorContextMenu->addSeparator(analyzerContext);
 
         QAction *action = new QAction(tr("Profile Costs of This Function and Its Callees"), this);
-        action->setIcon(Utils::ThemeHelper::themedIcon(
-                            QLatin1String(Analyzer::Constants::ANALYZER_CONTROL_START_ICON)));
+        action->setIcon(Analyzer::Icons::ANALYZER_CONTROL_START.icon());
         connect(action, &QAction::triggered, cgTool,
                 &CallgrindTool::handleShowCostsOfFunction);
         Command *cmd = ActionManager::registerAction(action, "Analyzer.Callgrind.ShowCostsOfFunction",

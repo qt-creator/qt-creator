@@ -463,6 +463,7 @@ QtcPlugin {
         "designmodewidget.cpp",
         "designmodewidget.h",
         "qmldesignerconstants.h",
+        "qmldesignericons.h",
         "qmldesignerplugin.cpp",
         "qmldesignerplugin.h",
         "settingspage.cpp",

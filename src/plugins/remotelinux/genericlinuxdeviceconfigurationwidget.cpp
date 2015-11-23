@@ -32,6 +32,7 @@
 #include "ui_genericlinuxdeviceconfigurationwidget.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <utils/portlist.h>
 #include <utils/fancylineedit.h>
 #include <ssh/sshconnection.h>
@@ -191,7 +192,7 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
         m_ui->machineTypeValueLabel->setText(tr("Physical Device"));
     else
         m_ui->machineTypeValueLabel->setText(tr("Emulator"));
-    m_ui->portsWarningLabel->setPixmap(QPixmap(QLatin1String(Core::Constants::ICON_ERROR)));
+    m_ui->portsWarningLabel->setPixmap(Core::Icons::ERROR.pixmap());
     m_ui->portsWarningLabel->setToolTip(QLatin1String("<font color=\"red\">")
         + tr("You will need at least one port.") + QLatin1String("</font>"));
     m_ui->keyFileLineEdit->setExpectedKind(PathChooser::File);

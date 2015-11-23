@@ -32,10 +32,9 @@
 #include "ui_customwidgetwidgetswizardpage.h"
 #include "classdefinition.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 
 #include <utils/wizard.h>
-#include <utils/themehelper.h>
 
 #include <QTimer>
 
@@ -53,11 +52,9 @@ CustomWidgetWidgetsWizardPage::CustomWidgetWidgetsWizardPage(QWidget *parent) :
 {
     m_ui->setupUi(this);
     m_ui->tabStackWidget->setLayout(m_tabStackLayout);
-    m_ui->addButton->setIcon(Utils::ThemeHelper::themedIcon(
-                                 QLatin1String(Core::Constants::ICON_PLUS)));
+    m_ui->addButton->setIcon(Core::Icons::PLUS.icon());
     connect(m_ui->addButton, SIGNAL(clicked()), m_ui->classList, SLOT(startEditingNewClassItem()));
-    m_ui->deleteButton->setIcon(Utils::ThemeHelper::themedIcon(
-                                    QLatin1String(Core::Constants::ICON_MINUS)));
+    m_ui->deleteButton->setIcon(Core::Icons::MINUS.icon());
     connect(m_ui->deleteButton, SIGNAL(clicked()), m_ui->classList, SLOT(removeCurrentClass()));
     m_ui->deleteButton->setEnabled(false);
 

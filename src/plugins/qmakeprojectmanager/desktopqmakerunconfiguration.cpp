@@ -34,7 +34,7 @@
 #include "qmakeproject.h"
 #include "qmakebuildconfiguration.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/target.h>
@@ -49,7 +49,6 @@
 #include <utils/persistentsettings.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
-#include <utils/themehelper.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -180,8 +179,7 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     QHBoxLayout *hl = new QHBoxLayout();
     hl->addStretch();
     m_disabledIcon = new QLabel(this);
-    m_disabledIcon->setPixmap(Utils::ThemeHelper::themedIconPixmap(
-                                  QLatin1String(Core::Constants::ICON_WARNING)));
+    m_disabledIcon->setPixmap(Core::Icons::WARNING.pixmap());
     hl->addWidget(m_disabledIcon);
     m_disabledReason = new QLabel(this);
     m_disabledReason->setVisible(false);
@@ -221,7 +219,7 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
 
     QToolButton *resetButton = new QToolButton(this);
     resetButton->setToolTip(tr("Reset to Default"));
-    resetButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RESET)));
+    resetButton->setIcon(Core::Icons::RESET.icon());
 
     QHBoxLayout *boxlayout = new QHBoxLayout();
     boxlayout->setMargin(0);

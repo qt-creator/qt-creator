@@ -36,12 +36,12 @@
 #include "imageview.h"
 #include "ui_imageviewertoolbar.h"
 
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/themehelper.h>
 
 #include <QMap>
 #include <QFileInfo>
@@ -106,12 +106,9 @@ void ImageViewer::ctor()
     // toolbar
     d->toolbar = new QWidget();
     d->ui_toolbar.setupUi(d->toolbar);
-    d->ui_toolbar.toolButtonZoomIn->setIcon(Utils::ThemeHelper::themedIcon(
-                                                QLatin1String(Core::Constants::ICON_PLUS)));
-    d->ui_toolbar.toolButtonZoomOut->setIcon(Utils::ThemeHelper::themedIcon(
-                                                 QLatin1String(Core::Constants::ICON_MINUS)));
-    d->ui_toolbar.toolButtonFitToScreen->setIcon(Utils::ThemeHelper::themedIcon(
-                                                     QLatin1String(Core::Constants::ICON_ZOOM)));
+    d->ui_toolbar.toolButtonZoomIn->setIcon(Core::Icons::PLUS.icon());
+    d->ui_toolbar.toolButtonZoomOut->setIcon(Core::Icons::MINUS.icon());
+    d->ui_toolbar.toolButtonFitToScreen->setIcon(Core::Icons::ZOOM.icon());
 
     // icons update - try to use system theme
     updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomIn, QLatin1String("zoom-in"));

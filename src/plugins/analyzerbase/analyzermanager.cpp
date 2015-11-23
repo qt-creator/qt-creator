@@ -31,6 +31,7 @@
 
 #include "analyzermanager.h"
 
+#include "analyzericons.h"
 #include "analyzerplugin.h"
 #include "analyzerstartparameters.h"
 #include "ianalyzertool.h"
@@ -49,6 +50,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/session.h>
@@ -61,7 +63,6 @@
 #include <utils/qtcassert.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/statuslabel.h>
-#include <utils/themehelper.h>
 
 #include <QVariant>
 #include <QDebug>
@@ -241,16 +242,14 @@ void AnalyzerManagerPrivate::setupActions()
     menubar->addMenu(mtools, m_menu);
 
     m_startAction = new QAction(tr("Start"), m_menu);
-    m_startAction->setIcon(Utils::ThemeHelper::themedIcon(
-                               QLatin1String(ANALYZER_CONTROL_START_ICON)));
+    m_startAction->setIcon(Analyzer::Icons::ANALYZER_CONTROL_START.icon());
     ActionManager::registerAction(m_startAction, "Analyzer.Start");
     connect(m_startAction, &QAction::triggered,
             this, &AnalyzerManagerPrivate::startCurrentTool);
 
     m_stopAction = new QAction(tr("Stop"), m_menu);
     m_stopAction->setEnabled(false);
-    m_stopAction->setIcon(Utils::ThemeHelper::themedIcon(
-                              QLatin1String(ProjectExplorer::Constants::ICON_STOP_SMALL)));
+    m_stopAction->setIcon(ProjectExplorer::Icons::STOP_SMALL.icon());
     command = ActionManager::registerAction(m_stopAction, "Analyzer.Stop");
     m_menu->addAction(command, G_ANALYZER_CONTROL);
 

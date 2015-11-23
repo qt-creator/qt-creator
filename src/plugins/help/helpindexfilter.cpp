@@ -31,6 +31,7 @@
 #include "helpindexfilter.h"
 
 #include "centralwidget.h"
+#include "helpicons.h"
 
 #include <topicchooser.h>
 
@@ -58,7 +59,7 @@ HelpIndexFilter::HelpIndexFilter()
     setIncludedByDefault(false);
     setShortcutString(QString(QLatin1Char('?')));
 
-    m_icon = QIcon(QLatin1String(":/help/images/bookmark.png"));
+    m_icon = Icons::BOOKMARK.icon();
     connect(HelpManager::instance(), &HelpManager::setupFinished,
             this, &HelpIndexFilter::invalidateCache);
     connect(HelpManager::instance(), &HelpManager::documentationChanged,

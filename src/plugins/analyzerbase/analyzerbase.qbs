@@ -16,6 +16,7 @@ QtcPlugin {
         "analyzerbase.qrc",
         "analyzerbase_global.h",
         "analyzerconstants.h",
+        "analyzericons",
         "analyzermanager.cpp",
         "analyzermanager.h",
         "analyzerplugin.cpp",

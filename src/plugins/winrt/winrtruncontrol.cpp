@@ -41,6 +41,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <QTimer>
@@ -60,7 +61,7 @@ WinRtRunControl::WinRtRunControl(WinRtRunConfiguration *runConfiguration, Core::
     , m_state(StoppedState)
     , m_runner(0)
 {
-    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
+    setIcon(ProjectExplorer::Icons::RUN_SMALL);
 }
 
 void WinRtRunControl::start()

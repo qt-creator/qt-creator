@@ -37,6 +37,7 @@
 #include "debuggerkitconfigwidget.h"
 #include "debuggerdialogs.h"
 #include "debuggerengine.h"
+#include "debuggericons.h"
 #include "debuggeritemmanager.h"
 #include "debuggermainwindow.h"
 #include "debuggerrunconfigurationaspect.h"
@@ -77,7 +78,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/imode.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/messagemanager.h>
@@ -97,6 +98,7 @@
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/project.h>
@@ -116,7 +118,6 @@
 #include <utils/savedaction.h>
 #include <utils/statuslabel.h>
 #include <utils/styledbar.h>
-#include <utils/themehelper.h>
 #include <utils/winutils.h>
 
 #include <QApplication>
@@ -2346,14 +2347,14 @@ void DebuggerPluginPrivate::extensionsInitialized()
     const Context cppDebuggercontext(C_CPPDEBUGGER);
     const Context cppeditorcontext(CppEditor::Constants::CPPEDITOR_ID);
 
-    m_startIcon = ThemeHelper::themedIcon(_(Core::Constants::ICON_DEBUG_START_SMALL));
-    m_exitIcon = ThemeHelper::themedIcon(_(Core::Constants::ICON_DEBUG_EXIT_SMALL));
-    m_continueIcon = ThemeHelper::themedIcon(_(Core::Constants::ICON_DEBUG_CONTINUE_SMALL));
-    m_continueIcon.addFile(_(":/debugger/images/debugger_continue.png"));
-    m_interruptIcon = ThemeHelper::themedIcon(_(Core::Constants::ICON_DEBUG_INTERRUPT_SMALL));
-    m_interruptIcon.addFile(_(":/debugger/images/debugger_interrupt.png"));
-    m_locationMarkIcon = QIcon(_(":/debugger/images/location_16.png"));
-    m_resetIcon = ThemeHelper::themedIcon(_(":/debugger/images/debugger_restart_small.png|IconsRunColor"));
+    m_startIcon = Core::Icons::DEBUG_START_SMALL.icon();
+    m_exitIcon = Core::Icons::DEBUG_EXIT_SMALL.icon();
+    m_continueIcon = Core::Icons::DEBUG_CONTINUE_SMALL.icon();
+    m_continueIcon.addPixmap(Icons::CONTINUE.pixmap());
+    m_interruptIcon = Core::Icons::DEBUG_INTERRUPT_SMALL.icon();
+    m_interruptIcon.addPixmap(Icons::INTERRUPT.pixmap());
+    m_locationMarkIcon = Icons::LOCATION.icon();
+    m_resetIcon = Icons::RESTART.icon();
 
     m_busy = false;
 
@@ -2443,15 +2444,15 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleReset);
 
     act = m_nextAction = new QAction(tr("Step Over"), this);
-    act->setIcon(ThemeHelper::themedIcon(_(":/debugger/images/debugger_stepover_small.png")));
+    act->setIcon(Icons::STEP_OVER.icon());
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecNext);
 
     act = m_stepAction = new QAction(tr("Step Into"), this);
-    act->setIcon(ThemeHelper::themedIcon(_(":/debugger/images/debugger_stepinto_small.png")));
+    act->setIcon(Icons::STEP_INTO.icon());
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecStep);
 
     act = m_stepOutAction = new QAction(tr("Step Out"), this);
-    act->setIcon(ThemeHelper::themedIcon(_(":/debugger/images/debugger_stepout_small.png")));
+    act->setIcon(Icons::STEP_OUT.icon());
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecStepOut);
 
     act = m_runToLineAction = new QAction(tr("Run to Line"), this);
@@ -2478,14 +2479,13 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     //m_snapshotAction = new QAction(tr("Create Snapshot"), this);
     //m_snapshotAction->setProperty(Role, RequestCreateSnapshotRole);
-    //m_snapshotAction->setIcon(
-    //    QIcon(__(":/debugger/images/debugger_snapshot_small.png")));
+    //m_snapshotAction->setIcon(Icons::SNAPSHOT.icon());
 
     act = m_reverseDirectionAction = new QAction(tr("Reverse Direction"), this);
     act->setCheckable(true);
     act->setChecked(false);
     act->setCheckable(false);
-    act->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_reversemode_16.png")));
+    act->setIcon(Icons::REVERSE_MODE.icon());
     act->setIconVisibleInMenu(false);
 
     act = m_frameDownAction = new QAction(tr("Move to Called Frame"), this);
@@ -2536,8 +2536,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     // The main "Start Debugging" action.
     act = m_startAction = new QAction(this);
-    QIcon debuggerIcon(ThemeHelper::themedIcon(_(Core::Constants::ICON_DEBUG_START_SMALL)));
-    debuggerIcon.addFile(QLatin1String(":/projectexplorer/images/debugger_start.png"));
+    QIcon debuggerIcon(Core::Icons::DEBUG_START_SMALL.icon());
+    debuggerIcon.addPixmap(ProjectExplorer::Icons::DEBUG_START.pixmap());
     act->setIcon(debuggerIcon);
     act->setText(tr("Start Debugging"));
     connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE); });
@@ -2766,28 +2766,28 @@ void DebuggerPluginPrivate::extensionsInitialized()
     // currently broken
 //    QAction *qmlUpdateOnSaveDummyAction = new QAction(tr("Apply Changes on Save"), this);
 //    qmlUpdateOnSaveDummyAction->setCheckable(true);
-//    qmlUpdateOnSaveDummyAction->setIcon(QIcon(_(":/debugger/images/qml/apply-on-save.png")));
+//    qmlUpdateOnSaveDummyAction->setIcon(Icons::APPLY_ON_SAVE.icon());
 //    qmlUpdateOnSaveDummyAction->setEnabled(false);
 //    cmd = ActionManager::registerAction(qmlUpdateOnSaveDummyAction, Constants::QML_UPDATE_ON_SAVE);
 //    debugMenu->addAction(cmd);
 
     QAction *qmlShowAppOnTopDummyAction = new QAction(tr("Show Application on Top"), this);
     qmlShowAppOnTopDummyAction->setCheckable(true);
-    qmlShowAppOnTopDummyAction->setIcon(QIcon(_(":/debugger/images/qml/app-on-top.png")));
+    qmlShowAppOnTopDummyAction->setIcon(Icons::APP_ON_TOP.icon());
     qmlShowAppOnTopDummyAction->setEnabled(false);
     cmd = ActionManager::registerAction(qmlShowAppOnTopDummyAction, Constants::QML_SHOW_APP_ON_TOP);
     debugMenu->addAction(cmd);
 
     QAction *qmlSelectDummyAction = new QAction(tr("Select"), this);
     qmlSelectDummyAction->setCheckable(true);
-    qmlSelectDummyAction->setIcon(QIcon(_(":/debugger/images/qml/select.png")));
+    qmlSelectDummyAction->setIcon(Icons::SELECT.icon());
     qmlSelectDummyAction->setEnabled(false);
     cmd = ActionManager::registerAction(qmlSelectDummyAction, Constants::QML_SELECTTOOL);
     debugMenu->addAction(cmd);
 
     QAction *qmlZoomDummyAction = new QAction(tr("Zoom"), this);
     qmlZoomDummyAction->setCheckable(true);
-    qmlZoomDummyAction->setIcon(ThemeHelper::themedIcon(_(Core::Constants::ICON_ZOOM)));
+    qmlZoomDummyAction->setIcon(Core::Icons::ZOOM.icon());
     qmlZoomDummyAction->setEnabled(false);
     cmd = ActionManager::registerAction(qmlZoomDummyAction, Constants::QML_ZOOMTOOL);
     debugMenu->addAction(cmd);

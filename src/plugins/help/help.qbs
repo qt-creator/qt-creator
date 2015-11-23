@@ -41,6 +41,7 @@ QtcPlugin {
             "generalsettingspage.cpp", "generalsettingspage.h", "generalsettingspage.ui",
             "help.qrc",
             "helpconstants.h",
+            "helpicons.h",
             "helpfindsupport.cpp", "helpfindsupport.h",
             "helpindexfilter.cpp", "helpindexfilter.h",
             "helpmode.cpp", "helpmode.h",

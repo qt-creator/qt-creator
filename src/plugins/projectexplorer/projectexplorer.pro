@@ -153,7 +153,8 @@ HEADERS += projectexplorer.h \
     projectpanelfactory.h \
     projecttree.h \
     expanddata.h \
-    waitforstopdialog.h
+    waitforstopdialog.h \
+    projectexplorericons.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \

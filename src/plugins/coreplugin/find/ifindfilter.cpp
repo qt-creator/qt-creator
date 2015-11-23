@@ -30,6 +30,8 @@
 
 #include "ifindfilter.h"
 
+#include <coreplugin/coreicons.h>
+
 #include <QPainter>
 #include <QPixmap>
 
@@ -228,10 +230,10 @@ FindFlags IFindFilter::supportedFindFlags() const
 
 QPixmap IFindFilter::pixmapForFindFlags(FindFlags flags)
 {
-    static const QPixmap casesensitiveIcon = QPixmap(QLatin1String(":/find/images/casesensitively.png"));
-    static const QPixmap regexpIcon = QPixmap(QLatin1String(":/find/images/regexp.png"));
-    static const QPixmap wholewordsIcon = QPixmap(QLatin1String(":/find/images/wholewords.png"));
-    static const QPixmap preservecaseIcon = QPixmap(QLatin1String(":/find/images/preservecase.png"));
+    static const QPixmap casesensitiveIcon = Icons::FIND_CASE_INSENSITIVELY.pixmap();
+    static const QPixmap regexpIcon = Icons::FIND_REGEXP.pixmap();
+    static const QPixmap wholewordsIcon = Icons::FIND_WHOLE_WORD.pixmap();
+    static const QPixmap preservecaseIcon = Icons::FIND_PRESERVE_CASE.pixmap();
     bool casesensitive = flags & FindCaseSensitively;
     bool wholewords = flags & FindWholeWords;
     bool regexp = flags & FindRegularExpression;

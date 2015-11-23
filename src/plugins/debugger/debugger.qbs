@@ -35,6 +35,7 @@ QtcPlugin {
             "debugger_global.h",
             "debuggeractions.cpp", "debuggeractions.h",
             "debuggerconstants.h",
+            "debuggericons.h",
             "debuggercore.h",
             "debuggerdialogs.cpp", "debuggerdialogs.h",
             "debuggerengine.cpp", "debuggerengine.h",

@@ -13,7 +13,8 @@ HEADERS += diffeditor_global.h \
         diffview.h \
         selectabletexteditorwidget.h \
         sidebysidediffeditorwidget.h \
-        unifieddiffeditorwidget.h
+        unifieddiffeditorwidget.h \
+        diffeditoricons.h
 
 SOURCES += diffeditor.cpp \
         diffeditorcontroller.cpp \

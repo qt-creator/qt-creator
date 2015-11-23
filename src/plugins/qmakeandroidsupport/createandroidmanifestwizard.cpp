@@ -36,7 +36,7 @@
 #include <android/androidqtsupport.h>
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 
 #include <projectexplorer/target.h>
 
@@ -130,7 +130,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     m_sourceDirectoryWarning->setWordWrap(true);
     m_warningIcon = new QLabel(this);
     m_warningIcon->setVisible(false);
-    m_warningIcon->setPixmap(QPixmap(QLatin1String(Core::Constants::ICON_ERROR)));
+    m_warningIcon->setPixmap(Core::Icons::ERROR.pixmap());
     m_warningIcon->setWordWrap(true);
     m_warningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 

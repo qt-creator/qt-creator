@@ -30,7 +30,7 @@
 
 #include "outputpanemanager.h"
 #include "outputpane.h"
-#include "coreconstants.h"
+#include "coreicons.h"
 #include "findplaceholder.h"
 
 #include "icore.h"
@@ -51,7 +51,6 @@
 #include <utils/stylehelper.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
-#include <utils/themehelper.h>
 
 #include <QDebug>
 
@@ -124,8 +123,8 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_prevAction(0),
     m_outputWidgetPane(new QStackedWidget),
     m_opToolBarWidgets(new QStackedWidget),
-    m_minimizeIcon(ThemeHelper::themedIcon(QLatin1String(":/core/images/arrowdown.png"))),
-    m_maximizeIcon(ThemeHelper::themedIcon(QLatin1String(":/core/images/arrowup.png"))),
+    m_minimizeIcon(Icons::ARROW_DOWN.icon()),
+    m_maximizeIcon(Icons::ARROW_UP.icon()),
     m_maximised(false),
     m_outputPaneHeight(0)
 {
@@ -134,17 +133,17 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_titleLabel->setContentsMargins(5, 0, 5, 0);
 
     m_clearAction = new QAction(this);
-    m_clearAction->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLEAN_PANE)));
+    m_clearAction->setIcon(Icons::CLEAN_PANE.icon());
     m_clearAction->setText(tr("Clear"));
     connect(m_clearAction, SIGNAL(triggered()), this, SLOT(clearPage()));
 
     m_nextAction = new QAction(this);
-    m_nextAction->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_NEXT)));
+    m_nextAction->setIcon(Icons::NEXT.icon());
     m_nextAction->setText(tr("Next Item"));
     connect(m_nextAction, SIGNAL(triggered()), this, SLOT(slotNext()));
 
     m_prevAction = new QAction(this);
-    m_prevAction->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_PREV)));
+    m_prevAction->setIcon(Icons::PREV.icon());
     m_prevAction->setText(tr("Previous Item"));
     connect(m_prevAction, SIGNAL(triggered()), this, SLOT(slotPrev()));
 
@@ -152,8 +151,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_minMaxAction->setIcon(m_maximizeIcon);
     m_minMaxAction->setText(tr("Maximize Output Pane"));
 
-    m_closeButton->setIcon(
-                Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
+    m_closeButton->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(slotHide()));
 
     connect(ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));

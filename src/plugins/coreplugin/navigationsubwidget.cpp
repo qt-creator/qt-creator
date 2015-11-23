@@ -31,13 +31,12 @@
 #include "navigationsubwidget.h"
 #include "navigationwidget.h"
 
-#include "coreconstants.h"
+#include "coreicons.h"
 #include "inavigationwidgetfactory.h"
 #include "actionmanager/command.h"
 #include "id.h"
 
 #include <utils/styledbar.h>
-#include <utils/themehelper.h>
 
 #include <QDebug>
 
@@ -75,8 +74,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     toolBarLayout->addWidget(m_navigationComboBox);
 
     QToolButton *splitAction = new QToolButton();
-    splitAction->setIcon(Utils::ThemeHelper::themedIcon(
-                             QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)));
+    splitAction->setIcon(Icons::SPLIT_HORIZONTAL.icon());
     splitAction->setToolTip(tr("Split"));
     splitAction->setPopupMode(QToolButton::InstantPopup);
     splitAction->setProperty("noArrow", true);
@@ -85,8 +83,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     connect(m_splitMenu, &QMenu::aboutToShow, this, &NavigationSubWidget::populateSplitMenu);
 
     m_closeButton = new QToolButton();
-    m_closeButton->setIcon(
-                Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
+    m_closeButton->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
     m_closeButton->setToolTip(tr("Close"));
 
     toolBarLayout->addWidget(splitAction);

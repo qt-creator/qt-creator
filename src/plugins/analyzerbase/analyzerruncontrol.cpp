@@ -29,6 +29,7 @@
 **
 ****************************************************************************/
 
+#include "analyzericons.h"
 #include "analyzerruncontrol.h"
 #include "ianalyzertool.h"
 #include "analyzermanager.h"
@@ -51,7 +52,7 @@ AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
         RunConfiguration *runConfiguration)
     : RunControl(runConfiguration, sp.runMode)
 {
-    setIcon(QLatin1String(Constants::ANALYZER_CONTROL_START_ICON));
+    setIcon(Icons::ANALYZER_CONTROL_START);
 
     m_sp = sp;
 

@@ -52,7 +52,7 @@
 #include <analyzerbase/analyzerutils.h>
 #include <analyzerbase/analyzerconstants.h>
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -68,7 +68,6 @@
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
 #include <utils/styledbar.h>
-#include <utils/themehelper.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -656,7 +655,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
 
     // load external log file
     action = new QAction(this);
-    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_OPENFILE)));
+    action->setIcon(Core::Icons::OPENFILE.icon());
     action->setToolTip(tr("Load External Log File"));
     connect(action, &QAction::triggered, this, &CallgrindToolPrivate::loadExternalLogFile);
     layout->addWidget(createToolButton(action));
@@ -665,7 +664,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     // dump action
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_REDO)));
+    action->setIcon(Core::Icons::REDO.icon());
     //action->setText(tr("Dump"));
     action->setToolTip(tr("Request the dumping of profile information. This will update the Callgrind visualization."));
     connect(action, &QAction::triggered, this, &CallgrindToolPrivate::slotRequestDump);
@@ -675,7 +674,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     // reset action
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLEAR)));
+    action->setIcon(Core::Icons::CLEAR.icon());
     //action->setText(tr("Reset"));
     action->setToolTip(tr("Reset all event counters."));
     connect(action, &QAction::triggered, this, &CallgrindToolPrivate::resetRequested);
@@ -685,7 +684,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     // pause action
     action = new QAction(this);
     action->setCheckable(true);
-    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PAUSE)));
+    action->setIcon(Core::Icons::PAUSE.icon());
     //action->setText(tr("Ignore"));
     action->setToolTip(tr("Pause event logging. No events are counted which will speed up program execution during profiling."));
     connect(action, &QAction::toggled, this, &CallgrindToolPrivate::pauseToggled);
@@ -696,7 +695,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     // go back
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_PREV)));
+    action->setIcon(Core::Icons::PREV.icon());
     action->setToolTip(tr("Go back one step in history. This will select the previously selected item."));
     connect(action, &QAction::triggered, m_stackBrowser, &StackBrowser::goBack);
     layout->addWidget(createToolButton(action));
@@ -705,7 +704,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     // go forward
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_NEXT)));
+    action->setIcon(Core::Icons::NEXT.icon());
     action->setToolTip(tr("Go forward one step in history."));
     connect(action, &QAction::triggered, m_stackBrowser, &StackBrowser::goNext);
     layout->addWidget(createToolButton(action));
@@ -783,7 +782,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
 
     // filtering
     action = new QAction(tr("Show Project Costs Only"), this);
-    action->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    action->setIcon(Core::Icons::FILTER.icon());
     action->setToolTip(tr("Show only profiling info that originated from this project source."));
     action->setCheckable(true);
     connect(action, &QAction::toggled, this, &CallgrindToolPrivate::handleFilterProjectCosts);

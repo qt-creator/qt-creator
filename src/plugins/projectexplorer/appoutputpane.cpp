@@ -30,6 +30,7 @@
 
 #include "appoutputpane.h"
 #include "projectexplorer.h"
+#include "projectexplorericons.h"
 #include "projectexplorersettings.h"
 #include "runconfiguration.h"
 #include "session.h"
@@ -37,7 +38,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/coreconstants.h>
@@ -51,7 +52,6 @@
 #include <utils/algorithm.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
-#include <utils/themehelper.h>
 
 #include <QAction>
 #include <QVBoxLayout>
@@ -164,7 +164,7 @@ AppOutputPane::AppOutputPane() :
     setObjectName(QLatin1String("AppOutputPane")); // Used in valgrind engine
 
     // Rerun
-    m_reRunButton->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_RUN_SMALL)));
+    m_reRunButton->setIcon(Icons::RUN_SMALL.icon());
     m_reRunButton->setToolTip(tr("Re-run this run-configuration"));
     m_reRunButton->setAutoRaise(true);
     m_reRunButton->setEnabled(false);
@@ -172,7 +172,7 @@ AppOutputPane::AppOutputPane() :
             this, SLOT(reRunRunControl()));
 
     // Stop
-    m_stopAction->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_STOP_SMALL)));
+    m_stopAction->setIcon(Icons::STOP_SMALL.icon());
     m_stopAction->setToolTip(tr("Stop"));
     m_stopAction->setEnabled(false);
 
@@ -187,24 +187,21 @@ AppOutputPane::AppOutputPane() :
     // Attach
     m_attachButton->setToolTip(msgAttachDebuggerTooltip());
     m_attachButton->setEnabled(false);
-    m_attachButton->setIcon(Utils::ThemeHelper::themedIcon(
-                                QLatin1String(Core::Constants::ICON_DEBUG_START_SMALL)));
+    m_attachButton->setIcon(Core::Icons::DEBUG_START_SMALL.icon());
     m_attachButton->setAutoRaise(true);
 
     connect(m_attachButton, SIGNAL(clicked()),
             this, SLOT(attachToRunControl()));
 
     m_zoomInButton->setToolTip(tr("Increase Font Size"));
-    m_zoomInButton->setIcon(Utils::ThemeHelper::themedIcon(
-                                QLatin1String(Core::Constants::ICON_PLUS)));
+    m_zoomInButton->setIcon(Core::Icons::PLUS.icon());
     m_zoomInButton->setAutoRaise(true);
 
     connect(m_zoomInButton, &QToolButton::clicked,
             this, &AppOutputPane::zoomIn);
 
     m_zoomOutButton->setToolTip(tr("Decrease Font Size"));
-    m_zoomOutButton->setIcon(Utils::ThemeHelper::themedIcon(
-                                 QLatin1String(Core::Constants::ICON_MINUS)));
+    m_zoomOutButton->setIcon(Core::Icons::MINUS.icon());
     m_zoomOutButton->setAutoRaise(true);
 
     connect(m_zoomOutButton, &QToolButton::clicked,
@@ -422,7 +419,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     Core::Context context(contextId);
     Core::OutputWindow *ow = new Core::OutputWindow(context, m_tabWidget);
     ow->setWindowTitle(tr("Application Output Window"));
-    ow->setWindowIcon(QIcon(QLatin1String(Constants::ICON_WINDOW)));
+    ow->setWindowIcon(Icons::WINDOW.icon());
     ow->setFormatter(formatter);
     ow->setWordWrapEnabled(ProjectExplorerPlugin::projectExplorerSettings().wrapAppOutput);
     ow->setMaxLineCount(ProjectExplorerPlugin::projectExplorerSettings().maxAppOutputLines);
@@ -642,7 +639,7 @@ void AppOutputPane::enableButtons(const RunControl *rc /* = 0 */, bool isRunning
 {
     if (rc) {
         m_reRunButton->setEnabled(!isRunning && rc->supportsReRunning());
-        m_reRunButton->setIcon(Utils::ThemeHelper::themedIcon(rc->icon()));
+        m_reRunButton->setIcon(rc->icon().icon());
         m_stopAction->setEnabled(isRunning);
         if (isRunning && debuggerPlugin() && rc->applicationProcessHandle().isValid()) {
             m_attachButton->setEnabled(true);
@@ -655,7 +652,7 @@ void AppOutputPane::enableButtons(const RunControl *rc /* = 0 */, bool isRunning
         m_zoomOutButton->setEnabled(true);
     } else {
         m_reRunButton->setEnabled(false);
-        m_reRunButton->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_RUN_SMALL)));
+        m_reRunButton->setIcon(Icons::RUN_SMALL.icon());
         m_attachButton->setEnabled(false);
         m_attachButton->setToolTip(msgAttachDebuggerTooltip());
         m_stopAction->setEnabled(false);

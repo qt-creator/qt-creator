@@ -41,6 +41,7 @@
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -50,7 +51,6 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/algorithm.h>
-#include <utils/themehelper.h>
 #include <utils/treemodel.h>
 
 #include <QDir>
@@ -207,8 +207,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     , m_versionUi(new Internal::Ui::QtVersionInfo())
     , m_debuggingHelperUi(new Internal::Ui::DebuggingHelper())
     , m_infoBrowser(new QTextBrowser)
-    , m_invalidVersionIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_ERROR)))
-    , m_warningVersionIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_WARNING)))
+    , m_invalidVersionIcon(Core::Icons::ERROR.icon())
+    , m_warningVersionIcon(Core::Icons::WARNING.icon())
     , m_configurationWidget(0)
     , m_autoItem(0)
     , m_manualItem(0)

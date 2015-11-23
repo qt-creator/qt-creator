@@ -35,9 +35,6 @@
 #include "constants.h"
 #include "lineparser.h"
 
-#include <coreplugin/coreconstants.h>
-#include <utils/themehelper.h>
-
 #include <QColorDialog>
 
 namespace Todo {

@@ -31,6 +31,7 @@
 #include "threadshandler.h"
 
 #include "debuggercore.h"
+#include "debuggericons.h"
 #include "debuggerprotocol.h"
 #include "watchutils.h"
 
@@ -54,13 +55,13 @@ namespace Internal {
 
 static const QIcon &positionIcon()
 {
-    static QIcon icon(QLatin1String(":/debugger/images/location_16.png"));
+    static QIcon icon = Icons::LOCATION.icon();
     return icon;
 }
 
 static const QIcon &emptyIcon()
 {
-    static QIcon icon(QLatin1String(":/debugger/images/debugger_empty_14.png"));
+    static QIcon icon = Icons::EMPTY.icon();
     return icon;
 }
 

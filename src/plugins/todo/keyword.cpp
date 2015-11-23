@@ -31,9 +31,6 @@
 
 #include "keyword.h"
 
-#include <coreplugin/coreconstants.h>
-#include <utils/themehelper.h>
-
 namespace Todo {
 namespace Internal {
 

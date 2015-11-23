@@ -33,6 +33,7 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
+#include "debuggericons.h"
 
 #include <QDebug>
 #include <QTime>
@@ -379,8 +380,8 @@ LogWindow::LogWindow(QWidget *parent)
     m_commandEdit->setHistoryCompleter(QLatin1String("DebuggerInput"));
 
     auto repeatButton = new QToolButton(this);
-    repeatButton->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepover_small.png")));
-    repeatButton->setIconSize(QSize(12, 12));
+    repeatButton->setIcon(Icons::STEP_OVER_TOOLBUTTON.icon());
+    repeatButton->setFixedSize(QSize(18, 18));
     repeatButton->setToolTip(tr("Repeat last command for debug reasons."));
 
     auto commandBox = new QHBoxLayout;

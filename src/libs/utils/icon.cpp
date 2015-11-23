@@ -28,7 +28,8 @@
 **
 ****************************************************************************/
 
-#include "themehelper.h"
+#include "icon.h"
+#include "qtcassert.h"
 #include "theme/theme.h"
 #include "stylehelper.h"
 
@@ -37,6 +38,7 @@
 #include <QImage>
 #include <QMetaEnum>
 #include <QPainter>
+#include <QPaintEngine>
 
 namespace Utils {
 
@@ -57,29 +59,13 @@ static QPixmap maskToColorAndAlpha(const QPixmap &mask, const QColor &color)
 
 typedef QPair<QPixmap, QColor> MaskAndColor;
 typedef QList<MaskAndColor> MasksAndColors;
-static MasksAndColors masksAndColors(const QString &mask, int dpr)
+static MasksAndColors masksAndColors(const Icon &icon, int dpr)
 {
     MasksAndColors result;
-    const QStringList list = mask.split(QLatin1Char(','));
-    for (QStringList::ConstIterator it = list.constBegin(); it != list.constEnd(); ++it) {
-        const QStringList items = (*it).split(QLatin1Char('|'));
-        const QString fileName = items.first().trimmed();
-        QColor color = creatorTheme()->color(Theme::IconsBaseColor);
-        if (items.count() > 1) {
-            const QString colorName = items.at(1);
-            static const QMetaObject &m = Theme::staticMetaObject;
-            static const QMetaEnum colorEnum = m.enumerator(m.indexOfEnumerator("Color"));
-            bool keyFound = false;
-            const int colorEnumKey = colorEnum.keyToValue(colorName.toLatin1().constData(), &keyFound);
-            if (keyFound) {
-                color = creatorTheme()->color(static_cast<Theme::Color>(colorEnumKey));
-            } else {
-                const QColor colorFromName(colorName);
-                if (colorFromName.isValid())
-                    color = colorFromName;
-            }
-        }
-        const QString dprFileName = StyleHelper::availableImageResolutions(fileName).contains(dpr) ?
+    for (const IconMaskAndColor &i: icon) {
+        const QString &fileName = i.first;
+        const QColor color = creatorTheme()->color(i.second);
+        const QString dprFileName = StyleHelper::availableImageResolutions(i.first).contains(dpr) ?
                     StyleHelper::imageFileWithResolution(fileName, dpr) : fileName;
         result.append(qMakePair(QPixmap(dprFileName), color));
     }
@@ -106,7 +92,7 @@ static QPixmap combinedMask(const MasksAndColors &masks)
     QPixmap result(masks.first().first);
     QPainter p(&result);
     p.setCompositionMode(QPainter::CompositionMode_Darken);
-    MasksAndColors::const_iterator maskImage = masks.constBegin();
+    auto maskImage = masks.constBegin();
     maskImage++;
     for (;maskImage != masks.constEnd(); ++maskImage) {
         p.save();
@@ -120,7 +106,7 @@ static QPixmap combinedMask(const MasksAndColors &masks)
     return result;
 }
 
-static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedMask)
+static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedMask, bool shadow)
 {
     QPixmap result(combinedMask.size());
     result.setDevicePixelRatio(combinedMask.devicePixelRatio());
@@ -140,54 +126,97 @@ static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedM
         p.drawPixmap(0, 0, maskToColorAndAlpha((*maskImage).first, (*maskImage).second));
     }
 
-    const QPixmap shadowMask = maskToColorAndAlpha(combinedMask, Qt::black);
-    p.setCompositionMode(QPainter::CompositionMode_DestinationOver);
-    p.setOpacity(0.05);
-    p.drawPixmap(QPointF(0, -0.501), shadowMask);
-    p.drawPixmap(QPointF(-0.501, 0), shadowMask);
-    p.drawPixmap(QPointF(0.5, 0), shadowMask);
-    p.drawPixmap(QPointF(0.5, 0.5), shadowMask);
-    p.drawPixmap(QPointF(-0.501, 0.5), shadowMask);
-    p.setOpacity(0.2);
-    p.drawPixmap(0, 1, shadowMask);
+    if (shadow) {
+        const QPixmap shadowMask = maskToColorAndAlpha(combinedMask, Qt::black);
+        p.setCompositionMode(QPainter::CompositionMode_DestinationOver);
+        p.setOpacity(0.05);
+        p.drawPixmap(QPointF(0, -0.501), shadowMask);
+        p.drawPixmap(QPointF(-0.501, 0), shadowMask);
+        p.drawPixmap(QPointF(0.5, 0), shadowMask);
+        p.drawPixmap(QPointF(0.5, 0.5), shadowMask);
+        p.drawPixmap(QPointF(-0.501, 0.5), shadowMask);
+        p.setOpacity(0.2);
+        p.drawPixmap(0, 1, shadowMask);
+    }
 
     p.end();
 
     return result;
 }
 
-QIcon ThemeHelper::themedIcon(const QString &mask)
+static QPixmap combinedPlainPixmaps(const QVector<IconMaskAndColor> &images)
 {
-    QIcon result;
-    const MasksAndColors masks = masksAndColors(mask, qRound(qApp->devicePixelRatio()));
-    const QPixmap combinedMask = Utils::combinedMask(masks);
-    result.addPixmap(masksToIcon(masks, combinedMask));
-
-    QColor disabledColor = creatorTheme()->palette().mid().color();
-    disabledColor.setAlphaF(0.6);
-    result.addPixmap(maskToColorAndAlpha(combinedMask, disabledColor), QIcon::Disabled);
+    QPixmap result(StyleHelper::dpiSpecificImageFile(images.first().first));
+    auto pixmap = images.constBegin();
+    pixmap++;
+    for (;pixmap != images.constEnd(); ++pixmap) {
+        const QPixmap overlay(StyleHelper::dpiSpecificImageFile((*pixmap).first));
+        result.paintEngine()->painter()->drawPixmap(0, 0, overlay);
+    }
     return result;
 }
 
-QPixmap ThemeHelper::themedIconPixmap(const QString &mask)
+Icon::Icon()
 {
-    const MasksAndColors masks =
-            masksAndColors(mask, qRound(qApp->devicePixelRatio()));
-    const QPixmap combinedMask = Utils::combinedMask(masks);
-    return masksToIcon(masks, combinedMask);
 }
 
-QPixmap ThemeHelper::recoloredPixmap(const QString &maskImage, const QColor &color)
+Icon::Icon(std::initializer_list<IconMaskAndColor> args, Style style)
+    : QVector<IconMaskAndColor>(args)
+    , m_style(style)
 {
-    return maskToColorAndAlpha(QPixmap(Utils::StyleHelper::dpiSpecificImageFile(maskImage)), color);
 }
 
-QColor ThemeHelper::inputfieldIconColor()
+Icon::Icon(const QString &imageFileName)
+    : m_style(Style::Plain)
 {
-    // See QLineEdit::paintEvent
-    QColor color = QApplication::palette().text().color();
-    color.setAlpha(128);
-    return color;
+    append({imageFileName, Theme::Color(-1)});
+}
+
+QIcon Icon::icon() const
+{
+    if (isEmpty()) {
+        return QIcon();
+    } else if (m_style == Style::Plain) {
+        return QIcon(combinedPlainPixmaps(*this));
+    } else {
+        QIcon result;
+        const MasksAndColors masks = masksAndColors(*this, qRound(qApp->devicePixelRatio()));
+        const QPixmap combinedMask = Utils::combinedMask(masks);
+        result.addPixmap(masksToIcon(masks, combinedMask, m_style == Style::TintedWithShadow));
+
+        QColor disabledColor = creatorTheme()->palette().mid().color();
+        disabledColor.setAlphaF(0.6);
+        result.addPixmap(maskToColorAndAlpha(combinedMask, disabledColor), QIcon::Disabled);
+        return result;
+    }
+}
+
+QPixmap Icon::pixmap() const
+{
+    if (isEmpty()) {
+        return QPixmap();
+    } else if (m_style == Style::Plain) {
+        return combinedPlainPixmaps(*this);
+    } else {
+        const MasksAndColors masks =
+                masksAndColors(*this, qRound(qApp->devicePixelRatio()));
+        const QPixmap combinedMask = Utils::combinedMask(masks);
+        return masksToIcon(masks, combinedMask, m_style == Style::TintedWithShadow);
+    }
+}
+
+QString Icon::imageFileName() const
+{
+    QTC_ASSERT(length() == 1, return QString());
+    return first().first;
+}
+
+Icon& Icon::operator=(const Icon &other)
+{
+    clear();
+    append(other);
+    m_style = other.m_style;
+    return *this;
 }
 
 } // namespace Utils

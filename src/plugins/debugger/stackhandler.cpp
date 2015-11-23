@@ -32,6 +32,7 @@
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
+#include "debuggericons.h"
 #include "debuggerengine.h"
 #include "debuggerprotocol.h"
 #include "simplifytype.h"
@@ -59,8 +60,8 @@ namespace Internal {
 
 StackHandler::StackHandler(DebuggerEngine *engine)
   : m_engine(engine),
-    m_positionIcon(QIcon(QLatin1String(":/debugger/images/location_16.png"))),
-    m_emptyIcon(QIcon(QLatin1String(":/debugger/images/debugger_empty_14.png")))
+    m_positionIcon(Icons::LOCATION.icon()),
+    m_emptyIcon(Icons::EMPTY.icon())
 {
     setObjectName(QLatin1String("StackModel"));
     m_resetLocationScheduled = false;

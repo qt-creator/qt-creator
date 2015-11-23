@@ -33,6 +33,7 @@
 #include "debuggerengine.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
+#include "debuggericons.h"
 
 #include <coreplugin/mainwindow.h>
 #include <utils/checkablemessagebox.h>
@@ -683,7 +684,7 @@ MultiBreakPointsDialog::MultiBreakPointsDialog(QWidget *parent) :
 
 BreakTreeView::BreakTreeView()
 {
-    setWindowIcon(QIcon(QLatin1String(":/debugger/images/debugger_breakpoints.png")));
+    setWindowIcon(Icons::BREAKPOINTS.icon());
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     connect(action(UseAddressInBreakpointsView), &QAction::toggled,
             this, &BreakTreeView::showAddressColumn);

@@ -38,6 +38,7 @@ QtcPlugin {
             "core.qrc",
             "core_global.h",
             "coreconstants.h",
+            "coreicons.h",
             "corejsextensions.cpp", "corejsextensions.h",
             "coreplugin.cpp", "coreplugin.h",
             "designmode.cpp", "designmode.h",

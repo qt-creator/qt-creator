@@ -31,11 +31,10 @@
 #include "taskhub.h"
 #include "projectexplorerconstants.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/ioutputpane.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
-#include <utils/themehelper.h>
 
 using namespace ProjectExplorer;
 
@@ -102,8 +101,8 @@ void TaskMark::clicked()
 }
 
 TaskHub::TaskHub()
-    : m_errorIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_ERROR))),
-      m_warningIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_WARNING)))
+    : m_errorIcon(Core::Icons::ERROR.icon()),
+      m_warningIcon(Core::Icons::WARNING.icon())
 {
     m_instance = this;
     qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");

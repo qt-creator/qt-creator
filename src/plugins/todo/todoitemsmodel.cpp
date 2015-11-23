@@ -35,7 +35,6 @@
 #include <utils/algorithm.h>
 
 #include <utils/theme/theme.h>
-#include <utils/themehelper.h>
 
 #include <QIcon>
 

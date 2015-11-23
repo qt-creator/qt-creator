@@ -35,6 +35,7 @@
 #include "androidrunner.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 
 using namespace ProjectExplorer;
 
@@ -46,7 +47,7 @@ AndroidRunControl::AndroidRunControl(AndroidRunConfiguration *rc)
     , m_runner(new AndroidRunner(this, rc, ProjectExplorer::Constants::NORMAL_RUN_MODE))
     , m_running(false)
 {
-    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
+    setIcon(Icons::RUN_SMALL);
 }
 
 AndroidRunControl::~AndroidRunControl()

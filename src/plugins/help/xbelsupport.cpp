@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "xbelsupport.h"
+#include "helpicons.h"
 
 #include <bookmarkmanager.h>
 
@@ -101,7 +102,7 @@ XbelReader::XbelReader(BookmarkModel *tree, BookmarkModel *list)
     , treeModel(tree)
     , listModel(list)
 {
-    bookmarkIcon = QIcon(QLatin1String(":/help/images/bookmark.png"));
+    bookmarkIcon = Icons::BOOKMARK.icon();
     folderIcon = QApplication::style()->standardIcon(QStyle::SP_DirClosedIcon);
 }
 

@@ -551,6 +551,16 @@ QString RunControl::displayName() const
     return m_displayName;
 }
 
+void RunControl::setIcon(const Utils::Icon &icon)
+{
+    m_icon = icon;
+}
+
+Utils::Icon RunControl::icon() const
+{
+    return m_icon;
+}
+
 Abi RunControl::abi() const
 {
     if (const RunConfiguration *rc = m_runConfiguration.data())

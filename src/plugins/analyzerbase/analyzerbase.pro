@@ -29,7 +29,8 @@ HEADERS += \
     analyzerutils.h \
     detailederrorview.h \
     diagnosticlocation.h \
-    startremotedialog.h
+    startremotedialog.h \
+    analyzericons.h
 
 RESOURCES += \
     analyzerbase.qrc

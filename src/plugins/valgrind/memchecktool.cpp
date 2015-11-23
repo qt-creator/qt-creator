@@ -61,7 +61,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
@@ -69,7 +69,6 @@
 #include <utils/fancymainwindow.h>
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
-#include <utils/themehelper.h>
 
 #include <QString>
 #include <QLatin1String>
@@ -376,7 +375,7 @@ QWidget *MemcheckTool::createWidgets()
 
     // Load external XML log file
     action = new QAction(this);
-    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_OPENFILE)));
+    action->setIcon(Core::Icons::OPENFILE.icon());
     action->setToolTip(tr("Load External XML Log File"));
     connect(action, &QAction::triggered, this, &MemcheckTool::loadExternalXmlLogFile);
     button = new QToolButton;
@@ -387,7 +386,7 @@ QWidget *MemcheckTool::createWidgets()
     // Go to previous leak.
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_PREV)));
+    action->setIcon(Core::Icons::PREV.icon());
     action->setToolTip(tr("Go to previous leak."));
     connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goBack);
     button = new QToolButton;
@@ -398,7 +397,7 @@ QWidget *MemcheckTool::createWidgets()
     // Go to next leak.
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_NEXT)));
+    action->setIcon(Core::Icons::NEXT.icon());
     action->setToolTip(tr("Go to next leak."));
     connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goNext);
     button = new QToolButton;
@@ -407,7 +406,7 @@ QWidget *MemcheckTool::createWidgets()
     m_goNext = action;
 
     QToolButton *filterButton = new QToolButton;
-    filterButton->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    filterButton->setIcon(Core::Icons::FILTER.icon());
     filterButton->setText(tr("Error Filter"));
     filterButton->setPopupMode(QToolButton::InstantPopup);
     filterButton->setProperty("noArrow", true);

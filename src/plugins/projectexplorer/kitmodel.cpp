@@ -34,10 +34,9 @@
 #include "kitmanagerconfigwidget.h"
 #include "kitmanager.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/themehelper.h>
 
 #include <QApplication>
 #include <QLayout>
@@ -85,13 +84,11 @@ public:
             }
             if (role == Qt::DecorationRole) {
                 if (!widget->isValid()) {
-                    static const QIcon errorIcon(Utils::ThemeHelper::themedIcon(
-                                                     QLatin1String(Core::Constants::ICON_ERROR)));
+                    static const QIcon errorIcon(Core::Icons::ERROR.icon());
                     return errorIcon;
                 }
                 if (widget->hasWarning()) {
-                    static const QIcon warningIcon(Utils::ThemeHelper::themedIcon(
-                                                       QLatin1String(Core::Constants::ICON_WARNING)));
+                    static const QIcon warningIcon(Core::Icons::WARNING.icon());
                     return warningIcon;
                 }
                 return QIcon();

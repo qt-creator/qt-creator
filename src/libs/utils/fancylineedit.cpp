@@ -33,8 +33,8 @@
 #include "historycompleter.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
-#include "themehelper.h"
 #include "stylehelper.h"
+#include "utilsicons.h"
 
 #include <QAbstractItemView>
 #include <QDebug>
@@ -365,9 +365,7 @@ void FancyLineEdit::setFiltering(bool on)
                          QLatin1String("edit-clear-locationbar-rtl") :
                          QLatin1String("edit-clear-locationbar-ltr"),
                          QIcon::fromTheme(QLatin1String("edit-clear"),
-                                          ThemeHelper::recoloredPixmap(
-                                              QLatin1String(":/core/images/editclear.png"),
-                                              ThemeHelper::inputfieldIconColor())));
+                                          Icons::EDIT_CLEAR.pixmap()));
 
         setButtonPixmap(Right, icon.pixmap(16));
         setButtonVisible(Right, true);

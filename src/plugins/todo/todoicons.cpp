@@ -29,8 +29,7 @@
 **
 ****************************************************************************/
 
-#include <coreplugin/coreconstants.h>
-#include <utils/themehelper.h>
+#include <coreplugin/coreicons.h>
 
 #include "todoicons.h"
 
@@ -41,19 +40,16 @@ QIcon icon(IconType type)
 {
     switch (type) {
     case IconType::Info: {
-        const static QIcon icon = Utils::ThemeHelper::themedIcon(
-                    QLatin1String(Core::Constants::ICON_INFO));
+        const static QIcon icon = Core::Icons::INFO.icon();
         return icon;
     }
     case IconType::Warning: {
-        const static QIcon icon = Utils::ThemeHelper::themedIcon(
-                    QLatin1String(Core::Constants::ICON_WARNING));
+        const static QIcon icon = Core::Icons::WARNING.icon();
         return icon;
     }
     default:
     case IconType::Error: {
-        const static QIcon icon = Utils::ThemeHelper::themedIcon(
-                    QLatin1String(Core::Constants::ICON_ERROR));
+        const static QIcon icon = Core::Icons::ERROR.icon();
         return icon;
     }
     }

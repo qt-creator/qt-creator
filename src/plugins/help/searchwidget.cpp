@@ -35,6 +35,7 @@
 #include "openpagesmanager.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/styledbar.h>
@@ -312,7 +313,7 @@ SearchSideBarItem::SearchSideBarItem()
 QList<QToolButton *> SearchSideBarItem::createToolBarWidgets()
 {
     QToolButton *reindexButton = new QToolButton;
-    reindexButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RELOAD_GRAY)));
+    reindexButton->setIcon(Core::Icons::RELOAD_GRAY.icon());
     reindexButton->setToolTip(tr("Regenerate Index"));
     connect(reindexButton, SIGNAL(clicked()),
             widget(), SLOT(reindexDocumentation()));

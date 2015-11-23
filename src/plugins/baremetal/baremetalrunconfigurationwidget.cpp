@@ -31,9 +31,8 @@
 #include "baremetalrunconfigurationwidget.h"
 #include "baremetalrunconfiguration.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <utils/detailswidget.h>
-#include <utils/themehelper.h>
 
 #include <QLineEdit>
 #include <QFormLayout>
@@ -91,8 +90,7 @@ void BareMetalRunConfigurationWidget::addDisabledLabel(QVBoxLayout *topLayout)
 {
     QHBoxLayout * const hl = new QHBoxLayout;
     hl->addStretch();
-    d->disabledIcon.setPixmap(Utils::ThemeHelper::themedIconPixmap(
-                              QLatin1String(Core::Constants::ICON_WARNING)));
+    d->disabledIcon.setPixmap(Core::Icons::WARNING.pixmap());
     hl->addWidget(&d->disabledIcon);
     d->disabledReason.setVisible(false);
     hl->addWidget(&d->disabledReason);

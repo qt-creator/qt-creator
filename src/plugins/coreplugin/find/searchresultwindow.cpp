@@ -35,11 +35,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icontext.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
-#include <utils/themehelper.h>
 
 #include <QAction>
 #include <QComboBox>
@@ -142,7 +141,7 @@ namespace Internal {
         m_expandCollapseButton->setAutoRaise(true);
 
         m_expandCollapseAction->setCheckable(true);
-        m_expandCollapseAction->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(":/find/images/expand.png")));
+        m_expandCollapseAction->setIcon(Core::Icons::EXPAND.icon());
         Command *cmd = ActionManager::registerAction(m_expandCollapseAction, "Find.ExpandAll");
         cmd->setAttribute(Command::CA_UpdateText);
         m_expandCollapseButton->setDefaultAction(cmd->action());

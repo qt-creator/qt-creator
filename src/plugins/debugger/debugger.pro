@@ -69,7 +69,8 @@ HEADERS += \
     localsandexpressionswindow.h \
     imageviewer.h \
     simplifytype.h \
-    unstartedappwatcherdialog.h
+    unstartedappwatcherdialog.h \
+    debuggericons.h
 
 SOURCES += \
     breakhandler.cpp \

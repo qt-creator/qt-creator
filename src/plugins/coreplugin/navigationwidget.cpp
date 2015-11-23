@@ -32,15 +32,13 @@
 #include "navigationsubwidget.h"
 #include "icontext.h"
 #include "icore.h"
-#include "coreconstants.h"
+#include "coreicons.h"
 #include "inavigationwidgetfactory.h"
 #include "modemanager.h"
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
 #include "id.h"
 #include "imode.h"
-
-#include <utils/themehelper.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -250,8 +248,7 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position,int 
     }
 
     if (!d->m_subWidgets.isEmpty()) // Make all icons the bottom icon
-        d->m_subWidgets.at(0)->setCloseIcon(
-                    Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
+        d->m_subWidgets.at(0)->setCloseIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
 
     Internal::NavigationSubWidget *nsw = new Internal::NavigationSubWidget(this, position, index);
     connect(nsw, &Internal::NavigationSubWidget::splitMe,
@@ -259,12 +256,9 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position,int 
     connect(nsw, SIGNAL(closeMe()), this, SLOT(closeSubWidget()));
     insertWidget(position, nsw);
     d->m_subWidgets.insert(position, nsw);
-    if (d->m_subWidgets.size() == 1)
-        d->m_subWidgets.at(0)->setCloseIcon(
-                    Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
-    else
-        d->m_subWidgets.at(0)->setCloseIcon(
-                    Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
+    d->m_subWidgets.at(0)->setCloseIcon(d->m_subWidgets.size() == 1
+                                        ? Icons::CLOSE_SPLIT_LEFT.icon()
+                                        : Icons::CLOSE_SPLIT_TOP.icon());
     return nsw;
 }
 
@@ -313,11 +307,9 @@ void NavigationWidget::closeSubWidget()
         subWidget->deleteLater();
         // update close button of top item
         if (d->m_subWidgets.size() == 1)
-            d->m_subWidgets.at(0)->setCloseIcon(
-                        Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
-        else
-            d->m_subWidgets.at(0)->setCloseIcon(
-                        Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
+            d->m_subWidgets.at(0)->setCloseIcon(d->m_subWidgets.size() == 1
+                                                ? Icons::CLOSE_SPLIT_LEFT.icon()
+                                                : Icons::CLOSE_SPLIT_TOP.icon());
     } else {
         setShown(false);
     }

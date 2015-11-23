@@ -34,7 +34,7 @@
 #include "runconfiguration.h"
 #include "environmentaspect.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 
 #include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>
@@ -169,7 +169,7 @@ void WorkingDirectoryAspect::addToMainConfigurationWidget(QWidget *parent, QForm
 
     auto resetButton = new QToolButton(parent);
     resetButton->setToolTip(tr("Reset to Default"));
-    resetButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RESET)));
+    resetButton->setIcon(Core::Icons::RESET.icon());
     connect(resetButton, &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
 
     if (auto envAspect = runConfiguration()->extraAspect<EnvironmentAspect>()) {

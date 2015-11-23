@@ -37,6 +37,7 @@
 
 #include <utils/outputformat.h>
 #include <utils/qtcassert.h>
+#include <utils/icon.h>
 
 #include <QPointer>
 #include <QWidget>
@@ -293,8 +294,8 @@ public:
     virtual QString displayName() const;
     virtual bool supportsReRunning() const { return true; }
 
-    void setIcon(const QString &icon) { m_icon = icon; }
-    QString icon() const { return m_icon; }
+    void setIcon(const Utils::Icon &icon);
+    Utils::Icon icon() const;
 
     ProcessHandle applicationProcessHandle() const;
     void setApplicationProcessHandle(const ProcessHandle &handle);
@@ -330,7 +331,7 @@ protected:
 private:
     QString m_displayName;
     Core::Id m_runMode;
-    QString m_icon;
+    Utils::Icon m_icon;
     const QPointer<RunConfiguration> m_runConfiguration;
     QPointer<Project> m_project;
     Utils::OutputFormatter *m_outputFormatter;

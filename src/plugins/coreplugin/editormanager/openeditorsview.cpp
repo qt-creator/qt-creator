@@ -33,7 +33,7 @@
 #include "ieditor.h"
 #include "documentmodel.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 
@@ -50,7 +50,7 @@ using namespace Core::Internal;
 OpenEditorsWidget::OpenEditorsWidget()
 {
     setWindowTitle(tr("Open Documents"));
-    setWindowIcon(QIcon(QLatin1String(Constants::ICON_DIR)));
+    setWindowIcon(Icons::DIR.icon());
     setDragEnabled(true);
     setDragDropMode(QAbstractItemView::DragOnly);
 

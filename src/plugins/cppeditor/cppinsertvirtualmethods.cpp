@@ -31,7 +31,7 @@
 #include "cppinsertvirtualmethods.h"
 #include "cppquickfixassistant.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpptoolsreuse.h>
@@ -44,7 +44,6 @@
 #include <cplusplus/Overview.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
-#include <utils/themehelper.h>
 
 #include <QAction>
 #include <QCheckBox>
@@ -1029,7 +1028,7 @@ void InsertVirtualMethodsDialog::initGui()
             m_overrideReplacementComboBox, &QComboBox::setEnabled);
 
     QAction *clearUserAddedReplacements = new QAction(this);
-    clearUserAddedReplacements->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_CLEAN_PANE)));
+    clearUserAddedReplacements->setIcon(Core::Icons::CLEAN_PANE.icon());
     clearUserAddedReplacements->setText(tr("Clear Added \"override\" Equivalents"));
     connect(clearUserAddedReplacements, &QAction::triggered, [this]() {
        m_availableOverrideReplacements = defaultOverrideReplacements();

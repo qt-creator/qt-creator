@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "bookmarkmanager.h"
+#include "helpicons.h"
 
 #include <localhelpmanager.h>
 
@@ -579,7 +580,7 @@ Qt::ItemFlags BookmarkModel::flags(const QModelIndex &index) const
 
 BookmarkManager::BookmarkManager()
     : m_folderIcon(QApplication::style()->standardIcon(QStyle::SP_DirClosedIcon))
-    , m_bookmarkIcon(QLatin1String(":/help/images/bookmark.png"))
+    , m_bookmarkIcon(Help::Icons::BOOKMARK.icon())
     , treeModel(new BookmarkModel(0, 1, this))
     , listModel(new BookmarkModel(0, 1, this))
 {

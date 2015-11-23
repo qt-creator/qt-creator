@@ -32,7 +32,7 @@
 
 #include "styleanimator.h"
 
-#include <coreplugin/coreconstants.h>
+#include "coreicons.h"
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -40,7 +40,6 @@
 
 #include <utils/fancymainwindow.h>
 #include <utils/theme/theme.h>
-#include <utils/themehelper.h>
 
 #include <QApplication>
 #include <QComboBox>
@@ -139,8 +138,8 @@ public:
 ManhattanStylePrivate::ManhattanStylePrivate() :
     lineeditImage(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/inputfield.png"))),
     lineeditImage_disabled(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/inputfield_disabled.png"))),
-    extButtonPixmap(ThemeHelper::themedIconPixmap(QLatin1String(":/core/images/extension.png"))),
-    closeButtonPixmap(QLatin1String(Core::Constants::ICON_CLOSE_BUTTON))
+    extButtonPixmap(Core::Icons::TOOLBAR_EXTENSION.pixmap()),
+    closeButtonPixmap(Core::Icons::CLOSE_BUTTON.pixmap())
 {
 }
 

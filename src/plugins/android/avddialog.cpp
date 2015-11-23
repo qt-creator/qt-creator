@@ -31,9 +31,8 @@
 #include "avddialog.h"
 #include "androidconfigurations.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <utils/tooltip/tooltip.h>
-#include <utils/themehelper.h>
 
 #include <QKeyEvent>
 #include <QMessageBox>
@@ -63,8 +62,7 @@ AvdDialog::AvdDialog(int minApiLevel, const QString &targetArch, const AndroidCo
     m_avdDialog.nameLineEdit->setValidator(v);
     m_avdDialog.nameLineEdit->installEventFilter(this);
 
-    m_avdDialog.warningIcon->setPixmap(Utils::ThemeHelper::themedIconPixmap(
-                                           QLatin1String(Core::Constants::ICON_WARNING)));
+    m_avdDialog.warningIcon->setPixmap(Core::Icons::WARNING.pixmap());
 
     updateApiLevelComboBox();
 

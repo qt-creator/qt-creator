@@ -30,12 +30,11 @@
 
 #include "sidebar.h"
 #include "sidebarwidget.h"
-#include "coreconstants.h"
+#include "coreicons.h"
 
 #include "actionmanager/command.h"
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/themehelper.h>
 
 #include <QSettings>
 #include <QPointer>
@@ -205,8 +204,7 @@ SideBarItem *SideBar::item(const QString &id)
 Internal::SideBarWidget *SideBar::insertSideBarWidget(int position, const QString &id)
 {
     if (!d->m_widgets.isEmpty())
-        d->m_widgets.at(0)->setCloseIcon(
-                    Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
+        d->m_widgets.at(0)->setCloseIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
 
     Internal::SideBarWidget *item = new Internal::SideBarWidget(this, id);
     connect(item, SIGNAL(splitMe()), this, SLOT(splitSubWidget()));
@@ -215,11 +213,9 @@ Internal::SideBarWidget *SideBar::insertSideBarWidget(int position, const QStrin
     insertWidget(position, item);
     d->m_widgets.insert(position, item);
     if (d->m_widgets.size() == 1)
-        d->m_widgets.at(0)->setCloseIcon(
-                    Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
-    else
-        d->m_widgets.at(0)->setCloseIcon(
-                    Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
+    d->m_widgets.at(0)->setCloseIcon(d->m_widgets.size() == 1
+                                     ? Icons::CLOSE_SPLIT_LEFT.icon()
+                                     : Icons::CLOSE_SPLIT_TOP.icon());
     updateWidgets();
     return item;
 }
@@ -249,11 +245,9 @@ void SideBar::closeSubWidget()
         removeSideBarWidget(widget);
         // update close button of top item
         if (d->m_widgets.size() == 1)
-            d->m_widgets.at(0)->setCloseIcon(
-                        Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
-        else
-            d->m_widgets.at(0)->setCloseIcon(
-                        Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
+            d->m_widgets.at(0)->setCloseIcon(d->m_widgets.size() == 1
+                                             ? Icons::CLOSE_SPLIT_LEFT.icon()
+                                             : Icons::CLOSE_SPLIT_TOP.icon());
         updateWidgets();
     } else {
         if (d->m_closeWhenEmpty) {

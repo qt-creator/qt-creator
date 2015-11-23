@@ -30,7 +30,7 @@
 
 #include "infobar.h"
 
-#include "coreconstants.h"
+#include "coreicons.h"
 #include "icore.h"
 
 #include <utils/theme/theme.h>
@@ -251,7 +251,7 @@ void InfoBarDisplay::update()
 
         if (info.cancelButtonText.isEmpty()) {
             infoWidgetCloseButton->setAutoRaise(true);
-            infoWidgetCloseButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLEAR)));
+            infoWidgetCloseButton->setIcon(Icons::CLEAR.icon());
             infoWidgetCloseButton->setToolTip(tr("Close"));
             if (infoWidgetSuppressButton)
                 hbox->addWidget(infoWidgetSuppressButton);

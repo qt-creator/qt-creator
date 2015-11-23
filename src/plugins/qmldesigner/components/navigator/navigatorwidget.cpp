@@ -25,6 +25,8 @@
 
 #include "navigatorwidget.h"
 #include "navigatorview.h"
+#include "qmldesignerconstants.h"
+#include "qmldesignericons.h"
 
 #include <QBoxLayout>
 #include <QToolButton>
@@ -32,7 +34,6 @@
 #include <QHeaderView>
 #include <QtDebug>
 #include <utils/fileutils.h>
-#include <utils/themehelper.h>
 
 namespace QmlDesigner {
 
@@ -77,25 +78,25 @@ QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
     QList<QToolButton *> buttons;
 
     buttons.append(new QToolButton());
-    buttons.last()->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(":/navigator/icon/arrowleft.png")));
+    buttons.last()->setIcon(Icons::ARROW_LEFT.icon());
     buttons.last()->setToolTip(tr("Become last sibling of parent (CTRL + Left)."));
     buttons.last()->setShortcut(QKeySequence(Qt::Key_Left | Qt::CTRL));
     connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(leftButtonClicked()));
 
     buttons.append(new QToolButton());
-    buttons.last()->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(":/navigator/icon/arrowright.png")));
+    buttons.last()->setIcon(Icons::ARROW_RIGHT.icon());
     buttons.last()->setToolTip(tr("Become child of last sibling (CTRL + Right)."));
     buttons.last()->setShortcut(QKeySequence(Qt::Key_Right | Qt::CTRL));
     connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(rightButtonClicked()));
 
     buttons.append(new QToolButton());
-    buttons.last()->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(":/navigator/icon/arrowdown.png")));
+    buttons.last()->setIcon(Icons::ARROW_DOWN.icon());
     buttons.last()->setToolTip(tr("Move down (CTRL + Down)."));
     buttons.last()->setShortcut(QKeySequence(Qt::Key_Down | Qt::CTRL));
     connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(downButtonClicked()));
 
     buttons.append(new QToolButton());
-    buttons.last()->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(":/navigator/icon/arrowup.png")));
+    buttons.last()->setIcon(Icons::ARROW_UP.icon());
     buttons.last()->setToolTip(tr("Move up (CTRL + Up)."));
     buttons.last()->setShortcut(QKeySequence(Qt::Key_Up | Qt::CTRL));
     connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(upButtonClicked()));

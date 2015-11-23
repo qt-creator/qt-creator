@@ -41,6 +41,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -511,7 +512,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
 
     auto copyButton = new QToolButton;
     copyButton->setToolTip(DebuggerToolTipManager::tr("Copy Contents to Clipboard"));
-    copyButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_COPY)));
+    copyButton->setIcon(Core::Icons::COPY.icon());
 
     titleLabel = new DraggableLabel(this);
     titleLabel->setMinimumWidth(40); // Ensure a draggable area even if text is empty.

@@ -32,7 +32,7 @@
 #include "ifindfilter.h"
 #include "findplugin.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/coreplugin.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -47,7 +47,6 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
-#include <utils/themehelper.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -275,7 +274,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_ui.replaceAllButton->setDefaultAction(m_localReplaceAllAction);
 
     m_caseSensitiveAction = new QAction(tr("Case Sensitive"), this);
-    m_caseSensitiveAction->setIcon(QIcon(QLatin1String(":/find/images/casesensitively.png")));
+    m_caseSensitiveAction->setIcon(Icons::FIND_CASE_INSENSITIVELY.icon());
     m_caseSensitiveAction->setCheckable(true);
     m_caseSensitiveAction->setChecked(false);
     cmd = ActionManager::registerAction(m_caseSensitiveAction, Constants::CASE_SENSITIVE);
@@ -283,7 +282,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     connect(m_caseSensitiveAction, &QAction::toggled, this, &FindToolBar::setCaseSensitive);
 
     m_wholeWordAction = new QAction(tr("Whole Words Only"), this);
-    m_wholeWordAction->setIcon(QIcon(QLatin1String(":/find/images/wholewords.png")));
+    m_wholeWordAction->setIcon(Icons::FIND_WHOLE_WORD.icon());
     m_wholeWordAction->setCheckable(true);
     m_wholeWordAction->setChecked(false);
     cmd = ActionManager::registerAction(m_wholeWordAction, Constants::WHOLE_WORDS);
@@ -291,7 +290,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     connect(m_wholeWordAction, &QAction::toggled, this, &FindToolBar::setWholeWord);
 
     m_regularExpressionAction = new QAction(tr("Use Regular Expressions"), this);
-    m_regularExpressionAction->setIcon(QIcon(QLatin1String(":/find/images/regexp.png")));
+    m_regularExpressionAction->setIcon(Icons::FIND_REGEXP.icon());
     m_regularExpressionAction->setCheckable(true);
     m_regularExpressionAction->setChecked(false);
     cmd = ActionManager::registerAction(m_regularExpressionAction, Constants::REGULAR_EXPRESSIONS);
@@ -299,7 +298,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     connect(m_regularExpressionAction, &QAction::toggled, this, &FindToolBar::setRegularExpressions);
 
     m_preserveCaseAction = new QAction(tr("Preserve Case when Replacing"), this);
-    m_preserveCaseAction->setIcon(QPixmap(QLatin1String(":/find/images/preservecase.png")));
+    m_preserveCaseAction->setIcon(Icons::FIND_PRESERVE_CASE.icon());
     m_preserveCaseAction->setCheckable(true);
     m_preserveCaseAction->setChecked(false);
     cmd = ActionManager::registerAction(m_preserveCaseAction, Constants::PRESERVE_CASE);
@@ -673,9 +672,7 @@ void FindToolBar::updateIcons()
     bool regexp = effectiveFlags & FindRegularExpression;
     bool preserveCase = effectiveFlags & FindPreserveCase;
     if (!casesensitive && !wholewords && !regexp && !preserveCase) {
-        const QPixmap pixmap = Utils::ThemeHelper::recoloredPixmap(
-                    QLatin1String(Constants::ICON_MAGNIFIER),
-                    Utils::ThemeHelper::inputfieldIconColor());
+        const QPixmap pixmap = Icons::MAGNIFIER.pixmap();
         m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left, pixmap);
     } else {
         m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left,
@@ -970,13 +967,13 @@ void FindToolBar::setLightColoredIcon(bool lightColored)
         m_ui.findNextButton->setArrowType(Qt::RightArrow);
         m_ui.findPreviousButton->setIcon(QIcon());
         m_ui.findPreviousButton->setArrowType(Qt::LeftArrow);
-        m_ui.close->setIcon(QIcon(QLatin1String(Constants::ICON_DARK_CLOSE)));
+        m_ui.close->setIcon(Icons::DARK_CLOSE.icon());
     } else {
-        m_ui.findNextButton->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_NEXT)));
+        m_ui.findNextButton->setIcon(Icons::NEXT.icon());
         m_ui.findNextButton->setArrowType(Qt::NoArrow);
-        m_ui.findPreviousButton->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_PREV)));
+        m_ui.findPreviousButton->setIcon(Icons::PREV.icon());
         m_ui.findPreviousButton->setArrowType(Qt::NoArrow);
-        m_ui.close->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_BUTTON_CLOSE)));
+        m_ui.close->setIcon(Icons::BUTTON_CLOSE.icon());
     }
 }
 

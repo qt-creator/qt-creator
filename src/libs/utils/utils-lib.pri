@@ -89,12 +89,12 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/proxycredentialsdialog.cpp \
     $$PWD/macroexpander.cpp \
     $$PWD/theme/theme.cpp \
-    $$PWD/themehelper.cpp \
     $$PWD/progressindicator.cpp \
     $$PWD/fadingindicator.cpp \
     $$PWD/overridecursor.cpp \
     $$PWD/categorysortfiltermodel.cpp \
-    $$PWD/dropsupport.cpp
+    $$PWD/dropsupport.cpp \
+    $$PWD/icon.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -194,13 +194,14 @@ HEADERS += \
     $$PWD/macroexpander.h \
     $$PWD/theme/theme.h \
     $$PWD/theme/theme_p.h \
-    $$PWD/themehelper.h \
     $$PWD/progressindicator.h \
     $$PWD/fadingindicator.h \
     $$PWD/executeondestruction.h \
     $$PWD/overridecursor.h \
     $$PWD/categorysortfiltermodel.h \
-    $$PWD/dropsupport.h
+    $$PWD/dropsupport.h \
+    $$PWD/utilsicons.h \
+    $$PWD/icon.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

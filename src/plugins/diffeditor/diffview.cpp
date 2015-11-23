@@ -30,11 +30,11 @@
 
 #include "diffview.h"
 
+#include "diffeditoricons.h"
 #include "unifieddiffeditorwidget.h"
 #include "sidebysidediffeditorwidget.h"
 
 #include <utils/qtcassert.h>
-#include <utils/themehelper.h>
 
 #include <QCoreApplication>
 
@@ -97,8 +97,7 @@ void IDiffView::setSyncToolTip(const QString &text)
 UnifiedView::UnifiedView() : m_widget(0)
 {
     setId(UNIFIED_VIEW_ID);
-    setIcon(Utils::ThemeHelper::themedIcon(
-                QLatin1String(":/diffeditor/images/unifieddiff.png")));
+    setIcon(Icons::UNIFIED_DIFF.icon());
     setToolTip(QCoreApplication::translate("DiffEditor::UnifiedView", "Switch to Unified Diff Editor"));
 }
 
@@ -154,8 +153,7 @@ void UnifiedView::setSync(bool sync)
 SideBySideView::SideBySideView() : m_widget(0)
 {
     setId(SIDE_BY_SIDE_VIEW_ID);
-    setIcon(Utils::ThemeHelper::themedIcon(
-                QLatin1String(":/diffeditor/images/sidebysidediff.png")));
+    setIcon(Icons::UNIFIED_DIFF.icon());
     setToolTip(QCoreApplication::translate("DiffEditor::SideBySideView",
                                            "Switch to Side By Side Diff Editor"));
     setSupportsSync(true);

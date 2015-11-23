@@ -155,19 +155,6 @@ const char RUNMENUCONTEXTMENU[]   = "Project.RunMenu";
 // File factory
 const char FILE_FACTORY_ID[]      = "ProjectExplorer.FileFactoryId";
 
-// Icons
-const char ICON_BUILD[]           = ":/projectexplorer/images/build.png";
-const char ICON_BUILD_SMALL[]     = ":/projectexplorer/images/build_small.png";
-const char ICON_CLEAN[]           = ":/projectexplorer/images/clean.png";
-const char ICON_CLEAN_SMALL[]     = ":/projectexplorer/images/clean_small.png";
-const char ICON_REBUILD[]         = ":/projectexplorer/images/rebuild.png";
-const char ICON_REBUILD_SMALL[]   = ":/projectexplorer/images/rebuild_small.png";
-const char ICON_RUN[]             = ":/projectexplorer/images/run.png";
-const char ICON_RUN_SMALL[]       = ":/projectexplorer/images/run_small.png|IconsRunColor";
-const char ICON_STOP[]            = ":/projectexplorer/images/stop.png";
-const char ICON_STOP_SMALL[]      = ":/projectexplorer/images/stop_small.png|IconsStopColor";
-const char ICON_WINDOW[]          = ":/projectexplorer/images/window.png";
-
 // Mime types
 const char C_SOURCE_MIMETYPE[]    = "text/x-csrc";
 const char C_HEADER_MIMETYPE[]    = "text/x-chdr";

@@ -32,6 +32,7 @@
 #include "ieditor.h"
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/coreicons.h>
 
 #include <utils/algorithm.h>
 #include <utils/dropsupport.h>
@@ -125,8 +126,8 @@ public:
 };
 
 DocumentModelPrivate::DocumentModelPrivate() :
-    m_lockedIcon(QLatin1String(":/core/images/locked.png")),
-    m_unlockedIcon(QLatin1String(":/core/images/unlocked.png"))
+    m_lockedIcon(Icons::LOCKED.icon()),
+    m_unlockedIcon(Icons::UNLOCKED.icon())
 {
 }
 

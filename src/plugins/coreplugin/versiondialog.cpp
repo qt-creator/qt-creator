@@ -31,7 +31,7 @@
 #include "versiondialog.h"
 
 #include <app/app_version.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -52,7 +52,7 @@ VersionDialog::VersionDialog(QWidget *parent)
     // We need to set the window icon explicitly here since for some reason the
     // application icon isn't used when the size of the dialog is fixed (at least not on X11/GNOME)
     if (Utils::HostOsInfo::isLinuxHost())
-        setWindowIcon(QIcon(QLatin1String(Constants::ICON_QTLOGO_128)));
+        setWindowIcon(Icons::QTLOGO_128.icon());
 
     setWindowTitle(tr("About Qt Creator"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -106,7 +106,7 @@ VersionDialog::VersionDialog(QWidget *parent)
     connect(buttonBox , SIGNAL(rejected()), this, SLOT(reject()));
 
     QLabel *logoLabel = new QLabel;
-    logoLabel->setPixmap(QPixmap(QLatin1String(Constants::ICON_QTLOGO_128)));
+    logoLabel->setPixmap(Icons::QTLOGO_128.pixmap());
     layout->addWidget(logoLabel , 0, 0, 1, 1);
     layout->addWidget(copyRightLabel, 0, 1, 4, 4);
     layout->addWidget(buttonBox, 4, 0, 1, 5);

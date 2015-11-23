@@ -92,6 +92,7 @@
 #include "targetsettingspanel.h"
 #include "projectpanelfactory.h"
 #include "waitforstopdialog.h"
+#include "projectexplorericons.h"
 
 #ifdef Q_OS_WIN
 #    include "windebuginterface.h"
@@ -131,7 +132,6 @@
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/themehelper.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -704,8 +704,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     ActionContainer *runMenu = ActionManager::createMenu(Constants::RUNMENUCONTEXTMENU);
     runMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
-    QIcon runIcon = QIcon(QLatin1String(Constants::ICON_RUN));
-    runIcon.addPixmap(Utils::ThemeHelper::themedIconPixmap(QLatin1String(Constants::ICON_RUN_SMALL)));
+    QIcon runIcon = Icons::RUN.icon();
+    runIcon.addPixmap(Icons::RUN_SMALL.pixmap());
     runMenu->menu()->setIcon(runIcon);
     runMenu->menu()->setTitle(tr("Run"));
     msubProjectContextMenu->addMenu(runMenu, ProjectExplorer::Constants::G_PROJECT_RUN);
@@ -839,8 +839,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
     // build session action
-    QIcon buildIcon = QIcon(QLatin1String(Constants::ICON_BUILD));
-    buildIcon.addFile(QLatin1String(Constants::ICON_BUILD_SMALL));
+    QIcon buildIcon = Icons::BUILD.icon();
+    buildIcon.addPixmap(Icons::BUILD_SMALL.pixmap());
     dd->m_buildSessionAction = new QAction(buildIcon, tr("Build All"), this);
     cmd = ActionManager::registerAction(dd->m_buildSessionAction, Constants::BUILDSESSION);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+B")));
@@ -854,16 +854,16 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
     // rebuild session action
-    QIcon rebuildIcon = QIcon(QLatin1String(Constants::ICON_REBUILD));
-    rebuildIcon.addFile(QLatin1String(Constants::ICON_REBUILD_SMALL));
+    QIcon rebuildIcon = Icons::REBUILD.icon();
+    rebuildIcon.addPixmap(Icons::REBUILD_SMALL.pixmap());
     dd->m_rebuildSessionAction = new QAction(rebuildIcon, tr("Rebuild All"), this);
     cmd = ActionManager::registerAction(dd->m_rebuildSessionAction, Constants::REBUILDSESSION);
     mbuild->addAction(cmd, Constants::G_BUILD_REBUILD);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
     // clean session
-    QIcon cleanIcon = QIcon(QLatin1String(Constants::ICON_CLEAN));
-    cleanIcon.addFile(QLatin1String(Constants::ICON_CLEAN_SMALL));
+    QIcon cleanIcon = Icons::CLEAN.icon();
+    cleanIcon.addPixmap(Icons::CLEAN_SMALL.pixmap());
     dd->m_cleanSessionAction = new QAction(cleanIcon, tr("Clean All"), this);
     cmd = ActionManager::registerAction(dd->m_cleanSessionAction, Constants::CLEANSESSION);
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
@@ -907,8 +907,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
 
     // cancel build action
-    const QIcon stopIcon = Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_STOP_SMALL));
-    dd->m_cancelBuildAction = new QAction(stopIcon, tr("Cancel Build"), this);
+    dd->m_cancelBuildAction = new QAction(Icons::STOP_SMALL.icon(), tr("Cancel Build"), this);
     cmd = ActionManager::registerAction(dd->m_cancelBuildAction, Constants::CANCELBUILD);
     mbuild->addAction(cmd, Constants::G_BUILD_CANCEL);
 

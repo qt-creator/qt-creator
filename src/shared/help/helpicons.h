@@ -28,35 +28,20 @@
 **
 ****************************************************************************/
 
-#ifndef THEMEHELPER_H
-#define THEMEHELPER_H
+#ifndef HELPICONS_H
+#define HELPICONS_H
 
-#include "utils_global.h"
+#include <utils/icon.h>
 
-QT_FORWARD_DECLARE_CLASS(QColor)
-QT_FORWARD_DECLARE_CLASS(QIcon)
-QT_FORWARD_DECLARE_CLASS(QPixmap)
+namespace Help {
+namespace Icons {
 
-namespace Utils {
+const Utils::Icon BOOKMARK(
+        QLatin1String(":/help/images/bookmark.png"));
+const Utils::Icon HOME(
+        QLatin1String(":/help/images/home.png"));
 
-class QTCREATOR_UTILS_EXPORT ThemeHelper
-{
-public:
-    // Returns a recolored icon with shadow and custom disabled state for a
-    // grayscale mask. The mask can range from a single image filename to
-    // a list of filename|color,... pairs.
-    // The color can be a Theme::Color enum key name. If invalid, it is run
-    // through QColor(const QString &name).
-    static QIcon themedIcon(const QString &mask);
-    // Same as themedIcon() but without disabled state.
-    static QPixmap themedIconPixmap(const QString &mask);
+} // namespace Icons
+} // namespace Help
 
-    // Simple recoloring of a mask. No shadow. maskImage is a single file.
-    static QPixmap recoloredPixmap(const QString &maskImage, const QColor &color);
-
-    static QColor inputfieldIconColor();
-};
-
-} // namespace Utils
-
-#endif // THEMEHELPER_H
+#endif // HELPICONS_H

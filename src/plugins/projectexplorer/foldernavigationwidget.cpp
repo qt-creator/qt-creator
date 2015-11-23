@@ -39,7 +39,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/find/findplugin.h>
 
@@ -50,7 +50,6 @@
 #include <utils/qtcassert.h>
 #include <utils/elidinglabel.h>
 #include <utils/itemviews.h>
-#include <utils/themehelper.h>
 
 #include <QDebug>
 #include <QSize>
@@ -168,8 +167,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
-    m_toggleSync->setIcon(
-                Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_LINK)));
+    m_toggleSync->setIcon(Core::Icons::LINK.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
     setAutoSynchronization(true);
@@ -448,7 +446,7 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
     FolderNavigationWidget *fnw = new FolderNavigationWidget;
     n.widget = fnw;
     QToolButton *filter = new QToolButton;
-    filter->setIcon(Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    filter->setIcon(Core::Icons::FILTER.icon());
     filter->setToolTip(tr("Filter Files"));
     filter->setPopupMode(QToolButton::InstantPopup);
     filter->setProperty("noArrow", true);

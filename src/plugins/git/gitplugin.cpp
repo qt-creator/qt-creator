@@ -49,6 +49,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -721,7 +722,7 @@ class RebaseItemDelegate : public IconItemDelegate
 {
 public:
     RebaseItemDelegate(LogChangeWidget *widget)
-        : IconItemDelegate(widget, QLatin1String(Core::Constants::ICON_UNDO))
+        : IconItemDelegate(widget, Core::Icons::UNDO.imageFileName())
     {
     }
 

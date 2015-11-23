@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "importlabel.h"
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -40,7 +40,7 @@ ImportLabel::ImportLabel(QWidget *parent) :
 
 
     m_removeButton = new QPushButton(this);
-    m_removeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)));
+    m_removeButton->setIcon(Core::Icons::BUTTON_CLOSE.icon());
     m_removeButton->setFlat(true);
     m_removeButton->setMaximumWidth(20);
     m_removeButton->setMaximumHeight(20);
@@ -71,10 +71,8 @@ const Import ImportLabel::import() const
 void ImportLabel::setReadOnly(bool readOnly) const
 {
     m_removeButton->setDisabled(readOnly);
-    if (readOnly)
-         m_removeButton->setIcon(QIcon());
-    else
-         m_removeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)));
+    m_removeButton->setIcon(readOnly ? QIcon()
+                                     : Core::Icons::BUTTON_CLOSE.icon());
 }
 
 void ImportLabel::emitRemoveImport()

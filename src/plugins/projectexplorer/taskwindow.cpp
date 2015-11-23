@@ -32,6 +32,7 @@
 
 #include "itaskhandler.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorericons.h"
 #include "session.h"
 #include "task.h"
 #include "taskhub.h"
@@ -39,14 +40,13 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/itemviews.h>
-#include <utils/themehelper.h>
 
 #include <QDir>
 #include <QPainter>
@@ -244,7 +244,7 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
     d->m_listview->setSelectionMode(QAbstractItemView::SingleSelection);
     Internal::TaskDelegate *tld = new Internal::TaskDelegate(this);
     d->m_listview->setItemDelegate(tld);
-    d->m_listview->setWindowIcon(QIcon(QLatin1String(Constants::ICON_WINDOW)));
+    d->m_listview->setWindowIcon(Icons::WINDOW.icon());
     d->m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
     d->m_listview->setAttribute(Qt::WA_MacShowFocusRect, false);
 
@@ -265,12 +265,11 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
     d->m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     d->m_filterWarningsButton = createFilterButton(
-                Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_WARNING)),
+                Core::Icons::WARNING.icon(),
                 tr("Show Warnings"), this, [this](bool show) { setShowWarnings(show); });
 
     d->m_categoriesButton = new QToolButton;
-    d->m_categoriesButton->setIcon(
-                Utils::ThemeHelper::themedIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    d->m_categoriesButton->setIcon(Core::Icons::FILTER.icon());
     d->m_categoriesButton->setToolTip(tr("Filter by categories"));
     d->m_categoriesButton->setProperty("noArrow", true);
     d->m_categoriesButton->setAutoRaise(true);

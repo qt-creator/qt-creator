@@ -32,7 +32,7 @@
 #include "debuggeritemmanager.h"
 #include "debuggeritem.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -70,7 +70,7 @@ public:
 
     QVariant data(int column, int role) const
     {
-        static QIcon errorIcon(QString::fromLatin1(Core::Constants::ICON_ERROR));
+        static const QIcon errorIcon = Core::Icons::ERROR.icon();
 
         switch (role) {
             case Qt::DisplayRole:

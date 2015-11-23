@@ -36,7 +36,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editortoolbar.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/locator/locatorconstants.h>
@@ -45,7 +45,6 @@
 #include <coreplugin/findplaceholder.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
-#include <utils/themehelper.h>
 
 #include <QDebug>
 
@@ -704,15 +703,11 @@ void SplitterOrView::split(Qt::Orientation orientation)
     view->view()->setCurrentEditor(duplicate);
 
     if (orientation == Qt::Horizontal) {
-        view->view()->setCloseSplitIcon(
-                    Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
-        otherView->view()->setCloseSplitIcon(
-                    Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_RIGHT)));
+        view->view()->setCloseSplitIcon(Icons::CLOSE_SPLIT_LEFT.icon());
+        otherView->view()->setCloseSplitIcon(Icons::CLOSE_SPLIT_RIGHT.icon());
     } else {
-        view->view()->setCloseSplitIcon(
-                    Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
-        otherView->view()->setCloseSplitIcon(
-                    Utils::ThemeHelper::themedIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
+        view->view()->setCloseSplitIcon(Icons::CLOSE_SPLIT_TOP.icon());
+        otherView->view()->setCloseSplitIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
     }
 
     EditorManagerPrivate::activateView(otherView->view());
@@ -801,13 +796,13 @@ void SplitterOrView::unsplit()
             QSplitter *parentSplitter = qobject_cast<QSplitter *>(parentWidget());
             if (parentSplitter) { // not the toplevel splitterOrView
                 if (parentSplitter->orientation() == Qt::Horizontal)
-                    Utils::ThemeHelper::themedIcon(QLatin1String(parentSplitter->widget(0) == this ?
-                                                                     Constants::ICON_CLOSE_SPLIT_LEFT
-                                                                   : Constants::ICON_CLOSE_SPLIT_RIGHT));
+                    m_view->setCloseSplitIcon(parentSplitter->widget(0) == this ?
+                                                  Icons::CLOSE_SPLIT_LEFT.icon()
+                                                : Icons::CLOSE_SPLIT_RIGHT.icon());
                 else
-                    Utils::ThemeHelper::themedIcon(QLatin1String(parentSplitter->widget(0) == this ?
-                                                                     Constants::ICON_CLOSE_SPLIT_TOP
-                                                                   : Constants::ICON_CLOSE_SPLIT_BOTTOM));
+                    m_view->setCloseSplitIcon(parentSplitter->widget(0) == this ?
+                                                  Icons::CLOSE_SPLIT_TOP.icon()
+                                                : Icons::CLOSE_SPLIT_BOTTOM.icon());
             }
         }
         m_layout->setCurrentWidget(m_view);

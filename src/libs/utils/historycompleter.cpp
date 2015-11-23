@@ -30,6 +30,8 @@
 
 #include "historycompleter.h"
 #include "fancylineedit.h"
+#include "theme/theme.h"
+#include "utilsicons.h"
 
 #include "qtcassert.h"
 
@@ -69,7 +71,7 @@ class HistoryLineDelegate : public QItemDelegate
 public:
     HistoryLineDelegate(QObject *parent)
         : QItemDelegate(parent)
-        , pixmap(QLatin1String(":/core/images/editclear.png"))
+        , pixmap(Icons::EDIT_CLEAR.pixmap())
     {}
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
