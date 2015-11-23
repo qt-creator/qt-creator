@@ -194,6 +194,38 @@ TEST_F(TranslationUnit, DependedFilePaths)
                       Contains(Utf8StringLiteral(TESTDATA_DIR"/translationunits.h"))));
 }
 
+TEST_F(TranslationUnit, NeedsNoReparseAfterCreation)
+{
+    translationUnit.cxTranslationUnit();
+
+    ASSERT_FALSE(translationUnit.isNeedingReparse());
+}
+
+TEST_F(TranslationUnit, HasNewDiagnosticsAfterCreation)
+{
+    translationUnit.cxTranslationUnit();
+
+    ASSERT_TRUE(translationUnit.hasNewDiagnostics());
+}
+
+TEST_F(TranslationUnit, NeedsReparseAfterChangeOfMainFile)
+{
+    translationUnit.cxTranslationUnit();
+
+    translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
+
+    ASSERT_TRUE(translationUnit.isNeedingReparse());
+}
+
+TEST_F(TranslationUnit, HasNewDiagnosticsAfterChangeOfMainFile)
+{
+    translationUnit.cxTranslationUnit();
+
+    translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
+
+    ASSERT_TRUE(translationUnit.hasNewDiagnostics());
+}
+
 TEST_F(TranslationUnit, NoNeedForReparsingForIndependendFile)
 {
     translationUnit.cxTranslationUnit();
@@ -234,6 +266,7 @@ TEST_F(TranslationUnit, NeedsNoReparsingAfterReparsing)
 TEST_F(TranslationUnit, HasNoNewDiagnosticsForIndependendFile)
 {
     translationUnit.cxTranslationUnit();
+    translationUnit.diagnostics(); // Reset hasNewDiagnostics
 
     translationUnit.setDirtyIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/otherfiles.h"));
 

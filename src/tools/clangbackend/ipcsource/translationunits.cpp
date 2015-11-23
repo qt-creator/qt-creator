@@ -62,10 +62,8 @@ void TranslationUnits::create(const QVector<FileContainer> &fileContainers)
 {
     checkIfTranslationUnitsDoesNotExists(fileContainers);
 
-    for (const FileContainer &fileContainer : fileContainers) {
+    for (const FileContainer &fileContainer : fileContainers)
         createTranslationUnit(fileContainer);
-        updateTranslationUnitsWithChangedDependency(fileContainer.filePath());
-    }
 }
 
 void TranslationUnits::update(const QVector<FileContainer> &fileContainers)

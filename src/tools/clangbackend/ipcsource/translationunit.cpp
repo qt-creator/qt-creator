@@ -83,8 +83,8 @@ public:
     CXTranslationUnit translationUnit = nullptr;
     CXIndex index = nullptr;
     uint documentRevision = 0;
-    bool needsToBeReparsed  = false;
-    bool hasNewDiagnostics = false;
+    bool needsToBeReparsed = false;
+    bool hasNewDiagnostics = true;
 };
 
 TranslationUnitData::TranslationUnitData(const Utf8String &filePath,

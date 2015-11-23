@@ -77,11 +77,18 @@ using ClangBackEnd::TranslationUnitDoesNotExistMessage;
 using ClangBackEnd::ProjectPartsDoNotExistMessage;
 using ClangBackEnd::UpdateTranslationUnitsForEditorMessage;
 
-MATCHER_P3(HasDirtyTranslationUnit, filePath, projectPartId, documentRevision,
+MATCHER_P5(HasDirtyTranslationUnit,
+           filePath,
+           projectPartId,
+           documentRevision,
+           isNeedingReparse,
+           hasNewDiagnostics,
            std::string(negation ? "isn't" : "is")
            + " translation unit with file path "+ PrintToString(filePath)
            + " and project " + PrintToString(projectPartId)
            + " and document revision " + PrintToString(documentRevision)
+           + " and isNeedingReparse = " + PrintToString(isNeedingReparse)
+           + " and hasNewDiagnostics = " + PrintToString(hasNewDiagnostics)
            )
 {
     auto &&translationUnits = arg.translationUnitsForTestOnly();
@@ -89,16 +96,24 @@ MATCHER_P3(HasDirtyTranslationUnit, filePath, projectPartId, documentRevision,
         auto translationUnit = translationUnits.translationUnit(filePath, projectPartId);
 
         if (translationUnit.documentRevision() == documentRevision) {
-            if (translationUnit.hasNewDiagnostics()) {
-                if (translationUnit.isNeedingReparse())
-                    return true;
 
+            if (translationUnit.hasNewDiagnostics() && !hasNewDiagnostics) {
+                *result_listener << "hasNewDiagnostics is true";
+                return false;
+            } else if (!translationUnit.hasNewDiagnostics() && hasNewDiagnostics) {
+                *result_listener << "hasNewDiagnostics is false";
+                return false;
+            }
+
+            if (translationUnit.isNeedingReparse() && !isNeedingReparse) {
+                *result_listener << "isNeedingReparse is true";
+                return false;
+            } else if (!translationUnit.isNeedingReparse() && isNeedingReparse) {
                 *result_listener << "isNeedingReparse is false";
                 return false;
             }
 
-            *result_listener << "hasNewDiagnostics is false";
-            return false;
+            return true;
         }
 
         *result_listener << "revision number is " << PrintToString(translationUnit.documentRevision());
@@ -406,8 +421,18 @@ TEST_F(ClangIpcServer, TicketNumberIsForwarded)
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangIpcServer, TranslationUnitIsDirtyAfterCreation)
+TEST_F(ClangIpcServer, TranslationUnitAfterCreationNeedsNoReparseAndHasNewDiagnostics)
 {
-    ASSERT_THAT(clangServer, HasDirtyTranslationUnit(functionTestFilePath, projectPartId, 0));
+    ASSERT_THAT(clangServer, HasDirtyTranslationUnit(functionTestFilePath, projectPartId, 0U, false, true));
 }
+
+TEST_F(ClangIpcServer, TranslationUnitAfterUpdateNeedsReparseAndHasNewDiagnostics)
+{
+    const auto fileContainer = FileContainer(functionTestFilePath, projectPartId,unsavedContent(unsavedTestFilePath), true, 1);
+
+    clangServer.updateTranslationUnitsForEditor({{fileContainer}});
+
+    ASSERT_THAT(clangServer, HasDirtyTranslationUnit(functionTestFilePath, projectPartId, 1U, true, true));
+}
+
 }
