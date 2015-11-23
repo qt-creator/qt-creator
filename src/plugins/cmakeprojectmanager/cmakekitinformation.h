@@ -51,6 +51,8 @@ public:
     void fix(ProjectExplorer::Kit *k) override;
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+
+    void addToMacroExpander(ProjectExplorer::Kit *k, Utils::MacroExpander *expander) const override;
 };
 
 class CMAKE_EXPORT CMakeGeneratorKitInformation : public ProjectExplorer::KitInformation

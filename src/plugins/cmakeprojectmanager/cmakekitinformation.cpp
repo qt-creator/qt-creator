@@ -126,6 +126,15 @@ KitConfigWidget *CMakeKitInformation::createConfigWidget(Kit *k) const
     return new Internal::CMakeKitConfigWidget(k, this);
 }
 
+void CMakeKitInformation::addToMacroExpander(Kit *k, Utils::MacroExpander *expander) const
+{
+    expander->registerFileVariables("CMake:Executable", tr("Path to the cmake executable"),
+                                    [k]() -> QString {
+                                        CMakeTool *tool = CMakeKitInformation::cmakeTool(k);
+                                        return tool ? tool->cmakeExecutable().toString() : QString();
+                                    });
+}
+
 // --------------------------------------------------------------------
 // CMakeGeneratorKitInformation:
 // --------------------------------------------------------------------
