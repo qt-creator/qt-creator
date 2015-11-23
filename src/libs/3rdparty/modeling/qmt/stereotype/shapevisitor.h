@@ -44,7 +44,7 @@ class PathShape;
 class ShapeVisitor
 {
 public:
-    ~ShapeVisitor() { }
+    virtual ~ShapeVisitor() { }
 
     virtual void visitLine(LineShape *shapeLine) = 0;
     virtual void visitRect(RectShape *shapeRect) = 0;
@@ -58,7 +58,7 @@ public:
 class ShapeConstVisitor
 {
 public:
-    ~ShapeConstVisitor() { }
+    virtual ~ShapeConstVisitor() { }
 
     virtual void visitLine(const LineShape *shapeLine) = 0;
     virtual void visitRect(const RectShape *shapeRect) = 0;
