@@ -71,6 +71,9 @@ public:
     QList<IntermediatePoint> intermediatePoints() const { return m_intermediatePoints; }
     void setIntermediatePoints(const QList<IntermediatePoint> &intermediatePoints);
 
+     void accept(DVisitor *visitor);
+     void accept(DConstVisitor *visitor) const;
+
 private:
     Uid m_modelUid;
     QList<QString> m_stereotypes;

@@ -92,4 +92,14 @@ void DRelation::setIntermediatePoints(const QList<DRelation::IntermediatePoint> 
     m_intermediatePoints = intermediatePoints;
 }
 
+void DRelation::accept(DVisitor *visitor)
+{
+    visitor->visitDRelation(this);
+}
+
+void DRelation::accept(DConstVisitor *visitor) const
+{
+    visitor->visitDRelation(this);
+}
+
 } // namespace qmt
