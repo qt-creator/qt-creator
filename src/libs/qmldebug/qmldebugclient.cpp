@@ -334,6 +334,15 @@ void QmlDebugConnection::connectToHost(const QString &hostName, quint16 port)
     socket->connectToHost(hostName, port);
 }
 
+QAbstractSocket::SocketState QmlDebugConnection::socketState() const
+{
+    // TODO: when merging into master, add clause for local socket
+    if (QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(d->device))
+        return socket->state();
+    else
+        return QAbstractSocket::UnconnectedState;
+}
+
 //
 
 QmlDebugClientPrivate::QmlDebugClientPrivate()

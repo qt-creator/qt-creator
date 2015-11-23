@@ -55,6 +55,7 @@ public:
     ~QmlDebugConnection();
 
     void connectToHost(const QString &hostName, quint16 port);
+    QAbstractSocket::SocketState socketState() const;
 
     bool isOpen() const;
     bool isConnecting() const;
