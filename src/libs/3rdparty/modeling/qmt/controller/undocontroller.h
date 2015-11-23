@@ -48,7 +48,7 @@ class QMT_EXPORT UndoController : public QObject
 
 public:
     explicit UndoController(QObject *parent = 0);
-    ~UndoController();
+    ~UndoController() override;
 
     QUndoStack *undoStack() const { return m_undoStack; }
 

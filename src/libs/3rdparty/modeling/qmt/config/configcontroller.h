@@ -47,7 +47,7 @@ class QMT_EXPORT ConfigController : public QObject
 
 public:
     explicit ConfigController(QObject *parent = 0);
-    ~ConfigController();
+    ~ConfigController() override;
 
     void setStereotypeController(StereotypeController *stereotypeController);
 

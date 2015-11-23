@@ -45,16 +45,16 @@ class QMT_EXPORT DiagramView : public QGraphicsView
 {
 public:
     explicit DiagramView(QWidget *parent);
-    ~DiagramView();
+    ~DiagramView() override;
 
     DiagramSceneModel *diagramSceneModel() const;
     void setDiagramSceneModel(DiagramSceneModel *diagramSceneModel);
 
 protected:
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dragLeaveEvent(QDragLeaveEvent *event);
-    void dragMoveEvent(QDragMoveEvent *event);
-    void dropEvent(QDropEvent *event);
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dragLeaveEvent(QDragLeaveEvent *event) override;
+    void dragMoveEvent(QDragMoveEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 
 private:
     QPointer<DiagramSceneModel> m_diagramSceneModel;

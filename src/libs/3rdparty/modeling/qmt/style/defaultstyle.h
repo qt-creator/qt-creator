@@ -39,7 +39,7 @@ class QMT_EXPORT DefaultStyle :  public Style
 {
 public:
     DefaultStyle();
-    ~DefaultStyle();
+    ~DefaultStyle() override;
 };
 
 } // namespace qmt

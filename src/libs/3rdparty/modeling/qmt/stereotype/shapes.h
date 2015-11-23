@@ -57,9 +57,9 @@ public:
     ShapePointF pos1() const { return m_pos1; }
     ShapePointF pos2() const { return m_pos2; }
 
-    IShape *Clone() const;
-    void accept(ShapeVisitor *visitor);
-    void accept(ShapeConstVisitor *visitor) const;
+    IShape *Clone() const override;
+    void accept(ShapeVisitor *visitor) override;
+    void accept(ShapeConstVisitor *visitor) const override;
 
 private:
     ShapePointF m_pos1;
@@ -82,9 +82,9 @@ public:
     ShapePointF pos() const { return m_pos; }
     ShapeSizeF size() const { return m_size; }
 
-    IShape *Clone() const;
-    void accept(ShapeVisitor *visitor);
-    void accept(ShapeConstVisitor *visitor) const;
+    IShape *Clone() const override;
+    void accept(ShapeVisitor *visitor) override;
+    void accept(ShapeConstVisitor *visitor) const override;
 
 private:
     ShapePointF m_pos;
@@ -109,9 +109,9 @@ public:
     ShapeSizeF size() const { return m_size; }
     ShapeValueF radius() const { return m_radius; }
 
-    IShape *Clone() const;
-    void accept(ShapeVisitor *visitor);
-    void accept(ShapeConstVisitor *visitor) const;
+    IShape *Clone() const override;
+    void accept(ShapeVisitor *visitor) override;
+    void accept(ShapeConstVisitor *visitor) const override;
 
 private:
     ShapePointF m_pos;
@@ -135,9 +135,9 @@ public:
     ShapePointF center() const { return m_center; }
     ShapeValueF radius() const { return m_radius; }
 
-    IShape *Clone() const;
-    void accept(ShapeVisitor *visitor);
-    void accept(ShapeConstVisitor *visitor) const;
+    IShape *Clone() const override;
+    void accept(ShapeVisitor *visitor) override;
+    void accept(ShapeConstVisitor *visitor) const override;
 
 private:
     ShapePointF m_center;
@@ -160,9 +160,9 @@ public:
     ShapePointF center() const { return m_center; }
     ShapeSizeF radius() const { return m_radius; }
 
-    IShape *Clone() const;
-    void accept(ShapeVisitor *visitor);
-    void accept(ShapeConstVisitor *visitor) const;
+    IShape *Clone() const override;
+    void accept(ShapeVisitor *visitor) override;
+    void accept(ShapeConstVisitor *visitor) const override;
 
 private:
     ShapePointF m_center;
@@ -189,9 +189,9 @@ public:
     qreal startAngle() const { return m_startAngle; }
     qreal spanAngle() const { return m_spanAngle; }
 
-    IShape *Clone() const;
-    void accept(ShapeVisitor *visitor);
-    void accept(ShapeConstVisitor *visitor) const;
+    IShape *Clone() const override;
+    void accept(ShapeVisitor *visitor) override;
+    void accept(ShapeConstVisitor *visitor) const override;
 
 private:
     ShapePointF m_center;
@@ -230,13 +230,13 @@ public:
     };
 
     PathShape();
-    ~PathShape();
+    ~PathShape() override;
 
     QList<Element> elements() const { return m_elements; }
 
-    IShape *Clone() const;
-    void accept(ShapeVisitor *visitor);
-    void accept(ShapeConstVisitor *visitor) const;
+    IShape *Clone() const override;
+    void accept(ShapeVisitor *visitor) override;
+    void accept(ShapeConstVisitor *visitor) const override;
 
     void moveTo(const ShapePointF &pos);
     void lineTo(const ShapePointF &pos);

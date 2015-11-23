@@ -39,7 +39,7 @@ class TemplateParameterBox : public QGraphicsRectItem
 {
 public:
     TemplateParameterBox(QGraphicsItem *parent = 0);
-    ~TemplateParameterBox();
+    ~TemplateParameterBox() override;
 
     void setFont(const QFont &font);
     void setTextBrush(const QBrush &brush);

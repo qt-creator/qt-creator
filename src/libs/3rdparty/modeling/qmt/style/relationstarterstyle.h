@@ -39,7 +39,7 @@ class QMT_EXPORT RelationStarterStyle : public Style
 {
 public:
     RelationStarterStyle();
-    ~RelationStarterStyle();
+    ~RelationStarterStyle() override;
 };
 
 } // namespace qmt

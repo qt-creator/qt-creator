@@ -43,8 +43,8 @@ public:
     bool isPlainShape() const { return m_isPlainShape; }
     void setPlainShape(bool planeShape);
 
-    virtual void accept(DVisitor *visitor);
-    virtual void accept(DConstVisitor *visitor) const;
+    void accept(DVisitor *visitor) override;
+    void accept(DConstVisitor *visitor) const override;
 
 private:
     bool m_isPlainShape;

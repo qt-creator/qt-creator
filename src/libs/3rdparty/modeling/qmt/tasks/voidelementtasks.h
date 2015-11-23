@@ -40,44 +40,44 @@ class QMT_EXPORT VoidElementTasks : public IElementTasks
 {
 public:
     VoidElementTasks();
-    ~VoidElementTasks();
+    ~VoidElementTasks() override;
 
-    void openElement(const MElement *);
-    void openElement(const DElement *, const MDiagram *);
+    void openElement(const MElement *) override;
+    void openElement(const DElement *, const MDiagram *) override;
 
-    bool hasClassDefinition(const MElement *) const;
-    bool hasClassDefinition(const DElement *, const MDiagram *) const;
-    void openClassDefinition(const MElement *);
-    void openClassDefinition(const DElement *, const MDiagram *);
+    bool hasClassDefinition(const MElement *) const override;
+    bool hasClassDefinition(const DElement *, const MDiagram *) const override;
+    void openClassDefinition(const MElement *) override;
+    void openClassDefinition(const DElement *, const MDiagram *) override;
 
-    bool hasHeaderFile(const MElement *) const;
-    bool hasHeaderFile(const DElement *, const MDiagram *) const;
-    bool hasSourceFile(const MElement *) const;
-    bool hasSourceFile(const DElement *, const MDiagram *) const;
-    void openHeaderFile(const MElement *);
-    void openHeaderFile(const DElement *, const MDiagram *);
-    void openSourceFile(const MElement *);
-    void openSourceFile(const DElement *, const MDiagram *);
+    bool hasHeaderFile(const MElement *) const override;
+    bool hasHeaderFile(const DElement *, const MDiagram *) const override;
+    bool hasSourceFile(const MElement *) const override;
+    bool hasSourceFile(const DElement *, const MDiagram *) const override;
+    void openHeaderFile(const MElement *) override;
+    void openHeaderFile(const DElement *, const MDiagram *) override;
+    void openSourceFile(const MElement *) override;
+    void openSourceFile(const DElement *, const MDiagram *) override;
 
-    bool hasFolder(const MElement *) const;
-    bool hasFolder(const DElement *, const MDiagram *) const;
-    void showFolder(const MElement *);
-    void showFolder(const DElement *, const MDiagram *);
+    bool hasFolder(const MElement *) const override;
+    bool hasFolder(const DElement *, const MDiagram *) const override;
+    void showFolder(const MElement *) override;
+    void showFolder(const DElement *, const MDiagram *) override;
 
-    bool hasDiagram(const MElement *) const;
-    bool hasDiagram(const DElement *, const MDiagram *) const;
-    void openDiagram(const MElement *);
-    void openDiagram(const DElement *, const MDiagram *);
+    bool hasDiagram(const MElement *) const override;
+    bool hasDiagram(const DElement *, const MDiagram *) const override;
+    void openDiagram(const MElement *) override;
+    void openDiagram(const DElement *, const MDiagram *) override;
 
-    bool hasParentDiagram(const MElement *) const;
-    bool hasParentDiagram(const DElement *, const MDiagram *) const;
-    void openParentDiagram(const MElement *);
-    void openParentDiagram(const DElement *, const MElement *);
+    bool hasParentDiagram(const MElement *) const override;
+    bool hasParentDiagram(const DElement *, const MDiagram *) const override;
+    void openParentDiagram(const MElement *) override;
+    void openParentDiagram(const DElement *, const MElement *) override;
 
-    bool mayCreateDiagram(const qmt::MElement *) const;
-    bool mayCreateDiagram(const qmt::DElement *, const qmt::MDiagram *) const;
-    void createAndOpenDiagram(const qmt::MElement *);
-    void createAndOpenDiagram(const qmt::DElement *, const qmt::MDiagram *);
+    bool mayCreateDiagram(const qmt::MElement *) const override;
+    bool mayCreateDiagram(const qmt::DElement *, const qmt::MDiagram *) const override;
+    void createAndOpenDiagram(const qmt::MElement *) override;
+    void createAndOpenDiagram(const qmt::DElement *, const qmt::MDiagram *) override;
 };
 
 } // namespace qmt

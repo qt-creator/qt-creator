@@ -41,11 +41,11 @@ class QMT_EXPORT FindRootDiagramVisitor : public MVoidVisitor
 {
 public:
     FindRootDiagramVisitor();
-    ~FindRootDiagramVisitor();
+    ~FindRootDiagramVisitor() override;
 
     MDiagram *diagram() const { return m_diagram; }
 
-    void visitMObject(MObject *object);
+    void visitMObject(MObject *object) override;
 
 private:
     MDiagram *m_diagram;

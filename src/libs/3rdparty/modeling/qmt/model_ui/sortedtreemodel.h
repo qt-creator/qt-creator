@@ -46,13 +46,13 @@ class QMT_EXPORT SortedTreeModel : public QSortFilterProxyModel
 
 public:
     explicit SortedTreeModel(QObject *parent = 0);
-    ~SortedTreeModel();
+    ~SortedTreeModel() override;
 
     TreeModel *treeModel() const { return m_treeModel; }
     void setTreeModel(TreeModel *treeModel);
 
 protected:
-    bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 
 private:
     void onTreeModelRowsInserted(const QModelIndex &parent, int start, int end);

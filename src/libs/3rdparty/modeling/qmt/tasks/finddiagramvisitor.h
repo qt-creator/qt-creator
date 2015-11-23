@@ -39,12 +39,12 @@ class QMT_EXPORT FindDiagramVisitor : public MVoidConstVisitor
 {
 public:
     FindDiagramVisitor();
-    ~FindDiagramVisitor();
+    ~FindDiagramVisitor() override;
 
     const MDiagram *diagram() const { return m_diagram; }
 
-    void visitMObject(const MObject *object);
-    void visitMDiagram(const MDiagram *diagram);
+    void visitMObject(const MObject *object) override;
+    void visitMDiagram(const MDiagram *diagram) override;
 
 private:
     const MDiagram *m_diagram;

@@ -75,7 +75,7 @@ public:
     {
     }
 
-    ~GraphicsHeadItem()
+    ~GraphicsHeadItem() override
     {
     }
 
@@ -97,12 +97,12 @@ public:
             m_diamondSize = diamondSize;
     }
 
-    QRectF boundingRect() const
+    QRectF boundingRect() const override
     {
         return childrenBoundingRect();
     }
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override
     {
         Q_UNUSED(painter);
         Q_UNUSED(option);
@@ -121,7 +121,7 @@ public:
 #endif
     }
 
-    QPainterPath shape() const
+    QPainterPath shape() const override
     {
         QPainterPath path;
         path.setFillRule(Qt::WindingFill);

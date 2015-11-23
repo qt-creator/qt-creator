@@ -55,10 +55,10 @@ public:
     };
 
     AlignButtonsItem(IAlignable *alignable, QGraphicsItem *parent = 0);
-    ~AlignButtonsItem();
+    ~AlignButtonsItem() override;
 
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
     void clear();
     void addButton(IAlignable::AlignType alignType, const QString &identifier, qreal pos);

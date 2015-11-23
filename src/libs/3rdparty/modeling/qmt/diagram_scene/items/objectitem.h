@@ -81,39 +81,39 @@ protected:
 
 public:
     ObjectItem(DObject *object, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-    ~ObjectItem();
+    ~ObjectItem() override;
 
     DObject *object() const { return m_object; }
     DiagramSceneModel *diagramSceneModel() const { return m_diagramSceneModel; }
 
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
     virtual void update() = 0;
 
     bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint,
-                                QLineF *intersectionLine) const = 0;
+                                QLineF *intersectionLine) const override = 0;
 
-    QPointF pos() const;
-    QRectF rect() const;
-    QSizeF minimumSize() const = 0;
+    QPointF pos() const override;
+    QRectF rect() const override;
+    QSizeF minimumSize() const override = 0;
     void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect,
-                       const QPointF &topLeftDelta, const QPointF &bottomRightDelta);
+                       const QPointF &topLeftDelta, const QPointF &bottomRightDelta) override;
     void alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide,
-                               double rasterWidth, double rasterHeight);
+                               double rasterWidth, double rasterHeight) override;
 
-    void moveDelta(const QPointF &delta);
-    void alignItemPositionToRaster(double rasterWidth, double rasterHeight);
+    void moveDelta(const QPointF &delta) override;
+    void alignItemPositionToRaster(double rasterWidth, double rasterHeight) override;
 
-    bool isSecondarySelected() const;
-    void setSecondarySelected(bool secondarySelected);
-    bool isFocusSelected() const;
-    void setFocusSelected(bool focusSelected);
+    bool isSecondarySelected() const override;
+    void setSecondarySelected(bool secondarySelected) override;
+    bool isFocusSelected() const override;
+    void setFocusSelected(bool focusSelected) override;
 
-    QList<Latch> horizontalLatches(Action action, bool grabbedItem) const;
-    QList<Latch> verticalLatches(Action action, bool grabbedItem) const;
+    QList<Latch> horizontalLatches(Action action, bool grabbedItem) const override;
+    QList<Latch> verticalLatches(Action action, bool grabbedItem) const override;
 
-    void align(AlignType alignType, const QString &identifier);
+    void align(AlignType alignType, const QString &identifier) override;
 
 protected:
     void updateStereotypeIconDisplay();
@@ -141,11 +141,11 @@ protected:
     virtual bool extendContextMenu(QMenu *menu);
     virtual bool handleSelectedContextMenuAction(QAction *action);
 
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
-    void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
+    void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
 
 private:
     QSizeF minimumSize(const QSet<QGraphicsItem *> &items) const;

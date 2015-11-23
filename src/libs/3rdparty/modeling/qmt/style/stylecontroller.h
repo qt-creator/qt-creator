@@ -54,7 +54,7 @@ class QMT_EXPORT StyleController : public QObject
 
 public:
     explicit StyleController(QObject *parent = 0);
-    ~StyleController();
+    ~StyleController() override;
 
     bool suppressGradients() const { return m_suppressGradients; }
     void setSuppressGradients(bool suppressGradients);

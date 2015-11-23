@@ -48,7 +48,7 @@ class QMT_EXPORT StereotypeDefinitionParserError : public Exception
 {
 public:
     StereotypeDefinitionParserError(const QString &errorMsg, const SourcePos &sourcePos);
-    ~StereotypeDefinitionParserError();
+    ~StereotypeDefinitionParserError() override;
 
     SourcePos sourcePos() const { return m_sourcePos; }
 
@@ -64,7 +64,7 @@ class QMT_EXPORT StereotypeDefinitionParser : public QObject
 
 public:
     explicit StereotypeDefinitionParser(QObject *parent = 0);
-    ~StereotypeDefinitionParser();
+    ~StereotypeDefinitionParser() override;
 
 signals:
     void iconParsed(const StereotypeIcon &stereotypeIcon);

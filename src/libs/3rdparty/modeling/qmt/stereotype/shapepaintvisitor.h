@@ -46,13 +46,13 @@ public:
     ShapePaintVisitor(QPainter *painter, const QPointF &scaledOrigin, const QSizeF &originalSize,
                       const QSizeF &baseSize, const QSizeF &size);
 
-    void visitLine(const LineShape *shapeLine);
-    void visitRect(const RectShape *shapeRect);
-    void visitRoundedRect(const RoundedRectShape *shapeRoundedRect);
-    void visitCircle(const CircleShape *shapeCircle);
-    void visitEllipse(const EllipseShape *shapeEllipse);
-    void visitArc(const ArcShape *shapeArc);
-    void visitPath(const PathShape *shapePath);
+    void visitLine(const LineShape *shapeLine) override;
+    void visitRect(const RectShape *shapeRect) override;
+    void visitRoundedRect(const RoundedRectShape *shapeRoundedRect) override;
+    void visitCircle(const CircleShape *shapeCircle) override;
+    void visitEllipse(const EllipseShape *shapeEllipse) override;
+    void visitArc(const ArcShape *shapeArc) override;
+    void visitPath(const PathShape *shapePath) override;
 
 private:
     QPainter *m_painter;
@@ -70,13 +70,13 @@ public:
 
     QRectF boundingRect() const { return m_boundingRect; }
 
-    void visitLine(const LineShape *shapeLine);
-    void visitRect(const RectShape *shapeRect);
-    void visitRoundedRect(const RoundedRectShape *shapeRoundedRect);
-    void visitCircle(const CircleShape *shapeCircle);
-    void visitEllipse(const EllipseShape *shapeEllipse);
-    void visitArc(const ArcShape *shapeArc);
-    void visitPath(const PathShape *shapePath);
+    void visitLine(const LineShape *shapeLine) override;
+    void visitRect(const RectShape *shapeRect) override;
+    void visitRoundedRect(const RoundedRectShape *shapeRoundedRect) override;
+    void visitCircle(const CircleShape *shapeCircle) override;
+    void visitEllipse(const EllipseShape *shapeEllipse) override;
+    void visitArc(const ArcShape *shapeArc) override;
+    void visitPath(const PathShape *shapePath) override;
 
 private:
     QPointF m_scaledOrigin;

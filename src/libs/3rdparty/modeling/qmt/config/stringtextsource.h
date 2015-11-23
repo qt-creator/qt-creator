@@ -41,14 +41,14 @@ class QMT_EXPORT StringTextSource : public ITextSource
 {
 public:
     StringTextSource();
-    ~StringTextSource();
+    ~StringTextSource() override;
 
     void setText(const QString &text);
     int sourceId() const { return m_sourceId; }
     void setSourceId(int sourceId);
 
     // ITextSource interface
-    SourceChar readNextChar();
+    SourceChar readNextChar() override;
 
 private:
     QString m_text;

@@ -52,7 +52,7 @@ private:
         {
         public:
             RefNode(V &v) : m_v(v) { }
-            bool accept(Parser &visitor, int *index) { return visitor.visit(this, index); }
+            bool accept(Parser &visitor, int *index) override { return visitor.visit(this, index); }
             V &ref() const { return m_v; }
         private:
             V &m_v;
@@ -63,7 +63,7 @@ private:
         {
         public:
             SetterNode(U &u, void (U::*setter)(V)) : m_object(u), m_setter(setter) { }
-            bool accept(Parser &visitor, int *index) { return visitor.visit(this, index); }
+            bool accept(Parser &visitor, int *index)  override{ return visitor.visit(this, index); }
             U &object() const { return m_object; }
             void (U::*setter() const)(V) { return m_setter; }
         private:

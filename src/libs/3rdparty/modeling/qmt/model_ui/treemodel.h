@@ -75,7 +75,7 @@ public:
     };
 
     explicit TreeModel(QObject *parent = 0);
-    ~TreeModel();
+    ~TreeModel() override;
 
     ModelController *modelController() const { return m_modelController; }
     void setModelController(ModelController *modelController);
@@ -88,8 +88,8 @@ public:
     QModelIndex indexOf(const MElement *element) const;
     QIcon icon(const QModelIndex &index) const;
 
-    Qt::DropActions supportedDropActions() const;
-    QStringList mimeTypes() const;
+    Qt::DropActions supportedDropActions() const override;
+    QStringList mimeTypes() const override;
 
 private:
     void onBeginResetModel();

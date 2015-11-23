@@ -77,11 +77,11 @@ public:
 
     DObject();
     DObject(const DObject &);
-    ~DObject();
+    ~DObject() override;
 
     DObject &operator=(const DObject &rhs);
 
-    Uid modelUid() const { return m_modelUid; }
+    Uid modelUid() const override { return m_modelUid; }
     void setModelUid(const Uid &uid);
     QList<QString> stereotypes() const { return m_stereotypes; }
     void setStereotypes(const QList<QString> &stereotypes);
@@ -106,8 +106,8 @@ public:
     bool isVisualEmphasized() const { return m_isVisualEmphasized; }
     void setVisualEmphasized(bool visualEmphasized);
 
-    virtual void accept(DVisitor *visitor);
-    virtual void accept(DConstVisitor *visitor) const;
+    void accept(DVisitor *visitor) override;
+    void accept(DConstVisitor *visitor) const override;
 
 private:
     Uid m_modelUid;

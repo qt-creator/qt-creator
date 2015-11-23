@@ -72,7 +72,7 @@ private:
 
 public:
     explicit DiagramController(QObject *parent = 0);
-    ~DiagramController();
+    ~DiagramController() override;
 
 signals:
     void beginResetAllDiagrams();

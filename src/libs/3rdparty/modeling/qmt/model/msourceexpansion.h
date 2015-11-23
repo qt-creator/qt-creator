@@ -40,11 +40,11 @@ class QMT_EXPORT MSourceExpansion : public MExpansion
 public:
     MSourceExpansion();
     MSourceExpansion(const MSourceExpansion &rhs);
-    ~MSourceExpansion();
+    ~MSourceExpansion() override;
 
     MSourceExpansion &operator=(const MSourceExpansion &rhs);
 
-    MSourceExpansion *clone(const MElement &rhs) const;
+    MSourceExpansion *clone(const MElement &rhs) const override;
 
     QString sourceId() const { return m_sourceId; }
     void setSourceId(const QString &sourceId);

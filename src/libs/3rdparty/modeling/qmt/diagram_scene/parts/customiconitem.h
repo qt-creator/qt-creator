@@ -47,7 +47,7 @@ class CustomIconItem : public QGraphicsItem
 {
 public:
     CustomIconItem(DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-    ~CustomIconItem();
+    ~CustomIconItem() override;
 
     void setStereotypeIconId(const QString &stereotypeIconId);
     void setBaseSize(const QSizeF &baseSize);
@@ -58,8 +58,8 @@ public:
     double shapeWidth() const;
     double shapeHeight() const;
 
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
 private:
     DiagramSceneModel *m_diagramSceneModel;

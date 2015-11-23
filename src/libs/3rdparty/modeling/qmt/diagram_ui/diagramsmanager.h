@@ -63,7 +63,7 @@ class QMT_EXPORT DiagramsManager : public QObject
 
 public:
     explicit DiagramsManager(QObject *parent = 0);
-    ~DiagramsManager();
+    ~DiagramsManager() override;
 
 signals:
     void someDiagramOpened(bool);

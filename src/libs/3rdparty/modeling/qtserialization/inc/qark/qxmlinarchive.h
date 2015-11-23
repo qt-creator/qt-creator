@@ -86,8 +86,11 @@ private:
         explicit TagNode(const Tag &tag) : m_tag(tag) { }
 
         const Tag &tag() const { return m_tag; }
-        QString qualifiedName() const { return m_tag.qualifiedName(); }
-        void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
+        QString qualifiedName() const override { return m_tag.qualifiedName(); }
+        void accept(QXmlInArchive &visitor, const XmlTag &tag)  override
+        {
+            visitor.visit(this, tag);
+        }
 
     private:
         Tag m_tag;
@@ -99,9 +102,12 @@ private:
     public:
         explicit ObjectNode(const Object<T> &object) : m_object(object) { }
 
-        QString qualifiedName() const { return m_object.qualifiedName(); }
+        QString qualifiedName() const override { return m_object.qualifiedName(); }
         Object<T> &object() { return m_object; }
-        void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
+        void accept(QXmlInArchive &visitor, const XmlTag &tag) override
+        {
+            visitor.visit(this, tag);
+        }
 
     private:
         Object<T> m_object;
@@ -113,9 +119,12 @@ private:
     public:
         explicit BaseNode(const Base<T, U> &base) : m_base(base) { }
 
-        QString qualifiedName() const { return m_base.qualifiedName(); }
+        QString qualifiedName() const override { return m_base.qualifiedName(); }
         Base<T, U> &base() { return m_base; }
-        void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
+        void accept(QXmlInArchive &visitor, const XmlTag &tag) override
+        {
+            visitor.visit(this, tag);
+        }
 
     private:
         Base<T, U> m_base;
@@ -127,8 +136,11 @@ private:
     public:
         explicit AttrNode(const Attr<T> &attr) : m_attr(attr) { }
 
-        QString qualifiedName() const { return m_attr.qualifiedName(); }
-        void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
+        QString qualifiedName() const override { return m_attr.qualifiedName(); }
+        void accept(QXmlInArchive &visitor, const XmlTag &tag) override
+        {
+            visitor.visit(this, tag);
+        }
         Attr<T> &attribute() { return m_attr; }
 
     private:
@@ -141,8 +153,11 @@ private:
     public:
         explicit SetterAttrNode(const SetterAttr<U, T> &attr) : m_attr(attr) { }
 
-        QString qualifiedName() const { return m_attr.qualifiedName(); }
-        void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
+        QString qualifiedName() const override { return m_attr.qualifiedName(); }
+        void accept(QXmlInArchive &visitor, const XmlTag &tag) override
+        {
+            visitor.visit(this, tag);
+        }
         SetterAttr<U, T> &attribute() { return m_attr; }
 
     private:
@@ -155,8 +170,11 @@ private:
     public:
         explicit GetterSetterAttrNode(const GetterSetterAttr<U, T, V> &attr) : m_attr(attr) { }
 
-        QString qualifiedName() const { return m_attr.qualifiedName(); }
-        void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
+        QString qualifiedName() const override { return m_attr.qualifiedName(); }
+        void accept(QXmlInArchive &visitor, const XmlTag &tag) override
+        {
+            visitor.visit(this, tag);
+        }
         GetterSetterAttr<U, T, V> &attribute() { return m_attr; }
 
     private:
@@ -169,8 +187,11 @@ private:
     public:
         explicit SetFuncAttrNode(const SetFuncAttr<U, T> &attr) : m_attr(attr) { }
 
-        QString qualifiedName() const { return m_attr.qualifiedName(); }
-        void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
+        QString qualifiedName() const override { return m_attr.qualifiedName(); }
+        void accept(QXmlInArchive &visitor, const XmlTag &tag) override
+        {
+            visitor.visit(this, tag);
+        }
         SetFuncAttr<U, T> &attribute() { return m_attr; }
 
     private:
@@ -183,8 +204,11 @@ private:
     public:
         explicit GetSetFuncAttrNode(const GetSetFuncAttr<U, T, V> &attr) : m_attr(attr) { }
 
-        QString qualifiedName() const { return m_attr.qualifiedName(); }
-        void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
+        QString qualifiedName() const override { return m_attr.qualifiedName(); }
+        void accept(QXmlInArchive &visitor, const XmlTag &tag) override
+        {
+            visitor.visit(this, tag);
+        }
         GetSetFuncAttr<U, T, V> &attribute() { return m_attr; }
 
     private:
@@ -197,8 +221,11 @@ private:
     public:
         explicit RefNode(const Ref<T> &ref) : m_ref(ref) { }
 
-        QString qualifiedName() const { return m_ref.qualifiedName(); }
-        void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
+        QString qualifiedName() const override { return m_ref.qualifiedName(); }
+        void accept(QXmlInArchive &visitor, const XmlTag &tag) override
+        {
+            visitor.visit(this, tag);
+        }
         Ref<T> &reference() { return m_ref; }
 
     private:
@@ -211,8 +238,11 @@ private:
     public:
         explicit SetterRefNode(const SetterRef<U, T> &ref) : m_ref(ref) { }
 
-        QString qualifiedName() const { return m_ref.qualifiedName(); }
-        void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
+        QString qualifiedName() const override { return m_ref.qualifiedName(); }
+        void accept(QXmlInArchive &visitor, const XmlTag &tag) override
+        {
+            visitor.visit(this, tag);
+        }
         SetterRef<U, T> &reference() { return m_ref; }
 
     private:
@@ -225,8 +255,11 @@ private:
     public:
         explicit GetterSetterRefNode(const GetterSetterRef<U, T, V> &ref) : m_ref(ref) { }
 
-        QString qualifiedName() const { return m_ref.qualifiedName(); }
-        void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
+        QString qualifiedName() const override { return m_ref.qualifiedName(); }
+        void accept(QXmlInArchive &visitor, const XmlTag &tag) override
+        {
+            visitor.visit(this, tag);
+        }
         GetterSetterRef<U, T, V> &reference() { return m_ref; }
 
     private:
@@ -239,8 +272,11 @@ private:
     public:
         explicit SetFuncRefNode(const SetFuncRef<U, T> &ref) : m_ref(ref) { }
 
-        QString qualifiedName() const { return m_ref.qualifiedName(); }
-        void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
+        QString qualifiedName() const override { return m_ref.qualifiedName(); }
+        void accept(QXmlInArchive &visitor, const XmlTag &tag) override
+        {
+            visitor.visit(this, tag);
+        }
         SetFuncRef<U, T> &reference() { return m_ref; }
 
     private:
@@ -253,8 +289,11 @@ private:
     public:
         explicit GetSetFuncRefNode(const GetSetFuncRef<U, T, V> &ref) : m_ref(ref) { }
 
-        QString qualifiedName() const { return m_ref.qualifiedName(); }
-        void accept(QXmlInArchive &visitor, const XmlTag &tag) { visitor.visit(this, tag); }
+        QString qualifiedName() const override { return m_ref.qualifiedName(); }
+        void accept(QXmlInArchive &visitor, const XmlTag &tag) override
+        {
+            visitor.visit(this, tag);
+        }
         GetSetFuncRef<U, T, V> &reference() { return m_ref; }
 
     private:

@@ -41,18 +41,18 @@ class QMT_EXPORT MChildrenVisitor : public MVisitor
 public:
     MChildrenVisitor();
 
-    void visitMElement(MElement *element);
-    void visitMObject(MObject *object);
-    void visitMPackage(MPackage *package);
-    void visitMClass(MClass *klass);
-    void visitMComponent(MComponent *component);
-    void visitMDiagram(MDiagram *diagram);
-    void visitMCanvasDiagram(MCanvasDiagram *diagram);
-    void visitMItem(MItem *item);
-    void visitMRelation(MRelation *relation);
-    void visitMDependency(MDependency *dependency);
-    void visitMInheritance(MInheritance *inheritance);
-    void visitMAssociation(MAssociation *association);
+    void visitMElement(MElement *element) override;
+    void visitMObject(MObject *object) override;
+    void visitMPackage(MPackage *package) override;
+    void visitMClass(MClass *klass) override;
+    void visitMComponent(MComponent *component) override;
+    void visitMDiagram(MDiagram *diagram) override;
+    void visitMCanvasDiagram(MCanvasDiagram *diagram) override;
+    void visitMItem(MItem *item) override;
+    void visitMRelation(MRelation *relation) override;
+    void visitMDependency(MDependency *dependency) override;
+    void visitMInheritance(MInheritance *inheritance) override;
+    void visitMAssociation(MAssociation *association) override;
 };
 
 } // namespace qmt

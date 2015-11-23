@@ -39,7 +39,7 @@ class QMT_EXPORT MItem : public MObject
 {
 public:
     MItem();
-    ~MItem();
+    ~MItem() override;
 
     QString variety() const { return m_variety; }
     void setVariety(const QString &variety);
@@ -48,8 +48,8 @@ public:
     bool isShapeEditable() const { return m_isShapeEditable; }
     void setShapeEditable(bool shapeEditable);
 
-    virtual void accept(MVisitor *visitor);
-    virtual void accept(MConstVisitor *visitor) const;
+    void accept(MVisitor *visitor) override;
+    void accept(MConstVisitor *visitor) const override;
 
 private:
     QString m_variety;

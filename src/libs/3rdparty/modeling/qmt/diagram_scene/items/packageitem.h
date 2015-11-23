@@ -54,21 +54,21 @@ class PackageItem : public ObjectItem, public IRelationable
 
 public:
     PackageItem(DPackage *package, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-    ~PackageItem();
+    ~PackageItem() override;
 
-    void update();
+    void update() override;
 
     bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint,
-                                QLineF *intersectionLine) const;
+                                QLineF *intersectionLine) const override;
 
-    virtual QSizeF minimumSize() const;
+    QSizeF minimumSize() const override;
 
-    QList<Latch> horizontalLatches(Action action, bool grabbedItem) const;
-    QList<Latch> verticalLatches(Action action, bool grabbedItem) const;
+    QList<Latch> horizontalLatches(Action action, bool grabbedItem) const override;
+    QList<Latch> verticalLatches(Action action, bool grabbedItem) const override;
 
-    QPointF relationStartPos() const;
+    QPointF relationStartPos() const override;
     void relationDrawn(const QString &id, const QPointF &toScenePos,
-                       const QList<QPointF> &intermediatePoints);
+                       const QList<QPointF> &intermediatePoints) override;
 
 private:
     ShapeGeometry calcMinimumGeometry() const;

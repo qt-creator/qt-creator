@@ -42,19 +42,19 @@ class QMT_EXPORT DVoidVisitor : public DVisitor
 public:
     DVoidVisitor();
 
-    void visitDElement(DElement *element);
-    void visitDObject(DObject *object);
-    void visitDPackage(DPackage *package);
-    void visitDClass(DClass *klass);
-    void visitDComponent(DComponent *component);
-    void visitDDiagram(DDiagram *diagram);
-    void visitDItem(DItem *item);
-    void visitDRelation(DRelation *relation);
-    void visitDInheritance(DInheritance *inheritance);
-    void visitDDependency(DDependency *dependency);
-    void visitDAssociation(DAssociation *association);
-    void visitDAnnotation(DAnnotation *annotation);
-    void visitDBoundary(DBoundary *boundary);
+    void visitDElement(DElement *element) override;
+    void visitDObject(DObject *object) override;
+    void visitDPackage(DPackage *package) override;
+    void visitDClass(DClass *klass) override;
+    void visitDComponent(DComponent *component) override;
+    void visitDDiagram(DDiagram *diagram) override;
+    void visitDItem(DItem *item) override;
+    void visitDRelation(DRelation *relation) override;
+    void visitDInheritance(DInheritance *inheritance) override;
+    void visitDDependency(DDependency *dependency) override;
+    void visitDAssociation(DAssociation *association) override;
+    void visitDAnnotation(DAnnotation *annotation) override;
+    void visitDBoundary(DBoundary *boundary) override;
 };
 
 class QMT_EXPORT DConstVoidVisitor : public DConstVisitor
@@ -62,19 +62,19 @@ class QMT_EXPORT DConstVoidVisitor : public DConstVisitor
 public:
     DConstVoidVisitor();
 
-    void visitDElement(const DElement *element);
-    void visitDObject(const DObject *object);
-    void visitDPackage(const DPackage *package);
-    void visitDClass(const DClass *klass);
-    void visitDComponent(const DComponent *component);
-    void visitDDiagram(const DDiagram *diagram);
-    void visitDItem(const DItem *item);
-    void visitDRelation(const DRelation *relation);
-    void visitDInheritance(const DInheritance *inheritance);
-    void visitDDependency(const DDependency *dependency);
-    void visitDAssociation(const DAssociation *association);
-    void visitDAnnotation(const DAnnotation *annotation);
-    void visitDBoundary(const DBoundary *boundary);
+    void visitDElement(const DElement *element) override;
+    void visitDObject(const DObject *object) override;
+    void visitDPackage(const DPackage *package) override;
+    void visitDClass(const DClass *klass) override;
+    void visitDComponent(const DComponent *component) override;
+    void visitDDiagram(const DDiagram *diagram) override;
+    void visitDItem(const DItem *item) override;
+    void visitDRelation(const DRelation *relation) override;
+    void visitDInheritance(const DInheritance *inheritance) override;
+    void visitDDependency(const DDependency *dependency) override;
+    void visitDAssociation(const DAssociation *association) override;
+    void visitDAnnotation(const DAnnotation *annotation) override;
+    void visitDBoundary(const DBoundary *boundary) override;
 };
 
 } // namespace qmt

@@ -79,7 +79,7 @@ public:
     };
 
     DiagramSceneModel(QObject *parent = 0);
-    ~DiagramSceneModel();
+    ~DiagramSceneModel() override;
 
 signals:
     void diagramSceneActivated(const MDiagram *diagram);

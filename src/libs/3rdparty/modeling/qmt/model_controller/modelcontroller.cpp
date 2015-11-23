@@ -80,12 +80,12 @@ public:
         QMT_CHECK(m_object);
     }
 
-    ~UpdateObjectCommand()
+    ~UpdateObjectCommand() override
     {
         delete m_object;
     }
 
-    bool mergeWith(const UndoCommand *other)
+    bool mergeWith(const UndoCommand *other) override
     {
         auto updateCommand = dynamic_cast<const UpdateObjectCommand *>(other);
         if (!updateCommand)
@@ -96,7 +96,7 @@ public:
         return true;
     }
 
-    void redo()
+    void redo() override
     {
         if (canRedo()) {
             assign();
@@ -104,7 +104,7 @@ public:
         }
     }
 
-    void undo()
+    void undo() override
     {
         assign();
         UndoCommand::undo();
@@ -155,12 +155,12 @@ public:
         QMT_CHECK(m_relation);
     }
 
-    ~UpdateRelationCommand()
+    ~UpdateRelationCommand() override
     {
         delete m_relation;
     }
 
-    bool mergeWith(const UndoCommand *other)
+    bool mergeWith(const UndoCommand *other) override
     {
         auto updateCommand = dynamic_cast<const UpdateRelationCommand *>(other);
         if (!updateCommand)
@@ -171,7 +171,7 @@ public:
         return true;
     }
 
-    void redo()
+    void redo() override
     {
         if (canRedo()) {
             assign();
@@ -179,7 +179,7 @@ public:
         }
     }
 
-    void undo()
+    void undo() override
     {
         assign();
         UndoCommand::undo();
@@ -220,7 +220,7 @@ public:
     {
     }
 
-    ~AddElementsCommand()
+    ~AddElementsCommand() override
     {
         foreach (const Clone &clone, m_clonedElements)
             delete clone.m_clonedElement;
@@ -236,7 +236,7 @@ public:
         m_clonedElements.append(clone);
     }
 
-    void redo()
+    void redo() override
     {
         if (canRedo()) {
             bool inserted = false;
@@ -284,7 +284,7 @@ public:
         }
     }
 
-    void undo()
+    void undo() override
     {
         bool removed = false;
         for (int i = 0; i < m_clonedElements.count(); ++i) {
@@ -350,7 +350,7 @@ public:
     {
     }
 
-    ~RemoveElementsCommand()
+    ~RemoveElementsCommand() override
     {
         foreach (const Clone &clone, m_clonedElements)
             delete clone.m_clonedElement;
@@ -380,7 +380,7 @@ public:
         m_clonedElements.append(clone);
     }
 
-    void redo()
+    void redo() override
     {
         if (canRedo()) {
             bool removed = false;
@@ -434,7 +434,7 @@ public:
         }
     }
 
-    void undo()
+    void undo() override
     {
         bool inserted = false;
         for (int i = m_clonedElements.count() - 1; i >= 0; --i) {
@@ -496,11 +496,11 @@ public:
     {
     }
 
-    ~MoveObjectCommand()
+    ~MoveObjectCommand() override
     {
     }
 
-    void redo()
+    void redo() override
     {
         if (canRedo()) {
             swap();
@@ -508,7 +508,7 @@ public:
         }
     }
 
-    void undo()
+    void undo() override
     {
         swap();
         UndoCommand::undo();
@@ -551,11 +551,11 @@ public:
     {
     }
 
-    ~MoveRelationCommand()
+    ~MoveRelationCommand() override
     {
     }
 
-    void redo()
+    void redo() override
     {
         if (canRedo()) {
             swap();
@@ -563,7 +563,7 @@ public:
         }
     }
 
-    void undo()
+    void undo() override
     {
         swap();
         UndoCommand::undo();

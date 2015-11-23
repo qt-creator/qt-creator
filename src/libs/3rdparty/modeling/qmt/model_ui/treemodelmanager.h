@@ -48,7 +48,7 @@ class QMT_EXPORT TreeModelManager : public QObject
 
 public:
     explicit TreeModelManager(QObject *parent = 0);
-    ~TreeModelManager();
+    ~TreeModelManager() override;
 
     TreeModel *treeModel() const { return m_treeModel; }
     void setTreeModel(TreeModel *treeModel);

@@ -43,7 +43,7 @@ class QMT_EXPORT MClass : public MObject
 public:
     MClass();
     MClass(const MClass &rhs);
-    ~MClass();
+    ~MClass() override;
 
     MClass &operator=(const MClass &rhs);
 
@@ -59,8 +59,8 @@ public:
     void removeMember(const Uid &uid);
     void removeMember(const MClassMember &member);
 
-    virtual void accept(MVisitor *visitor);
-    virtual void accept(MConstVisitor *visitor) const;
+    void accept(MVisitor *visitor) override;
+    void accept(MConstVisitor *visitor) const override;
 
 private:
     QString m_umlNamespace;

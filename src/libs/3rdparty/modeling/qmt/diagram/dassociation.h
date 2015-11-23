@@ -67,7 +67,7 @@ class QMT_EXPORT DAssociation : public DRelation
 {
 public:
     DAssociation();
-    ~DAssociation();
+    ~DAssociation() override;
 
     DAssociationEnd endA() const { return m_endA; }
     void setEndA(const DAssociationEnd &endA);
@@ -76,8 +76,8 @@ public:
     Uid assoicationClassUid() const { return m_associationClassUid; }
     void setAssociationClassUid(const Uid &uid);
 
-    virtual void accept(DVisitor *visitor);
-    virtual void accept(DConstVisitor *visitor) const;
+    void accept(DVisitor *visitor) override;
+    void accept(DConstVisitor *visitor) const override;
 
 private:
     DAssociationEnd m_endA;

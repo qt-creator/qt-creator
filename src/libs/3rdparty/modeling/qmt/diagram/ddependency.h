@@ -43,7 +43,7 @@ class QMT_EXPORT DDependency : public DRelation
 {
 public:
     DDependency();
-    ~DDependency();
+    ~DDependency() override;
 
     Uid source() const;
     void setSource(const Uid &source);
@@ -52,8 +52,8 @@ public:
     MDependency::Direction direction() const { return m_direction; }
     void setDirection(MDependency::Direction direction);
 
-    virtual void accept(DVisitor *visitor);
-    virtual void accept(DConstVisitor *visitor) const;
+    void accept(DVisitor *visitor) override;
+    void accept(DConstVisitor *visitor) const override;
 
 private:
     MDependency::Direction m_direction;

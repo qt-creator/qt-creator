@@ -41,7 +41,7 @@ class QMT_EXPORT MInheritance : public MRelation
 public:
     MInheritance();
     MInheritance(const MInheritance &rhs);
-    ~MInheritance();
+    ~MInheritance() override;
 
     MInheritance operator=(const MInheritance &rhs);
 
@@ -50,8 +50,8 @@ public:
     Uid base() const;
     void setBase(const Uid &base);
 
-    virtual void accept(MVisitor *visitor);
-    virtual void accept(MConstVisitor *visitor) const;
+    void accept(MVisitor *visitor) override;
+    void accept(MConstVisitor *visitor) const override;
 };
 
 } // namespace qmt

@@ -40,8 +40,8 @@ class QMT_EXPORT DDiagram : public DObject
 public:
     DDiagram();
 
-    virtual void accept(DVisitor *visitor);
-    virtual void accept(DConstVisitor *visitor) const;
+    void accept(DVisitor *visitor) override;
+    void accept(DConstVisitor *visitor) const override;
 };
 
 } // namespace qmt

@@ -46,7 +46,7 @@ class QMT_EXPORT ClassMembersEdit : public QPlainTextEdit
 
 public:
     explicit ClassMembersEdit(QWidget *parent = 0);
-    ~ClassMembersEdit();
+    ~ClassMembersEdit() override;
 
 signals:
     void statusChanged(bool valid);

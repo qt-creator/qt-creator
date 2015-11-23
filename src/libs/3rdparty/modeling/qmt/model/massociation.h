@@ -81,7 +81,7 @@ class QMT_EXPORT MAssociation : public MRelation
 {
 public:
     MAssociation();
-    ~MAssociation();
+    ~MAssociation() override;
 
     MAssociationEnd endA() const { return m_endA; }
     void setEndA(const MAssociationEnd &end);
@@ -90,8 +90,8 @@ public:
     Uid assoicationClassUid() const { return m_associationClassUid; }
     void setAssociationClassUid(const Uid &uid);
 
-    virtual void accept(MVisitor *visitor);
-    virtual void accept(MConstVisitor *visitor) const;
+    void accept(MVisitor *visitor) override;
+    void accept(MConstVisitor *visitor) const override;
 
 private:
     MAssociationEnd m_endA;

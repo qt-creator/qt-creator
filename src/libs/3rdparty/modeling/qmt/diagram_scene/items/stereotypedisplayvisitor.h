@@ -45,7 +45,7 @@ class StereotypeDisplayVisitor : public DConstVoidVisitor
 {
 public:
     StereotypeDisplayVisitor();
-    ~StereotypeDisplayVisitor();
+    ~StereotypeDisplayVisitor() override;
 
     void setModelController(ModelController *modelController);
     void setStereotypeController(StereotypeController *stereotypeController);
@@ -54,12 +54,12 @@ public:
     QString stereotypeIconId() const { return m_stereotypeIconId; }
     QString shapeIconId() const { return m_shapeIconId; }
 
-    void visitDObject(const DObject *object);
-    void visitDPackage(const DPackage *package);
-    void visitDClass(const DClass *klass);
-    void visitDComponent(const DComponent *component);
-    void visitDDiagram(const DDiagram *diagram);
-    void visitDItem(const DItem *item);
+    void visitDObject(const DObject *object) override;
+    void visitDPackage(const DPackage *package) override;
+    void visitDClass(const DClass *klass) override;
+    void visitDComponent(const DComponent *component) override;
+    void visitDDiagram(const DDiagram *diagram) override;
+    void visitDItem(const DItem *item) override;
 
 private:
     ModelController *m_modelController;

@@ -57,44 +57,44 @@ class BoundaryItem :
 public:
     BoundaryItem(DBoundary *boundary, DiagramSceneModel *diagramSceneModel,
                  QGraphicsItem *parent = 0);
-    ~BoundaryItem();
+    ~BoundaryItem() override;
 
     DBoundary *boundary() const { return m_boundary; }
     DiagramSceneModel *diagramSceneModel() const { return m_diagramSceneModel; }
 
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
     virtual void update();
 
-    QPointF pos() const;
-    QRectF rect() const;
-    QSizeF minimumSize() const;
+    QPointF pos() const override;
+    QRectF rect() const override;
+    QSizeF minimumSize() const override;
     void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect,
-                       const QPointF &topLeftDelta, const QPointF &bottomRightDelta);
+                       const QPointF &topLeftDelta, const QPointF &bottomRightDelta) override;
     void alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide,
-                               double rasterWidth, double rasterHeight);
+                               double rasterWidth, double rasterHeight) override;
 
-    void moveDelta(const QPointF &delta);
-    void alignItemPositionToRaster(double rasterWidth, double rasterHeight);
+    void moveDelta(const QPointF &delta) override;
+    void alignItemPositionToRaster(double rasterWidth, double rasterHeight) override;
 
-    bool isSecondarySelected() const;
-    void setSecondarySelected(bool secondarySelected);
-    bool isFocusSelected() const;
-    void setFocusSelected(bool focusSelected);
+    bool isSecondarySelected() const override;
+    void setSecondarySelected(bool secondarySelected) override;
+    bool isFocusSelected() const override;
+    void setFocusSelected(bool focusSelected) override;
 
-    bool isEditable() const;
-    void edit();
+    bool isEditable() const override;
+    void edit() override;
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
     void updateSelectionMarker();
     void updateSelectionMarkerGeometry(const QRectF &boundaryRect);
     const Style *adaptedStyle();
-    bool sceneEventFilter(QGraphicsItem *watched, QEvent *event);
+    bool sceneEventFilter(QGraphicsItem *watched, QEvent *event) override;
 
 private:
     void onContentsChanged();

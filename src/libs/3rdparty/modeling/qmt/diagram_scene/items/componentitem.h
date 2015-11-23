@@ -54,21 +54,21 @@ class ComponentItem : public ObjectItem, public IRelationable
 public:
     ComponentItem(DComponent *component, DiagramSceneModel *diagramSceneModel,
                   QGraphicsItem *parent = 0);
-    ~ComponentItem();
+    ~ComponentItem() override;
 
-    void update();
+    void update() override;
 
     bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint,
-                                QLineF *intersectionLine) const;
+                                QLineF *intersectionLine) const override;
 
-    QSizeF minimumSize() const;
+    QSizeF minimumSize() const override;
 
-    QList<Latch> horizontalLatches(Action action, bool grabbedItem) const;
-    QList<Latch> verticalLatches(Action action, bool grabbedItem) const;
+    QList<Latch> horizontalLatches(Action action, bool grabbedItem) const override;
+    QList<Latch> verticalLatches(Action action, bool grabbedItem) const override;
 
-    QPointF relationStartPos() const;
+    QPointF relationStartPos() const override;
     void relationDrawn(const QString &id, const QPointF &toScenePos, const
-                       QList<QPointF> &intermediatePoints);
+                       QList<QPointF> &intermediatePoints) override;
 
 private:
     bool hasPlainShape() const;

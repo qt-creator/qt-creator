@@ -62,8 +62,8 @@ public:
     bool showAllMembers() const { return m_showAllMembers; }
     void setShowAllMembers(bool showAllMembers);
 
-    virtual void accept(DVisitor *visitor);
-    virtual void accept(DConstVisitor *visitor) const;
+    void accept(DVisitor *visitor) override;
+    void accept(DConstVisitor *visitor) const override;
 
 private:
     QString m_umlNamespace;

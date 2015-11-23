@@ -111,12 +111,12 @@ public:
         m_clonedElements.insert(visitor.cloned()->uid(), visitor.cloned());
     }
 
-    ~UpdateElementCommand()
+    ~UpdateElementCommand() override
     {
         qDeleteAll(m_clonedElements);
     }
 
-    bool mergeWith(const UndoCommand *other)
+    bool mergeWith(const UndoCommand *other) override
     {
         auto otherUpdateCommand = dynamic_cast<const UpdateElementCommand *>(other);
         if (!otherUpdateCommand)
@@ -140,7 +140,7 @@ public:
         return true;
     }
 
-    void redo()
+    void redo() override
     {
         if (canRedo()) {
             swap();
@@ -148,7 +148,7 @@ public:
         }
     }
 
-    void undo()
+    void undo() override
     {
         swap();
         UndoCommand::undo();
@@ -192,7 +192,7 @@ protected:
     {
     }
 
-    ~AbstractAddRemCommand()
+    ~AbstractAddRemCommand() override
     {
         foreach (const Clone &clone, m_clonedElements)
             delete clone.m_clonedElement;
@@ -260,7 +260,7 @@ public:
         m_clonedElements.append(clone);
     }
 
-    void redo()
+    void redo() override
     {
         if (canRedo()) {
             insert();
@@ -268,7 +268,7 @@ public:
         }
     }
 
-    void undo()
+    void undo() override
     {
         remove();
         UndoCommand::undo();
@@ -298,7 +298,7 @@ public:
         m_clonedElements.append(clone);
     }
 
-    void redo()
+    void redo() override
     {
         if (canRedo()) {
             remove();
@@ -306,7 +306,7 @@ public:
         }
     }
 
-    void undo()
+    void undo() override
     {
         insert();
         UndoCommand::undo();
@@ -321,7 +321,7 @@ public:
     {
     }
 
-    void visitMDiagram(MDiagram *diagram)
+    void visitMDiagram(MDiagram *diagram) override
     {
         m_allDiagrams->append(diagram);
         MChildrenVisitor::visitMDiagram(diagram);

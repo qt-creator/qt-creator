@@ -81,10 +81,10 @@ public:
     };
 
     RectangularSelectionItem(IResizable *itemResizer, QGraphicsItem *parent = 0);
-    ~RectangularSelectionItem();
+    ~RectangularSelectionItem() override;
 
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
     QRectF rect() const { return m_rect; }
     void setRect(const QRectF &rectangle);

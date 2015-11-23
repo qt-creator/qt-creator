@@ -44,13 +44,14 @@ public:
     };
 
     AlignLineItem(Direction direction, QGraphicsItem *parent = 0);
-    ~AlignLineItem();
+    ~AlignLineItem() override;
 
     void setLine(qreal pos);
     void setLine(qreal pos, qreal otherPos1, qreal otherPos2);
 
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+               QWidget *widget = 0) override;
 
     Direction m_direction;
     QGraphicsLineItem *m_alignLine;

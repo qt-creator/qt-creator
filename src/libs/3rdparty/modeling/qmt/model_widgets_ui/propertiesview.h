@@ -60,7 +60,7 @@ class QMT_EXPORT PropertiesView : public QObject
 
 public:
     explicit PropertiesView(QObject *parent = 0);
-    ~PropertiesView();
+    ~PropertiesView() override;
 
     ModelController *modelController() const { return m_modelController; }
     void setModelController(ModelController *modelController);

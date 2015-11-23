@@ -44,14 +44,14 @@ class DiagramItem : public ObjectItem
 public:
     explicit DiagramItem(DDiagram *diagram, DiagramSceneModel *diagramSceneModel,
                          QGraphicsItem *parent = 0);
-    ~DiagramItem();
+    ~DiagramItem() override;
 
-    virtual void update();
+    void update() override;
 
     bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint,
-                                QLineF *intersectionLine) const;
+                                QLineF *intersectionLine) const override;
 
-    QSizeF minimumSize() const;
+    QSizeF minimumSize() const override;
 
 private:
     QSizeF calcMinimumGeometry() const;

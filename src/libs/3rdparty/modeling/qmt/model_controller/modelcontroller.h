@@ -68,7 +68,7 @@ class QMT_EXPORT ModelController : public QObject
 
 public:
     explicit ModelController(QObject *parent = 0);
-    ~ModelController();
+    ~ModelController() override;
 
 signals:
     void beginResetModel();

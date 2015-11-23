@@ -56,22 +56,22 @@ class ClassItem : public ObjectItem, public IRelationable
 {
 public:
     ClassItem(DClass *klass, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-    ~ClassItem();
+    ~ClassItem() override;
 
-    void update();
+    void update() override;
 
     bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint,
-                                QLineF *intersectionLine) const;
+                                QLineF *intersectionLine) const override;
 
-    QSizeF minimumSize() const;
+    QSizeF minimumSize() const override;
 
-    QPointF relationStartPos() const;
+    QPointF relationStartPos() const override;
     void relationDrawn(const QString &id, const QPointF &toScenePos,
-                       const QList<QPointF> &intermediatePoints);
+                       const QList<QPointF> &intermediatePoints) override;
 
 protected:
-    bool extendContextMenu(QMenu *menu);
-    bool handleSelectedContextMenuAction(QAction *action);
+    bool extendContextMenu(QMenu *menu) override;
+    bool handleSelectedContextMenuAction(QAction *action) override;
 
 private:
     QSizeF calcMinimumGeometry() const;

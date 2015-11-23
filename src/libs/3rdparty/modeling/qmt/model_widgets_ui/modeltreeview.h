@@ -48,14 +48,14 @@ class QMT_EXPORT ModelTreeView : public QTreeView, public ModelTreeViewInterface
 
 public:
     explicit ModelTreeView(QWidget *parent = 0);
-    ~ModelTreeView();
+    ~ModelTreeView() override;
 
 signals:
     void treeViewActivated();
 
 public:
-    QModelIndex currentSourceModelIndex() const;
-    QList<QModelIndex> selectedSourceModelIndexes() const;
+    QModelIndex currentSourceModelIndex() const override;
+    QList<QModelIndex> selectedSourceModelIndexes() const override;
 
     void setTreeModel(SortedTreeModel *model);
     void setElementTasks(IElementTasks *elementTasks);
@@ -64,13 +64,13 @@ public:
     void selectFromSourceModelIndex(const QModelIndex &index);
 
 protected:
-    void startDrag(Qt::DropActions supportedActions);
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dragMoveEvent(QDragMoveEvent *event);
-    void dragLeaveEvent(QDragLeaveEvent *event);
-    void dropEvent(QDropEvent *event);
-    void focusInEvent(QFocusEvent *event);
-    void contextMenuEvent(QContextMenuEvent *event);
+    void startDrag(Qt::DropActions supportedActions) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dragMoveEvent(QDragMoveEvent *event) override;
+    void dragLeaveEvent(QDragLeaveEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
+    void focusInEvent(QFocusEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
     SortedTreeModel *m_sortedTreeModel;

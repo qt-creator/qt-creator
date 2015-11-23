@@ -66,7 +66,7 @@ public:
 
     ArrowItem(QGraphicsItem *parent = 0);
     ArrowItem(const ArrowItem &rhs, QGraphicsItem *parent = 0);
-    ~ArrowItem();
+    ~ArrowItem() override;
 
     void setShaft(Shaft shaft);
     void setArrowSize(double arrowSize);
@@ -75,9 +75,9 @@ public:
     void setEndHead(Head head);
     void setPoints(const QList<QPointF> &points);
 
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    QPainterPath shape() const;
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    QPainterPath shape() const override;
 
     QPointF calcPointAtPercent(double percentage) const;
     QLineF firstLineSegment() const;

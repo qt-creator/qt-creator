@@ -40,17 +40,17 @@ class QMT_EXPORT UndoCommand : public QUndoCommand
 {
 public:
     explicit UndoCommand(const QString &text);
-    ~UndoCommand();
+    ~UndoCommand() override;
 
     bool canRedo() const { return m_canRedo; }
-    int id() const;
+    int id() const override;
     void setDoNotMerge(bool doNotMerge);
 
-    bool mergeWith(const QUndoCommand *other);
+    bool mergeWith(const QUndoCommand *other) override;
     virtual bool mergeWith(const UndoCommand *other);
 
-    void undo();
-    void redo();
+    void undo() override;
+    void redo() override;
 
 private:
     bool m_canRedo;

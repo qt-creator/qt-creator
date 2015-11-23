@@ -52,7 +52,7 @@ class QMT_EXPORT StackedDiagramsView : public QStackedWidget, public DiagramsVie
 
 public:
     explicit StackedDiagramsView(QWidget *parent = 0);
-    ~StackedDiagramsView();
+    ~StackedDiagramsView() override;
 
 signals:
     void currentDiagramChanged(const MDiagram *diagram);
@@ -62,10 +62,10 @@ signals:
 public:
     void setDiagramsManager(DiagramsManager *diagramsManager);
 
-    void openDiagram(MDiagram *diagram);
-    void closeDiagram(const MDiagram *diagram);
-    void closeAllDiagrams();
-    void onDiagramRenamed(const MDiagram *diagram);
+    void openDiagram(MDiagram *diagram) override;
+    void closeDiagram(const MDiagram *diagram) override;
+    void closeAllDiagrams() override;
+    void onDiagramRenamed(const MDiagram *diagram) override;
 
 private:
     void onCurrentChanged(int tabIndex);

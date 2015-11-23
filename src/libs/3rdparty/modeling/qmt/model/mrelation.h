@@ -44,7 +44,7 @@ class QMT_EXPORT MRelation : public MElement
 public:
     MRelation();
     MRelation(const MRelation &rhs);
-    ~MRelation();
+    ~MRelation() override;
 
     MRelation &operator=(const MRelation &rhs);
 
@@ -55,8 +55,8 @@ public:
     Uid endBUid() const { return m_endBUid; }
     void setEndBUid(const Uid &uid);
 
-    virtual void accept(MVisitor *visitor);
-    virtual void accept(MConstVisitor *visitor) const;
+    void accept(MVisitor *visitor) override;
+    void accept(MConstVisitor *visitor) const override;
 
 private:
     QString m_name;

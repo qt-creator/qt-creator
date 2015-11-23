@@ -39,7 +39,7 @@ class QMT_EXPORT DItem : public DObject
 {
 public:
     DItem();
-    ~DItem();
+    ~DItem() override;
 
     QString variety() const { return m_variety; }
     void setVariety(const QString &variety);
@@ -48,8 +48,8 @@ public:
     bool isShapeEditable() const { return m_isShapeEditable; }
     void setShapeEditable(bool shapeEditable);
 
-    virtual void accept(DVisitor *visitor);
-    virtual void accept(DConstVisitor *visitor) const;
+    void accept(DVisitor *visitor) override;
+    void accept(DConstVisitor *visitor) const override;
 
 private:
     QString m_variety;

@@ -43,16 +43,16 @@ class QCompressedDevice : public QIODevice
 public:
     explicit QCompressedDevice(QObject *parent = 0);
     explicit QCompressedDevice(QIODevice *targetDevice, QObject *parent = 0);
-    ~QCompressedDevice();
+    ~QCompressedDevice() override;
 
     QIODevice *targetDevice() const { return m_targetDevice; }
     void setTargetDevice(QIODevice *targetDevice);
 
-    void close();
+    void close() override;
 
 protected:
-    qint64 readData(char *data, qint64 maxlen);
-    qint64 writeData(const char *data, qint64 len);
+    qint64 readData(char *data, qint64 maxlen) override;
+    qint64 writeData(const char *data, qint64 len) override;
 
 public:
     qint64 flush();

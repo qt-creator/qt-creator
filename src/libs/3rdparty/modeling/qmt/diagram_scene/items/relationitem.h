@@ -61,36 +61,36 @@ class RelationItem :
 public:
     RelationItem(DRelation *relation, DiagramSceneModel *diagramSceneModel,
                  QGraphicsItem *parent = 0);
-    ~RelationItem();
+    ~RelationItem() override;
 
     DRelation *relation() const { return m_relation; }
 
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    QPainterPath shape() const;
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    QPainterPath shape() const override;
 
-    void moveDelta(const QPointF &delta);
-    void alignItemPositionToRaster(double rasterWidth, double rasterHeight);
+    void moveDelta(const QPointF &delta) override;
+    void alignItemPositionToRaster(double rasterWidth, double rasterHeight) override;
 
-    bool isSecondarySelected() const;
-    void setSecondarySelected(bool secondarySelected);
-    bool isFocusSelected() const;
-    void setFocusSelected(bool focusSelected);
+    bool isSecondarySelected() const override;
+    void setSecondarySelected(bool secondarySelected) override;
+    bool isFocusSelected() const override;
+    void setFocusSelected(bool focusSelected) override;
 
-    QPointF handlePos(int index);
-    void insertHandle(int beforeIndex, const QPointF &pos);
-    void deleteHandle(int index);
-    void setHandlePos(int index, const QPointF &pos);
-    void alignHandleToRaster(int index, double rasterWidth, double rasterHeight);
+    QPointF handlePos(int index) override;
+    void insertHandle(int beforeIndex, const QPointF &pos) override;
+    void deleteHandle(int index) override;
+    void setHandlePos(int index, const QPointF &pos) override;
+    void alignHandleToRaster(int index, double rasterWidth, double rasterHeight) override;
 
     virtual void update();
 
 protected:
     virtual void update(const Style *style);
 
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
     const Style *adaptedStyle();

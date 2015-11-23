@@ -44,19 +44,19 @@ public:
 
     QGraphicsItem *createdGraphicsItem() const { return m_graphicsItem; }
 
-    void visitDElement(DElement *element);
-    void visitDObject(DObject *object);
-    void visitDPackage(DPackage *package);
-    void visitDClass(DClass *klass);
-    void visitDComponent(DComponent *component);
-    void visitDDiagram(DDiagram *diagram);
-    void visitDItem(DItem *item);
-    void visitDRelation(DRelation *relation);
-    void visitDInheritance(DInheritance *inheritance);
-    void visitDDependency(DDependency *dependency);
-    void visitDAssociation(DAssociation *association);
-    void visitDAnnotation(DAnnotation *annotation);
-    void visitDBoundary(DBoundary *boundary);
+    void visitDElement(DElement *element) override;
+    void visitDObject(DObject *object) override;
+    void visitDPackage(DPackage *package) override;
+    void visitDClass(DClass *klass) override;
+    void visitDComponent(DComponent *component) override;
+    void visitDDiagram(DDiagram *diagram) override;
+    void visitDItem(DItem *item) override;
+    void visitDRelation(DRelation *relation) override;
+    void visitDInheritance(DInheritance *inheritance) override;
+    void visitDDependency(DDependency *dependency) override;
+    void visitDAssociation(DAssociation *association) override;
+    void visitDAnnotation(DAnnotation *annotation) override;
+    void visitDBoundary(DBoundary *boundary) override;
 
 private:
     DiagramSceneModel *m_diagramSceneModel;
@@ -69,19 +69,19 @@ public:
     UpdateVisitor(QGraphicsItem *item, DiagramSceneModel *diagramSceneModel,
                   DElement *relatedElement = 0);
 
-    void visitDElement(DElement *element);
-    void visitDObject(DObject *object);
-    void visitDPackage(DPackage *package);
-    void visitDClass(DClass *klass);
-    void visitDComponent(DComponent *component);
-    void visitDDiagram(DDiagram *diagram);
-    void visitDItem(DItem *item);
-    void visitDRelation(DRelation *relation);
-    void visitDInheritance(DInheritance *inheritance);
-    void visitDDependency(DDependency *dependency);
-    void visitDAssociation(DAssociation *association);
-    void visitDAnnotation(DAnnotation *annotation);
-    void visitDBoundary(DBoundary *boundary);
+    void visitDElement(DElement *element) override;
+    void visitDObject(DObject *object) override;
+    void visitDPackage(DPackage *package) override;
+    void visitDClass(DClass *klass) override;
+    void visitDComponent(DComponent *component) override;
+    void visitDDiagram(DDiagram *diagram) override;
+    void visitDItem(DItem *item) override;
+    void visitDRelation(DRelation *relation) override;
+    void visitDInheritance(DInheritance *inheritance) override;
+    void visitDDependency(DDependency *dependency) override;
+    void visitDAssociation(DAssociation *association) override;
+    void visitDAnnotation(DAnnotation *annotation) override;
+    void visitDBoundary(DBoundary *boundary) override;
 
 private:
     QGraphicsItem *m_graphicsItem;

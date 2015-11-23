@@ -45,7 +45,7 @@ class QMT_EXPORT MObject : public MElement
 public:
     MObject();
     MObject(const MObject &rhs);
-    ~MObject();
+    ~MObject() override;
 
     MObject &operator=(const MObject &rhs);
 
@@ -71,8 +71,8 @@ public:
     void removeRelation(MRelation *relation);
     void decontrolRelation(MRelation *relation);
 
-    virtual void accept(MVisitor *visitor);
-    virtual void accept(MConstVisitor *visitor) const;
+    void accept(MVisitor *visitor) override;
+    void accept(MConstVisitor *visitor) const override;
 
 private:
     QString m_name;

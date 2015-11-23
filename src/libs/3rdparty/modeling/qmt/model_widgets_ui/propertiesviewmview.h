@@ -67,36 +67,36 @@ class QMT_EXPORT PropertiesView::MView : public QObject, public MConstVisitor, p
 
 public:
     MView(PropertiesView *propertiesView);
-    ~MView();
+    ~MView() override;
 
     QWidget *topLevelWidget() const { return m_topWidget; }
 
-    void visitMElement(const MElement *element);
-    void visitMObject(const MObject *object);
-    void visitMPackage(const MPackage *package);
-    void visitMClass(const MClass *klass);
-    void visitMComponent(const MComponent *component);
-    void visitMDiagram(const MDiagram *diagram);
-    void visitMCanvasDiagram(const MCanvasDiagram *diagram);
-    void visitMItem(const MItem *item);
-    void visitMRelation(const MRelation *relation);
-    void visitMDependency(const MDependency *dependency);
-    void visitMInheritance(const MInheritance *inheritance);
-    void visitMAssociation(const MAssociation *association);
+    void visitMElement(const MElement *element) override;
+    void visitMObject(const MObject *object) override;
+    void visitMPackage(const MPackage *package) override;
+    void visitMClass(const MClass *klass) override;
+    void visitMComponent(const MComponent *component) override;
+    void visitMDiagram(const MDiagram *diagram) override;
+    void visitMCanvasDiagram(const MCanvasDiagram *diagram) override;
+    void visitMItem(const MItem *item) override;
+    void visitMRelation(const MRelation *relation) override;
+    void visitMDependency(const MDependency *dependency) override;
+    void visitMInheritance(const MInheritance *inheritance) override;
+    void visitMAssociation(const MAssociation *association) override;
 
-    void visitDElement(const DElement *element);
-    void visitDObject(const DObject *object);
-    void visitDPackage(const DPackage *package);
-    void visitDClass(const DClass *klass);
-    void visitDComponent(const DComponent *component);
-    void visitDDiagram(const DDiagram *diagram);
-    void visitDItem(const DItem *item);
-    void visitDRelation(const DRelation *relation);
-    void visitDInheritance(const DInheritance *inheritance);
-    void visitDDependency(const DDependency *dependency);
-    void visitDAssociation(const DAssociation *association);
-    void visitDAnnotation(const DAnnotation *annotation);
-    void visitDBoundary(const DBoundary *boundary);
+    void visitDElement(const DElement *element) override;
+    void visitDObject(const DObject *object) override;
+    void visitDPackage(const DPackage *package) override;
+    void visitDClass(const DClass *klass) override;
+    void visitDComponent(const DComponent *component) override;
+    void visitDDiagram(const DDiagram *diagram) override;
+    void visitDItem(const DItem *item) override;
+    void visitDRelation(const DRelation *relation) override;
+    void visitDInheritance(const DInheritance *inheritance) override;
+    void visitDDependency(const DDependency *dependency) override;
+    void visitDAssociation(const DAssociation *association) override;
+    void visitDAnnotation(const DAnnotation *annotation) override;
+    void visitDBoundary(const DBoundary *boundary) override;
 
     void update(QList<MElement *> &modelElements);
     void update(QList<DElement *> &diagramElements, MDiagram *diagram);

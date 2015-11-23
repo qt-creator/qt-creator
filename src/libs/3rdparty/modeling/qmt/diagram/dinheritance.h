@@ -47,8 +47,8 @@ public:
     Uid base() const;
     void setBase(const Uid &base);
 
-    virtual void accept(DVisitor *visitor);
-    virtual void accept(DConstVisitor *visitor) const;
+    void accept(DVisitor *visitor) override;
+    void accept(DConstVisitor *visitor) const override;
 };
 
 } // namespace qmt

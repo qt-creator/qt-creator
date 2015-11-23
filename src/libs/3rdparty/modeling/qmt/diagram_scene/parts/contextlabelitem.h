@@ -39,7 +39,7 @@ class ContextLabelItem : public QGraphicsSimpleTextItem
 {
 public:
     ContextLabelItem(QGraphicsItem *parent = 0);
-    ~ContextLabelItem();
+    ~ContextLabelItem() override;
 
     void setMaxWidth(double maxWidth);
     void resetMaxWidth();

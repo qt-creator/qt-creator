@@ -55,20 +55,21 @@ class QMT_EXPORT DefaultStyleEngine : public StyleEngine
 
 public:
     DefaultStyleEngine();
-    ~DefaultStyleEngine();
+    ~DefaultStyleEngine() override;
 
     const Style *applyStyle(const Style *baseStyle, ElementType elementType,
-                            const Parameters *parameters);
+                            const Parameters *parameters) override;
     const Style *applyObjectStyle(const Style *baseStyle, ElementType elementType,
-                                  const ObjectVisuals &objectVisuals, const Parameters *parameters);
+                                  const ObjectVisuals &objectVisuals,
+                                  const Parameters *parameters) override;
     const Style *applyObjectStyle(const Style *baseStyle, const StyledObject &styledObject,
-                                  const Parameters *parameters);
+                                  const Parameters *parameters) override;
     const Style *applyRelationStyle(const Style *baseStyle, const StyledRelation &styledRelation,
-                                    const Parameters *parameters);
+                                    const Parameters *parameters) override;
     const Style *applyAnnotationStyle(const Style *baseStyle, const DAnnotation *annotation,
-                                      const Parameters *parameters);
+                                      const Parameters *parameters) override;
     const Style *applyBoundaryStyle(const Style *baseStyle, const DBoundary *boundary,
-                                    const Parameters *parameters);
+                                    const Parameters *parameters) override;
 
 private:
     const Style *applyAnnotationStyle(const Style *baseStyle, DAnnotation::VisualRole visualRole,

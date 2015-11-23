@@ -53,21 +53,21 @@ class ItemItem : public ObjectItem, public IRelationable
 {
 public:
     ItemItem(DItem *item, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
-    ~ItemItem();
+    ~ItemItem() override;
 
-    void update();
+    void update() override;
 
     bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint,
-                                QLineF *intersectionLine) const;
+                                QLineF *intersectionLine) const override;
 
-    QSizeF minimumSize() const;
+    QSizeF minimumSize() const override;
 
-    QList<Latch> horizontalLatches(Action action, bool grabbedItem) const;
-    QList<Latch> verticalLatches(Action action, bool grabbedItem) const;
+    QList<Latch> horizontalLatches(Action action, bool grabbedItem) const override;
+    QList<Latch> verticalLatches(Action action, bool grabbedItem) const override;
 
-    QPointF relationStartPos() const;
+    QPointF relationStartPos() const override;
     void relationDrawn(const QString &id, const QPointF &toScenePos,
-                       const QList<QPointF> &intermediatePoints);
+                       const QList<QPointF> &intermediatePoints) override;
 
 private:
     QSizeF calcMinimumGeometry() const;

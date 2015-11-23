@@ -43,14 +43,14 @@ class QMT_EXPORT SceneInspector : public QObject, public ISceneInspector
 {
 public:
     explicit SceneInspector(QObject *parent = 0);
-    ~SceneInspector();
+    ~SceneInspector() override;
 
     void setDiagramsManager(DiagramsManager *diagramsManager);
 
-    QSizeF rasterSize() const;
-    QSizeF minimalSize(const DElement *element, const MDiagram *diagram) const;
-    IMoveable *moveable(const DElement *element, const MDiagram *diagram) const;
-    IResizable *resizable(const DElement *element, const MDiagram *diagram) const;
+    QSizeF rasterSize() const override;
+    QSizeF minimalSize(const DElement *element, const MDiagram *diagram) const override;
+    IMoveable *moveable(const DElement *element, const MDiagram *diagram) const override;
+    IResizable *resizable(const DElement *element, const MDiagram *diagram) const override;
 
 private:
     DiagramsManager *m_diagramsManager;

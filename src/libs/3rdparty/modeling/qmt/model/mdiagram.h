@@ -44,7 +44,7 @@ class QMT_EXPORT MDiagram : public MObject
 public:
     MDiagram();
     MDiagram(const MDiagram &rhs);
-    ~MDiagram();
+    ~MDiagram() override;
 
     MDiagram &operator=(const MDiagram &rhs);
 
@@ -61,8 +61,8 @@ public:
     void setLastModified(const QDateTime &lastModified);
     void setLastModifiedToNow();
 
-    virtual void accept(MVisitor *visitor);
-    virtual void accept(MConstVisitor *visitor) const;
+    void accept(MVisitor *visitor) override;
+    void accept(MConstVisitor *visitor) const override;
 
 private:
     QList<DElement *> m_elements;

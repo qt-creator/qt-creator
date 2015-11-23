@@ -40,8 +40,8 @@ class QMT_EXPORT DPackage : public DObject
 public:
     DPackage();
 
-    virtual void accept(DVisitor *visitor);
-    virtual void accept(DConstVisitor *visitor) const;
+    void accept(DVisitor *visitor) override;
+    void accept(DConstVisitor *visitor) const override;
 };
 
 } // namespace qmt

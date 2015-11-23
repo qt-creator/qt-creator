@@ -39,10 +39,10 @@ class QMT_EXPORT MComponent : public MObject
 {
 public:
     MComponent();
-    ~MComponent();
+    ~MComponent() override;
 
-    virtual void accept(MVisitor *visitor);
-    virtual void accept(MConstVisitor *visitor) const;
+    void accept(MVisitor *visitor) override;
+    void accept(MConstVisitor *visitor) const override;
 };
 
 } // namespace qmt

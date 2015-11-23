@@ -59,7 +59,7 @@ class QMT_EXPORT ProjectController : public QObject
 
 public:
     explicit ProjectController(QObject *parent = 0);
-    ~ProjectController();
+    ~ProjectController() override;
 
 signals:
     void changed();

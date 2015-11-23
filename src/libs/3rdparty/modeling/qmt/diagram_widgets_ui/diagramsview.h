@@ -53,7 +53,7 @@ class QMT_EXPORT DiagramsView : public QTabWidget, public DiagramsViewInterface
 
 public:
     explicit DiagramsView(QWidget *parent = 0);
-    ~DiagramsView();
+    ~DiagramsView() override;
 
 signals:
     void currentDiagramChanged(const MDiagram *diagram);
@@ -63,10 +63,10 @@ signals:
 public:
     void setDiagramsManager(DiagramsManager *diagramsManager);
 
-    void openDiagram(MDiagram *diagram);
-    void closeDiagram(const MDiagram *diagram);
-    void closeAllDiagrams();
-    void onDiagramRenamed(const MDiagram *diagram);
+    void openDiagram(MDiagram *diagram) override;
+    void closeDiagram(const MDiagram *diagram) override;
+    void closeAllDiagrams() override;
+    void onDiagramRenamed(const MDiagram *diagram) override;
 
 private:
     void onCurrentChanged(int tabIndex);

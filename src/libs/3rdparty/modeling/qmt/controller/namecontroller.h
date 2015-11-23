@@ -45,7 +45,7 @@ class QMT_EXPORT NameController : public QObject
 
 private:
     NameController(QObject *parent = 0);
-    ~NameController();
+    ~NameController() override;
 
 public:
     static QString convertFileNameToElementName(const QString &fileName);

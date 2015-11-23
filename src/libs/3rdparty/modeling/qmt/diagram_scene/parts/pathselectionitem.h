@@ -56,11 +56,11 @@ class PathSelectionItem : public QGraphicsItem
 
 public:
     PathSelectionItem(IWindable *windable, QGraphicsItem *parent = 0);
-    ~PathSelectionItem();
+    ~PathSelectionItem() override;
 
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    QPainterPath shape() const;
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    QPainterPath shape() const override;
 
     QSizeF pointSize() const { return m_pointSize; }
     void setPointSize(const QSizeF &size);
@@ -69,7 +69,7 @@ public:
     void setSecondarySelected(bool secondarySelected);
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
     void update();

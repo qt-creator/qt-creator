@@ -43,19 +43,19 @@ public:
 
     DElement *cloned() const { return m_cloned; }
 
-    void visitDElement(const DElement *element);
-    void visitDObject(const DObject *object);
-    void visitDPackage(const DPackage *package);
-    void visitDClass(const DClass *klass);
-    void visitDComponent(const DComponent *component);
-    void visitDDiagram(const DDiagram *diagram);
-    void visitDItem(const DItem *item);
-    void visitDRelation(const DRelation *relation);
-    void visitDInheritance(const DInheritance *inheritance);
-    void visitDDependency(const DDependency *dependency);
-    void visitDAssociation(const DAssociation *association);
-    void visitDAnnotation(const DAnnotation *annotation);
-    void visitDBoundary(const DBoundary *boundary);
+    void visitDElement(const DElement *element) override;
+    void visitDObject(const DObject *object) override;
+    void visitDPackage(const DPackage *package) override;
+    void visitDClass(const DClass *klass) override;
+    void visitDComponent(const DComponent *component) override;
+    void visitDDiagram(const DDiagram *diagram) override;
+    void visitDItem(const DItem *item) override;
+    void visitDRelation(const DRelation *relation) override;
+    void visitDInheritance(const DInheritance *inheritance) override;
+    void visitDDependency(const DDependency *dependency) override;
+    void visitDAssociation(const DAssociation *association) override;
+    void visitDAnnotation(const DAnnotation *annotation) override;
+    void visitDBoundary(const DBoundary *boundary) override;
 
 private:
     DElement *m_cloned;
@@ -68,19 +68,19 @@ public:
 
     DElement *cloned() const { return m_cloned; }
 
-    void visitDElement(const DElement *element);
-    void visitDObject(const DObject *object);
-    void visitDPackage(const DPackage *package);
-    void visitDClass(const DClass *klass);
-    void visitDComponent(const DComponent *component);
-    void visitDDiagram(const DDiagram *diagram);
-    void visitDItem(const DItem *item);
-    void visitDRelation(const DRelation *relation);
-    void visitDInheritance(const DInheritance *inheritance);
-    void visitDDependency(const DDependency *dependency);
-    void visitDAssociation(const DAssociation *association);
-    void visitDAnnotation(const DAnnotation *annotation);
-    void visitDBoundary(const DBoundary *boundary);
+    void visitDElement(const DElement *element) override;
+    void visitDObject(const DObject *object) override;
+    void visitDPackage(const DPackage *package) override;
+    void visitDClass(const DClass *klass) override;
+    void visitDComponent(const DComponent *component) override;
+    void visitDDiagram(const DDiagram *diagram) override;
+    void visitDItem(const DItem *item) override;
+    void visitDRelation(const DRelation *relation) override;
+    void visitDInheritance(const DInheritance *inheritance) override;
+    void visitDDependency(const DDependency *dependency) override;
+    void visitDAssociation(const DAssociation *association) override;
+    void visitDAnnotation(const DAnnotation *annotation) override;
+    void visitDBoundary(const DBoundary *boundary) override;
 
 private:
     DElement *m_cloned;

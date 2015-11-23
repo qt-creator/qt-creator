@@ -43,11 +43,11 @@ class QMT_EXPORT DBoundary : public DElement
 public:
     DBoundary();
     DBoundary(const DBoundary &rhs);
-    ~DBoundary();
+    ~DBoundary() override;
 
     DBoundary &operator=(const DBoundary &rhs);
 
-    Uid modelUid() const { return Uid::invalidUid(); }
+    Uid modelUid() const override { return Uid::invalidUid(); }
     QString text() const { return m_text; }
     void setText(const QString &text);
     QPointF pos() const { return m_pos; }
@@ -55,8 +55,8 @@ public:
     QRectF rect() const { return m_rect; }
     void setRect(const QRectF &rect);
 
-    virtual void accept(DVisitor *visitor);
-    virtual void accept(DConstVisitor *visitor) const;
+    void accept(DVisitor *visitor) override;
+    void accept(DConstVisitor *visitor) const override;
 
 private:
     QString m_text;

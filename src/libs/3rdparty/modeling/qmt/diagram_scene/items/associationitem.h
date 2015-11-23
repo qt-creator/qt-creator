@@ -47,10 +47,10 @@ class AssociationItem : public RelationItem
 public:
     AssociationItem(DAssociation *association, DiagramSceneModel *diagramSceneModel,
                     QGraphicsItem *parent = 0);
-    ~AssociationItem();
+    ~AssociationItem() override;
 
 protected:
-    virtual void update(const Style *style);
+    void update(const Style *style) override;
 
 private:
     void updateEndLabels(const DAssociationEnd &end, const DAssociationEnd &otherEnd,

@@ -45,7 +45,7 @@ class QMT_EXPORT PaletteBox : public QWidget
 
 public:
     explicit PaletteBox(QWidget *parent = 0);
-    ~PaletteBox();
+    ~PaletteBox() override;
 
 signals:
     void activated(int index);
@@ -61,9 +61,9 @@ public:
     void setCurrentIndex(int index);
 
 protected:
-    virtual void paintEvent(QPaintEvent *event);
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void keyPressEvent(QKeyEvent *event);
+    void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     QVector<QBrush> m_brushes;

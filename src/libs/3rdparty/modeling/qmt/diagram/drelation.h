@@ -56,9 +56,9 @@ public:
     };
 
     DRelation();
-    ~DRelation();
+    ~DRelation() override;
 
-    Uid modelUid() const { return m_modelUid; }
+    Uid modelUid() const override { return m_modelUid; }
     void setModelUid(const Uid &uid);
     QList<QString> stereotypes() const { return m_stereotypes; }
     void setStereotypes(const QList<QString> &stereotypes);
@@ -71,8 +71,8 @@ public:
     QList<IntermediatePoint> intermediatePoints() const { return m_intermediatePoints; }
     void setIntermediatePoints(const QList<IntermediatePoint> &intermediatePoints);
 
-     void accept(DVisitor *visitor);
-     void accept(DConstVisitor *visitor) const;
+    void accept(DVisitor *visitor) override;
+    void accept(DConstVisitor *visitor) const override;
 
 private:
     Uid m_modelUid;

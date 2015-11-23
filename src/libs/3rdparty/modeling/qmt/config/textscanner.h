@@ -47,7 +47,7 @@ class QMT_EXPORT TextScannerError : public Exception
 {
 public:
     TextScannerError(const QString &errorMsg, const SourcePos &sourcePos);
-    ~TextScannerError();
+    ~TextScannerError() override;
 
     SourcePos sourcePos() const { return m_sourcePos; }
 
@@ -62,7 +62,7 @@ class QMT_EXPORT TextScanner : public QObject
 
 public:
     explicit TextScanner(QObject *parent = 0);
-    ~TextScanner();
+    ~TextScanner() override;
 
     void setKeywords(const QList<QPair<QString, int> > &keywords);
     void setOperators(const QList<QPair<QString, int> > &operators);

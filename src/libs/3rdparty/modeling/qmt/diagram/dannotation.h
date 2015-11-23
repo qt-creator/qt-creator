@@ -52,11 +52,11 @@ public:
 
     DAnnotation();
     DAnnotation(const DAnnotation &);
-    ~DAnnotation();
+    ~DAnnotation() override;
 
     DAnnotation &operator=(const DAnnotation &);
 
-    Uid modelUid() const { return Uid::invalidUid(); }
+    Uid modelUid() const override { return Uid::invalidUid(); }
     QString text() const { return m_text; }
     void setText(const QString &text);
     QPointF pos() const { return m_pos; }
@@ -68,8 +68,8 @@ public:
     bool isAutoSized() const { return m_isAutoSized; }
     void setAutoSized(bool autoSized);
 
-    virtual void accept(DVisitor *visitor);
-    virtual void accept(DConstVisitor *visitor) const;
+    void accept(DVisitor *visitor) override;
+    void accept(DConstVisitor *visitor) const override;
 
 private:
     QString m_text;

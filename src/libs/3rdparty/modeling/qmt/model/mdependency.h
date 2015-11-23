@@ -48,7 +48,7 @@ public:
 
     MDependency();
     MDependency(const MDependency &rhs);
-    ~MDependency();
+    ~MDependency() override;
 
     MDependency &operator=(const MDependency &rhs);
 
@@ -59,8 +59,8 @@ public:
     Uid target() const;
     void setTarget(const Uid &target);
 
-    virtual void accept(MVisitor *visitor);
-    virtual void accept(MConstVisitor *visitor) const;
+    void accept(MVisitor *visitor) override;
+    void accept(MConstVisitor *visitor) const override;
 
 private:
     Direction m_direction;
