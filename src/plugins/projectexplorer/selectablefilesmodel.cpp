@@ -59,6 +59,9 @@ SelectableFilesModel::SelectableFilesModel(QObject *parent) : QAbstractItemModel
     connect(&m_watcher, &QFutureWatcherBase::finished,
             this, &SelectableFilesModel::buildTreeFinished);
 
+    connect(this, &SelectableFilesModel::dataChanged, this, [this] { emit checkedFilesChanged(); });
+    connect(this, &SelectableFilesModel::modelReset, this, [this] { emit checkedFilesChanged(); });
+
     m_root = new Tree;
     m_root->parent = 0;
 }
@@ -340,6 +343,11 @@ Utils::FileNameList SelectableFilesModel::preservedFiles() const
     return m_outOfBaseDirFiles.toList();
 }
 
+bool SelectableFilesModel::hasCheckedFiles() const
+{
+    return m_root->checked != Qt::Unchecked;
+}
+
 void SelectableFilesModel::collectFiles(Tree *root, Utils::FileNameList *result) const
 {
     if (root->checked == Qt::Unchecked)
@@ -395,6 +403,8 @@ void SelectableFilesModel::selectAllFiles(Tree *root)
 
     foreach (Tree *t, root->visibleFiles)
         t->checked = Qt::Checked;
+
+    emit checkedFilesChanged();
 }
 
 Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
@@ -614,6 +624,11 @@ Utils::FileNameList SelectableFilesWidget::selectedPaths() const
     return m_model ? m_model->selectedPaths() : Utils::FileNameList();
 }
 
+bool SelectableFilesWidget::hasFilesSelected() const
+{
+    return m_model ? m_model->hasCheckedFiles() : false;
+}
+
 void SelectableFilesWidget::resetModel(const Utils::FileName &path, const Utils::FileNameList &files)
 {
     m_view->setModel(0);
@@ -626,6 +641,8 @@ void SelectableFilesWidget::resetModel(const Utils::FileName &path, const Utils:
             this, &SelectableFilesWidget::parsingProgress);
     connect(m_model, &SelectableFilesModel::parsingFinished,
             this, &SelectableFilesWidget::parsingFinished);
+    connect(m_model, &SelectableFilesModel::checkedFilesChanged,
+            this, &SelectableFilesWidget::selectedFilesChanged);
 
     m_baseDirChooser->setFileName(path);
     m_view->setModel(m_model);

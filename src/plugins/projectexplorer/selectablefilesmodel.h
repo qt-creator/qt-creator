@@ -112,6 +112,8 @@ public:
     Utils::FileNameList selectedPaths() const;
     Utils::FileNameList preservedFiles() const;
 
+    bool hasCheckedFiles() const;
+
     void startParsing(const Utils::FileName &baseDir);
     void cancel();
     void applyFilter(const QString &selectFilesfilter, const QString &hideFilesfilter);
@@ -119,6 +121,7 @@ public:
     void selectAllFiles();
 
 signals:
+    void checkedFilesChanged();
     void parsingFinished();
     void parsingProgress(const Utils::FileName &fileName);
 
@@ -165,8 +168,13 @@ public:
     Utils::FileNameList selectedFiles() const;
     Utils::FileNameList selectedPaths() const;
 
+    bool hasFilesSelected() const;
+
     void resetModel(const Utils::FileName &path, const Utils::FileNameList &files);
     void cancelParsing();
+
+signals:
+    void selectedFilesChanged();
 
 private:
     void enableWidgets(bool enabled);

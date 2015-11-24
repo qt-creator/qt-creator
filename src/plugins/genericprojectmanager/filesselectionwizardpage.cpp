@@ -55,6 +55,8 @@ FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *g
 
     layout->addWidget(m_filesWidget);
     m_filesWidget->setBaseDirEditable(false);
+    connect(m_filesWidget, &ProjectExplorer::SelectableFilesWidget::selectedFilesChanged,
+            this, &FilesSelectionWizardPage::completeChanged);
 
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Files"));
 }
@@ -72,7 +74,7 @@ void FilesSelectionWizardPage::cleanupPage()
 
 bool FilesSelectionWizardPage::isComplete() const
 {
-    return m_finished;
+    return m_filesWidget->hasFilesSelected();
 }
 
 Utils::FileNameList FilesSelectionWizardPage::selectedPaths() const

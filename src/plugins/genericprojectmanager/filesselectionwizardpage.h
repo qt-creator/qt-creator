@@ -64,7 +64,6 @@ public:
 private:
     GenericProjectWizardDialog *m_genericProjectWizardDialog;
     ProjectExplorer::SelectableFilesWidget *m_filesWidget;
-    bool m_finished = false;
 };
 
 } // namespace Internal
