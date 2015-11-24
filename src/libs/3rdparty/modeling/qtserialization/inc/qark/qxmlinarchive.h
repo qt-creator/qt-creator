@@ -551,9 +551,8 @@ private:
     class XmlTag
     {
     public:
-        XmlTag() : m_isEndTag(false) { }
         QString m_tagName;
-        bool m_isEndTag;
+        bool m_isEndTag = false;
         impl::ObjectId m_id;
         QHash<QString, QString> m_attributes;
     };

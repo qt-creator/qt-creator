@@ -43,12 +43,6 @@ namespace impl {
 class SavingRefMap
 {
 public:
-    SavingRefMap()
-        : m_references(),
-          m_nextRef(1)
-    {
-    }
-
     template<typename T>
     bool hasRef(const T *object)
     {
@@ -79,7 +73,7 @@ private:
     typedef QMap<KeyType, ValueType> MapType;
 
     MapType m_references;
-    ObjectId m_nextRef;
+    ObjectId m_nextRef = ObjectId(1);
 };
 
 } // namespace impl
