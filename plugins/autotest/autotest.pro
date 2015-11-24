@@ -49,7 +49,8 @@ HEADERS += \
     testsettings.h \
     testsettingspage.h \
     testnavigationwidget.h \
-    testxmloutputreader.h
+    testxmloutputreader.h \
+    autotesticons.h
 
 RESOURCES += \
     autotest.qrc

@@ -4,9 +4,13 @@
         <file>images/class.png</file>
         <file>images/func.png</file>
         <file>images/expand.png</file>
+        <file>images/expand@2x.png</file>
         <file>images/collapse.png</file>
+        <file>images/collapse@2x.png</file>
         <file>images/sort.png</file>
+        <file>images/sort@2x.png</file>
         <file>images/leafsort.png</file>
+        <file>images/leafsort@2x.png</file>
         <file>images/debug.png</file>
         <file>images/fail.png</file>
         <file>images/fatal.png</file>
@@ -18,9 +22,10 @@
         <file>images/blacklisted_fail.png</file>
         <file>images/blacklisted_pass.png</file>
         <file>images/benchmark.png</file>
-        <file>images/run.png</file>
-        <file>images/runselected.png</file>
-        <file>images/stop.png</file>
+        <file>images/runselected_boxes.png</file>
+        <file>images/runselected_boxes@2x.png</file>
+        <file>images/runselected_tickmarks.png</file>
+        <file>images/runselected_tickmarks@2x.png</file>
         <file>images/data.png</file>
     </qresource>
 </RCC>

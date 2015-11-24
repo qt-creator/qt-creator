@@ -18,6 +18,7 @@
 ****************************************************************************/
 
 #include "autotestplugin.h"
+#include "autotesticons.h"
 #include "testresultspane.h"
 #include "testresultmodel.h"
 #include "testresultdelegate.h"
@@ -26,9 +27,12 @@
 #include "testtreemodel.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+
+#include <projectexplorer/projectexplorericons.h>
 
 #include <texteditor/texteditor.h>
 
@@ -127,7 +131,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
 void TestResultsPane::createToolButtons()
 {
     m_expandCollapse = new QToolButton(m_treeView);
-    m_expandCollapse->setIcon(QIcon(QLatin1String(":/find/images/expand.png")));
+    m_expandCollapse->setIcon(Core::Icons::EXPAND.icon());
     m_expandCollapse->setToolTip(tr("Expand All"));
     m_expandCollapse->setCheckable(true);
     m_expandCollapse->setChecked(false);
@@ -139,25 +143,27 @@ void TestResultsPane::createToolButtons()
     });
 
     m_runAll = new QToolButton(m_treeView);
-    m_runAll->setIcon(QIcon(QLatin1String(":/images/run.png")));
+    m_runAll->setIcon(ProjectExplorer::Icons::RUN_SMALL.icon());
     m_runAll->setToolTip(tr("Run All Tests"));
     m_runAll->setEnabled(false);
     connect(m_runAll, &QToolButton::clicked, this, &TestResultsPane::onRunAllTriggered);
 
     m_runSelected = new QToolButton(m_treeView);
-    m_runSelected->setIcon(QIcon(QLatin1String(":/images/runselected.png")));
+    Utils::Icon runSelectedIcon = ProjectExplorer::Icons::RUN_SMALL;
+    runSelectedIcon.append(Icons::RUN_SELECTED_OVERLAY);
+    m_runSelected->setIcon(runSelectedIcon.icon());
     m_runSelected->setToolTip(tr("Run Selected Tests"));
     m_runSelected->setEnabled(false);
     connect(m_runSelected, &QToolButton::clicked, this, &TestResultsPane::onRunSelectedTriggered);
 
     m_stopTestRun = new QToolButton(m_treeView);
-    m_stopTestRun->setIcon(QIcon(QLatin1String(":/images/stop.png")));
+    m_stopTestRun->setIcon(ProjectExplorer::Icons::STOP_SMALL.icon());
     m_stopTestRun->setToolTip(tr("Stop Test Run"));
     m_stopTestRun->setEnabled(false);
     connect(m_stopTestRun, &QToolButton::clicked, TestRunner::instance(), &TestRunner::requestStopTestRun);
 
     m_filterButton = new QToolButton(m_treeView);
-    m_filterButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    m_filterButton->setIcon(Core::Icons::FILTER.icon());
     m_filterButton->setToolTip(tr("Filter Test Results"));
     m_filterButton->setProperty("noArrow", true);
     m_filterButton->setAutoRaise(true);

@@ -24,11 +24,13 @@
 #include "testcodeparser.h"
 #include "testrunner.h"
 #include "autotestconstants.h"
+#include "autotesticons.h"
 #include "testtreeitem.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <texteditor/texteditor.h>
 #include <utils/progressindicator.h>
@@ -149,7 +151,7 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
     QList<QToolButton *> list;
 
     m_filterButton = new QToolButton(m_view);
-    m_filterButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    m_filterButton->setIcon(Core::Icons::FILTER.icon());
     m_filterButton->setToolTip(tr("Filter Test Tree"));
     m_filterButton->setProperty("noArrow", true);
     m_filterButton->setAutoRaise(true);
@@ -161,15 +163,15 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
 
     m_sortAlphabetically = true;
     m_sort = new QToolButton(this);
-    m_sort->setIcon((QIcon(QLatin1String(":/images/leafsort.png"))));
+    m_sort->setIcon(Icons::SORT_NATURALLY.icon());
     m_sort->setToolTip(tr("Sort Naturally"));
 
     QToolButton *expand = new QToolButton(this);
-    expand->setIcon(QIcon(QLatin1String(":/images/expand.png")));
+    expand->setIcon(Icons::EXPAND.icon());
     expand->setToolTip(tr("Expand All"));
 
     QToolButton *collapse = new QToolButton(this);
-    collapse->setIcon(QIcon(QLatin1String(":/images/collapse.png")));
+    collapse->setIcon(Icons::COLLAPSE.icon());
     collapse->setToolTip(tr("Collapse All"));
 
     connect(expand, &QToolButton::clicked, m_view, &TestTreeView::expandAll);
@@ -193,11 +195,11 @@ void TestNavigationWidget::onItemActivated(const QModelIndex &index)
 void TestNavigationWidget::onSortClicked()
 {
     if (m_sortAlphabetically) {
-        m_sort->setIcon((QIcon(QLatin1String(":/images/sort.png"))));
+        m_sort->setIcon(Icons::SORT_ALPHABETICALLY.icon());
         m_sort->setToolTip(tr("Sort Alphabetically"));
         m_sortFilterModel->setSortMode(TestTreeSortFilterModel::Naturally);
     } else {
-        m_sort->setIcon((QIcon(QLatin1String(":/images/leafsort.png"))));
+        m_sort->setIcon(Icons::SORT_NATURALLY.icon());
         m_sort->setToolTip(tr("Sort Naturally"));
         m_sortFilterModel->setSortMode(TestTreeSortFilterModel::Alphabetically);
     }

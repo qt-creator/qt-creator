@@ -30,6 +30,7 @@ QtcCommercialPlugin {
 
     files: [
         "autotest.qrc",
+        "autotesticons.h",
         "autotest_global.h",
         "autotestconstants.h",
         "autotestplugin.cpp",
