@@ -56,8 +56,7 @@ public:
 
         Tool(const QString &name, const QString &elementType,
              const QString &stereotype = QString::null)
-            : m_toolType(TooltypeTool),
-              m_name(name),
+            : m_name(name),
               m_elementType(elementType),
               m_stereotype(stereotype)
         {
@@ -81,7 +80,7 @@ public:
 
 private:
     QString m_id;
-    int m_priority = -1;
+    int m_priority;
     QList<Tool> m_tools;
 };
 
