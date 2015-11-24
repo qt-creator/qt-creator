@@ -34,7 +34,7 @@
 #include <projects.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
-#include <translationunit.h>
+#include <clangtranslationunit.h>
 #include <translationunits.h>
 #include <unsavedfiles.h>
 

@@ -35,7 +35,7 @@
 #include <projects.h>
 #include <translationunitdoesnotexistexception.h>
 #include <translationunitfilenotexitexception.h>
-#include <translationunit.h>
+#include <clangtranslationunit.h>
 #include <translationunitisnullexception.h>
 #include <translationunitparseerrorexception.h>
 #include <translationunits.h>

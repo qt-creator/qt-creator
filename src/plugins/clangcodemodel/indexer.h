@@ -32,7 +32,7 @@
 #define INDEXER_H
 
 #include "clang_global.h"
-#include "symbol.h"
+#include "clangsymbol.h"
 #include "unit.h"
 
 #include <cpptools/cppmodelmanager.h>

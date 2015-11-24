@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "symbol.h"
+#include "clangsymbol.h"
 
 #include <cplusplus/Icons.h>
 

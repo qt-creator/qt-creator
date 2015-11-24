@@ -35,7 +35,7 @@
 
 #include "projectpart.h"
 #include "projects.h"
-#include "translationunit.h"
+#include "clangtranslationunit.h"
 #include "translationunits.h"
 #include "unsavedfiles.h"
 

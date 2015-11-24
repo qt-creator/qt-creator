@@ -33,6 +33,7 @@ SOURCES += \
     clangmodelmanagersupport.cpp \
     clangprojectsettings.cpp \
     clangprojectsettingspropertiespage.cpp \
+    clangsymbol.cpp \
     clangtextmark.cpp \
     clangutils.cpp \
     completionchunkstotextconverter.cpp \
@@ -46,7 +47,6 @@ SOURCES += \
     semanticmarker.cpp \
     sourcelocation.cpp \
     sourcemarker.cpp \
-    symbol.cpp \
     unit.cpp \
     unsavedfiledata.cpp \
     utils.cpp \
@@ -76,6 +76,7 @@ HEADERS += \
     clangmodelmanagersupport.h \
     clangprojectsettings.h \
     clangprojectsettingspropertiespage.h \
+    clangsymbol.h \
     clangtextmark.h \
     clangutils.h \
     completionchunkstotextconverter.h \
@@ -91,7 +92,6 @@ HEADERS += \
     semanticmarker.h \
     sourcelocation.h \
     sourcemarker.h \
-    symbol.h \
     unit.h \
     unsavedfiledata.h \
     utils.h \

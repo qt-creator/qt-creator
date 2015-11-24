@@ -31,7 +31,7 @@
 #include <diagnostic.h>
 #include <diagnosticset.h>
 #include <projectpart.h>
-#include <translationunit.h>
+#include <clangtranslationunit.h>
 #include <translationunits.h>
 #include <projects.h>
 #include <unsavedfiles.h>

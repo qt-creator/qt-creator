@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "translationunit.h"
+#include "clangtranslationunit.h"
 
 #include "cursor.h"
 #include "clangstring.h"

@@ -31,7 +31,7 @@
 #ifndef INDEX_H
 #define INDEX_H
 
-#include "symbol.h"
+#include "clangsymbol.h"
 
 #include <QtCore/QByteArray>
 #include <QtCore/QString>

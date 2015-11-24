@@ -37,7 +37,7 @@
 #include <sourcerange.h>
 #include <highlightinginformation.h>
 #include <highlightinginformations.h>
-#include <translationunit.h>
+#include <clangtranslationunit.h>
 #include <translationunits.h>
 #include <unsavedfiles.h>
 

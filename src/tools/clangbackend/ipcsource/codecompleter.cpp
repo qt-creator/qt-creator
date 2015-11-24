@@ -34,7 +34,7 @@
 #include "clangstring.h"
 #include "codecompletefailedexception.h"
 #include "codecompletionsextractor.h"
-#include "translationunit.h"
+#include "clangtranslationunit.h"
 
 #include <clang-c/Index.h>
 

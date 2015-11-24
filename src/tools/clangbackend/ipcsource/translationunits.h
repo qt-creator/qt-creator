@@ -32,7 +32,7 @@
 #define CLANGBACKEND_TRANSLATIONUNITS_H
 
 #include "clangfilesystemwatcher.h"
-#include "translationunit.h"
+#include "clangtranslationunit.h"
 
 #include <filecontainer.h>
 

@@ -37,7 +37,7 @@
 #include <translationunitdoesnotexistexception.h>
 #include <translationunitalreadyexistsexception.h>
 #include <translationunitfilenotexitexception.h>
-#include <translationunit.h>
+#include <clangtranslationunit.h>
 #include <translationunitisnullexception.h>
 #include <translationunits.h>
 #include <unsavedfiles.h>
