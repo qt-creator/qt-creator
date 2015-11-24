@@ -123,9 +123,9 @@ bool SelectableFilesModel::filter(Tree *t)
         return g.isMatch(t->name);
     };
 
-    //If none of the "show file" filters match just return
-    if (!Utils::anyOf(m_showFilesFilter, matchesTreeName))
-        return true;
+    //If one of the "show file" filters matches just return false
+    if (Utils::anyOf(m_showFilesFilter, matchesTreeName))
+        return false;
 
     return Utils::anyOf(m_hideFilesFilter, matchesTreeName);
 }
