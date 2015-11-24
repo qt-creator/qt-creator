@@ -45,8 +45,7 @@ namespace qmt {
 
 class GeometryUtilities
 {
-private:
-    GeometryUtilities();
+    GeometryUtilities() = delete;
 
 public:
     enum Side {

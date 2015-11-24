@@ -39,7 +39,7 @@ template<class T>
 class Container
 {
 protected:
-    Container() { }
+    Container() = default;
     Container(const Container<T> &rhs)
         : m_elements(rhs.m_elements)
     {

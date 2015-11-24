@@ -59,9 +59,7 @@ public:
     class Latch
     {
     public:
-        Latch()
-        {
-        }
+        Latch() = default;
 
         Latch(LatchType latchType, qreal pos, qreal otherPos1, qreal otherPos2,
               const QString &identifier)
@@ -80,7 +78,7 @@ public:
         QString m_identifier;
     };
 
-    virtual ~ILatchable() { }
+    virtual ~ILatchable() = default;
 
     virtual QList<Latch> horizontalLatches(Action action, bool grabbedItem) const = 0;
     virtual QList<Latch> verticalLatches(Action action, bool grabbedItem) const = 0;

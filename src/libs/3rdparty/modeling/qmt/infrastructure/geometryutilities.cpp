@@ -50,10 +50,6 @@ inline int sgn(T val)
 
 namespace qmt {
 
-GeometryUtilities::GeometryUtilities()
-{
-}
-
 QLineF GeometryUtilities::stretch(const QLineF &line, double p1Extension, double p2Extension)
 {
     QLineF direction = line.unitVector();
@@ -82,7 +78,7 @@ namespace {
 class Candidate
 {
 public:
-    Candidate() { }
+    Candidate() = default;
     Candidate(const QVector2D &f, const QPointF &s, GeometryUtilities::Side t) : first(f), second(s), third(t) { }
 
     QVector2D first;

@@ -74,9 +74,7 @@ namespace qmt {
 class ObjectStyleKey
 {
 public:
-    ObjectStyleKey()
-    {
-    }
+    ObjectStyleKey() = default;
 
     ObjectStyleKey(StyleEngine::ElementType elementType, const ObjectVisuals &objectVisuals)
         : m_elementType(elementType),
@@ -143,12 +141,9 @@ bool operator==(const AnnotationStyleKey &lhs, const AnnotationStyleKey &rhs)
     return lhs.m_visualRole == rhs.m_visualRole;
 }
 
+// TODO remove class if no attributes needed even with future extensions
 class BoundaryStyleKey
 {
-public:
-    BoundaryStyleKey()
-    {
-    }
 };
 
 uint qHash(const BoundaryStyleKey &styleKey)

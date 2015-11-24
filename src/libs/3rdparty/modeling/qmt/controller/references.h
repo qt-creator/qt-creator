@@ -39,10 +39,10 @@ template<class T>
 class References
 {
 protected:
-    References() { }
+    References() = default;
 
 public:
-    ~References() { }
+    ~References() = default;
 
     bool isEmpty() const { return m_elements.empty(); }
     int size() const { return m_elements.size(); }

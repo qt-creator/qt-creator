@@ -44,9 +44,7 @@ namespace qmt {
 class QMT_EXPORT LineShape : public IShape
 {
 public:
-    LineShape()
-    {
-    }
+    LineShape() = default;
 
     LineShape(const ShapePointF &pos1, const ShapePointF &pos2)
         : m_pos1(pos1),
@@ -69,9 +67,7 @@ private:
 class QMT_EXPORT RectShape : public IShape
 {
 public:
-    RectShape()
-    {
-    }
+    RectShape() = default;
 
     RectShape(const ShapePointF &pos, const ShapeSizeF &size)
         : m_pos(pos),
@@ -94,9 +90,7 @@ private:
 class QMT_EXPORT RoundedRectShape : public IShape
 {
 public:
-    RoundedRectShape()
-    {
-    }
+    RoundedRectShape() = default;
 
     RoundedRectShape(const ShapePointF &pos, const ShapeSizeF &size, const ShapeValueF &radius)
         : m_pos(pos),
@@ -122,9 +116,7 @@ private:
 class QMT_EXPORT CircleShape : public IShape
 {
 public:
-    CircleShape()
-    {
-    }
+    CircleShape() = default;
 
     CircleShape(const ShapePointF &center, const ShapeValueF &radius)
         : m_center(center),
@@ -147,9 +139,7 @@ private:
 class QMT_EXPORT EllipseShape : public IShape
 {
 public:
-    EllipseShape()
-    {
-    }
+    EllipseShape() = default;
 
     EllipseShape(const ShapePointF &center, const ShapeSizeF &radius)
         : m_center(center),
@@ -172,9 +162,7 @@ private:
 class QMT_EXPORT ArcShape : public IShape
 {
 public:
-    ArcShape()
-    {
-    }
+    ArcShape() = default;
 
     ArcShape(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal spanAngle)
         : m_center(center),

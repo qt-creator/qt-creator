@@ -39,8 +39,6 @@ namespace qmt {
 class QMT_EXPORT MChildrenVisitor : public MVisitor
 {
 public:
-    MChildrenVisitor();
-
     void visitMElement(MElement *element) override;
     void visitMObject(MObject *object) override;
     void visitMPackage(MPackage *package) override;

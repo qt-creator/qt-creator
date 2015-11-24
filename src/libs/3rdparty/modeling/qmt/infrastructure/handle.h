@@ -40,7 +40,7 @@ template<class T>
 class Handle
 {
 public:
-    Handle() { }
+    Handle() = default;
     explicit Handle(const Uid &uid) : m_uid(uid) { }
     explicit Handle(T *t) : m_uid(t ? t->uid() : Uid()), m_target(t) { }
     Handle(const Handle &rhs) : m_uid(rhs.m_uid), m_target(rhs.m_target) { }

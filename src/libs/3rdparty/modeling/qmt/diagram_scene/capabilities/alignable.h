@@ -50,7 +50,7 @@ public:
         AlignSize
     };
 
-    virtual ~IAlignable() { }
+    virtual ~IAlignable() = default;
 
     virtual void align(AlignType alignType, const QString &identifier) = 0;
 };

@@ -42,8 +42,6 @@ namespace qark {
 class ArchiveBasics
 {
 public:
-    ArchiveBasics() { }
-
     void setFlag(const Flag &flag) { m_flags |= flag.mask(); }
     void clearFlag(const Flag &flag) { m_flags &= ~flag.mask(); }
     bool hasFlag(const Flag &flag) const { return (m_flags & flag.mask()) != 0; }

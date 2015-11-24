@@ -42,10 +42,6 @@
 
 namespace qmt {
 
-MChildrenVisitor::MChildrenVisitor()
-{
-}
-
 void MChildrenVisitor::visitMElement(MElement *element)
 {
     Q_UNUSED(element);

@@ -40,8 +40,6 @@ namespace qmt {
 class QMT_EXPORT MVoidVisitor : public MVisitor
 {
 public:
-    MVoidVisitor();
-
     void visitMElement(MElement *element) override;
     void visitMObject(MObject *object) override;
     void visitMPackage(MPackage *package) override;
@@ -59,8 +57,6 @@ public:
 class QMT_EXPORT MVoidConstVisitor : public MConstVisitor
 {
 public:
-    MVoidConstVisitor();
-
     void visitMElement(const MElement *element) override;
     void visitMObject(const MObject *object) override;
     void visitMPackage(const MPackage *package) override;

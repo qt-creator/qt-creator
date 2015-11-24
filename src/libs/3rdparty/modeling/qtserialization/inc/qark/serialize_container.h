@@ -149,8 +149,8 @@ template<typename KEY, typename VALUE>
 class KeyValuePair
 {
 public:
-    KeyValuePair() { }
-    explicit KeyValuePair(const KEY &key, const VALUE &value) : m_key(key), m_value(value) { }
+    KeyValuePair() = default;
+    KeyValuePair(const KEY &key, const VALUE &value) : m_key(key), m_value(value) { }
 
     KEY m_key;
     VALUE m_value;

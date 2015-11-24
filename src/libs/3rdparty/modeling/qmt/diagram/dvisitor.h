@@ -50,7 +50,7 @@ class DBoundary;
 class DVisitor
 {
 public:
-    virtual ~DVisitor() { }
+    virtual ~DVisitor() = default;
 
     virtual void visitDElement(DElement *element) = 0;
     virtual void visitDObject(DObject *object) = 0;

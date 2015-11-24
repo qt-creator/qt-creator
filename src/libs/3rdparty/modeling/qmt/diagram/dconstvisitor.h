@@ -50,7 +50,7 @@ class DBoundary;
 class DConstVisitor
 {
 public:
-    virtual ~DConstVisitor() { }
+    virtual ~DConstVisitor() = default;
 
     virtual void visitDElement(const DElement *element) = 0;
     virtual void visitDObject(const DObject *object) = 0;

@@ -38,9 +38,7 @@ namespace qark {
 class Parameters
 {
 public:
-    Parameters()
-    {
-    }
+    Parameters() = default;
 
     explicit Parameters(const Flag &flag)
         : m_flags(flag.mask())

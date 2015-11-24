@@ -40,7 +40,7 @@ namespace qmt {
 class SourceChar
 {
 public:
-    SourceChar() { }
+    SourceChar() = default;
     SourceChar(QChar chr, const SourcePos &sourcePos)
         : ch(chr),
           pos(sourcePos)
@@ -54,7 +54,7 @@ public:
 class ITextSource
 {
 public:
-    virtual ~ITextSource() { }
+    virtual ~ITextSource() = default;
 
     virtual SourceChar readNextChar() = 0;
 };

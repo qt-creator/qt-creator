@@ -47,10 +47,6 @@
 
 namespace qmt {
 
-MVoidVisitor::MVoidVisitor()
-{
-}
-
 void MVoidVisitor::visitMElement(MElement *element)
 {
     Q_UNUSED(element);
@@ -109,10 +105,6 @@ void MVoidVisitor::visitMInheritance(MInheritance *inheritance)
 void MVoidVisitor::visitMAssociation(MAssociation *association)
 {
     visitMRelation(association);
-}
-
-MVoidConstVisitor::MVoidConstVisitor()
-{
 }
 
 void MVoidConstVisitor::visitMElement(const MElement *element)

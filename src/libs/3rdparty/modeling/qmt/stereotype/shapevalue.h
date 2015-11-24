@@ -94,9 +94,7 @@ private:
 class QMT_EXPORT ShapePointF
 {
 public:
-    ShapePointF()
-    {
-    }
+    ShapePointF() = default;
 
     ShapePointF(const ShapeValueF &x, const ShapeValueF &y)
         : m_x(x),
@@ -123,9 +121,7 @@ private:
 class QMT_EXPORT ShapeSizeF
 {
 public:
-    ShapeSizeF()
-    {
-    }
+    ShapeSizeF() = default;
 
     ShapeSizeF(const ShapeValueF &width, const ShapeValueF &height)
         : m_width(width),
