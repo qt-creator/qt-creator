@@ -30,6 +30,7 @@
 
 #include "cppassert.h"
 
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <memory>

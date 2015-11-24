@@ -27,6 +27,7 @@
 
 #include "cppassert.h"
 
+#include <algorithm>
 
 using namespace CPlusPlus;
 

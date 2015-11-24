@@ -31,6 +31,7 @@
 #ifndef CPLUSPLUS_MATCHINGTEXT_H
 #define CPLUSPLUS_MATCHINGTEXT_H
 
+#include <QtGlobal>
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
