@@ -74,7 +74,7 @@ private:
 class TreeModel::ItemFactory : public MConstVisitor
 {
 public:
-    ItemFactory(TreeModel *treeModel)
+    explicit ItemFactory(TreeModel *treeModel)
         : m_treeModel(treeModel)
     {
         QMT_CHECK(m_treeModel);

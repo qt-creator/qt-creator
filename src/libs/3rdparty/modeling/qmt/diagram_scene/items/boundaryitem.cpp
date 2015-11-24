@@ -60,7 +60,7 @@ static const qreal CONTENTS_BORDER_HORIZONTAL = 4.0;
 class BoundaryItem::BoundaryTextItem : public QGraphicsTextItem
 {
 public:
-    BoundaryTextItem(QGraphicsItem *parent)
+    explicit BoundaryTextItem(QGraphicsItem *parent)
         : QGraphicsTextItem(parent)
     {
     }

@@ -58,7 +58,7 @@ static const qreal CONTENTS_BORDER_HORIZONTAL = 4.0;
 class AnnotationItem::AnnotationTextItem : public QGraphicsTextItem
 {
 public:
-    AnnotationTextItem(QGraphicsItem *parent)
+    explicit AnnotationTextItem(QGraphicsItem *parent)
         : QGraphicsTextItem(parent)
     {
     }

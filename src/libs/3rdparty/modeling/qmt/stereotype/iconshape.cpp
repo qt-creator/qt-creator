@@ -52,9 +52,7 @@ namespace qmt {
 class IconShape::IconShapePrivate
 {
 public:
-    IconShapePrivate()
-    {
-    }
+    IconShapePrivate() = default;
 
     IconShapePrivate(const IconShapePrivate &rhs)
         : m_shapes(CloneAll(rhs.m_shapes))

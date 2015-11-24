@@ -41,7 +41,7 @@ namespace qmt {
 class StyleController::Parameters : public StyleEngine::Parameters
 {
 public:
-    Parameters(StyleController *styleController)
+    explicit Parameters(StyleController *styleController)
         : m_styleController(styleController)
     {
     }

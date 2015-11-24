@@ -72,7 +72,7 @@ namespace qmt {
 class DiagramSceneModel::OriginItem : public QGraphicsItem
 {
 public:
-    OriginItem(QGraphicsItem *parent = 0)
+    explicit OriginItem(QGraphicsItem *parent = 0)
         : QGraphicsItem(parent)
     {
     }

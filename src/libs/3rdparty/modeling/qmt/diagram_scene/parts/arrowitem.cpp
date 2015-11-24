@@ -48,7 +48,7 @@ namespace qmt {
 class ArrowItem::GraphicsPathItem : public QGraphicsPathItem
 {
 public:
-    GraphicsPathItem(QGraphicsItem *parent)
+    explicit GraphicsPathItem(QGraphicsItem *parent)
         : QGraphicsPathItem(parent)
     {
     }
@@ -65,7 +65,7 @@ public:
 class ArrowItem::GraphicsHeadItem : public QGraphicsItem
 {
 public:
-    GraphicsHeadItem(QGraphicsItem *parent)
+    explicit GraphicsHeadItem(QGraphicsItem *parent)
         : QGraphicsItem(parent)
     {
     }
@@ -250,7 +250,7 @@ private:
 class ArrowItem::GraphicsShaftItem : public ArrowItem::GraphicsPathItem
 {
 public:
-    GraphicsShaftItem(QGraphicsItem *parent)
+    explicit GraphicsShaftItem(QGraphicsItem *parent)
         : GraphicsPathItem(parent)
     {
     }
