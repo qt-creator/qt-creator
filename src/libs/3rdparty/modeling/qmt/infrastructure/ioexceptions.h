@@ -82,7 +82,7 @@ public:
 class IllegalXmlFile : public FileIOException
 {
 public:
-    IllegalXmlFile(const QString &fileName, int lineNumber = -1);
+    explicit IllegalXmlFile(const QString &fileName, int lineNumber = -1);
 };
 
 class UnknownFileVersion : public FileIOException

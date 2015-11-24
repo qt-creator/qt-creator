@@ -54,7 +54,7 @@ public:
         VerticalDistanceToObejct = HorizontalDistanceToObject
     };
 
-    AlignButtonsItem(IAlignable *alignable, QGraphicsItem *parent = 0);
+    explicit AlignButtonsItem(IAlignable *alignable, QGraphicsItem *parent = 0);
     ~AlignButtonsItem() override;
 
     QRectF boundingRect() const override;

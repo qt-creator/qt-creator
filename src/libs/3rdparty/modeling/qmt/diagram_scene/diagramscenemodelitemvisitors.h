@@ -40,7 +40,7 @@ namespace qmt {
 class QMT_EXPORT DiagramSceneModel::CreationVisitor : public DVisitor
 {
 public:
-    CreationVisitor(DiagramSceneModel *diagramSceneModel);
+    explicit CreationVisitor(DiagramSceneModel *diagramSceneModel);
 
     QGraphicsItem *createdGraphicsItem() const { return m_graphicsItem; }
 

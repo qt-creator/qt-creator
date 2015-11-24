@@ -51,7 +51,7 @@ private:
         class RefNode : public Node
         {
         public:
-            RefNode(V &v) : m_v(v) { }
+            explicit RefNode(V &v) : m_v(v) { }
             bool accept(Parser &visitor, int *index) override { return visitor.visit(this, index); }
             V &ref() const { return m_v; }
         private:

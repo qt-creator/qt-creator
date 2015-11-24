@@ -41,7 +41,7 @@ class MAssociationEnd;
 class QMT_EXPORT MFlatAssignmentVisitor : public MConstVisitor
 {
 public:
-    MFlatAssignmentVisitor(MElement *target);
+    explicit MFlatAssignmentVisitor(MElement *target);
 
     void visitMElement(const MElement *element) override;
     void visitMObject(const MObject *object) override;

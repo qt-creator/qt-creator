@@ -43,7 +43,7 @@ public:
         Vertical
     };
 
-    AlignLineItem(Direction direction, QGraphicsItem *parent = 0);
+    explicit AlignLineItem(Direction direction, QGraphicsItem *parent = 0);
     ~AlignLineItem() override;
 
     void setLine(qreal pos);

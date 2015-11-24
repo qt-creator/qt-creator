@@ -72,7 +72,7 @@ public:
 
     Q_DECLARE_FLAGS(Properties, Property)
 
-    MClassMember(MemberType memberType = MemberUndefined);
+    explicit MClassMember(MemberType memberType = MemberUndefined);
     MClassMember(const MClassMember &rhs);
     ~MClassMember();
 

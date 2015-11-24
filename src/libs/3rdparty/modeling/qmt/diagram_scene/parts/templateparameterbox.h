@@ -38,7 +38,7 @@ namespace qmt {
 class TemplateParameterBox : public QGraphicsRectItem
 {
 public:
-    TemplateParameterBox(QGraphicsItem *parent = 0);
+    explicit TemplateParameterBox(QGraphicsItem *parent = 0);
     ~TemplateParameterBox() override;
 
     void setFont(const QFont &font);

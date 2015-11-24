@@ -40,7 +40,7 @@ namespace qmt {
 class QMT_EXPORT Exception
 {
 public:
-    Exception(const QString &errorMessage);
+    explicit Exception(const QString &errorMessage);
     virtual ~Exception() = default;
 
     QString errorMessage() const { return m_errorMessage; }

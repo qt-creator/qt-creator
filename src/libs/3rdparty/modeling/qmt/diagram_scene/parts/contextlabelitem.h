@@ -38,7 +38,7 @@ namespace qmt {
 class ContextLabelItem : public QGraphicsSimpleTextItem
 {
 public:
-    ContextLabelItem(QGraphicsItem *parent = 0);
+    explicit ContextLabelItem(QGraphicsItem *parent = 0);
     ~ContextLabelItem() override;
 
     void setMaxWidth(double maxWidth);

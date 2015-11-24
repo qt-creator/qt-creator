@@ -78,7 +78,7 @@ public:
         CollidingOuterItems
     };
 
-    DiagramSceneModel(QObject *parent = 0);
+    explicit DiagramSceneModel(QObject *parent = 0);
     ~DiagramSceneModel() override;
 
 signals:

@@ -80,7 +80,7 @@ public:
         FreedomKeepRatio
     };
 
-    RectangularSelectionItem(IResizable *itemResizer, QGraphicsItem *parent = 0);
+    explicit RectangularSelectionItem(IResizable *itemResizer, QGraphicsItem *parent = 0);
     ~RectangularSelectionItem() override;
 
     QRectF boundingRect() const override;

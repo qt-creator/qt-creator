@@ -46,7 +46,7 @@ class DiagramSceneModel;
 class CustomIconItem : public QGraphicsItem
 {
 public:
-    CustomIconItem(DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    explicit CustomIconItem(DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
     ~CustomIconItem() override;
 
     void setStereotypeIconId(const QString &stereotypeIconId);

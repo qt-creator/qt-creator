@@ -39,7 +39,7 @@ namespace qmt {
 class QMT_EXPORT DFlatAssignmentVisitor : public DConstVisitor
 {
 public:
-    DFlatAssignmentVisitor(DElement *target);
+    explicit DFlatAssignmentVisitor(DElement *target);
 
     void visitDElement(const DElement *element) override;
     void visitDObject(const DObject *object) override;

@@ -42,7 +42,7 @@ public:
     {
     }
 
-    Parameters(const Flag &flag)
+    explicit Parameters(const Flag &flag)
         : m_flags(flag.mask())
     {
     }

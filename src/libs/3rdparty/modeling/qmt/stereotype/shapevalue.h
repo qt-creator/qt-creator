@@ -66,7 +66,7 @@ public:
     {
     }
 
-    ShapeValueF(qreal value, Unit unit = UnitRelative, Origin origin = OriginSmart)
+    explicit ShapeValueF(qreal value, Unit unit = UnitRelative, Origin origin = OriginSmart)
         : m_value(value),
           m_unit(unit),
           m_origin(origin)

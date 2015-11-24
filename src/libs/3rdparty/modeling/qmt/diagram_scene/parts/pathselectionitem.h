@@ -55,7 +55,7 @@ class PathSelectionItem : public QGraphicsItem
     };
 
 public:
-    PathSelectionItem(IWindable *windable, QGraphicsItem *parent = 0);
+    explicit PathSelectionItem(IWindable *windable, QGraphicsItem *parent = 0);
     ~PathSelectionItem() override;
 
     QRectF boundingRect() const override;

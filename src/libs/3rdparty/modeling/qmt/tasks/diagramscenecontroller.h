@@ -60,7 +60,7 @@ class QMT_EXPORT DiagramSceneController : public QObject
     Q_OBJECT
 
 public:
-    DiagramSceneController(QObject *parent = 0);
+    explicit DiagramSceneController(QObject *parent = 0);
     ~DiagramSceneController() override;
 
 signals:

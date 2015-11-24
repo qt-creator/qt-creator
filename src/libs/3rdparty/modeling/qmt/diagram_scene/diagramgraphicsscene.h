@@ -43,7 +43,7 @@ class QMT_EXPORT DiagramGraphicsScene : public QGraphicsScene
     Q_OBJECT
 
 public:
-    DiagramGraphicsScene(DiagramSceneModel *diagramSceneModel, QObject *parent = 0);
+    explicit DiagramGraphicsScene(DiagramSceneModel *diagramSceneModel, QObject *parent = 0);
     ~DiagramGraphicsScene() override;
 
 signals:

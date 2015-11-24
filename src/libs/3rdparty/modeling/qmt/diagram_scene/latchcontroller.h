@@ -52,7 +52,7 @@ class QMT_EXPORT LatchController : public QObject
     Q_OBJECT
 
 public:
-    LatchController(QObject *parent = 0);
+    explicit LatchController(QObject *parent = 0);
     ~LatchController() override;
 
     void setDiagramSceneModel(DiagramSceneModel *diagramSceneModel);
