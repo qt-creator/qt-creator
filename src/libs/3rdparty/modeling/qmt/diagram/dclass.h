@@ -48,6 +48,7 @@ public:
     };
 
     DClass();
+    ~DClass() override;
 
     QString umlNamespace() const { return m_umlNamespace; }
     void setUmlNamespace(const QString &umlNamespace);

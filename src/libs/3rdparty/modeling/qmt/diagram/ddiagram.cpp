@@ -39,6 +39,10 @@ DDiagram::DDiagram()
 {
 }
 
+DDiagram::~DDiagram()
+{
+}
+
 void DDiagram::accept(DVisitor *visitor)
 {
     visitor->visitDDiagram(this);

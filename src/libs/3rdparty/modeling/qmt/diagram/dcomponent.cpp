@@ -41,6 +41,10 @@ DComponent::DComponent()
 {
 }
 
+DComponent::~DComponent()
+{
+}
+
 void DComponent::setPlainShape(bool planeShape)
 {
     m_isPlainShape = planeShape;

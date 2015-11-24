@@ -39,6 +39,7 @@ class QMT_EXPORT DDiagram : public DObject
 {
 public:
     DDiagram();
+    ~DDiagram() override;
 
     void accept(DVisitor *visitor) override;
     void accept(DConstVisitor *visitor) const override;

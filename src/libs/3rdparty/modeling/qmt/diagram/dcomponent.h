@@ -39,6 +39,7 @@ class QMT_EXPORT DComponent : public DObject
 {
 public:
     DComponent();
+    ~DComponent() override;
 
     bool isPlainShape() const { return m_isPlainShape; }
     void setPlainShape(bool planeShape);

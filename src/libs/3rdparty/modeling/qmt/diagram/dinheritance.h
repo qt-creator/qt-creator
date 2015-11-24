@@ -41,6 +41,7 @@ class QMT_EXPORT DInheritance : public DRelation
 {
 public:
     DInheritance();
+    ~DInheritance() override;
 
     Uid derived() const;
     void setDerived(const Uid &derived);

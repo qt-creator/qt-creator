@@ -39,6 +39,7 @@ class QMT_EXPORT DPackage : public DObject
 {
 public:
     DPackage();
+    ~DPackage() override;
 
     void accept(DVisitor *visitor) override;
     void accept(DConstVisitor *visitor) const override;

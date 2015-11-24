@@ -39,6 +39,10 @@ DPackage::DPackage()
 {
 }
 
+DPackage::~DPackage()
+{
+}
+
 void DPackage::accept(DVisitor *visitor)
 {
     visitor->visitDPackage(this);

@@ -41,6 +41,10 @@ DInheritance::DInheritance()
 {
 }
 
+DInheritance::~DInheritance()
+{
+}
+
 Uid DInheritance::derived() const
 {
     return endAUid();

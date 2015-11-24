@@ -41,6 +41,10 @@ DClass::DClass()
 {
 }
 
+DClass::~DClass()
+{
+}
+
 void DClass::setUmlNamespace(const QString &umlNamespace)
 {
     m_umlNamespace = umlNamespace;
