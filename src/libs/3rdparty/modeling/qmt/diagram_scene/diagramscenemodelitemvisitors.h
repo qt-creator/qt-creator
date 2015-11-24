@@ -63,7 +63,7 @@ private:
     QGraphicsItem *m_graphicsItem;
 };
 
-class DiagramSceneModel::UpdateVisitor : public DVisitor
+class QMT_EXPORT DiagramSceneModel::UpdateVisitor : public DVisitor
 {
 public:
     UpdateVisitor(QGraphicsItem *item, DiagramSceneModel *diagramSceneModel,
