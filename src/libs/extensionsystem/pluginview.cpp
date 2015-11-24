@@ -36,6 +36,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/categorysortfiltermodel.h>
+#include <utils/icon.h>
 #include <utils/itemviews.h>
 #include <utils/treemodel.h>
 
@@ -88,14 +89,30 @@ enum IconIndex { OkIcon, ErrorIcon, NotLoadedIcon };
 
 static const int SortRole = Qt::UserRole + 1;
 
-static const QIcon &icon(int num)
+static const QIcon &icon(IconIndex icon)
 {
-    static QIcon icons[] = {
-        QIcon(QLatin1String(":/extensionsystem/images/ok.png")),
-        QIcon(QLatin1String(":/extensionsystem/images/error.png")),
-        QIcon(QLatin1String(":/extensionsystem/images/notloaded.png")),
-    };
-    return icons[num];
+    using namespace Utils;
+    switch (icon) {
+    case OkIcon: {
+        static const QIcon ok =
+                Icon({{QLatin1String(":/extensionsystem/images/ok.png"),
+                       Theme::IconsRunColor}}, Icon::Style::Tinted).icon();
+        return ok;
+    }
+    case ErrorIcon: {
+        static const QIcon error =
+                Icon({{QLatin1String(":/extensionsystem/images/error.png"),
+                       Theme::IconsErrorColor}}, Icon::Style::Tinted).icon();
+        return error;
+    }
+    default:
+    case NotLoadedIcon: {
+        static const QIcon notLoaded =
+                Icon({{QLatin1String(":/extensionsystem/images/notloaded.png"),
+                       Theme::IconsErrorColor}}, Icon::Style::Tinted).icon();
+        return notLoaded;
+    }
+    }
 }
 
 class PluginItem : public TreeItem
