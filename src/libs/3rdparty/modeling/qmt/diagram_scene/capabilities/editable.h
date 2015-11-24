@@ -36,7 +36,7 @@ namespace qmt {
 class IEditable
 {
 public:
-    ~IEditable() { }
+    virtual ~IEditable() { }
 
     virtual bool isEditable() const = 0;
 

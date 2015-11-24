@@ -47,7 +47,7 @@ class IResizable;
 class ISceneInspector
 {
 public:
-    ~ISceneInspector() { }
+    virtual ~ISceneInspector() { }
 
     virtual QSizeF rasterSize() const = 0;
     virtual QSizeF minimalSize(const DElement *element, const MDiagram *diagram) const = 0;
