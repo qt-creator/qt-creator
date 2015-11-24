@@ -91,9 +91,6 @@ public:
 
     virtual void update() = 0;
 
-    bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint,
-                                QLineF *intersectionLine) const override = 0;
-
     QPointF pos() const override;
     QRectF rect() const override;
     QSizeF minimumSize() const override = 0;
