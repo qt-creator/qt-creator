@@ -26,6 +26,7 @@
 
 #include <analyzerbase/analyzermanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -130,7 +131,7 @@ QWidget *ClangStaticAnalyzerTool::createWidgets()
     // Go to previous diagnostic
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PREV)));
+    action->setIcon(Core::Icons::PREV.icon());
     action->setToolTip(tr("Go to previous bug."));
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goBack);
     button = new QToolButton;
@@ -141,7 +142,7 @@ QWidget *ClangStaticAnalyzerTool::createWidgets()
     // Go to next diagnostic
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_NEXT)));
+    action->setIcon(Core::Icons::NEXT.icon());
     action->setToolTip(tr("Go to next bug."));
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goNext);
     button = new QToolButton;
