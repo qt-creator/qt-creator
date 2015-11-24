@@ -109,9 +109,6 @@ void CustomIconItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     painter->setPen(m_pen);
     ShapePaintVisitor visitor(painter, QPointF(0.0, 0.0), QSizeF(m_stereotypeIcon.width(), m_stereotypeIcon.height()), m_baseSize, m_actualSize);
     m_stereotypeIcon.iconShape().visitShapes(&visitor);
-    //painter->setBrush(Qt::NoBrush);
-    //painter->setPen(Qt::red);
-    //painter->drawRect(boundingRect());
     painter->restore();
 }
 

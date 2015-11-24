@@ -274,18 +274,10 @@ void ClassItem::update()
 bool ClassItem::intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const
 {
     QPolygonF polygon;
-    if (m_customIcon) {
-        QRectF rect = object()->rect();
-//        polygon = m_customIcon->path().toFillPolygon(QTransform()
-//                                                     .scale(rect.width() / m_customIcon->shapeWidth(), rect.height() / m_customIcon->shapeHeight())
-//                                                     .translate(object()->pos().x(), object()->pos().y()));
-        rect.translate(object()->pos());
-        polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
-    } else {
-        QRectF rect = object()->rect();
-        rect.translate(object()->pos());
-        polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
-    }
+    // TODO if m_customIcon then use that shape + label's shape as intersection path
+    QRectF rect = object()->rect();
+    rect.translate(object()->pos());
+    polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
     return GeometryUtilities::intersect(polygon, line, intersectionPoint, intersectionLine);
 }
 

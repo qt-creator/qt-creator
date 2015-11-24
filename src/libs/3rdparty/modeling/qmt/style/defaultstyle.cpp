@@ -46,17 +46,13 @@ DefaultStyle::DefaultStyle()
     setFillBrush(QBrush(QColor("yellow")));
     setExtraFillBrush(QBrush(QColor("white")));
     QFont normalFont;
-    // TODO the standard font family is "MS Shell Dlg 2" which is not good for small fonts in diagrams
-    //normalFont.setFamily(QStringLiteral("ModelEditor"));
-    //normalFont.setPointSizeF(9.0);
+    // TODO use own ModelEditor font
     normalFont.setPixelSize(11);
     setNormalFont(normalFont);
     QFont smallFont(normalFont);
-    //smallFont.setPointSizeF(normalFont.pointSizeF() * 0.80);
     smallFont.setPixelSize(9);
     setSmallFont(smallFont);
     QFont headerFont(normalFont);
-    //headerFont.setPointSizeF(normalFont.pointSizeF() * 1.4);
     headerFont.setPixelSize(16);
     setHeaderFont(headerFont);
 }

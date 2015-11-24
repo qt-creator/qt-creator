@@ -258,7 +258,6 @@ void ItemItem::updateGeometry()
     double left = -width / 2.0;
     double right = width / 2.0;
     double top = -height / 2.0;
-    //double bottom = height / 2.0;
     double y = top;
 
     setPos(object()->pos());
