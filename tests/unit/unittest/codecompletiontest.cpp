@@ -118,7 +118,7 @@ Utf8String CodeCompleter::readFileContent(const QString &fileName)
 void CodeCompleter::copyTargetHeaderToTemporaryIncludeDirecory()
 {
     QFile::remove(targetHeaderPath);
-    bool hasCopied = QFile::copy(QStringLiteral(TESTDATA_DIR "/complete_target_header.h"),
+    bool hasCopied = QFile::copy(QString::fromUtf8(TESTDATA_DIR "/complete_target_header.h"),
                                  targetHeaderPath);
     EXPECT_TRUE(hasCopied);
 }
@@ -126,7 +126,7 @@ void CodeCompleter::copyTargetHeaderToTemporaryIncludeDirecory()
 void CodeCompleter::copyChangedTargetHeaderToTemporaryIncludeDirecory()
 {
     QFile::remove(targetHeaderPath);
-    bool hasCopied = QFile::copy(QStringLiteral(TESTDATA_DIR "/complete_target_header_changed.h"),
+    bool hasCopied = QFile::copy(QString::fromUtf8(TESTDATA_DIR "/complete_target_header_changed.h"),
                                  targetHeaderPath);
     EXPECT_TRUE(hasCopied);
 }
