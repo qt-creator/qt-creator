@@ -843,6 +843,11 @@ void DebuggerCommand::arg(const char *value)
     args = arr;
 }
 
+void DebuggerCommand::arg(const char *name, bool value)
+{
+    args = addToJsonObject(args, name, value);
+}
+
 void DebuggerCommand::arg(const char *name, const QJsonValue &value)
 {
     args = addToJsonObject(args, name, value);

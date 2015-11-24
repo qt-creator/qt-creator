@@ -58,6 +58,7 @@ public:
     DebuggerCommand(const QByteArray &f, int fl, const Callback &cb) : function(f), callback(cb), flags(fl) {}
 
     void arg(const char *value);
+    void arg(const char *name, bool value);
     void arg(const char *name, int value);
     void arg(const char *name, qlonglong value);
     void arg(const char *name, qulonglong value);
