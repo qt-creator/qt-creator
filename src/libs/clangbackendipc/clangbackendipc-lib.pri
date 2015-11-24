@@ -6,8 +6,6 @@ contains(CONFIG, dll) {
 
 QT += network
 
-DEFINES += CLANGBACKENDIPC_LIBRARY
-
 INCLUDEPATH += $$PWD
 
 SOURCES += $$PWD/ipcserverinterface.cpp \
