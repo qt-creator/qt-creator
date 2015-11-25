@@ -41,7 +41,6 @@ QtcPlugin {
             "generalsettingspage.cpp", "generalsettingspage.h", "generalsettingspage.ui",
             "help.qrc",
             "helpconstants.h",
-            "helpicons.h",
             "helpfindsupport.cpp", "helpfindsupport.h",
             "helpindexfilter.cpp", "helpindexfilter.h",
             "helpmode.cpp", "helpmode.h",
@@ -71,6 +70,7 @@ QtcPlugin {
             "bookmarkmanager.cpp", "bookmarkmanager.h",
             "contentwindow.cpp", "contentwindow.h",
             "filternamedialog.cpp", "filternamedialog.h", "filternamedialog.ui",
+            "helpicons.h",
             "indexwindow.cpp", "indexwindow.h",
             "topicchooser.cpp", "topicchooser.h", "topicchooser.ui",
         ]
