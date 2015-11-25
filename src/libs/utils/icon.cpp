@@ -213,8 +213,7 @@ QString Icon::imageFileName() const
 
 Icon& Icon::operator=(const Icon &other)
 {
-    clear();
-    append(other);
+    QVector::operator =(other);
     m_style = other.m_style;
     return *this;
 }
