@@ -45,6 +45,28 @@
 #include <QSet>
 #include <QDebug>
 
+namespace {
+
+class DepthProperties
+{
+public:
+    DepthProperties() = default;
+    DepthProperties(qmt::DefaultStyleEngine::ElementType elementType,
+                    qmt::DObject::VisualPrimaryRole visualPrimaryRole,
+                    qmt::DObject::VisualSecondaryRole visualSecondaryRole)
+        : m_elementType(elementType),
+          m_visualPrimaryRole(visualPrimaryRole),
+          m_visualSecondaryRole(visualSecondaryRole)
+    {
+    }
+
+    qmt::DefaultStyleEngine::ElementType m_elementType = qmt::DefaultStyleEngine::TypeOther;
+    qmt::DObject::VisualPrimaryRole m_visualPrimaryRole = qmt::DObject::PrimaryRoleNormal;
+    qmt::DObject::VisualSecondaryRole m_visualSecondaryRole = qmt::DObject::SecondaryRoleNone;
+};
+
+} // namespace
+
 namespace qmt {
 
 // TODO use tuple instead of these 4 explicit key classes
@@ -240,26 +262,6 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
                                                   const Parameters *parameters)
 {
     ElementType elementType = objectType(styledObject.object());
-
-    class DepthProperties
-    {
-    public:
-        DepthProperties()
-        {
-        }
-
-        DepthProperties(ElementType elementType, DObject::VisualPrimaryRole visualPrimaryRole,
-                        DObject::VisualSecondaryRole visualSecondaryRole)
-            : m_elementType(elementType),
-              m_visualPrimaryRole(visualPrimaryRole),
-              m_visualSecondaryRole(visualSecondaryRole)
-        {
-        }
-
-        ElementType m_elementType = DefaultStyleEngine::TypeOther;
-        DObject::VisualPrimaryRole m_visualPrimaryRole = DObject::PrimaryRoleNormal;
-        DObject::VisualSecondaryRole m_visualSecondaryRole = DObject::SecondaryRoleNone;
-    };
 
     // find colliding elements which best match visual appearance of styled object
     DObject::VisualPrimaryRole styledVisualPrimaryRole = styledObject.objectVisuals().visualPrimaryRole();
