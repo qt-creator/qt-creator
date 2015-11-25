@@ -54,6 +54,7 @@
 #include <translationunitdoesnotexistmessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
 #include <updatetranslationunitsforeditormessage.h>
+#include <updatevisibletranslationunitsmessage.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -240,6 +241,18 @@ void ClangIpcServer::requestDiagnostics(const RequestDiagnosticsMessage &message
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangIpcServer::requestDiagnostics:" << exception.what();
+    }
+}
+
+void ClangIpcServer::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
+{
+    TIME_SCOPE_DURATION("ClangIpcServer::updateVisibleTranslationUnits");
+
+    try {
+        translationUnits.setCurrentEditor(message.currentEditorFilePath());
+        translationUnits.setVisibleEditors(message.visibleEditorFilePaths());
+    }  catch (const std::exception &exception) {
+        qWarning() << "Error in ClangIpcServer::updateVisibleTranslationUnits:" << exception.what();
     }
 }
 

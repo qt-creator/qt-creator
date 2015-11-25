@@ -50,6 +50,7 @@ class DiagnosticsChangedMessage;
 class RequestDiagnosticsMessage;
 class RegisterUnsavedFilesForEditorMessage;
 class UnregisterUnsavedFilesForEditorMessage;
+class UpdateVisibleTranslationUnitsMessage;
 
 class CMBIPC_EXPORT IpcClientInterface : public IpcInterface
 {

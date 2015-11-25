@@ -60,6 +60,8 @@ public:
                  void(const ClangBackEnd::CompleteCodeMessage &message));
     MOCK_METHOD1(requestDiagnostics,
                  void(const ClangBackEnd::RequestDiagnosticsMessage &message));
+    MOCK_METHOD1(updateVisibleTranslationUnits,
+                 void(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message));
 };
 
 #endif // MOCKIPCSERVER_H

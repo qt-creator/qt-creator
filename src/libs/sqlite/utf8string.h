@@ -36,6 +36,8 @@
 #include <QByteArray>
 #include <QMetaType>
 
+#include <iosfwd>
+
 class Utf8StringVector;
 class Utf8String;
 
@@ -120,6 +122,7 @@ SQLITE_EXPORT QDataStream &operator<<(QDataStream &datastream, const Utf8String 
 SQLITE_EXPORT QDataStream &operator>>(QDataStream &datastream, Utf8String &text);
 SQLITE_EXPORT QDebug operator<<(QDebug debug, const Utf8String &text);
 SQLITE_EXPORT void PrintTo(const Utf8String &text, ::std::ostream* os);
+SQLITE_EXPORT std::ostream& operator<<(std::ostream &os, const Utf8String &utf8String);
 
 SQLITE_EXPORT uint qHash(const Utf8String &utf8String);
 

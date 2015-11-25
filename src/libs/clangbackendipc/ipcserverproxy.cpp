@@ -42,6 +42,7 @@
 #include <requestdiagnosticsmessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
 #include <updatetranslationunitsforeditormessage.h>
+#include <updatevisibletranslationunitsmessage.h>
 
 #include <QLocalServer>
 #include <QLocalSocket>
@@ -115,6 +116,11 @@ void IpcServerProxy::completeCode(const CompleteCodeMessage &message)
 }
 
 void IpcServerProxy::requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message)
+{
+    writeMessageBlock.write(QVariant::fromValue(message));
+}
+
+void IpcServerProxy::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
     writeMessageBlock.write(QVariant::fromValue(message));
 }

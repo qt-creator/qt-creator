@@ -65,7 +65,7 @@ public:
     void unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message) override;
     void completeCode(const CompleteCodeMessage &message) override;
     void requestDiagnostics(const RequestDiagnosticsMessage &message) override;
-
+    void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
     void readMessages();
 
     void resetCounter();
