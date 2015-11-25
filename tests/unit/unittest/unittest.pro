@@ -63,6 +63,7 @@ HEADERS += \
     mockipclient.h \
     mockipcserver.h \
     spydummy.h \
-    matcher-diagnosticcontainer.h
+    matcher-diagnosticcontainer.h \
+    mocksenddiagnosticscallback.h
 
 OTHER_FILES += $$files(data/*)

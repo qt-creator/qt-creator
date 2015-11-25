@@ -43,8 +43,9 @@
 #include <unsavedfiles.h>
 #include <utf8string.h>
 
-
 #include <clang-c/Index.h>
+
+#include "mocksenddiagnosticscallback.h"
 
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
@@ -54,6 +55,8 @@
 using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
+using ClangBackEnd::DiagnosticsChangedMessage;
+using ClangBackEnd::DiagnosticSendState;
 
 using testing::IsNull;
 using testing::NotNull;
@@ -81,22 +84,23 @@ class TranslationUnits : public ::testing::Test
 {
 protected:
     void SetUp() override;
+    void sendAllDiagnostics();
+    void sendAllCurrentEditorDiagnostics();
+    void sendAllVisibleEditorsDiagnostics();
 
+protected:
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
+    MockSendDiagnosticCallback mockSendDiagnosticCallback;
     const Utf8String filePath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp");
     const Utf8String headerPath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.h");
     const Utf8String nonExistingFilePath = Utf8StringLiteral("foo.cpp");
     const Utf8String projectPartId = Utf8StringLiteral("projectPartId");
     const Utf8String nonExistingProjectPartId = Utf8StringLiteral("nonExistingProjectPartId");
+    const ClangBackEnd::FileContainer fileContainer{filePath, projectPartId};
+    const ClangBackEnd::FileContainer headerContainer{headerPath, projectPartId};
 };
-
-void TranslationUnits::SetUp()
-{
-    projects.createOrUpdate({ClangBackEnd::ProjectPartContainer(projectPartId)});
-}
-
 
 TEST_F(TranslationUnits, ThrowForGettingWithWrongFilePath)
 {
@@ -277,6 +281,195 @@ TEST_F(TranslationUnits, HasTranslationUnit)
 TEST_F(TranslationUnits, HasNotTranslationUnit)
 {
     ASSERT_FALSE(translationUnits.hasTranslationUnit(filePath));
+}
+
+TEST_F(TranslationUnits, isUsedByCurrentEditor)
+{
+    translationUnits.create({fileContainer});
+    auto translationUnit = translationUnits.translationUnit(fileContainer);
+
+    translationUnits.setCurrentEditor(filePath);
+
+    ASSERT_TRUE(translationUnit.isUsedByCurrentEditor());
+}
+
+TEST_F(TranslationUnits, IsNotCurrentEditor)
+{
+    translationUnits.create({fileContainer});
+    auto translationUnit = translationUnits.translationUnit(fileContainer);
+
+    translationUnits.setCurrentEditor(headerPath);
+
+    ASSERT_FALSE(translationUnit.isUsedByCurrentEditor());
+}
+
+TEST_F(TranslationUnits, IsNotCurrentEditorAfterBeingCurrent)
+{
+    translationUnits.create({fileContainer});
+    auto translationUnit = translationUnits.translationUnit(fileContainer);
+    translationUnits.setCurrentEditor(filePath);
+
+    translationUnits.setCurrentEditor(headerPath);
+
+    ASSERT_FALSE(translationUnit.isUsedByCurrentEditor());
+}
+
+TEST_F(TranslationUnits, IsVisibleEditor)
+{
+    translationUnits.create({fileContainer});
+    auto translationUnit = translationUnits.translationUnit(fileContainer);
+
+    translationUnits.setVisibleEditors({filePath});
+
+    ASSERT_TRUE(translationUnit.isVisibleInEditor());
+}
+
+TEST_F(TranslationUnits, IsNotVisibleEditor)
+{
+    translationUnits.create({fileContainer});
+    auto translationUnit = translationUnits.translationUnit(fileContainer);
+
+    translationUnits.setVisibleEditors({headerPath});
+
+    ASSERT_FALSE(translationUnit.isVisibleInEditor());
+}
+
+TEST_F(TranslationUnits, IsNotVisibleEditorAfterBeingVisible)
+{
+    translationUnits.create({fileContainer});
+    auto translationUnit = translationUnits.translationUnit(fileContainer);
+    translationUnits.setVisibleEditors({filePath});
+
+    translationUnits.setVisibleEditors({headerPath});
+
+    ASSERT_FALSE(translationUnit.isVisibleInEditor());
+}
+
+TEST_F(TranslationUnits, DoNotSendDiagnosticsIfThereIsNothingToSend)
+{
+    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(0);
+
+    sendAllDiagnostics();
+}
+
+TEST_F(TranslationUnits, SendDiagnosticsAfterTranslationUnitCreation)
+{
+    translationUnits.create({fileContainer, headerContainer});
+
+    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(2);
+
+    sendAllDiagnostics();
+}
+
+TEST_F(TranslationUnits, DoNotSendDiagnosticsAfterGettingDiagnostics)
+{
+    translationUnits.create({fileContainer, headerContainer});
+    auto translationUnit = translationUnits.translationUnit(fileContainer);
+    translationUnit.diagnostics();
+
+    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(1);
+
+    sendAllDiagnostics();
+}
+
+TEST_F(TranslationUnits, SendDiagnosticsForCurrentEditor)
+{
+    translationUnits.create({fileContainer, headerContainer});
+    auto translationUnit = translationUnits.translationUnit(fileContainer);
+    translationUnit.setIsUsedByCurrentEditor(true);
+
+    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(1);
+
+    sendAllCurrentEditorDiagnostics();
+}
+
+TEST_F(TranslationUnits, DoNotSendDiagnosticsForCurrentEditorIfThereIsNoCurrentEditor)
+{
+    translationUnits.create({fileContainer, headerContainer});
+
+    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(0);
+
+    sendAllCurrentEditorDiagnostics();
+}
+
+TEST_F(TranslationUnits, DoNotSendDiagnosticsForCurrentEditorAfterGettingDiagnostics)
+{
+    translationUnits.create({fileContainer, headerContainer});
+    auto translationUnit = translationUnits.translationUnit(fileContainer);
+    translationUnit.setIsUsedByCurrentEditor(true);
+    translationUnit.diagnostics();
+
+    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(0);
+
+    sendAllCurrentEditorDiagnostics();
+}
+
+TEST_F(TranslationUnits, DoNotSendDiagnosticsForVisibleEditorIfThereAreNoVisibleEditors)
+{
+    translationUnits.create({fileContainer, headerContainer});
+
+    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(0);
+
+    translationUnits.sendChangedDiagnosticsForVisibleEditors();
+}
+
+TEST_F(TranslationUnits, SendDiagnosticsForVisibleEditors)
+{
+    translationUnits.create({fileContainer, headerContainer});
+    auto fileTranslationUnit = translationUnits.translationUnit(fileContainer);
+    fileTranslationUnit.setIsVisibleInEditor(true);
+    auto headerTranslationUnit = translationUnits.translationUnit(headerContainer);
+    headerTranslationUnit.setIsVisibleInEditor(true);
+
+    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(2);
+
+    sendAllVisibleEditorsDiagnostics();
+}
+
+TEST_F(TranslationUnits, SendOnlyOneDiagnosticsForVisibleEditor)
+{
+    translationUnits.create({fileContainer, headerContainer});
+    auto fileTranslationUnit = translationUnits.translationUnit(fileContainer);
+    fileTranslationUnit.setIsVisibleInEditor(true);
+    auto headerTranslationUnit = translationUnits.translationUnit(headerContainer);
+    headerTranslationUnit.setIsVisibleInEditor(true);
+    headerTranslationUnit.diagnostics();
+
+    EXPECT_CALL(mockSendDiagnosticCallback, sendDiagnostic()).Times(1);
+
+    sendAllVisibleEditorsDiagnostics();
+}
+
+void TranslationUnits::SetUp()
+{
+    projects.createOrUpdate({ClangBackEnd::ProjectPartContainer(projectPartId)});
+
+    auto callback = [&] (const DiagnosticsChangedMessage &) { mockSendDiagnosticCallback.sendDiagnostic(); };
+    translationUnits.setSendChangeDiagnosticsCallback(callback);
+}
+
+void TranslationUnits::sendAllDiagnostics()
+{
+    auto diagnosticSendState = DiagnosticSendState::MaybeThereAreMoreDiagnostics;
+
+    while (diagnosticSendState == DiagnosticSendState::MaybeThereAreMoreDiagnostics)
+        diagnosticSendState = translationUnits.sendChangedDiagnostics();
+}
+
+void TranslationUnits::sendAllCurrentEditorDiagnostics()
+{
+    auto diagnosticSendState = DiagnosticSendState::MaybeThereAreMoreDiagnostics;
+
+    while (diagnosticSendState == DiagnosticSendState::MaybeThereAreMoreDiagnostics)
+        diagnosticSendState = translationUnits.sendChangedDiagnosticsForCurrentEditor();
+}
+
+void TranslationUnits::sendAllVisibleEditorsDiagnostics()
+{
+    auto diagnosticSendState = DiagnosticSendState::MaybeThereAreMoreDiagnostics;
+
+    while (diagnosticSendState == DiagnosticSendState::MaybeThereAreMoreDiagnostics)
+        diagnosticSendState = translationUnits.sendChangedDiagnosticsForVisibleEditors();
 }
 
 }

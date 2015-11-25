@@ -85,6 +85,8 @@ public:
     uint documentRevision = 0;
     bool needsToBeReparsed = false;
     bool hasNewDiagnostics = true;
+    bool isUsedByCurrentEditor = false;
+    bool isVisibleInEditor = false;
 };
 
 TranslationUnitData::TranslationUnitData(const Utf8String &filePath,
@@ -123,6 +125,26 @@ TranslationUnit::TranslationUnit(const Utf8String &filePath,
 bool TranslationUnit::isNull() const
 {
     return !d;
+}
+
+void TranslationUnit::setIsUsedByCurrentEditor(bool isUsedByCurrentEditor)
+{
+    d->isUsedByCurrentEditor = isUsedByCurrentEditor;
+}
+
+bool TranslationUnit::isUsedByCurrentEditor() const
+{
+    return d->isUsedByCurrentEditor;
+}
+
+void TranslationUnit::setIsVisibleInEditor(bool isVisibleInEditor)
+{
+    d->isVisibleInEditor = isVisibleInEditor;
+}
+
+bool TranslationUnit::isVisibleInEditor() const
+{
+    return d->isVisibleInEditor;
 }
 
 void TranslationUnit::reset()
