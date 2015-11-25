@@ -69,7 +69,7 @@ public:
     // where icons are still defined as filename.
     QString imageFileName() const;
 
-    Icon& Icon::operator=(const Icon &other);
+    Icon &operator=(const Icon &other);
 
 private:
     Style m_style = Style::Plain;
