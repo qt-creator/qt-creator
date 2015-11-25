@@ -280,8 +280,8 @@ void ClangIpcServer::updateVisibleTranslationUnits(const UpdateVisibleTranslatio
     TIME_SCOPE_DURATION("ClangIpcServer::updateVisibleTranslationUnits");
 
     try {
-        translationUnits.setCurrentEditor(message.currentEditorFilePath());
-        translationUnits.setVisibleEditors(message.visibleEditorFilePaths());
+        translationUnits.setUsedByCurrentEditor(message.currentEditorFilePath());
+        translationUnits.setVisibleInEditors(message.visibleEditorFilePaths());
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangIpcServer::updateVisibleTranslationUnits:" << exception.what();
     }

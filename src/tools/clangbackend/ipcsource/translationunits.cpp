@@ -100,13 +100,13 @@ void TranslationUnits::remove(const QVector<FileContainer> &fileContainers)
     updateTranslationUnitsWithChangedDependencies(fileContainers);
 }
 
-void TranslationUnits::setCurrentEditor(const Utf8String &filePath)
+void TranslationUnits::setUsedByCurrentEditor(const Utf8String &filePath)
 {
     for (TranslationUnit &translationUnit : translationUnits_)
         translationUnit.setIsUsedByCurrentEditor(translationUnit.filePath() == filePath);
 }
 
-void TranslationUnits::setVisibleEditors(const Utf8StringVector &filePaths)
+void TranslationUnits::setVisibleInEditors(const Utf8StringVector &filePaths)
 {
     for (TranslationUnit &translationUnit : translationUnits_)
         translationUnit.setIsVisibleInEditor(filePaths.contains(translationUnit.filePath()));

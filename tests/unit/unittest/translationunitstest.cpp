@@ -317,7 +317,7 @@ TEST_F(TranslationUnits, isUsedByCurrentEditor)
     translationUnits.create({fileContainer});
     auto translationUnit = translationUnits.translationUnit(fileContainer);
 
-    translationUnits.setCurrentEditor(filePath);
+    translationUnits.setUsedByCurrentEditor(filePath);
 
     ASSERT_TRUE(translationUnit.isUsedByCurrentEditor());
 }
@@ -327,7 +327,7 @@ TEST_F(TranslationUnits, IsNotCurrentEditor)
     translationUnits.create({fileContainer});
     auto translationUnit = translationUnits.translationUnit(fileContainer);
 
-    translationUnits.setCurrentEditor(headerPath);
+    translationUnits.setUsedByCurrentEditor(headerPath);
 
     ASSERT_FALSE(translationUnit.isUsedByCurrentEditor());
 }
@@ -336,9 +336,9 @@ TEST_F(TranslationUnits, IsNotCurrentEditorAfterBeingCurrent)
 {
     translationUnits.create({fileContainer});
     auto translationUnit = translationUnits.translationUnit(fileContainer);
-    translationUnits.setCurrentEditor(filePath);
+    translationUnits.setUsedByCurrentEditor(filePath);
 
-    translationUnits.setCurrentEditor(headerPath);
+    translationUnits.setUsedByCurrentEditor(headerPath);
 
     ASSERT_FALSE(translationUnit.isUsedByCurrentEditor());
 }
@@ -348,7 +348,7 @@ TEST_F(TranslationUnits, IsVisibleEditor)
     translationUnits.create({fileContainer});
     auto translationUnit = translationUnits.translationUnit(fileContainer);
 
-    translationUnits.setVisibleEditors({filePath});
+    translationUnits.setVisibleInEditors({filePath});
 
     ASSERT_TRUE(translationUnit.isVisibleInEditor());
 }
@@ -358,7 +358,7 @@ TEST_F(TranslationUnits, IsNotVisibleEditor)
     translationUnits.create({fileContainer});
     auto translationUnit = translationUnits.translationUnit(fileContainer);
 
-    translationUnits.setVisibleEditors({headerPath});
+    translationUnits.setVisibleInEditors({headerPath});
 
     ASSERT_FALSE(translationUnit.isVisibleInEditor());
 }
@@ -367,9 +367,9 @@ TEST_F(TranslationUnits, IsNotVisibleEditorAfterBeingVisible)
 {
     translationUnits.create({fileContainer});
     auto translationUnit = translationUnits.translationUnit(fileContainer);
-    translationUnits.setVisibleEditors({filePath});
+    translationUnits.setVisibleInEditors({filePath});
 
-    translationUnits.setVisibleEditors({headerPath});
+    translationUnits.setVisibleInEditors({headerPath});
 
     ASSERT_FALSE(translationUnit.isVisibleInEditor());
 }

@@ -67,8 +67,8 @@ public:
     void update(const QVector<FileContainer> &fileContainers);
     void remove(const QVector<FileContainer> &fileContainers);
 
-    void setCurrentEditor(const Utf8String &filePath);
-    void setVisibleEditors(const Utf8StringVector &filePaths);
+    void setUsedByCurrentEditor(const Utf8String &filePath);
+    void setVisibleInEditors(const Utf8StringVector &filePaths);
 
     const TranslationUnit &translationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const;
     const TranslationUnit &translationUnit(const FileContainer &fileContainer) const;
