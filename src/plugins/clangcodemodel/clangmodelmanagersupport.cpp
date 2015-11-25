@@ -197,6 +197,15 @@ void ModelManagerSupportClang::onCppDocumentReloadFinishedOnTranslationUnit(bool
     }
 }
 
+namespace {
+void clearDiagnosticFixIts(const QString &filePath)
+{
+    auto processor = ClangEditorDocumentProcessor::get(filePath);
+    if (processor)
+        processor->clearDiagnosticsWithFixIts();
+}
+}
+
 void ModelManagerSupportClang::onCppDocumentContentsChangedOnTranslationUnit(int position,
                                                                              int /*charsRemoved*/,
                                                                              int /*charsAdded*/)
@@ -206,6 +215,8 @@ void ModelManagerSupportClang::onCppDocumentContentsChangedOnTranslationUnit(int
     m_ipcCommunicator.updateChangeContentStartPosition(document->filePath().toString(),
                                                        position);
     m_ipcCommunicator.updateTranslationUnitIfNotCurrentDocument(document);
+
+    clearDiagnosticFixIts(document->filePath().toString());
 }
 
 void ModelManagerSupportClang::onCppDocumentAboutToReloadOnUnsavedFile()

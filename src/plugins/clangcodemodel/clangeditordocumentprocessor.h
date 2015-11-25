@@ -81,6 +81,8 @@ public:
 
     ClangBackEnd::FileContainer fileContainer() const;
 
+    void clearDiagnosticsWithFixIts();
+
 public:
     static ClangEditorDocumentProcessor *get(const QString &filePath);
 

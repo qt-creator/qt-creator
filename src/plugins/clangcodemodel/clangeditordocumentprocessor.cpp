@@ -224,6 +224,11 @@ ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainer() const
     return fileContainer(m_projectPart.data());
 }
 
+void ClangEditorDocumentProcessor::clearDiagnosticsWithFixIts()
+{
+    m_diagnosticManager.clearDiagnosticsWithFixIts();
+}
+
 ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &filePath)
 {
     return qobject_cast<ClangEditorDocumentProcessor *>(BaseEditorDocumentProcessor::get(filePath));

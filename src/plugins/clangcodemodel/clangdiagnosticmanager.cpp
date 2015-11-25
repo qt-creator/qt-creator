@@ -189,6 +189,11 @@ QList<QTextEdit::ExtraSelection> ClangDiagnosticManager::takeExtraSelections()
     return extraSelections;
 }
 
+void ClangDiagnosticManager::clearDiagnosticsWithFixIts()
+{
+    m_fixItdiagnostics.clear();
+}
+
 void ClangDiagnosticManager::generateEditorSelections()
 {
     m_extraSelections.clear();
