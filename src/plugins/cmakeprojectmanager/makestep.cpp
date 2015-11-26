@@ -34,6 +34,7 @@
 #include "cmakeparser.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
+#include "cmakerunconfiguration.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
@@ -66,17 +67,19 @@ const char MS_ID[] = "CMakeProjectManager.MakeStep";
 const char CLEAN_KEY[] = "CMakeProjectManager.MakeStep.Clean";
 const char BUILD_TARGETS_KEY[] = "CMakeProjectManager.MakeStep.BuildTargets";
 const char ADDITIONAL_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.AdditionalArguments";
+const char ADD_RUNCONFIGURATION_ARGUMENT_KEY[] = "CMakeProjectManager.MakeStep.AddRunConfigurationArgument";
 const char MAKE_COMMAND_KEY[] = "CMakeProjectManager.MakeStep.MakeCommand";
+const char ADD_RUNCONFIGURATION_TEXT[] = "Current executable";
 }
 
 MakeStep::MakeStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, Core::Id(MS_ID)), m_clean(false)
+    AbstractProcessStep(bsl, Core::Id(MS_ID)), m_clean(false), m_addRunConfigurationArgument(false)
 {
     ctor();
 }
 
 MakeStep::MakeStep(BuildStepList *bsl, Core::Id id) :
-    AbstractProcessStep(bsl, id), m_clean(false)
+    AbstractProcessStep(bsl, id), m_clean(false), m_addRunConfigurationArgument(false)
 {
     ctor();
 }
@@ -86,6 +89,7 @@ MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
     m_clean(bs->m_clean),
     m_buildTargets(bs->m_buildTargets),
     m_additionalArguments(bs->m_additionalArguments),
+    m_addRunConfigurationArgument(bs->m_addRunConfigurationArgument),
     m_makeCmd(bs->m_makeCmd)
 {
     ctor();
@@ -125,6 +129,11 @@ CMakeBuildConfiguration *MakeStep::targetsActiveBuildConfiguration() const
     return static_cast<CMakeBuildConfiguration *>(target()->activeBuildConfiguration());
 }
 
+CMakeRunConfiguration *MakeStep::targetsActiveRunConfiguration() const
+{
+    return qobject_cast<CMakeRunConfiguration *>(target()->activeRunConfiguration());
+}
+
 void MakeStep::activeBuildConfigurationChanged()
 {
     if (m_activeConfiguration)
@@ -159,15 +168,17 @@ QVariantMap MakeStep::toMap() const
     map.insert(QLatin1String(CLEAN_KEY), m_clean);
     map.insert(QLatin1String(BUILD_TARGETS_KEY), m_buildTargets);
     map.insert(QLatin1String(ADDITIONAL_ARGUMENTS_KEY), m_additionalArguments);
+    map.insert(QLatin1String(ADD_RUNCONFIGURATION_ARGUMENT_KEY), m_addRunConfigurationArgument);
     map.insert(QLatin1String(MAKE_COMMAND_KEY), m_makeCmd);
     return map;
 }
 
 bool MakeStep::fromMap(const QVariantMap &map)
 {
-    m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
+    m_clean = map.value(QLatin1String(CLEAN_KEY), false).toBool();
     m_buildTargets = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
     m_additionalArguments = map.value(QLatin1String(ADDITIONAL_ARGUMENTS_KEY)).toString();
+    m_addRunConfigurationArgument = map.value(QLatin1String(ADD_RUNCONFIGURATION_ARGUMENT_KEY), false).toBool();
     m_makeCmd = map.value(QLatin1String(MAKE_COMMAND_KEY)).toString();
 
     return BuildStep::fromMap(map);
@@ -194,7 +205,24 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
 
     m_useNinja = bc->useNinja();
 
-    QString arguments = Utils::QtcProcess::joinArgs(m_buildTargets);
+    QString arguments;
+    if (m_addRunConfigurationArgument) {
+        CMakeRunConfiguration* rc = targetsActiveRunConfiguration();
+        if (!rc) {
+            emit addTask(Task(Task::Error,
+                              QCoreApplication::translate("ProjectExplorer::Task",
+                                        "You asked to build the current Run Configurations build target only, "
+                                        "but the current Run Configuration is not associated with a build target. "
+                                        "Please update the Make Step in your build settings."),
+                            Utils::FileName(), -1,
+                            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            emitFaultyConfigurationMessage();
+            return false;
+        }
+        if (!rc->title().isEmpty())
+            Utils::QtcProcess::addArg(&arguments, rc->title());
+    }
+    Utils::QtcProcess::addArgs(&arguments, m_buildTargets);
     Utils::QtcProcess::addArgs(&arguments, additionalArguments());
 
     setIgnoreReturnValue(m_clean);
@@ -268,17 +296,24 @@ QStringList MakeStep::buildTargets() const
 
 bool MakeStep::buildsBuildTarget(const QString &target) const
 {
-    return m_buildTargets.contains(target);
+    if (target == tr(ADD_RUNCONFIGURATION_TEXT))
+        return addRunConfigurationArgument();
+    else
+        return m_buildTargets.contains(target);
 }
 
 void MakeStep::setBuildTarget(const QString &buildTarget, bool on)
 {
-    QStringList old = m_buildTargets;
-    if (on && !old.contains(buildTarget))
-        old << buildTarget;
-    else if (!on && old.contains(buildTarget))
-        old.removeOne(buildTarget);
-    setBuildTargets(old);
+    if (buildTarget == tr(ADD_RUNCONFIGURATION_TEXT)) {
+        setAddRunConfigurationArgument(on);
+    } else {
+        QStringList old = m_buildTargets;
+        if (on && !old.contains(buildTarget))
+            old << buildTarget;
+        else if (!on && old.contains(buildTarget))
+            old.removeOne(buildTarget);
+        setBuildTargets(old);
+    }
 }
 
 void MakeStep::setBuildTargets(const QStringList &targets)
@@ -302,6 +337,16 @@ QString MakeStep::additionalArguments() const
 void MakeStep::setAdditionalArguments(const QString &list)
 {
     m_additionalArguments = list;
+}
+
+bool MakeStep::addRunConfigurationArgument() const
+{
+    return m_addRunConfigurationArgument;
+}
+
+void MakeStep::setAddRunConfigurationArgument(bool add)
+{
+    m_addRunConfigurationArgument = add;
 }
 
 QString MakeStep::makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const
@@ -367,6 +412,13 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     fl->addRow(tr("Targets:"), frame);
 
+    auto itemAddRunConfigurationArgument = new QListWidgetItem(tr(ADD_RUNCONFIGURATION_TEXT), m_buildTargetsList);
+    itemAddRunConfigurationArgument->setFlags(itemAddRunConfigurationArgument->flags() | Qt::ItemIsUserCheckable);
+    itemAddRunConfigurationArgument->setCheckState(m_makeStep->addRunConfigurationArgument() ? Qt::Checked : Qt::Unchecked);
+    QFont f;
+    f.setItalic(true);
+    itemAddRunConfigurationArgument->setFont(f);
+
     CMakeProject *pro = static_cast<CMakeProject *>(m_makeStep->project());
     QStringList targetList = pro->buildTargetTitles();
     targetList.sort();
@@ -416,7 +468,11 @@ QString MakeStepConfigWidget::displayName() const
 void MakeStepConfigWidget::buildTargetsChanged()
 {
     disconnect(m_buildTargetsList, &QListWidget::itemChanged, this, &MakeStepConfigWidget::itemChanged);
+
+    auto *addRunConfigurationArgumentItem = m_buildTargetsList->takeItem(0);
     m_buildTargetsList->clear();
+    m_buildTargetsList->insertItem(0, addRunConfigurationArgumentItem);
+
     CMakeProject *pro = static_cast<CMakeProject *>(m_makeStep->target()->project());
     foreach (const QString& buildTarget, pro->buildTargetTitles()) {
         QListWidgetItem *item = new QListWidgetItem(buildTarget, m_buildTargetsList);
@@ -451,7 +507,11 @@ void MakeStepConfigWidget::updateDetails()
 
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_makeStep->target()->kit());
     if (tc) {
-        QString arguments = Utils::QtcProcess::joinArgs(m_makeStep->buildTargets());
+        QString arguments;
+        if (m_makeStep->addRunConfigurationArgument())
+            arguments = QLatin1String("<i>&lt;") + tr(ADD_RUNCONFIGURATION_TEXT) + QLatin1String("&gt;</i>");
+
+        Utils::QtcProcess::addArgs(&arguments, Utils::QtcProcess::joinArgs(m_makeStep->buildTargets()));
         Utils::QtcProcess::addArgs(&arguments, m_makeStep->additionalArguments());
 
         ProcessParameters param;

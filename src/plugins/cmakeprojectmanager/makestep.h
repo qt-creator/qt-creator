@@ -47,6 +47,7 @@ namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeBuildConfiguration;
+class CMakeRunConfiguration;
 class MakeStepFactory;
 
 class MakeStep : public ProjectExplorer::AbstractProcessStep
@@ -74,6 +75,9 @@ public:
 
     QString additionalArguments() const;
     void setAdditionalArguments(const QString &list);
+
+    bool addRunConfigurationArgument() const;
+    void setAddRunConfigurationArgument(bool add);
 
     QString makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const;
 
@@ -106,6 +110,7 @@ protected:
 private:
     void ctor();
     CMakeBuildConfiguration *targetsActiveBuildConfiguration() const;
+    CMakeRunConfiguration *targetsActiveRunConfiguration() const;
 
     bool m_clean;
     QRegExp m_percentProgress;
@@ -113,6 +118,7 @@ private:
     QString m_ninjaProgressString;
     QStringList m_buildTargets;
     QString m_additionalArguments;
+    bool m_addRunConfigurationArgument;
     bool m_useNinja;
     CMakeBuildConfiguration *m_activeConfiguration;
     QString m_makeCmd;
