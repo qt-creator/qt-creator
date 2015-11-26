@@ -219,6 +219,8 @@ void QmlInspectorAgent::watchDataSelected(quint64 id)
     if (id) {
         QTC_ASSERT(m_debugIdLocations.keys().contains(id), return);
         jumpToObjectDefinitionInEditor(m_debugIdLocations.value(id), id);
+        if (m_toolsClient)
+            m_toolsClient->setObjectIdList({ObjectReference(static_cast<int>(id))});
     }
 }
 

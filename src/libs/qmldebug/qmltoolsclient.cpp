@@ -94,10 +94,18 @@ void QmlToolsClient::messageReceived(const QByteArray &message)
     }
 }
 
-void QmlToolsClient::setObjectIdList(
-        const QList<ObjectReference> &/*objectRoots*/)
+void QmlToolsClient::setObjectIdList(const QList<ObjectReference> &objectRoots)
 {
-    //NOT IMPLEMENTED
+    if (!m_connection || !m_connection->isConnected())
+        return;
+
+    QList<int> debugIds;
+    foreach (const ObjectReference &object, objectRoots)
+        debugIds << object.debugId();
+
+    QPacket ds(connection()->currentDataStreamVersion());
+    ds << QByteArray(REQUEST) << m_requestId++ << QByteArray(SELECT) << debugIds;
+    sendMessage(ds.data());
 }
 
 void QmlToolsClient::setDesignModeBehavior(bool inDesignMode)
