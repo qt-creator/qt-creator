@@ -93,8 +93,6 @@ private:
     class QmlProfilerClientManagerPrivate;
     QmlProfilerClientManagerPrivate *d;
 
-    void connectToClient();
-
     void createConnection();
     void connectClientSignals();
     void disconnectClientSignals();

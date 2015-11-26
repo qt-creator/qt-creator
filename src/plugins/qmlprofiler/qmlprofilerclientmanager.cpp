@@ -152,6 +152,7 @@ void QmlProfilerClientManager::connectTcpClient(quint16 port)
     createConnection();
     d->connectionTimer.start();
     d->tcpPort = port;
+    d->connection->connectToHost(d->tcpHost, d->tcpPort);
 }
 
 void QmlProfilerClientManager::connectLocalClient(const QString &file)
@@ -240,14 +241,6 @@ void QmlProfilerClientManager::disconnectClientSignals()
     }
 }
 
-void QmlProfilerClientManager::connectToClient()
-{
-    if (!d->connection || d->connection->isConnected() || d->connection->isConnecting())
-        return;
-
-    d->connection->connectToHost(d->tcpHost, d->tcpPort);
-}
-
 bool QmlProfilerClientManager::isConnected() const
 {
     return d->connection && d->connection->isConnected();
@@ -270,8 +263,7 @@ void QmlProfilerClientManager::tryToConnect()
     if (d->connection && d->connection->isConnected()) {
         d->connectionTimer.stop();
         d->connectionAttempts = 0;
-    } else if (d->connection &&
-               d->connection->socketState() != QAbstractSocket::ConnectedState) {
+    } else if (d->connection && d->connection->socketState() != QAbstractSocket::ConnectedState) {
         // Replace the connection after trying for some time. On some operating systems (OSX) the
         // very first connection to a TCP server takes a very long time to get established.
 
@@ -280,7 +272,6 @@ void QmlProfilerClientManager::tryToConnect()
         delete d->connection;
         d->connection = 0;
         connectTcpClient(d->tcpPort);
-        connectToClient();
     } else if (d->connectionAttempts == 50) {
         d->connectionTimer.stop();
         d->connectionAttempts = 0;
@@ -302,8 +293,6 @@ void QmlProfilerClientManager::tryToConnect()
                 this, &QmlProfilerClientManager::retryMessageBoxFinished);
 
         infoBox->show();
-    } else {
-        connectToClient();
     }
 }
 
