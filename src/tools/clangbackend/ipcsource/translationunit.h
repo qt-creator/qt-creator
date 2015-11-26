@@ -86,6 +86,12 @@ public:
 
     bool isNull() const;
 
+    void setIsUsedByCurrentEditor(bool isUsedByCurrentEditor);
+    bool isUsedByCurrentEditor() const;
+
+    void setIsVisibleInEditor(bool isVisibleInEditor);
+    bool isVisibleInEditor() const;
+
     void reset();
     void reparse() const;
 

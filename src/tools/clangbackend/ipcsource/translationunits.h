@@ -49,8 +49,8 @@ class DiagnosticsChangedMessage;
 
 enum class DiagnosticSendState
 {
-    AllDiagnosticSend,
-    MaybeThereAreMoreDiagnostics
+    NoDiagnosticSend,
+    MaybeThereAreMoreDiagnostics,
 };
 
 class TranslationUnits
@@ -61,6 +61,9 @@ public:
     void create(const QVector<FileContainer> &fileContainers);
     void update(const QVector<FileContainer> &fileContainers);
     void remove(const QVector<FileContainer> &fileContainers);
+
+    void setCurrentEditor(const Utf8String &filePath);
+    void setVisibleEditors(const Utf8StringVector &filePaths);
 
     const TranslationUnit &translationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const;
     const TranslationUnit &translationUnit(const FileContainer &fileContainer) const;
@@ -76,6 +79,9 @@ public:
     void updateTranslationUnitsWithChangedDependencies(const QVector<FileContainer> &fileContainers);
 
     DiagnosticSendState sendChangedDiagnostics();
+    DiagnosticSendState sendChangedDiagnosticsForCurrentEditor();
+    DiagnosticSendState sendChangedDiagnosticsForVisibleEditors();
+    DiagnosticSendState sendChangedDiagnosticsForAll();
 
     void setSendChangeDiagnosticsCallback(std::function<void(const DiagnosticsChangedMessage&)> &&callback);
 
@@ -98,6 +104,9 @@ private:
 
     void sendDiagnosticChangedMessage(const TranslationUnit &translationUnit);
     void removeTranslationUnits(const QVector<FileContainer> &fileContainers);
+
+    template<class Predicate>
+    DiagnosticSendState sendChangedDiagnostics(Predicate predicate);
 
 private:
     ClangFileSystemWatcher fileSystemWatcher;

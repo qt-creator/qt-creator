@@ -51,6 +51,7 @@ public:
 
     void connectToHost(const QString &hostName, quint16 port);
     void startLocalServer(const QString &fileName);
+    QAbstractSocket::SocketState socketState() const;
 
     int currentDataStreamVersion() const;
     void setMaximumDataStreamVersion(int maximumVersion);

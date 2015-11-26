@@ -43,6 +43,7 @@
 #include "requestdiagnosticsmessage.h"
 #include "unregisterunsavedfilesforeditormessage.h"
 #include "updatetranslationunitsforeditormessage.h"
+#include "updatevisibletranslationunitsmessage.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -102,6 +103,11 @@ void EchoIpcServer::completeCode(const CompleteCodeMessage &message)
 }
 
 void EchoIpcServer::requestDiagnostics(const RequestDiagnosticsMessage &message)
+{
+    echoMessage(QVariant::fromValue(message));
+}
+
+void EchoIpcServer::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
     echoMessage(QVariant::fromValue(message));
 }

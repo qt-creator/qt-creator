@@ -144,7 +144,7 @@ static QHash<Platform, ClangToolChain *> findToolChains(const QList<Platform> &p
 static QHash<Abi::Architecture, QSet<BaseQtVersion *>> iosQtVersions()
 {
     QHash<Abi::Architecture, QSet<BaseQtVersion *>> versions;
-    foreach (BaseQtVersion *qtVersion, QtVersionManager::versions()) {
+    foreach (BaseQtVersion *qtVersion, QtVersionManager::unsortedVersions()) {
         if (!qtVersion->isValid() || qtVersion->type() != QLatin1String(Constants::IOSQT))
             continue;
         foreach (const Abi &abi, qtVersion->qtAbis())

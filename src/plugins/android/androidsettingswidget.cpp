@@ -308,7 +308,7 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
                 toolchainsForAbi.insert(ati.abi);
 
             QSet<ProjectExplorer::Abi> qtVersionsForAbi;
-            foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::versions()) {
+            foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::unsortedVersions()) {
                 if (qtVersion->type() != QLatin1String(Constants::ANDROIDQT) || qtVersion->qtAbis().isEmpty())
                     continue;
                 qtVersionsForAbi.insert(qtVersion->qtAbis().first());

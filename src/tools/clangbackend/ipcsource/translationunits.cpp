@@ -39,6 +39,8 @@
 
 #include <QDebug>
 
+#include <algorithm>
+
 namespace ClangBackEnd {
 
 bool operator==(const FileContainer &fileContainer, const TranslationUnit &translationUnit)
@@ -62,10 +64,8 @@ void TranslationUnits::create(const QVector<FileContainer> &fileContainers)
 {
     checkIfTranslationUnitsDoesNotExists(fileContainers);
 
-    for (const FileContainer &fileContainer : fileContainers) {
+    for (const FileContainer &fileContainer : fileContainers)
         createTranslationUnit(fileContainer);
-        updateTranslationUnitsWithChangedDependency(fileContainer.filePath());
-    }
 }
 
 void TranslationUnits::update(const QVector<FileContainer> &fileContainers)
@@ -95,6 +95,18 @@ void TranslationUnits::remove(const QVector<FileContainer> &fileContainers)
 
     removeTranslationUnits(fileContainers);
     updateTranslationUnitsWithChangedDependencies(fileContainers);
+}
+
+void TranslationUnits::setCurrentEditor(const Utf8String &filePath)
+{
+    for (TranslationUnit &translationUnit : translationUnits_)
+        translationUnit.setIsUsedByCurrentEditor(translationUnit.filePath() == filePath);
+}
+
+void TranslationUnits::setVisibleEditors(const Utf8StringVector &filePaths)
+{
+    for (TranslationUnit &translationUnit : translationUnits_)
+        translationUnit.setIsVisibleInEditor(filePaths.contains(translationUnit.filePath()));
 }
 
 const TranslationUnit &TranslationUnits::translationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const
@@ -153,14 +165,55 @@ void TranslationUnits::updateTranslationUnitsWithChangedDependencies(const QVect
 
 DiagnosticSendState TranslationUnits::sendChangedDiagnostics()
 {
-    for (const auto &translationUnit : translationUnits_) {
-        if (translationUnit.hasNewDiagnostics()) {
-            sendDiagnosticChangedMessage(translationUnit);
-            return DiagnosticSendState::MaybeThereAreMoreDiagnostics;
-        }
+    auto diagnosticSendState = sendChangedDiagnosticsForCurrentEditor();
+    if (diagnosticSendState == DiagnosticSendState::NoDiagnosticSend)
+        diagnosticSendState = sendChangedDiagnosticsForVisibleEditors();
+    if (diagnosticSendState == DiagnosticSendState::NoDiagnosticSend)
+        diagnosticSendState = sendChangedDiagnosticsForAll();
+
+    return diagnosticSendState;
+}
+
+template<class Predicate>
+DiagnosticSendState TranslationUnits::sendChangedDiagnostics(Predicate predicate)
+{
+    auto foundTranslationUnit = std::find_if(translationUnits_.begin(),
+                                             translationUnits_.end(),
+                                             predicate);
+
+    if (foundTranslationUnit != translationUnits().end()) {
+        sendDiagnosticChangedMessage(*foundTranslationUnit);
+        return DiagnosticSendState::MaybeThereAreMoreDiagnostics;
     }
 
-    return DiagnosticSendState::AllDiagnosticSend;
+    return DiagnosticSendState::NoDiagnosticSend;
+}
+
+DiagnosticSendState TranslationUnits::sendChangedDiagnosticsForCurrentEditor()
+{
+    auto hasDiagnosticsForCurrentEditor = [] (const TranslationUnit &translationUnit) {
+        return translationUnit.isUsedByCurrentEditor() && translationUnit.hasNewDiagnostics();
+    };
+
+    return sendChangedDiagnostics(hasDiagnosticsForCurrentEditor);
+}
+
+DiagnosticSendState TranslationUnits::sendChangedDiagnosticsForVisibleEditors()
+{
+    auto hasDiagnosticsForVisibleEditor = [] (const TranslationUnit &translationUnit) {
+        return translationUnit.isVisibleInEditor() && translationUnit.hasNewDiagnostics();
+    };
+
+    return sendChangedDiagnostics(hasDiagnosticsForVisibleEditor);
+}
+
+DiagnosticSendState TranslationUnits::sendChangedDiagnosticsForAll()
+{
+    auto hasDiagnostics = [] (const TranslationUnit &translationUnit) {
+        return translationUnit.hasNewDiagnostics();
+    };
+
+    return sendChangedDiagnostics(hasDiagnostics);
 }
 
 void TranslationUnits::setSendChangeDiagnosticsCallback(std::function<void(const DiagnosticsChangedMessage &)> &&callback)

@@ -49,6 +49,7 @@
 #include "translationunitdoesnotexistmessage.h"
 #include "unregisterunsavedfilesforeditormessage.h"
 #include "updatetranslationunitsforeditormessage.h"
+#include "updatevisibletranslationunitsmessage.h"
 
 #include <QDataStream>
 
@@ -81,6 +82,8 @@ void Messages::registerMessages()
 
     registerMetaType<RequestDiagnosticsMessage>();
     registerMetaType<DiagnosticsChangedMessage>();
+
+    registerMetaType<UpdateVisibleTranslationUnitsMessage>();
 
     registerMetaType<CompleteCodeMessage>();
     registerMetaType<CodeCompletedMessage>();

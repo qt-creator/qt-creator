@@ -53,6 +53,7 @@
 #include <translationunitdoesnotexistmessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
 #include <updatetranslationunitsforeditormessage.h>
+#include <updatevisibletranslationunitsmessage.h>
 #include <writemessageblock.h>
 
 #include <QBuffer>
@@ -229,6 +230,19 @@ TEST_F(ClientServerInProcess, SendUnregisterProjectPartsForEditorMessage)
         .Times(1);
 
     serverProxy.unregisterProjectPartsForEditor(message);
+    scheduleServerMessages();
+}
+
+TEST_F(ClientServerInProcess, UpdateVisibleTranslationUnitsMessage)
+{
+    ClangBackEnd::UpdateVisibleTranslationUnitsMessage message(Utf8StringLiteral(TESTDATA_DIR"/fileone.cpp"),
+                                                               {Utf8StringLiteral(TESTDATA_DIR"/fileone.cpp"),
+                                                                Utf8StringLiteral(TESTDATA_DIR"/filetwo.cpp")});
+
+    EXPECT_CALL(mockIpcServer, updateVisibleTranslationUnits(message))
+        .Times(1);
+
+    serverProxy.updateVisibleTranslationUnits(message);
     scheduleServerMessages();
 }
 

@@ -383,3 +383,19 @@ void f17()
 {
     TemplatedType<int> TemplatedTypeDeclaration;
 }
+
+void f18()
+{
+    auto value = 1 + 2;
+}
+
+class ScopeClass
+{
+public:
+    static void ScopeOperator();
+};
+
+void f19()
+{
+    ScopeClass::ScopeOperator();
+}

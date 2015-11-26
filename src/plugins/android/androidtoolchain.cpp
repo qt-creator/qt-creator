@@ -106,7 +106,6 @@ bool AndroidToolChain::isValid() const
 
 void AndroidToolChain::addToEnvironment(Environment &env) const
 {
-
 // TODO this vars should be configurable in projects -> build tab
 // TODO invalidate all .pro files !!!
 
@@ -114,9 +113,15 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
     env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_PREFIX"), AndroidConfig::toolchainPrefix(targetAbi()));
     env.set(QLatin1String("ANDROID_NDK_TOOLS_PREFIX"), AndroidConfig::toolsPrefix(targetAbi()));
     env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_VERSION"), m_ndkToolChainVersion);
-    QString javaHome = AndroidConfigurations::currentConfig().openJDKLocation().toString();
-    if (!javaHome.isEmpty() && QFileInfo::exists(javaHome))
-        env.set(QLatin1String("JAVA_HOME"), javaHome);
+    const Utils::FileName javaHome = AndroidConfigurations::currentConfig().openJDKLocation();
+    if (!javaHome.isEmpty() && javaHome.toFileInfo().exists()) {
+        env.set(QLatin1String("JAVA_HOME"), javaHome.toString());
+        Utils::FileName javaBin = javaHome;
+        javaBin.appendPath(QLatin1String("bin"));
+        const QString jb = javaBin.toUserOutput();
+        if (!Utils::contains(env.path(), [&jb](const QString &p) { return p == jb; }))
+            env.prependOrSetPath(jb);
+    }
     env.set(QLatin1String("ANDROID_HOME"), AndroidConfigurations::currentConfig().sdkLocation().toString());
     env.set(QLatin1String("ANDROID_SDK_ROOT"), AndroidConfigurations::currentConfig().sdkLocation().toString());
 }

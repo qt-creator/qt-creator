@@ -426,6 +426,18 @@ void QmlDebugConnection::setMaximumDataStreamVersion(int maximumVersion)
     d->maximumDataStreamVersion = maximumVersion;
 }
 
+QAbstractSocket::SocketState QmlDebugConnection::socketState() const
+{
+    Q_D(const QmlDebugConnection);
+    // TODO: when merging into master, add clause for local socket
+    if (QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(d->device))
+        return socket->state();
+    else
+        return QAbstractSocket::UnconnectedState;
+}
+
+//
+
 QmlDebugClientPrivate::QmlDebugClientPrivate()
     : connection(0)
 {

@@ -30,6 +30,8 @@
 
 #include "commandlinearguments.h"
 
+#include <utf8string.h>
+
 #include <iostream>
 
 namespace ClangBackEnd {
@@ -67,13 +69,23 @@ const char *CommandLineArguments::at(int position) const
     return m_arguments.at(uint(position));
 }
 
+static Utf8String maybeQuoted(const char *argumentAsCString)
+{
+    const auto quotationMark = Utf8StringLiteral("\"");
+    const auto argument = Utf8String::fromUtf8(argumentAsCString);
+
+    if (argument.contains(quotationMark))
+        return argument;
+
+    return quotationMark + argument + quotationMark;
+}
+
 void CommandLineArguments::print() const
 {
     using namespace std;
-
     cerr << "Arguments to libclang:";
     for (const auto &argument : m_arguments)
-        cerr << ' ' << argument;
+        cerr << ' ' << maybeQuoted(argument).constData();
     cerr << endl;
 }
 

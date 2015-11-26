@@ -114,6 +114,7 @@ public:
     IosTool *iosTool();
 public slots:
     void handleNewRelayConnection();
+    void removeRelayConnection(Relayer *relayer);
 protected:
     virtual void newRelayConnection() = 0;
 
@@ -231,9 +232,12 @@ void Relayer::setClientSocket(QTcpSocket *clientSocket)
 {
     QTC_CHECK(!m_clientSocket);
     m_clientSocket = clientSocket;
-    if (m_clientSocket)
+    if (m_clientSocket) {
         connect(m_clientSocket, SIGNAL(error(QAbstractSocket::SocketError)),
                 SLOT(handleClientHasError(QAbstractSocket::SocketError)));
+        connect(m_clientSocket, &QAbstractSocket::disconnected,
+                this, [this](){server()->removeRelayConnection(this);});
+    }
 }
 
 bool Relayer::startRelay(int serverFileDescriptor)
@@ -354,7 +358,7 @@ void Relayer::handleClientHasData()
 void Relayer::handleClientHasError(QAbstractSocket::SocketError error)
 {
     iosTool()->errorMsg(tr("iOS Debugging connection to creator failed with error %1").arg(error));
-    iosTool()->stopRelayServers();
+    server()->removeRelayConnection(this);
 }
 
 IosTool *Relayer::iosTool()
@@ -446,6 +450,12 @@ void RelayServer::handleNewRelayConnection()
     newRelayConnection();
 }
 
+void RelayServer::removeRelayConnection(Relayer *relayer)
+{
+    m_connections.removeAll(relayer);
+    relayer->deleteLater();
+}
+
 SingleRelayServer::SingleRelayServer(IosTool *parent,
                                      int serverFileDescriptor) :
     RelayServer(parent)
@@ -458,9 +468,7 @@ SingleRelayServer::SingleRelayServer(IosTool *parent,
 void SingleRelayServer::newRelayConnection()
 {
     if (m_connections.size() > 0) {
-        m_server.close();
-        QTcpSocket *s = m_server.nextPendingConnection();
-        delete s;
+        delete m_server.nextPendingConnection();
         return;
     }
     QTcpSocket *clientSocket = m_server.nextPendingConnection();
@@ -469,7 +477,6 @@ void SingleRelayServer::newRelayConnection()
         m_connections.append(newConnection);
         newConnection->startRelay(m_serverFileDescriptor);
     }
-    m_server.close();
 }
 
 GenericRelayServer::GenericRelayServer(IosTool *parent, int remotePort,

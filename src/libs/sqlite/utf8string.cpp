@@ -269,6 +269,14 @@ void PrintTo(const Utf8String &text, ::std::ostream* os)
     *os << "\"" << text.toByteArray().data() << "\"";
 }
 
+std::ostream& operator<<(std::ostream &os, const Utf8String &utf8String)
+{
+    using std::ostream;
+    os << utf8String.constData();
+
+    return os;
+}
+
 uint qHash(const Utf8String &utf8String)
 {
     return qHash(utf8String.byteArray);

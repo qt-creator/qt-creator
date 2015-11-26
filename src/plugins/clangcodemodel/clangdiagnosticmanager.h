@@ -56,6 +56,8 @@ public:
     const QVector<ClangBackEnd::DiagnosticContainer> &diagnosticsWithFixIts() const;
     QList<QTextEdit::ExtraSelection> takeExtraSelections();
 
+    void clearDiagnosticsWithFixIts();
+
 private:
     QString filePath() const;
     void filterDiagnostics(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);

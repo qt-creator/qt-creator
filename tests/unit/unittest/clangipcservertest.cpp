@@ -47,6 +47,7 @@
 #include <projectpartsdonotexistmessage.h>
 #include <translationunitdoesnotexistmessage.h>
 #include <updatetranslationunitsforeditormessage.h>
+#include <updatevisibletranslationunitsmessage.h>
 
 #include <QBuffer>
 #include <QFile>
@@ -76,12 +77,20 @@ using ClangBackEnd::ProjectPartContainer;
 using ClangBackEnd::TranslationUnitDoesNotExistMessage;
 using ClangBackEnd::ProjectPartsDoNotExistMessage;
 using ClangBackEnd::UpdateTranslationUnitsForEditorMessage;
+using ClangBackEnd::UpdateVisibleTranslationUnitsMessage;
 
-MATCHER_P3(HasDirtyTranslationUnit, filePath, projectPartId, documentRevision,
+MATCHER_P5(HasDirtyTranslationUnit,
+           filePath,
+           projectPartId,
+           documentRevision,
+           isNeedingReparse,
+           hasNewDiagnostics,
            std::string(negation ? "isn't" : "is")
            + " translation unit with file path "+ PrintToString(filePath)
            + " and project " + PrintToString(projectPartId)
            + " and document revision " + PrintToString(documentRevision)
+           + " and isNeedingReparse = " + PrintToString(isNeedingReparse)
+           + " and hasNewDiagnostics = " + PrintToString(hasNewDiagnostics)
            )
 {
     auto &&translationUnits = arg.translationUnitsForTestOnly();
@@ -89,16 +98,24 @@ MATCHER_P3(HasDirtyTranslationUnit, filePath, projectPartId, documentRevision,
         auto translationUnit = translationUnits.translationUnit(filePath, projectPartId);
 
         if (translationUnit.documentRevision() == documentRevision) {
-            if (translationUnit.hasNewDiagnostics()) {
-                if (translationUnit.isNeedingReparse())
-                    return true;
 
+            if (translationUnit.hasNewDiagnostics() && !hasNewDiagnostics) {
+                *result_listener << "hasNewDiagnostics is true";
+                return false;
+            } else if (!translationUnit.hasNewDiagnostics() && hasNewDiagnostics) {
+                *result_listener << "hasNewDiagnostics is false";
+                return false;
+            }
+
+            if (translationUnit.isNeedingReparse() && !isNeedingReparse) {
+                *result_listener << "isNeedingReparse is true";
+                return false;
+            } else if (!translationUnit.isNeedingReparse() && isNeedingReparse) {
                 *result_listener << "isNeedingReparse is false";
                 return false;
             }
 
-            *result_listener << "hasNewDiagnostics is false";
-            return false;
+            return true;
         }
 
         *result_listener << "revision number is " << PrintToString(translationUnit.documentRevision());
@@ -120,11 +137,13 @@ protected:
     void registerProjectPart();
     void changeProjectPartArguments();
     void changeProjectPartArgumentsToWrongValues();
+    void updateVisibilty(const Utf8String &currentEditor, const Utf8String &additionalVisibleEditor);
     static const Utf8String unsavedContent(const QString &unsavedFilePath);
 
 protected:
     MockIpcClient mockIpcClient;
     ClangBackEnd::ClangIpcServer clangServer;
+    const ClangBackEnd::TranslationUnits &translationUnits = clangServer.translationUnitsForTestOnly();
     const Utf8String projectPartId = Utf8StringLiteral("pathToProjectPart.pro");
     const Utf8String functionTestFilePath = Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp");
     const Utf8String variableTestFilePath = Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_variable.cpp");
@@ -132,53 +151,6 @@ protected:
     const QString updatedUnsavedTestFilePath = QStringLiteral(TESTDATA_DIR) + QStringLiteral("/complete_extractor_function_unsaved_2.cpp");
     const Utf8String parseErrorTestFilePath = Utf8StringLiteral(TESTDATA_DIR"/complete_translationunit_parse_error.cpp");
 };
-
-
-void ClangIpcServer::SetUp()
-{
-    clangServer.addClient(&mockIpcClient);
-    registerProjectPart();
-    registerFiles();
-}
-
-void ClangIpcServer::registerFiles()
-{
-    RegisterTranslationUnitForEditorMessage message({FileContainer(functionTestFilePath, projectPartId, unsavedContent(unsavedTestFilePath), true),
-                                                     FileContainer(variableTestFilePath, projectPartId)});
-
-    clangServer.registerTranslationUnitsForEditor(message);
-}
-
-void ClangIpcServer::registerProjectPart()
-{
-    RegisterProjectPartsForEditorMessage message({ProjectPartContainer(projectPartId)});
-
-    clangServer.registerProjectPartsForEditor(message);
-}
-
-void ClangIpcServer::changeProjectPartArguments()
-{
-    RegisterProjectPartsForEditorMessage message({ProjectPartContainer(projectPartId, {Utf8StringLiteral("-DArgumentDefinition")})});
-
-    clangServer.registerProjectPartsForEditor(message);
-}
-
-void ClangIpcServer::changeProjectPartArgumentsToWrongValues()
-{
-    RegisterProjectPartsForEditorMessage message({ProjectPartContainer(projectPartId, {Utf8StringLiteral("-blah")})});
-
-    clangServer.registerProjectPartsForEditor(message);
-}
-
-const Utf8String ClangIpcServer::unsavedContent(const QString &unsavedFilePath)
-{
-    QFile unsavedFileContentFile(unsavedFilePath);
-    bool isOpen = unsavedFileContentFile.open(QIODevice::ReadOnly | QIODevice::Text);
-    if (!isOpen)
-        ADD_FAILURE() << "File with the unsaved content cannot be opened!";
-
-    return Utf8String::fromByteArray(unsavedFileContentFile.readAll());
-}
 
 TEST_F(ClangIpcServer, GetCodeCompletion)
 {
@@ -406,8 +378,98 @@ TEST_F(ClangIpcServer, TicketNumberIsForwarded)
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangIpcServer, TranslationUnitIsDirtyAfterCreation)
+TEST_F(ClangIpcServer, TranslationUnitAfterCreationNeedsNoReparseAndHasNewDiagnostics)
 {
-    ASSERT_THAT(clangServer, HasDirtyTranslationUnit(functionTestFilePath, projectPartId, 0));
+    ASSERT_THAT(clangServer, HasDirtyTranslationUnit(functionTestFilePath, projectPartId, 0U, false, true));
 }
+
+TEST_F(ClangIpcServer, SetCurrentAndVisibleEditor)
+{
+    auto functionTranslationUnit = translationUnits.translationUnit(functionTestFilePath, projectPartId);
+    auto variableTranslationUnit = translationUnits.translationUnit(variableTestFilePath, projectPartId);
+
+    updateVisibilty(functionTestFilePath, variableTestFilePath);
+
+    ASSERT_TRUE(functionTranslationUnit.isUsedByCurrentEditor());
+    ASSERT_TRUE(functionTranslationUnit.isVisibleInEditor());
+    ASSERT_TRUE(variableTranslationUnit.isVisibleInEditor());
+}
+
+TEST_F(ClangIpcServer, IsNotCurrentCurrentAndVisibleEditorAnymore)
+{
+    auto functionTranslationUnit = translationUnits.translationUnit(functionTestFilePath, projectPartId);
+    auto variableTranslationUnit = translationUnits.translationUnit(variableTestFilePath, projectPartId);
+    updateVisibilty(functionTestFilePath, variableTestFilePath);
+
+    updateVisibilty(variableTestFilePath, Utf8String());
+
+    ASSERT_FALSE(functionTranslationUnit.isUsedByCurrentEditor());
+    ASSERT_FALSE(functionTranslationUnit.isVisibleInEditor());
+    ASSERT_TRUE(variableTranslationUnit.isUsedByCurrentEditor());
+    ASSERT_TRUE(variableTranslationUnit.isVisibleInEditor());
+}
+
+void ClangIpcServer::SetUp()
+{
+    clangServer.addClient(&mockIpcClient);
+    registerProjectPart();
+    registerFiles();
+}
+
+void ClangIpcServer::registerFiles()
+{
+    RegisterTranslationUnitForEditorMessage message({FileContainer(functionTestFilePath, projectPartId, unsavedContent(unsavedTestFilePath), true),
+                                                     FileContainer(variableTestFilePath, projectPartId)});
+
+    clangServer.registerTranslationUnitsForEditor(message);
+}
+
+void ClangIpcServer::registerProjectPart()
+{
+    RegisterProjectPartsForEditorMessage message({ProjectPartContainer(projectPartId)});
+
+    clangServer.registerProjectPartsForEditor(message);
+}
+
+void ClangIpcServer::changeProjectPartArguments()
+{
+    RegisterProjectPartsForEditorMessage message({ProjectPartContainer(projectPartId, {Utf8StringLiteral("-DArgumentDefinition")})});
+
+    clangServer.registerProjectPartsForEditor(message);
+}
+
+void ClangIpcServer::changeProjectPartArgumentsToWrongValues()
+{
+    RegisterProjectPartsForEditorMessage message({ProjectPartContainer(projectPartId, {Utf8StringLiteral("-blah")})});
+
+    clangServer.registerProjectPartsForEditor(message);
+}
+
+void ClangIpcServer::updateVisibilty(const Utf8String &currentEditor, const Utf8String &additionalVisibleEditor)
+{
+    UpdateVisibleTranslationUnitsMessage message(currentEditor,
+                                                 {currentEditor, additionalVisibleEditor});
+
+    clangServer.updateVisibleTranslationUnits(message);
+}
+
+const Utf8String ClangIpcServer::unsavedContent(const QString &unsavedFilePath)
+{
+    QFile unsavedFileContentFile(unsavedFilePath);
+    bool isOpen = unsavedFileContentFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!isOpen)
+        ADD_FAILURE() << "File with the unsaved content cannot be opened!";
+
+    return Utf8String::fromByteArray(unsavedFileContentFile.readAll());
+}
+
+TEST_F(ClangIpcServer, TranslationUnitAfterUpdateNeedsReparseAndHasNewDiagnostics)
+{
+    const auto fileContainer = FileContainer(functionTestFilePath, projectPartId,unsavedContent(unsavedTestFilePath), true, 1);
+
+    clangServer.updateTranslationUnitsForEditor({{fileContainer}});
+
+    ASSERT_THAT(clangServer, HasDirtyTranslationUnit(functionTestFilePath, projectPartId, 1U, true, true));
+}
+
 }
