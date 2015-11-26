@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "qmltoolsclient.h"
+#include <qmldebug/qpacketprotocol.h>
 #include <QStringList>
 
 //INSPECTOR SERVICE PROTOCOL
@@ -59,7 +60,7 @@ QmlToolsClient::QmlToolsClient(QmlDebugConnection *client)
 
 void QmlToolsClient::messageReceived(const QByteArray &message)
 {
-    QDataStream ds(message);
+    QPacket ds(connection()->currentDataStreamVersion(), message);
 
     QByteArray type;
     int requestId;
@@ -104,8 +105,7 @@ void QmlToolsClient::setDesignModeBehavior(bool inDesignMode)
     if (!m_connection || !m_connection->isConnected())
         return;
 
-    QByteArray message;
-    QDataStream ds(&message, QIODevice::WriteOnly);
+    QPacket ds(connection()->currentDataStreamVersion());
     ds << QByteArray(REQUEST) << m_requestId++;
     if (inDesignMode)
         ds << QByteArray(ENABLE);
@@ -114,7 +114,7 @@ void QmlToolsClient::setDesignModeBehavior(bool inDesignMode)
 
     log(LogSend, ENABLE, QLatin1String(inDesignMode ? "true" : "false"));
 
-    sendMessage(message);
+    sendMessage(ds.data());
 }
 
 void QmlToolsClient::changeToSelectTool()
@@ -137,14 +137,13 @@ void QmlToolsClient::showAppOnTop(bool showOnTop)
     if (!m_connection || !m_connection->isConnected())
         return;
 
-    QByteArray message;
-    QDataStream ds(&message, QIODevice::WriteOnly);
+    QPacket ds(connection()->currentDataStreamVersion());
     ds << QByteArray(REQUEST) << m_requestId++
        << QByteArray(SHOW_APP_ON_TOP) << showOnTop;
 
     log(LogSend, SHOW_APP_ON_TOP, QLatin1String(showOnTop ? "true" : "false"));
 
-    sendMessage(message);
+    sendMessage(ds.data());
 }
 
 void QmlToolsClient::log(LogDirection direction,
