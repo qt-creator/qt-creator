@@ -21,6 +21,10 @@ Editing
 * Fixed that Qt Creator tried to write auto-save files in read-only
   directories
 * Fixed possible crash with code completion (QTCREATORBUG-14875)
+* Fixed that closing session was leaving invalid editor windows open
+  (QTCREATORBUG-15193)
+* Fixed that editors were closing even when closing Qt Creator was cancelled
+  (QTCREATORBUG-14401)
 
 Project Management
 
@@ -29,6 +33,10 @@ Project Management
   (QTCREATORBUG-14606)
 * Added option to synchronize kits between all projects in a session
   (QTCREATORBUG-5823)
+* Fixed that `%{CurrentBuild:Type}` was not expanded correctly
+  (QTCREATORBUG-15178)
+* Fixed that `Stop applications before building` also stopped applications
+  when deploying (QTCREATORBUG-15281)
 
 QMake Projects
 
@@ -39,6 +47,8 @@ QMake Projects
 * Fixed that `QMAKE_EXT_H` was ignored for UI code model (QTCREATORBUG-14910)
 * Fixed that `make` build step was not updated on environment changes
   (QTCREATORBUG-14831)
+* Fixed adding files to `.qrc` files through the project tree
+  (QTCREATORBUG-15277)
 
 CMake Projects
 
@@ -50,9 +60,13 @@ CMake Projects
 C++ Support
 
 * Added support for `noexcept`
+* Fixed crash with function arguments hint (QTCREATORBUG-15275)
+* Fixed that object instantiation was sometimes highlighted as function call
+  (QTCREATORBUG-15212)
 * Clang code model
     * Added more diagnostic messages to editors
     * Added Clang's Fix-its to refactoring actions (QTCREATORBUG-14868)
+    * Added option for additional command line arguments
 
 Debugging
 
@@ -73,6 +87,7 @@ Analyzer
 QML Profiler
 
 * Improved performance of timeline view (QTCREATORBUG-14983)
+* Fixed offset when dragging timeline categories (QTCREATORBUG-15333)
 
 Qt Quick Designer
 
@@ -114,6 +129,7 @@ Android
   (QTCREATORBUG-14832)
 * Fixed deployment on devices without `readlink` (QTCREATORBUG-15006)
 * Fixed debugging of signed applications (requires Qt 5.6) (QTCREATORBUG-13035)
+* Fixed that building failed if Java is not in `PATH` (QTCREATORBUG-15382)
 
 iOS
 
@@ -124,6 +140,7 @@ Remote Linux
 * Added support for ECDSA public keys with 384 and 521 bits,
   ECDSA user keys, and ECDSA key creation
 * Fixed environment and working directory for Valgrind analyzer
+* Fixed attaching to remote debugging server (QTCREATORBUG-15210)
 
 Credits for these changes go to:  
 Aleix Pol  
