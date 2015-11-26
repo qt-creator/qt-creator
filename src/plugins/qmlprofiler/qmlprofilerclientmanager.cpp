@@ -279,7 +279,7 @@ void QmlProfilerClientManager::tryToConnect()
         // connection first to be established and then torn down again.
         delete d->connection;
         d->connection = 0;
-        connectClient(d->tcpPort);
+        connectTcpClient(d->tcpPort);
         connectToClient();
     } else if (d->connectionAttempts == 50) {
         d->connectionTimer.stop();
@@ -350,7 +350,7 @@ void QmlProfilerClientManager::retryMessageBoxFinished(int result)
 
     switch (result) {
     case QMessageBox::Retry: {
-        connectClient(d->tcpPort);
+        connectTcpClient(d->tcpPort);
         d->connectionAttempts = 0;
         d->connectionTimer.start();
         break;
