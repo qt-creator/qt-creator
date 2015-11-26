@@ -142,6 +142,7 @@ enum CDATAMode {
     DataTag,
     Description,
     QtVersion,
+    QtBuild,
     QTestVersion
 };
 
@@ -153,6 +154,7 @@ void TestXmlOutputReader::processOutput()
                                         QStringLiteral("Message"),
                                         QStringLiteral("BenchmarkResult"),
                                         QStringLiteral("QtVersion"),
+                                        QStringLiteral("QtBuild"),
                                         QStringLiteral("QTestVersion") };
     static CDATAMode cdataMode = None;
     static QString className;
@@ -226,6 +228,9 @@ void TestXmlOutputReader::processOutput()
                 } else if (currentTag == QStringLiteral("QtVersion")) {
                     result = Result::MESSAGE_INTERNAL;
                     cdataMode = QtVersion;
+                } else if (currentTag == QStringLiteral("QtBuild")) {
+                    result = Result::MESSAGE_INTERNAL;
+                    cdataMode = QtBuild;
                 } else if (currentTag == QStringLiteral("QTestVersion")) {
                     result = Result::MESSAGE_INTERNAL;
                     cdataMode = QTestVersion;
@@ -248,6 +253,10 @@ void TestXmlOutputReader::processOutput()
                     break;
                 case QtVersion:
                     description = tr("Qt version: %1").arg(text.toString());
+                    break;
+                case QtBuild:
+                    // FIXME due to string freeze this is not a tr()
+                    description = QString::fromLatin1("Qt build: %1").arg(text.toString());
                     break;
                 case QTestVersion:
                     description = tr("QTest version: %1").arg(text.toString());
