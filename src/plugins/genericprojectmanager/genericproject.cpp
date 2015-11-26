@@ -406,7 +406,7 @@ GenericProjectNode *GenericProject::rootProjectNode() const
 
 QStringList GenericProject::files(FilesMode fileMode) const
 {
-    Q_UNUSED(fileMode)
+    Q_UNUSED(fileMode);
     return m_files;
 }
 
@@ -489,15 +489,15 @@ bool GenericProjectFile::isSaveAsAllowed() const
 
 IDocument::ReloadBehavior GenericProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
-    Q_UNUSED(state)
-    Q_UNUSED(type)
+    Q_UNUSED(state);
+    Q_UNUSED(type);
     return BehaviorSilent;
 }
 
 bool GenericProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
-    Q_UNUSED(errorString)
-    Q_UNUSED(flag)
+    Q_UNUSED(errorString);
+    Q_UNUSED(flag);
     if (type == TypePermissions)
         return true;
     m_project->refresh(m_options);
