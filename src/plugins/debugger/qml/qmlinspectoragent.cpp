@@ -874,12 +874,10 @@ void QmlInspectorAgent::jumpToObjectDefinitionInEditor(
     }
 }
 
-void QmlInspectorAgent::selectObject(const ObjectReference &obj,
-                                       SelectionTarget target)
+void QmlInspectorAgent::selectObject(const ObjectReference &obj, SelectionTarget target)
 {
     if (m_toolsClient && target == ToolTarget)
-        m_toolsClient->setObjectIdList(
-                    QList<ObjectReference>() << obj);
+        m_toolsClient->setObjectIdList(QList<ObjectReference>() << obj);
 
     if (target == EditorTarget)
         jumpToObjectDefinitionInEditor(obj.source());
