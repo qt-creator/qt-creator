@@ -133,7 +133,7 @@ public:
 
     static KitMatcher deviceTypeMatcher(Core::Id type);
 
-    Core::FeatureSet availableFeatures(const Kit *k) const;
+    QSet<Core::Id> availableFeatures(const Kit *k) const;
 };
 
 // --------------------------------------------------------------------------

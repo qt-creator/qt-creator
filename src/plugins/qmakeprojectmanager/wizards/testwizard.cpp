@@ -56,8 +56,7 @@ TestWizard::TestWizard()
                 "Unit tests allow you to verify that the code is fit for use "
                 "and that there are no regressions."));
     setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
-    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE) |
-                        Core::Feature::versionedFeature(QtSupport::Constants::FEATURE_QT_PREFIX));
+    setRequiredFeatures({ QtSupport::Constants::FEATURE_QT_CONSOLE, QtSupport::Constants::FEATURE_QT_PREFIX });
 }
 
 Core::BaseFileWizard *TestWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const

@@ -134,12 +134,12 @@ void AndroidQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
     BaseQtVersion::parseMkSpec(evaluator);
 }
 
-Core::FeatureSet AndroidQtVersion::availableFeatures() const
+QSet<Core::Id> AndroidQtVersion::availableFeatures() const
 {
-    Core::FeatureSet features = QtSupport::BaseQtVersion::availableFeatures();
-    features |= Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE);
-    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE));
-    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_WEBKIT));
+    QSet<Core::Id> features = QtSupport::BaseQtVersion::availableFeatures();
+    features.insert(QtSupport::Constants::FEATURE_MOBILE);
+    features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
+    features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);
     return features;
 }
 

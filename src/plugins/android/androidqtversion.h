@@ -56,7 +56,7 @@ public:
     void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
     Utils::Environment qmakeRunEnvironment() const;
 
-    Core::FeatureSet availableFeatures() const;
+    QSet<Core::Id> availableFeatures() const;
     QString platformName() const;
     QString platformDisplayName() const;
 

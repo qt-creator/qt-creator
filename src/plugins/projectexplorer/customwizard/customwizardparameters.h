@@ -134,7 +134,7 @@ public:
     QString displayName;
     QString category;
     QString displayCategory;
-    Core::FeatureSet requiredFeatures;
+    QSet<Core::Id> requiredFeatures;
     Core::IWizardFactory::WizardFlags flags;
 };
 

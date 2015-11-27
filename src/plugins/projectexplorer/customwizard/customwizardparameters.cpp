@@ -457,13 +457,13 @@ static inline IWizardFactory::WizardKind kindAttribute(const QXmlStreamReader &r
     return IWizardFactory::ProjectWizard;
 }
 
-static inline FeatureSet readRequiredFeatures(const QXmlStreamReader &reader)
+static inline QSet<Id> readRequiredFeatures(const QXmlStreamReader &reader)
 {
     QString value = reader.attributes().value(QLatin1String(featuresRequiredC)).toString();
     QStringList stringList = value.split(QLatin1Char(','), QString::SkipEmptyParts);
-    FeatureSet features;
+    QSet<Id> features;
     foreach (const QString &string, stringList)
-        features |= Feature::fromString(string);
+        features |= Id::fromString(string);
     return features;
 }
 

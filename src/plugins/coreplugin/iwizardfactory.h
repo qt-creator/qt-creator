@@ -71,7 +71,7 @@ public:
     QString category() const { return m_category; }
     QString displayCategory() const { return m_displayCategory; }
     QString descriptionImage() const { return m_descriptionImage; }
-    FeatureSet requiredFeatures() const { return m_requiredFeatures; }
+    QSet<Id> requiredFeatures() const { return m_requiredFeatures; }
     WizardFlags flags() const { return m_flags; }
 
     void setId(const Id id) { m_id = id; }
@@ -82,8 +82,8 @@ public:
     void setCategory(const QString &category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
     void setDescriptionImage(const QString &descriptionImage) { m_descriptionImage = descriptionImage; }
-    void setRequiredFeatures(const FeatureSet &featureSet) { m_requiredFeatures = featureSet; }
-    void addRequiredFeature(const Feature &feature) { m_requiredFeatures |= feature; }
+    void setRequiredFeatures(const QSet<Id> &featureSet) { m_requiredFeatures = featureSet; }
+    void addRequiredFeature(const Id &feature) { m_requiredFeatures |= feature; }
     void setFlags(WizardFlags flags) { m_flags = flags; }
 
     QString runPath(const QString &defaultPath);
@@ -115,8 +115,8 @@ public:
                                      const QVariantMap &extraVariables);
 
 protected:
-    FeatureSet pluginFeatures() const;
-    FeatureSet availableFeatures(const QString &platformName) const;
+    QSet<Id> pluginFeatures() const;
+    QSet<Id> availableFeatures(const QString &platformName) const;
 
     virtual Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, const QString &platform,
                                          const QVariantMap &variables) = 0;
@@ -135,7 +135,7 @@ private:
     QString m_displayCategory;
     QString m_descriptionImage;
     Id m_id;
-    FeatureSet m_requiredFeatures;
+    QSet<Id> m_requiredFeatures;
     WizardKind m_kind = FileWizard;
     WizardFlags m_flags = 0;
 

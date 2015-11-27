@@ -266,7 +266,9 @@ QSet<Id> Id::fromStringList(const QStringList &list)
 
 QStringList Id::toStringList(const QSet<Id> &ids)
 {
-    return Utils::transform(ids.toList(), [](Id i) { return i.toString(); });
+    QList<Id> idList = ids.toList();
+    Utils::sort(idList);
+    return Utils::transform(idList, [](Id i) { return i.toString(); });
 }
 
 /*!

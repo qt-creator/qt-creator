@@ -63,9 +63,9 @@ void JsonKitsPage::initializePage()
     connect(wiz, &JsonWizard::filesPolished, this, &JsonKitsPage::setupProjectFiles);
 
     const QString platform = wiz->stringValue(QLatin1String("Platform"));
-    const FeatureSet preferred
+    const QSet<Id> preferred
             = evaluate(m_preferredFeatures, wiz->value(QLatin1String("PreferredFeatures")), wiz);
-    const FeatureSet required
+    const QSet<Id> required
             = evaluate(m_requiredFeatures, wiz->value(QLatin1String("RequiredFeatures")), wiz);
 
     setRequiredKitMatcher(KitMatcher([required](const Kit *k) { return k->hasFeatures(required); }));
@@ -133,16 +133,16 @@ void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
     }
 }
 
-FeatureSet JsonKitsPage::evaluate(const QVector<JsonKitsPage::ConditionalFeature> &list,
-                                  const QVariant &defaultSet, JsonWizard *wiz)
+QSet<Id> JsonKitsPage::evaluate(const QVector<JsonKitsPage::ConditionalFeature> &list,
+                                const QVariant &defaultSet, JsonWizard *wiz)
 {
     if (list.isEmpty())
-        return FeatureSet::fromStringList(defaultSet.toStringList());
+        return Id::fromStringList(defaultSet.toStringList());
 
-    FeatureSet features;
+    QSet<Id> features;
     foreach (const ConditionalFeature &f, list) {
         if (JsonWizard::boolFromVariant(f.condition, wiz->expander()))
-            features |= Feature::fromString(wiz->expander()->expand(f.feature));
+            features.insert(Id::fromString(wiz->expander()->expand(f.feature)));
     }
     return features;
 }

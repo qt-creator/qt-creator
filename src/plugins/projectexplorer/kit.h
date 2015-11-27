@@ -124,8 +124,8 @@ public:
     QSet<QString> availablePlatforms() const;
     bool hasPlatform(const QString &platform) const;
     QString displayNameForPlatform(const QString &platform) const;
-    Core::FeatureSet availableFeatures() const;
-    bool hasFeatures(const Core::FeatureSet &features) const;
+    QSet<Core::Id> availableFeatures() const;
+    bool hasFeatures(const QSet<Core::Id> &features) const;
     Utils::MacroExpander *macroExpander() const;
 
 private:

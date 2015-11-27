@@ -76,12 +76,12 @@ QString QnxQtVersion::description() const
     return QCoreApplication::translate("Qnx::Internal::QnxQtVersion", "QNX %1").arg(archString());
 }
 
-Core::FeatureSet QnxQtVersion::availableFeatures() const
+QSet<Core::Id> QnxQtVersion::availableFeatures() const
 {
-    Core::FeatureSet features = QtSupport::BaseQtVersion::availableFeatures();
-    features |= Core::FeatureSet(Constants::QNX_QNX_FEATURE);
-    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE));
-    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_WEBKIT));
+    QSet<Core::Id> features = QtSupport::BaseQtVersion::availableFeatures();
+    features.insert(Constants::QNX_QNX_FEATURE);
+    features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
+    features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);
     return features;
 }
 

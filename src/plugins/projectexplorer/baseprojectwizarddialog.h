@@ -80,8 +80,8 @@ protected:
     QString selectedPlatform() const;
     void setSelectedPlatform(const QString &platform);
 
-    Core::FeatureSet requiredFeatures() const;
-    void setRequiredFeatures(const Core::FeatureSet &featureSet);
+    QSet<Core::Id> requiredFeatures() const;
+    void setRequiredFeatures(const QSet<Core::Id> &featureSet);
 
 private:
     void init();

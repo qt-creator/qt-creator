@@ -117,7 +117,7 @@ private:
     QList<Page> m_pages;
     QMap<QString, QString> m_options;
 
-    Core::FeatureSet m_preferredFeatures;
+    QSet<Core::Id> m_preferredFeatures;
 
     static int m_verbose;
 

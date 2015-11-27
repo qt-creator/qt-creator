@@ -63,7 +63,7 @@ public:
     Q_DECLARE_FLAGS(DialogParameterFlags, DialogParameterEnum)
 
     explicit WizardDialogParameters(const QString &defaultPath, const QString &platform,
-                                    const FeatureSet &requiredFeatures, DialogParameterFlags flags,
+                                    const QSet<Id> &requiredFeatures, DialogParameterFlags flags,
                                     QVariantMap extraValues)
         : m_defaultPath(defaultPath),
           m_selectedPlatform(platform),
@@ -78,7 +78,7 @@ public:
     QString selectedPlatform() const
     { return m_selectedPlatform; }
 
-    FeatureSet requiredFeatures() const
+    QSet<Id> requiredFeatures() const
     { return m_requiredFeatures; }
 
     DialogParameterFlags flags() const
@@ -90,7 +90,7 @@ public:
 private:
     QString m_defaultPath;
     QString m_selectedPlatform;
-    FeatureSet m_requiredFeatures;
+    QSet<Id> m_requiredFeatures;
     DialogParameterFlags m_parameterFlags;
     QVariantMap m_extraValues;
 };

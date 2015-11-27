@@ -320,9 +320,9 @@ QString KitManager::displayNameForPlatform(const QString &platform)
     return QString();
 }
 
-FeatureSet KitManager::availableFeatures(const QString &platform)
+QSet<Id> KitManager::availableFeatures(const QString &platform)
 {
-    FeatureSet features;
+    QSet<Id> features;
     foreach (const Kit *k, kits()) {
         QSet<QString> kitPlatforms = k->availablePlatforms();
         if (kitPlatforms.isEmpty() || kitPlatforms.contains(platform) || platform.isEmpty())
@@ -566,10 +566,10 @@ QString KitInformation::displayNameForPlatform(const Kit *k, const QString &plat
     return QString();
 }
 
-FeatureSet KitInformation::availableFeatures(const Kit *k) const
+QSet<Id> KitInformation::availableFeatures(const Kit *k) const
 {
     Q_UNUSED(k);
-    return FeatureSet();
+    return QSet<Id>();
 }
 
 void KitInformation::addToMacroExpander(Kit *k, MacroExpander *expander) const
@@ -588,7 +588,7 @@ void KitInformation::notifyAboutUpdate(Kit *k)
 // KitFeatureProvider:
 // --------------------------------------------------------------------
 
-FeatureSet KitFeatureProvider::availableFeatures(const QString &platform) const
+QSet<Id> KitFeatureProvider::availableFeatures(const QString &platform) const
 {
     return KitManager::availableFeatures(platform);
 }

@@ -54,7 +54,7 @@ struct BaseProjectWizardDialogPrivate {
     Utils::ProjectIntroPage *introPage;
     int introPageId;
     QString selectedPlatform;
-    Core::FeatureSet requiredFeatureSet;
+    QSet<Core::Id> requiredFeatureSet;
 };
 
 BaseProjectWizardDialogPrivate::BaseProjectWizardDialogPrivate(Utils::ProjectIntroPage *page, int id) :
@@ -199,12 +199,12 @@ void BaseProjectWizardDialog::setSelectedPlatform(const QString &platform)
     d->selectedPlatform = platform;
 }
 
-Core::FeatureSet BaseProjectWizardDialog::requiredFeatures() const
+QSet<Core::Id> BaseProjectWizardDialog::requiredFeatures() const
 {
     return d->requiredFeatureSet;
 }
 
-void BaseProjectWizardDialog::setRequiredFeatures(const Core::FeatureSet &featureSet)
+void BaseProjectWizardDialog::setRequiredFeatures(const QSet<Core::Id> &featureSet)
 {
     d->requiredFeatureSet = featureSet;
 }

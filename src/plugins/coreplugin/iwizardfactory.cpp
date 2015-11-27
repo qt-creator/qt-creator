@@ -407,27 +407,25 @@ void IWizardFactory::clearWizardFactories()
     s_areFactoriesLoaded = false;
 }
 
-FeatureSet IWizardFactory::pluginFeatures() const
+QSet<Id> IWizardFactory::pluginFeatures() const
 {
-    static FeatureSet plugins;
+    static QSet<Id> plugins;
     if (plugins.isEmpty()) {
-        QStringList list;
         // Implicitly create a feature for each plugin loaded:
         foreach (ExtensionSystem::PluginSpec *s, ExtensionSystem::PluginManager::plugins()) {
             if (s->state() == ExtensionSystem::PluginSpec::Running)
-                list.append(s->name());
+                plugins.insert(Id::fromString(s->name()));
         }
-        plugins = FeatureSet::fromStringList(list);
     }
     return plugins;
 }
 
-FeatureSet IWizardFactory::availableFeatures(const QString &platformName) const
+QSet<Id> IWizardFactory::availableFeatures(const QString &platformName) const
 {
-    FeatureSet availableFeatures;
+    QSet<Id> availableFeatures;
 
     foreach (const IFeatureProvider *featureManager, s_providerList)
-        availableFeatures |= featureManager->availableFeatures(platformName);
+        availableFeatures.unite(featureManager->availableFeatures(platformName));
 
     return availableFeatures;
 }

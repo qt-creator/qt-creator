@@ -365,15 +365,15 @@ Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *pa
     wizard->setWindowTitle(displayName());
 
     wizard->setValue(QStringLiteral("WizardDir"), m_wizardDir);
-    Core::FeatureSet tmp = requiredFeatures();
-    tmp.remove(pluginFeatures());
-    wizard->setValue(QStringLiteral("RequiredFeatures"), tmp.toStringList());
+    QSet<Core::Id> tmp = requiredFeatures();
+    tmp.subtract(pluginFeatures());
+    wizard->setValue(QStringLiteral("RequiredFeatures"), Core::Id::toStringList(tmp));
     tmp = m_preferredFeatures;
-    tmp.remove(pluginFeatures());
-    wizard->setValue(QStringLiteral("PreferredFeatures"), tmp.toStringList());
+    tmp.subtract(pluginFeatures());
+    wizard->setValue(QStringLiteral("PreferredFeatures"), Core::Id::toStringList(tmp));
 
-    wizard->setValue(QStringLiteral("Features"), availableFeatures(platform).toStringList());
-    wizard->setValue(QStringLiteral("Plugins"), pluginFeatures().toStringList());
+    wizard->setValue(QStringLiteral("Features"), Core::Id::toStringList(availableFeatures(platform)));
+    wizard->setValue(QStringLiteral("Plugins"), Core::Id::toStringList(pluginFeatures()));
 
     // Add data to wizard:
     for (auto i = variables.constBegin(); i != variables.constEnd(); ++i)
@@ -493,9 +493,9 @@ bool JsonWizardFactory::isAvailable(const QString &platformName) const
     expander.registerVariable("Platform", tr("The platform selected for the wizard."),
                               [platformName]() { return platformName; });
     expander.registerVariable("Features", tr("The features available to this wizard."),
-                              [this, e, platformName]() { return JsonWizard::stringListToArrayString(availableFeatures(platformName).toStringList(), e); });
+                              [this, e, platformName]() { return JsonWizard::stringListToArrayString(Core::Id::toStringList(availableFeatures(platformName)), e); });
     expander.registerVariable("Plugins", tr("The plugins loaded."),
-                              [this, e]() { return JsonWizard::stringListToArrayString(pluginFeatures().toStringList(), e); });
+                              [this, e]() { return JsonWizard::stringListToArrayString(Core::Id::toStringList(pluginFeatures()), e); });
 
     return JsonWizard::boolFromVariant(m_enabledExpression, &expander);
 }
@@ -564,9 +564,9 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
         setDescriptionImage(strVal);
     }
 
-    setRequiredFeatures(Core::FeatureSet::fromStringList(data.value(QLatin1String(REQUIRED_FEATURES_KEY)).toStringList()));
-    m_preferredFeatures = Core::FeatureSet::fromStringList(data.value(QLatin1String(SUGGESTED_FEATURES_KEY)).toStringList());
-    m_preferredFeatures |= requiredFeatures();
+    setRequiredFeatures(Core::Id::fromStringList(data.value(QLatin1String(REQUIRED_FEATURES_KEY)).toStringList()));
+    m_preferredFeatures = Core::Id::fromStringList(data.value(QLatin1String(SUGGESTED_FEATURES_KEY)).toStringList());
+    m_preferredFeatures.unite(requiredFeatures());
 
     strVal = localizedString(data.value(QLatin1String(DISPLAY_NAME_KEY)));
     if (strVal.isEmpty()) {

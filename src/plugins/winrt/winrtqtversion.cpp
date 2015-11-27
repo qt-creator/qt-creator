@@ -64,13 +64,13 @@ QString WinRtQtVersion::description() const
     return tr("Windows Runtime");
 }
 
-Core::FeatureSet WinRtQtVersion::availableFeatures() const
+QSet<Core::Id> WinRtQtVersion::availableFeatures() const
 {
-    Core::FeatureSet features = QtSupport::BaseQtVersion::availableFeatures();
-    features |= Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE);
-    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE));
-    features.remove(Core::Feature::versionedFeature(QtSupport::Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1));
-    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_WEBKIT));
+    QSet<Core::Id> features = QtSupport::BaseQtVersion::availableFeatures();
+    features.insert(QtSupport::Constants::FEATURE_MOBILE);
+    features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
+    features.remove(Core::Id::versionedId(QtSupport::Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1));
+    features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);
     return features;
 }
 

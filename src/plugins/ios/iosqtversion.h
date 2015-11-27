@@ -55,7 +55,7 @@ public:
 
     void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const override;
 
-    Core::FeatureSet availableFeatures() const override;
+    QSet<Core::Id> availableFeatures() const override;
     QString platformName() const override;
     QString platformDisplayName() const override;
 

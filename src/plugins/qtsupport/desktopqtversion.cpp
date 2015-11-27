@@ -82,11 +82,11 @@ QString DesktopQtVersion::description() const
     return QCoreApplication::translate("QtVersion", "Desktop", "Qt Version is meant for the desktop");
 }
 
-Core::FeatureSet DesktopQtVersion::availableFeatures() const
+QSet<Core::Id> DesktopQtVersion::availableFeatures() const
 {
-    Core::FeatureSet features = BaseQtVersion::availableFeatures();
-    features |= Core::FeatureSet(Constants::FEATURE_DESKTOP);
-    features |= Core::Feature(Constants::FEATURE_QMLPROJECT);
+    QSet<Core::Id> features = BaseQtVersion::availableFeatures();
+    features.insert(Constants::FEATURE_DESKTOP);
+    features.insert(Constants::FEATURE_QMLPROJECT);
     return features;
 }
 

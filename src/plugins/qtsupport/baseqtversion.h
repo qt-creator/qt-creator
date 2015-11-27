@@ -42,7 +42,7 @@
 #include <QVariantMap>
 
 namespace Utils { class Environment; }
-namespace Core { class FeatureSet; }
+namespace Core { class Id; }
 
 namespace ProjectExplorer {
 class IOutputParser;
@@ -68,7 +68,7 @@ public:
     QtVersionNumber(const QString &versionString);
     QtVersionNumber();
 
-    Core::FeatureSet features() const;
+    QSet<Core::Id> features() const;
 
     int majorVersion;
     int minorVersion;
@@ -205,7 +205,7 @@ public:
     static QString defaultUnexpandedDisplayName(const Utils::FileName &qmakePath,
                                       bool fromPath = false);
 
-    virtual Core::FeatureSet availableFeatures() const;
+    virtual QSet<Core::Id> availableFeatures() const;
     virtual QString platformName() const;
     virtual QString platformDisplayName() const;
     virtual bool supportsPlatform(const QString &platformName) const;

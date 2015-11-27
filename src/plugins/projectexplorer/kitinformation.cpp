@@ -341,12 +341,12 @@ KitMatcher DeviceTypeKitInformation::deviceTypeMatcher(Core::Id type)
     });
 }
 
-Core::FeatureSet DeviceTypeKitInformation::availableFeatures(const Kit *k) const
+QSet<Core::Id> DeviceTypeKitInformation::availableFeatures(const Kit *k) const
 {
     Core::Id id = DeviceTypeKitInformation::deviceTypeId(k);
-    Core::FeatureSet result;
+    QSet<Core::Id> result;
     if (id.isValid())
-        result |= Core::Feature::fromString(QString::fromLatin1("DeviceType.") + id.toString());
+        result |= Core::Id::fromString(QString::fromLatin1("DeviceType.") + id.toString());
     return result;
 }
 

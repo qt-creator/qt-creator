@@ -639,15 +639,15 @@ QString Kit::displayNameForPlatform(const QString &platform) const
 
 }
 
-FeatureSet Kit::availableFeatures() const
+QSet<Id> Kit::availableFeatures() const
 {
-    FeatureSet features;
+    QSet<Id> features;
     foreach (const KitInformation *ki, KitManager::kitInformation())
         features |= ki->availableFeatures(this);
     return features;
 }
 
-bool Kit::hasFeatures(const FeatureSet &features) const
+bool Kit::hasFeatures(const QSet<Id> &features) const
 {
     return availableFeatures().contains(features);
 }

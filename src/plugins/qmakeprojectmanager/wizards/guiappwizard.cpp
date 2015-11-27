@@ -83,7 +83,7 @@ GuiAppWizard::GuiAppWizard()
                   "Includes a Qt Designer-based main window.\n\n"
                   "Preselects a desktop Qt for building the application if available."));
     setIcon(QIcon(QLatin1String(":/wizards/images/gui.png")));
-    setRequiredFeatures(Core::FeatureSet(QtSupport::Constants::FEATURE_QWIDGETS));
+    setRequiredFeatures({ QtSupport::Constants::FEATURE_QWIDGETS });
 }
 
 Core::BaseFileWizard *GuiAppWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const

@@ -76,7 +76,7 @@ static const char QTVERSIONQMAKEPATH[] = "QMakePath";
 static const char MKSPEC_VALUE_LIBINFIX[] = "QT_LIBINFIX";
 static const char MKSPEC_VALUE_NAMESPACE[] = "QT_NAMESPACE";
 
-QSet<Id> static versionedIds(const QByteArray &prefix, int major, int minor)
+static QSet<Id> versionedIds(const QByteArray &prefix, int major, int minor)
 {
     QSet<Id> result;
     result.insert(Id::fromName(prefix));
@@ -120,9 +120,9 @@ QtVersionNumber::QtVersionNumber()
     majorVersion = minorVersion = patchVersion = -1;
 }
 
-FeatureSet QtVersionNumber::features() const
+QSet<Id> QtVersionNumber::features() const
 {
-    return FeatureSet::versionedFeatures(Constants::FEATURE_QT_PREFIX, majorVersion, minorVersion);
+    return versionedIds(Constants::FEATURE_QT_PREFIX, majorVersion, minorVersion);
 }
 
 bool QtVersionNumber::matches(int major, int minor, int patch) const
@@ -392,63 +392,63 @@ QString BaseQtVersion::defaultUnexpandedDisplayName(const FileName &qmakePath, b
         QCoreApplication::translate("QtVersion", "Qt %{Qt:Version} (%2)").arg(location);
 }
 
-FeatureSet BaseQtVersion::availableFeatures() const
+QSet<Id> BaseQtVersion::availableFeatures() const
 {
-    FeatureSet features = qtVersion().features(); // Qt Version features
+    QSet<Id> features = qtVersion().features(); // Qt Version features
 
-    features |= (Feature(Constants::FEATURE_QWIDGETS)
-                 | Feature(Constants::FEATURE_QT_WEBKIT)
-                 | Feature(Constants::FEATURE_QT_CONSOLE));
+    features.insert(Constants::FEATURE_QWIDGETS);
+    features.insert(Constants::FEATURE_QT_WEBKIT);
+    features.insert(Constants::FEATURE_QT_CONSOLE);
 
     if (qtVersion() < QtVersionNumber(4, 7, 0))
         return features;
 
-    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 1, 0);
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 1, 0));
 
     if (qtVersion().matches(4, 7, 0))
         return features;
 
-    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 1, 1);
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 1, 1));
 
     if (qtVersion().matches(4))
         return features;
 
-    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 2, 0);
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 0));
 
     if (qtVersion().matches(5, 0))
         return features;
 
-    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 2, 1);
-    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 0);
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 1));
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 0));
 
     if (qtVersion().matches(5, 1))
         return features;
 
-    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 2, 2);
-    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 1);
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 2));
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 1));
 
     if (qtVersion().matches(5, 2))
         return features;
 
-    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 2, 3);
-    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 2);
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 3));
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 2));
 
     if (qtVersion().matches(5, 3))
         return features;
 
-    features |= Feature(Constants::FEATURE_QT_QUICK_UI_FILES);
+    features.insert(Constants::FEATURE_QT_QUICK_UI_FILES);
 
-    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 2, 4);
-    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 3);
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 4));
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 3));
 
     if (qtVersion().matches(5, 4))
         return features;
 
-    features |= Feature(Constants::FEATURE_QT_3D);
-    features |= Feature(Constants::FEATURE_QT_CANVAS3D);
+    features.insert(Constants::FEATURE_QT_3D);
+    features.insert(Constants::FEATURE_QT_CANVAS3D);
 
-    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 2, 5);
-    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 4);
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 5));
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 4));
 
     if (qtVersion().matches(5, 5))
         return features;

@@ -228,7 +228,7 @@ KitMatcher QtKitInformation::platformMatcher(const QString &platform)
     });
 }
 
-KitMatcher QtKitInformation::qtVersionMatcher(const Core::FeatureSet &required,
+KitMatcher QtKitInformation::qtVersionMatcher(const QSet<Core::Id> &required,
     const QtVersionNumber &min, const QtVersionNumber &max)
 {
     return std::function<bool(const Kit *)>([required, min, max](const Kit *kit) -> bool {
@@ -264,10 +264,10 @@ QString QtKitInformation::displayNameForPlatform(const Kit *k, const QString &pl
     return QString();
 }
 
-Core::FeatureSet QtKitInformation::availableFeatures(const Kit *k) const
+QSet<Core::Id> QtKitInformation::availableFeatures(const Kit *k) const
 {
     BaseQtVersion *version = QtKitInformation::qtVersion(k);
-    return version ? version->availableFeatures() : Core::FeatureSet();
+    return version ? version->availableFeatures() : QSet<Core::Id>();
 }
 
 } // namespace QtSupport

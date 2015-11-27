@@ -47,7 +47,7 @@ public:
     BaseQtVersion *clone() const;
     QString type() const;
     QString description() const;
-    Core::FeatureSet availableFeatures() const;
+    QSet<Core::Id> availableFeatures() const;
     QString platformName() const;
     QString platformDisplayName() const;
     QList<ProjectExplorer::Abi> detectQtAbis() const;
