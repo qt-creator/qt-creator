@@ -1,15 +1,11 @@
 include(../../qtcreatorplugin.pri)
 include(../../shared/clang/clang_installation.pri)
 
-LIBS += $$LLVM_LIBS
-INCLUDEPATH += $$LLVM_INCLUDEPATH
 DEFINES += CLANGCODEMODEL_LIBRARY
 
 # The following defines are used to determine the clang include path for intrinsics.
 DEFINES += CLANG_VERSION=\\\"$${LLVM_VERSION}\\\"
 DEFINES += "\"CLANG_RESOURCE_DIR=\\\"$${LLVM_LIBDIR}/clang/$${LLVM_VERSION}/include\\\"\""
-
-unix:QMAKE_LFLAGS += -Wl,-rpath,\'$$LLVM_LIBDIR\'
 
 SOURCES += \
     activationsequencecontextprocessor.cpp \
@@ -36,12 +32,7 @@ SOURCES += \
     clangtextmark.cpp \
     clangutils.cpp \
     completionchunkstotextconverter.cpp \
-    highlightingmarksreporter.cpp \
-    pchinfo.cpp \
-    pchmanager.cpp \
-    raii/scopedclangoptions.cpp \
-    unit.cpp \
-    unsavedfiledata.cpp
+    highlightingmarksreporter.cpp
 
 HEADERS += \
     activationsequencecontextprocessor.h \
@@ -70,12 +61,7 @@ HEADERS += \
     clangutils.h \
     completionchunkstotextconverter.h \
     constants.h \
-    highlightingmarksreporter.h \
-    pchinfo.h \
-    pchmanager.h \
-    raii/scopedclangoptions.h \
-    unit.h \
-    unsavedfiledata.h
+    highlightingmarksreporter.h
 
 FORMS += clangprojectsettingspropertiespage.ui
 

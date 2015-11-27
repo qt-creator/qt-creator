@@ -32,7 +32,6 @@
 #define CLANGCODEMODEL_INTERNAL_CLANGCOMPLETIONASSISTINTERFACE_H
 
 #include "clangbackendipcintegration.h"
-#include "pchinfo.h"
 #include "clangutils.h"
 
 #include <cpptools/cppcompletionassistprovider.h>
@@ -51,11 +50,9 @@ public:
                                    const QString &fileName,
                                    TextEditor::AssistReason reason,
                                    const CppTools::ProjectPart::HeaderPaths &headerPaths,
-                                   const PchInfo::Ptr &pchInfo,
                                    const CPlusPlus::LanguageFeatures &features);
 
     IpcCommunicator &ipcCommunicator() const;
-    const Utils::UnsavedFiles &unsavedFiles() const;
     bool objcEnabled() const;
     const CppTools::ProjectPart::HeaderPaths &headerPaths() const;
     CPlusPlus::LanguageFeatures languageFeatures() const;
@@ -65,10 +62,8 @@ public:
 
 private:
     IpcCommunicator &m_ipcCommunicator;
-    Utils::UnsavedFiles m_unsavedFiles;
     QStringList m_options;
     CppTools::ProjectPart::HeaderPaths m_headerPaths;
-    Internal::PchInfo::Ptr m_savedPchPointer;
     CPlusPlus::LanguageFeatures m_languageFeatures;
     const TextEditor::TextEditorWidget *m_textEditorWidget;
 };

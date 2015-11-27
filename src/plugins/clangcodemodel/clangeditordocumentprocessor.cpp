@@ -35,7 +35,6 @@
 #include "clangmodelmanagersupport.h"
 #include "clangutils.h"
 #include "highlightingmarksreporter.h"
-#include "pchinfo.h"
 
 #include <diagnosticcontainer.h>
 #include <sourcelocationcontainer.h>

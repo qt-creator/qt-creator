@@ -32,25 +32,18 @@
 
 #include "clangeditordocumentprocessor.h"
 
-#include <clang-c/Index.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-
 #include <cpptools/baseeditordocumentparser.h>
 #include <cpptools/cppprojects.h>
-#include <cpptools/cppworkingcopy.h>
-
 #include <projectexplorer/projectexplorerconstants.h>
-
 #include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QFile>
 #include <QLoggingCategory>
 #include <QRegularExpression>
-#include <QSet>
-#include <QString>
+#include <QStringList>
 
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
@@ -61,21 +54,6 @@ namespace ClangCodeModel {
 namespace Utils {
 
 Q_LOGGING_CATEGORY(verboseRunLog, "qtc.clangcodemodel.verboserun")
-
-UnsavedFiles createUnsavedFiles(const WorkingCopy &workingCopy,
-                                const ::Utils::FileNameList &modifiedFiles)
-{
-    UnsavedFiles result;
-    QHashIterator< ::Utils::FileName, QPair<QByteArray, unsigned> > wcIter = workingCopy.iterator();
-    while (wcIter.hasNext()) {
-        wcIter.next();
-        const ::Utils::FileName &fileName = wcIter.key();
-        if (modifiedFiles.contains(fileName) && QFile(fileName.toString()).exists())
-            result.insert(fileName.toString(), wcIter.value().first);
-    }
-
-    return result;
-}
 
 /**
  * @brief Creates list of message-line arguments required for correct parsing

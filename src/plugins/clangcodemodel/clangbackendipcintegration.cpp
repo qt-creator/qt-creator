@@ -34,7 +34,6 @@
 #include "clangeditordocumentprocessor.h"
 #include "clangmodelmanagersupport.h"
 #include "clangutils.h"
-#include "pchmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -335,10 +334,8 @@ void IpcCommunicator::initializeBackend()
 
 static QStringList projectPartOptions(const CppTools::ProjectPart::Ptr &projectPart)
 {
-    QStringList options = ClangCodeModel::Utils::createClangOptions(projectPart,
+    const QStringList options = ClangCodeModel::Utils::createClangOptions(projectPart,
         CppTools::ProjectFile::Unclassified); // No language option
-    if (PchInfo::Ptr pchInfo = PchManager::instance()->pchInfo(projectPart))
-        options += ClangCodeModel::Utils::createPCHInclusionOptions(pchInfo->fileName());
 
     return options;
 }

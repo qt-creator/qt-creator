@@ -32,7 +32,6 @@
 
 #include "clangprojectsettingspropertiespage.h"
 #include "constants.h"
-#include "pchmanager.h"
 
 #ifdef WITH_TESTS
 #  include "test/clangcodecompletion_test.h"
@@ -46,8 +45,6 @@
 
 #include <texteditor/textmark.h>
 
-#include <clang-c/Index.h>
-
 namespace ClangCodeModel {
 namespace Internal {
 
@@ -59,23 +56,6 @@ void initializeTextMarks()
                                            Utils::Theme::ClangCodeModel_Warning_TextMarkColor);
     TextEditor::TextMark::setCategoryColor(Core::Id(Constants::CLANG_ERROR),
                                            Utils::Theme::ClangCodeModel_Error_TextMarkColor);
-}
-
-static bool clangInitialised = false;
-static QMutex initialisationMutex;
-
-void initializeClang()
-{
-    if (clangInitialised)
-        return;
-
-    QMutexLocker locker(&initialisationMutex);
-    if (clangInitialised)
-        return;
-
-    clang_toggleCrashRecovery(1);
-    clang_enableStackTraces();
-    clangInitialised = true;
 }
 
 } // anonymous namespace
@@ -92,19 +72,8 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
     panelFactory->setSimpleCreateWidgetFunction<ClangProjectSettingsWidget>(QIcon());
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
-    // Initialize Clang
-    ClangCodeModel::Internal::initializeClang();
-
-    // Set up PchManager
-    PchManager *pchManager = new PchManager(this);
-    ProjectExplorer::SessionManager *sessionManager = ProjectExplorer::SessionManager::instance();
-    connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
-            pchManager, &PchManager::onAboutToRemoveProject);
-    auto cppModelManager = CppTools::CppModelManager::instance();
-    connect(cppModelManager, &CppTools::CppModelManager::projectPartsUpdated,
-            pchManager, &PchManager::onProjectPartsUpdated);
-
     // Register ModelManagerSupportProvider
+    auto cppModelManager = CppTools::CppModelManager::instance();
     cppModelManager->setClangModelManagerSupportProvider(&m_modelManagerSupportProvider);
 
     initializeTextMarks();

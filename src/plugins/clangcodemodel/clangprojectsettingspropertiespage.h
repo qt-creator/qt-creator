@@ -33,10 +33,8 @@
 
 #include "ui_clangprojectsettingspropertiespage.h"
 
-#include <QString>
-
 namespace ProjectExplorer {
-    class Project;
+class Project;
 }
 
 namespace ClangCodeModel {
@@ -48,11 +46,6 @@ class ClangProjectSettingsWidget: public QWidget
 
 public:
     ClangProjectSettingsWidget(ProjectExplorer::Project *project);
-
-protected slots:
-    void pchUsageChanged(int id);
-    void customPchFileChanged();
-    void customPchButtonClicked();
 
 private:
     Ui::ClangProjectSettingsPropertiesPage m_ui;

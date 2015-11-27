@@ -33,7 +33,6 @@
 #include "clangcompletionassistprocessor.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangutils.h"
-#include "pchmanager.h"
 
 #include <cplusplus/Token.h>
 #include <cpptools/cppcompletionassistprocessor.h>
@@ -73,14 +72,12 @@ TextEditor::AssistInterface *ClangCompletionAssistProvider::createAssistInterfac
 {
     const CppTools::ProjectPart::Ptr projectPart = Utils::projectPartForFileBasedOnProcessor(filePath);
     if (projectPart) {
-        const PchInfo::Ptr pchInfo = PchManager::instance()->pchInfo(projectPart);
         return new ClangCompletionAssistInterface(m_ipcCommunicator,
                                                   textEditorWidget,
                                                   position,
                                                   filePath,
                                                   reason,
                                                   projectPart->headerPaths,
-                                                  pchInfo,
                                                   projectPart->languageFeatures);
     }
 
