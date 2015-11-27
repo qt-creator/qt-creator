@@ -32,7 +32,6 @@
 
 #include "clangutils.h"
 #include "unsavedfiledata.h"
-#include "utils_p.h"
 
 #include <clang-c/Index.h>
 
@@ -105,12 +104,12 @@ void Unit::setCompilationOptions(const QStringList &compOptions)
     m_sharedCompOptions.reloadOptions(compOptions);
 }
 
-UnsavedFiles Unit::unsavedFiles() const
+ClangCodeModel::Utils::UnsavedFiles Unit::unsavedFiles() const
 {
     return m_unsaved;
 }
 
-void Unit::setUnsavedFiles(const UnsavedFiles &unsavedFiles)
+void Unit::setUnsavedFiles(const ClangCodeModel::Utils::UnsavedFiles &unsavedFiles)
 {
     m_unsaved = unsavedFiles;
 }
@@ -189,20 +188,6 @@ CXSourceLocation Unit::getLocation(const CXFile &file, unsigned line, unsigned c
     return clang_getLocation(m_tu, file, line, column);
 }
 
-void Unit::codeCompleteAt(unsigned line, unsigned column, ScopedCXCodeCompleteResults &results)
-{
-    unsigned flags = clang_defaultCodeCompleteOptions();
-#if defined(CINDEX_VERSION) && (CINDEX_VERSION > 5)
-    flags |= CXCodeComplete_IncludeBriefComments;
-#endif
-
-    UnsavedFileData unsaved(m_unsaved);
-    results.reset(clang_codeCompleteAt(m_tu, m_fileName.constData(),
-                                       line, column,
-                                       unsaved.files(), unsaved.count(),
-                                       flags));
-}
-
 void Unit::tokenize(CXSourceRange range, CXToken **tokens, unsigned *tokenCount) const
 {
     Q_ASSERT(isLoaded());
@@ -248,13 +233,6 @@ CXIndex Unit::clangIndex() const
     Q_ASSERT(isLoaded());
 
     return m_index;
-}
-
-QString Unit::getTokenSpelling(const CXToken &tok) const
-{
-    Q_ASSERT(isLoaded());
-
-    return getQString(clang_getTokenSpelling(m_tu, tok));
 }
 
 CXCursor Unit::getTranslationUnitCursor() const

@@ -32,7 +32,6 @@
 #define CPPTOOLS_CLANGUTILS_H
 
 #include "clang_global.h"
-#include "utils.h"
 
 #include <cpptools/cppmodelmanager.h>
 
@@ -41,11 +40,12 @@
 namespace ClangCodeModel {
 namespace Utils {
 
+typedef QMap<QString, QByteArray> UnsavedFiles;
+
 Q_DECLARE_LOGGING_CATEGORY(verboseRunLog)
 
-ClangCodeModel::Internal::UnsavedFiles createUnsavedFiles(
-        const CppTools::WorkingCopy &workingCopy,
-        const ::Utils::FileNameList &modifiedFiles);
+UnsavedFiles createUnsavedFiles(const CppTools::WorkingCopy &workingCopy,
+                                const ::Utils::FileNameList &modifiedFiles);
 
 QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
                                CppTools::ProjectFile::Kind fileKind);

@@ -31,7 +31,7 @@
 #ifndef CLANG_INTERNAL_UNSAVEDFILEDATA_H
 #define CLANG_INTERNAL_UNSAVEDFILEDATA_H
 
-#include "utils.h"
+#include "clangutils.h"
 
 #include <clang-c/Index.h>
 
@@ -43,7 +43,7 @@ class UnsavedFileData
     UnsavedFileData(const UnsavedFileData &);
     UnsavedFileData &operator=(const UnsavedFileData &);
 
-    typedef ClangCodeModel::Internal::UnsavedFiles UnsavedFiles;
+    typedef ClangCodeModel::Utils::UnsavedFiles UnsavedFiles;
 
 public:
     UnsavedFileData(const UnsavedFiles &unsavedFiles);

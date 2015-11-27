@@ -33,7 +33,6 @@
 #include "clangprojectsettingspropertiespage.h"
 #include "constants.h"
 #include "pchmanager.h"
-#include "utils.h"
 
 #ifdef WITH_TESTS
 #  include "test/clangcodecompletion_test.h"
@@ -47,16 +46,39 @@
 
 #include <texteditor/textmark.h>
 
+#include <clang-c/Index.h>
+
 namespace ClangCodeModel {
 namespace Internal {
 
-static void initializeTextMarks()
+namespace {
+
+void initializeTextMarks()
 {
     TextEditor::TextMark::setCategoryColor(Core::Id(Constants::CLANG_WARNING),
                                            Utils::Theme::ClangCodeModel_Warning_TextMarkColor);
     TextEditor::TextMark::setCategoryColor(Core::Id(Constants::CLANG_ERROR),
                                            Utils::Theme::ClangCodeModel_Error_TextMarkColor);
 }
+
+static bool clangInitialised = false;
+static QMutex initialisationMutex;
+
+void initializeClang()
+{
+    if (clangInitialised)
+        return;
+
+    QMutexLocker locker(&initialisationMutex);
+    if (clangInitialised)
+        return;
+
+    clang_toggleCrashRecovery(1);
+    clang_enableStackTraces();
+    clangInitialised = true;
+}
+
+} // anonymous namespace
 
 bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
@@ -73,18 +95,12 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
     // Initialize Clang
     ClangCodeModel::Internal::initializeClang();
 
-    // Set up Indexer
-    auto cppModelManager = CppTools::CppModelManager::instance();
-#ifdef CLANG_INDEXING
-    m_indexer.reset(new ClangIndexer);
-    cppModelManager->setIndexingSupport(m_indexer->indexingSupport());
-#endif // CLANG_INDEXING
-
     // Set up PchManager
     PchManager *pchManager = new PchManager(this);
     ProjectExplorer::SessionManager *sessionManager = ProjectExplorer::SessionManager::instance();
     connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
             pchManager, &PchManager::onAboutToRemoveProject);
+    auto cppModelManager = CppTools::CppModelManager::instance();
     connect(cppModelManager, &CppTools::CppModelManager::projectPartsUpdated,
             pchManager, &PchManager::onProjectPartsUpdated);
 

@@ -33,7 +33,7 @@
 
 #include "clangbackendipcintegration.h"
 #include "pchinfo.h"
-#include "utils.h"
+#include "clangutils.h"
 
 #include <cpptools/cppcompletionassistprovider.h>
 
@@ -55,7 +55,7 @@ public:
                                    const CPlusPlus::LanguageFeatures &features);
 
     IpcCommunicator &ipcCommunicator() const;
-    const UnsavedFiles &unsavedFiles() const;
+    const Utils::UnsavedFiles &unsavedFiles() const;
     bool objcEnabled() const;
     const CppTools::ProjectPart::HeaderPaths &headerPaths() const;
     CPlusPlus::LanguageFeatures languageFeatures() const;
@@ -65,7 +65,7 @@ public:
 
 private:
     IpcCommunicator &m_ipcCommunicator;
-    UnsavedFiles m_unsavedFiles;
+    Utils::UnsavedFiles m_unsavedFiles;
     QStringList m_options;
     CppTools::ProjectPart::HeaderPaths m_headerPaths;
     Internal::PchInfo::Ptr m_savedPchPointer;

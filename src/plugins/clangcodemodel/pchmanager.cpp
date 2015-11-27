@@ -29,7 +29,7 @@
 ****************************************************************************/
 
 #include "pchmanager.h"
-#include "utils.h"
+#include "unit.h"
 #include "clangutils.h"
 
 #include <coreplugin/icore.h>
@@ -43,6 +43,70 @@
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 using namespace CPlusPlus;
+
+namespace {
+
+QString getQString(const CXString &cxString, bool disposeCXString = true)
+{
+    QString s = QString::fromUtf8(clang_getCString(cxString));
+    if (disposeCXString)
+        clang_disposeString(cxString);
+    return s;
+}
+
+QStringList formattedDiagnostics(const Unit::Ptr &unit)
+{
+    QStringList diags;
+    if (!unit->isLoaded())
+        return diags;
+
+    const unsigned count = unit->getNumDiagnostics();
+    for (unsigned i = 0; i < count; ++i) {
+        CXDiagnostic diag = unit->getDiagnostic(i);
+
+        unsigned opt = CXDiagnostic_DisplaySourceLocation
+                | CXDiagnostic_DisplayColumn
+                | CXDiagnostic_DisplaySourceRanges
+                | CXDiagnostic_DisplayOption
+                | CXDiagnostic_DisplayCategoryId
+                | CXDiagnostic_DisplayCategoryName
+                ;
+        diags << getQString(clang_formatDiagnostic(diag, opt));
+        clang_disposeDiagnostic(diag);
+    }
+
+    return diags;
+}
+
+/**
+ * Utility method to create a PCH file from a header file.
+ *
+ * \returns a boolean indicating success (true) or failure (false), and a
+ *          list of diagnostic messages.
+ */
+QPair<bool, QStringList> precompile(const PchInfo::Ptr &pchInfo)
+{
+//    qDebug() << "*** Precompiling" << pchInfo->inputFileName()
+//             << "into" << pchInfo->fileName()
+//             << "with options" << pchInfo->options();
+
+    bool ok = false;
+
+    Unit::Ptr unit = Unit::create(pchInfo->inputFileName());
+    unit->setCompilationOptions(pchInfo->options());
+
+    unsigned parseOpts = CXTranslationUnit_ForSerialization
+            | CXTranslationUnit_Incomplete;
+    unit->setManagementOptions(parseOpts);
+
+    unit->parse();
+    if (unit->isLoaded())
+        ok = CXSaveError_None == unit->save(pchInfo->fileName());
+
+    return qMakePair(ok, formattedDiagnostics(unit));
+}
+
+} // anonymous namespace
 
 PchManager *PchManager::m_instance = 0;
 

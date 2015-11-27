@@ -31,9 +31,10 @@
 #ifndef UNIT_H
 #define UNIT_H
 
-#include "utils.h"
+#include "clangutils.h"
 #include "raii/scopedclangoptions.h"
-#include "cxraii.h"
+
+#include <clang-c/Index.h>
 
 #include <QtCore/QDateTime>
 #include <QSharedPointer>
@@ -95,8 +96,8 @@ public:
     QStringList compilationOptions() const;
     void setCompilationOptions(const QStringList &compOptions);
 
-    UnsavedFiles unsavedFiles() const;
-    void setUnsavedFiles(const UnsavedFiles &unsavedFiles);
+    Utils::UnsavedFiles unsavedFiles() const;
+    void setUnsavedFiles(const ClangCodeModel::Utils::UnsavedFiles &unsavedFiles);
 
     unsigned managementOptions() const;
     void setManagementOptions(unsigned managementOptions);
@@ -135,8 +136,6 @@ public:
     // - Physical source locations
     CXSourceLocation getLocation(const CXFile &file, unsigned line, unsigned column) const;
 
-    void codeCompleteAt(unsigned line, unsigned column, ScopedCXCodeCompleteResults &results);
-
     void tokenize(CXSourceRange range, CXToken **tokens, unsigned *tokenCount) const;
     void disposeTokens(CXToken *tokens, unsigned tokenCount) const;
     CXSourceRange getTokenExtent(const CXToken &token) const;
@@ -144,8 +143,6 @@ public:
 
     CXTranslationUnit clangTranslationUnit() const;
     CXIndex clangIndex() const;
-
-    QString getTokenSpelling(const CXToken &tok) const;
 
 private:
     void updateTimeStamp();
@@ -156,7 +153,7 @@ private:
     QStringList m_compOptions;
     SharedClangOptions m_sharedCompOptions;
     unsigned m_managementOptions;
-    UnsavedFiles m_unsaved;
+    Utils::UnsavedFiles m_unsaved;
     QDateTime m_timeStamp;
 };
 

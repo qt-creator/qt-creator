@@ -34,8 +34,6 @@
 #include "clangfixitoperationsextractor.h"
 #include "clangmodelmanagersupport.h"
 #include "clangutils.h"
-#include "cppcreatemarkers.h"
-#include "diagnostic.h"
 #include "highlightingmarksreporter.h"
 #include "pchinfo.h"
 

@@ -179,7 +179,7 @@ bool writeFile(const QString &filePath, const QByteArray &contents)
 void insertTextAtTopOfEditor(TextEditor::BaseTextEditor *editor, const QByteArray &text)
 {
     QTC_ASSERT(editor, return);
-    Utils::ChangeSet cs;
+    ::Utils::ChangeSet cs;
     cs.insert(0, QString::fromUtf8(text));
     QTextCursor textCursor = editor->textCursor();
     cs.apply(&textCursor);
@@ -1099,7 +1099,7 @@ void ClangCodeCompletionTest::testCompleteAfterModifyingIncludedHeaderByRefactor
 
     // Modify header document without switching to its editor.
     // This simulates e.g. changes from refactoring actions.
-    Utils::ChangeSet cs;
+    ::Utils::ChangeSet cs;
     cs.insert(0, QLatin1String("int globalFromHeaderUnsaved;\n"));
     QTextCursor textCursor = openHeader.editor()->textCursor();
     cs.apply(&textCursor);

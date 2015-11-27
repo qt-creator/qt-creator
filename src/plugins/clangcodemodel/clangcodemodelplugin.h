@@ -33,13 +33,7 @@
 
 #include "clangmodelmanagersupport.h"
 
-#ifdef CLANG_INDEXING
-#  include "clangindexer.h"
-#endif // CLANG_INDEXING
-
 #include <extensionsystem/iplugin.h>
-
-#include <QScopedPointer>
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -55,9 +49,6 @@ public:
 
 private:
     ModelManagerSupportProviderClang m_modelManagerSupportProvider;
-#ifdef CLANG_INDEXING
-    QScopedPointer<ClangIndexer> m_indexer;
-#endif // CLANG_INDEXING
 
 #ifdef WITH_TESTS
     QList<QObject *> createTestObjects() const;

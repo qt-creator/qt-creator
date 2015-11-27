@@ -94,7 +94,7 @@ IpcCommunicator &ClangCompletionAssistInterface::ipcCommunicator() const
     return m_ipcCommunicator;
 }
 
-const UnsavedFiles &ClangCompletionAssistInterface::unsavedFiles() const
+const Utils::UnsavedFiles &ClangCompletionAssistInterface::unsavedFiles() const
 {
     return m_unsavedFiles;
 }

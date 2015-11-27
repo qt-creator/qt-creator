@@ -5,7 +5,7 @@ LIBS += $$LLVM_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH
 DEFINES += CLANGCODEMODEL_LIBRARY
 
-# The following defines are used to determine the clang include path for intrinsics
+# The following defines are used to determine the clang include path for intrinsics.
 DEFINES += CLANG_VERSION=\\\"$${LLVM_VERSION}\\\"
 DEFINES += "\"CLANG_RESOURCE_DIR=\\\"$${LLVM_LIBDIR}/clang/$${LLVM_VERSION}/include\\\"\""
 
@@ -33,26 +33,15 @@ SOURCES += \
     clangmodelmanagersupport.cpp \
     clangprojectsettings.cpp \
     clangprojectsettingspropertiespage.cpp \
-    clangsymbol.cpp \
     clangtextmark.cpp \
     clangutils.cpp \
     completionchunkstotextconverter.cpp \
-    cppcreatemarkers.cpp \
-    cxprettyprinter.cpp \
-    diagnostic.cpp \
-    fastindexer.cpp \
     highlightingmarksreporter.cpp \
     pchinfo.cpp \
     pchmanager.cpp \
     raii/scopedclangoptions.cpp \
-    semanticmarker.cpp \
-    sourcelocation.cpp \
-    sourcemarker.cpp \
     unit.cpp \
-    unsavedfiledata.cpp \
-    utils.cpp \
-    utils_p.cpp
-
+    unsavedfiledata.cpp
 
 HEADERS += \
     activationsequencecontextprocessor.h \
@@ -77,42 +66,16 @@ HEADERS += \
     clangmodelmanagersupport.h \
     clangprojectsettings.h \
     clangprojectsettingspropertiespage.h \
-    clangsymbol.h \
     clangtextmark.h \
     clangutils.h \
     completionchunkstotextconverter.h \
     constants.h \
-    cppcreatemarkers.h \
-    cxprettyprinter.h \
-    cxraii.h \
-    diagnostic.h \
-    fastindexer.h \
     highlightingmarksreporter.h \
     pchinfo.h \
     pchmanager.h \
     raii/scopedclangoptions.h \
-    semanticmarker.h \
-    sourcelocation.h \
-    sourcemarker.h \
     unit.h \
-    unsavedfiledata.h \
-    utils.h \
-    utils_p.h
-
-
-contains(DEFINES, CLANG_INDEXING) {
-    HEADERS += \
-        clangindexer.h \
-        index.h \
-        indexer.h
-#        dependencygraph.h \
-
-    SOURCES += \
-        clangindexer.cpp \
-        index.cpp \
-        indexer.cpp
-#        dependencygraph.cpp \
-}
+    unsavedfiledata.h
 
 FORMS += clangprojectsettingspropertiespage.ui
 
