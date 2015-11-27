@@ -58,6 +58,8 @@ public:
     Q_INVOKABLE QString path(const QString &in) const;
     Q_INVOKABLE QString absoluteFilePath(const QString &in) const;
 
+    Q_INVOKABLE QString relativeFilePath(const QString &path, const QString &base) const;
+
     // File checks:
     Q_INVOKABLE bool exists(const QString &in) const;
     Q_INVOKABLE bool isDirectory(const QString &in) const;

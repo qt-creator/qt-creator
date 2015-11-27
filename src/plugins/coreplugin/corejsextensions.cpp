@@ -87,6 +87,11 @@ QString UtilsJsExtension::absoluteFilePath(const QString &in) const
     return fi.absoluteFilePath();
 }
 
+QString UtilsJsExtension::relativeFilePath(const QString &path, const QString &base) const
+{
+    return QDir(base).relativeFilePath(path);
+}
+
 bool UtilsJsExtension::exists(const QString &in) const
 {
     return QFileInfo::exists(in);
