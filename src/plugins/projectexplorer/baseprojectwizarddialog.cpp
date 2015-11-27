@@ -53,7 +53,7 @@ struct BaseProjectWizardDialogPrivate {
     const int desiredIntroPageId;
     Utils::ProjectIntroPage *introPage;
     int introPageId;
-    QString selectedPlatform;
+    Core::Id selectedPlatform;
     QSet<Core::Id> requiredFeatureSet;
 };
 
@@ -189,12 +189,12 @@ void BaseProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &wiza
         addPage(p);
 }
 
-QString BaseProjectWizardDialog::selectedPlatform() const
+Core::Id BaseProjectWizardDialog::selectedPlatform() const
 {
     return d->selectedPlatform;
 }
 
-void BaseProjectWizardDialog::setSelectedPlatform(const QString &platform)
+void BaseProjectWizardDialog::setSelectedPlatform(Core::Id platform)
 {
     d->selectedPlatform = platform;
 }

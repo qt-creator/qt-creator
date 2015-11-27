@@ -62,7 +62,7 @@ void JsonKitsPage::initializePage()
 
     connect(wiz, &JsonWizard::filesPolished, this, &JsonKitsPage::setupProjectFiles);
 
-    const QString platform = wiz->stringValue(QLatin1String("Platform"));
+    const Id platform = Id::fromString(wiz->stringValue(QLatin1String("Platform")));
     const QSet<Id> preferred
             = evaluate(m_preferredFeatures, wiz->value(QLatin1String("PreferredFeatures")), wiz);
     const QSet<Id> required

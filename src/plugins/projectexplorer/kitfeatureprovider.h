@@ -40,9 +40,9 @@ namespace Internal {
 class KitFeatureProvider : public Core::IFeatureProvider
 {
 public:
-    QSet<Core::Id> availableFeatures(const QString &platform) const;
-    QStringList availablePlatforms() const;
-    QString displayNameForPlatform(const QString &string) const;
+    QSet<Core::Id> availableFeatures(Core::Id id) const;
+    QSet<Core::Id> availablePlatforms() const;
+    QString displayNameForPlatform(Core::Id id) const;
 };
 
 } // namespace Internal

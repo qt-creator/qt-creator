@@ -302,15 +302,15 @@ void KitManager::deregisterKitInformation(KitInformation *ki)
     delete ki;
 }
 
-QSet<QString> KitManager::availablePlatforms()
+QSet<Id> KitManager::availablePlatforms()
 {
-    QSet<QString> platforms;
+    QSet<Id> platforms;
     foreach (const Kit *k, kits())
         platforms.unite(k->availablePlatforms());
     return platforms;
 }
 
-QString KitManager::displayNameForPlatform(const QString &platform)
+QString KitManager::displayNameForPlatform(Id platform)
 {
     foreach (const Kit *k, kits()) {
         const QString displayName = k->displayNameForPlatform(platform);
@@ -320,13 +320,13 @@ QString KitManager::displayNameForPlatform(const QString &platform)
     return QString();
 }
 
-QSet<Id> KitManager::availableFeatures(const QString &platform)
+QSet<Id> KitManager::availableFeatures(Id platform)
 {
     QSet<Id> features;
     foreach (const Kit *k, kits()) {
-        QSet<QString> kitPlatforms = k->availablePlatforms();
-        if (kitPlatforms.isEmpty() || kitPlatforms.contains(platform) || platform.isEmpty())
-            features |= k->availableFeatures();
+        QSet<Id> kitPlatforms = k->availablePlatforms();
+        if (kitPlatforms.isEmpty() || kitPlatforms.contains(platform) || !platform.isValid())
+            features.unite(k->availableFeatures());
     }
     return features;
 }
@@ -553,13 +553,13 @@ QString KitInformation::displayNamePostfix(const Kit *k) const
     return QString();
 }
 
-QSet<QString> KitInformation::availablePlatforms(const Kit *k) const
+QSet<Id> KitInformation::availablePlatforms(const Kit *k) const
 {
     Q_UNUSED(k);
-    return QSet<QString>();
+    return QSet<Id>();
 }
 
-QString KitInformation::displayNameForPlatform(const Kit *k, const QString &platform) const
+QString KitInformation::displayNameForPlatform(const Kit *k, Id platform) const
 {
     Q_UNUSED(k);
     Q_UNUSED(platform);
@@ -588,19 +588,19 @@ void KitInformation::notifyAboutUpdate(Kit *k)
 // KitFeatureProvider:
 // --------------------------------------------------------------------
 
-QSet<Id> KitFeatureProvider::availableFeatures(const QString &platform) const
+QSet<Id> KitFeatureProvider::availableFeatures(Id id) const
 {
-    return KitManager::availableFeatures(platform);
+    return KitManager::availableFeatures(id);
 }
 
-QStringList KitFeatureProvider::availablePlatforms() const
+QSet<Id> KitFeatureProvider::availablePlatforms() const
 {
-    return KitManager::availablePlatforms().toList();
+    return KitManager::availablePlatforms();
 }
 
-QString KitFeatureProvider::displayNameForPlatform(const QString &string) const
+QString KitFeatureProvider::displayNameForPlatform(Id id) const
 {
-    return KitManager::displayNameForPlatform(string);
+    return KitManager::displayNameForPlatform(id);
 }
 
 } // namespace ProjectExplorer

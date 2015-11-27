@@ -69,13 +69,13 @@ public:
     static BaseQtVersion *qtVersion(const ProjectExplorer::Kit *k);
     static void setQtVersion(ProjectExplorer::Kit *k, const BaseQtVersion *v);
 
-    static ProjectExplorer::KitMatcher platformMatcher(const QString &availablePlatforms);
+    static ProjectExplorer::KitMatcher platformMatcher(Core::Id availablePlatforms);
     static ProjectExplorer::KitMatcher qtVersionMatcher(const QSet<Core::Id> &required = QSet<Core::Id>(),
                                  const QtVersionNumber &min = QtVersionNumber(0, 0, 0),
                                  const QtVersionNumber &max = QtVersionNumber(INT_MAX, INT_MAX, INT_MAX));
 
-    QSet<QString> availablePlatforms(const ProjectExplorer::Kit *k) const;
-    QString displayNameForPlatform(const ProjectExplorer::Kit *k, const QString &platform) const;
+    QSet<Core::Id> availablePlatforms(const ProjectExplorer::Kit *k) const;
+    QString displayNameForPlatform(const ProjectExplorer::Kit *k, Core::Id platform) const;
     QSet<Core::Id> availableFeatures(const ProjectExplorer::Kit *k) const;
 
 private slots:

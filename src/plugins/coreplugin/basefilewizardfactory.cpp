@@ -80,7 +80,7 @@ static int indexOfFile(const GeneratedFiles &f, const QString &path)
 */
 
 Utils::Wizard *BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget *parent,
-                                                    const QString &platform,
+                                                    Id platform,
                                                     const QVariantMap &extraValues)
 {
     QTC_ASSERT(!path.isEmpty(), return 0);

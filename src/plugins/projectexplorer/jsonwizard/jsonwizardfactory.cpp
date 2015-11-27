@@ -357,7 +357,7 @@ JsonWizardFactory::~JsonWizardFactory()
 { }
 
 Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *parent,
-                                                const QString &platform,
+                                                Core::Id platform,
                                                 const QVariantMap &variables)
 {
     auto wizard = new JsonWizard(parent);
@@ -380,7 +380,7 @@ Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *pa
         wizard->setValue(i.key(), i.value());
 
     wizard->setValue(QStringLiteral("InitialPath"), path);
-    wizard->setValue(QStringLiteral("Platform"), platform);
+    wizard->setValue(QStringLiteral("Platform"), platform.toString());
 
     QString kindStr = QLatin1String(Core::Constants::WIZARD_KIND_UNKNOWN);
     if (kind() == IWizardFactory::FileWizard)
@@ -483,17 +483,17 @@ QString JsonWizardFactory::localizedString(const QVariant &value)
     return QCoreApplication::translate("ProjectExplorer::JsonWizardFactory", value.toByteArray());
 }
 
-bool JsonWizardFactory::isAvailable(const QString &platformName) const
+bool JsonWizardFactory::isAvailable(Core::Id platformId) const
 {
-    if (!IWizardFactory::isAvailable(platformName)) // check for required features
+    if (!IWizardFactory::isAvailable(platformId)) // check for required features
         return false;
 
     Utils::MacroExpander expander;
     Utils::MacroExpander *e = &expander;
     expander.registerVariable("Platform", tr("The platform selected for the wizard."),
-                              [platformName]() { return platformName; });
+                              [platformId]() { return platformId.toString(); });
     expander.registerVariable("Features", tr("The features available to this wizard."),
-                              [this, e, platformName]() { return JsonWizard::stringListToArrayString(Core::Id::toStringList(availableFeatures(platformName)), e); });
+                              [this, e, platformId]() { return JsonWizard::stringListToArrayString(Core::Id::toStringList(availableFeatures(platformId)), e); });
     expander.registerVariable("Plugins", tr("The plugins loaded."),
                               [this, e]() { return JsonWizard::stringListToArrayString(Core::Id::toStringList(pluginFeatures()), e); });
 

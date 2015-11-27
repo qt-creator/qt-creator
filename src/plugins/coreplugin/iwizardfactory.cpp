@@ -250,7 +250,7 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
                 connect(newFactory->m_action, &QAction::triggered, newFactory, [newFactory]() {
                     if (!ICore::isNewItemDialogRunning()) {
                         QString path = newFactory->runPath(QString());
-                        newFactory->runWizard(path, ICore::dialogParent(), QString(), QVariantMap());
+                        newFactory->runWizard(path, ICore::dialogParent(), Id(), QVariantMap());
                     }
                 });
 
@@ -290,7 +290,7 @@ QString IWizardFactory::runPath(const QString &defaultPath)
     return path;
 }
 
-Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &variables)
+Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, Id platform, const QVariantMap &variables)
 {
     QTC_ASSERT(!s_isWizardRunning, return 0);
 
@@ -326,24 +326,24 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, c
     return wizard;
 }
 
-bool IWizardFactory::isAvailable(const QString &platformName) const
+bool IWizardFactory::isAvailable(Id platformId) const
 {
-    if (platformName.isEmpty())
+    if (!platformId.isValid())
         return true;
 
-    return availableFeatures(platformName).contains(requiredFeatures());
+    return availableFeatures(platformId).contains(requiredFeatures());
 }
 
-QStringList IWizardFactory::supportedPlatforms() const
+QSet<Id> IWizardFactory::supportedPlatforms() const
 {
-    QStringList stringList;
+    QSet<Id> platformIds;
 
-    foreach (const QString &platform, allAvailablePlatforms()) {
+    foreach (Id platform, allAvailablePlatforms()) {
         if (isAvailable(platform))
-            stringList.append(platform);
+            platformIds.insert(platform);
     }
 
-    return stringList;
+    return platformIds;
 }
 
 void IWizardFactory::registerFactoryCreator(const IWizardFactory::FactoryCreator &creator)
@@ -351,20 +351,20 @@ void IWizardFactory::registerFactoryCreator(const IWizardFactory::FactoryCreator
     s_factoryCreators << creator;
 }
 
-QStringList IWizardFactory::allAvailablePlatforms()
+QSet<Id> IWizardFactory::allAvailablePlatforms()
 {
-    QStringList platforms;
+    QSet<Id> platforms;
 
     foreach (const IFeatureProvider *featureManager, s_providerList)
-        platforms.append(featureManager->availablePlatforms());
+        platforms.unite(featureManager->availablePlatforms());
 
     return platforms;
 }
 
-QString IWizardFactory::displayNameForPlatform(const QString &string)
+QString IWizardFactory::displayNameForPlatform(Id i)
 {
     foreach (const IFeatureProvider *featureManager, s_providerList) {
-        QString displayName = featureManager->displayNameForPlatform(string);
+        const QString displayName = featureManager->displayNameForPlatform(i);
         if (!displayName.isEmpty())
             return displayName;
     }
@@ -420,12 +420,12 @@ QSet<Id> IWizardFactory::pluginFeatures() const
     return plugins;
 }
 
-QSet<Id> IWizardFactory::availableFeatures(const QString &platformName) const
+QSet<Id> IWizardFactory::availableFeatures(Id platformId) const
 {
     QSet<Id> availableFeatures;
 
     foreach (const IFeatureProvider *featureManager, s_providerList)
-        availableFeatures.unite(featureManager->availableFeatures(platformName));
+        availableFeatures.unite(featureManager->availableFeatures(platformId));
 
     return availableFeatures;
 }

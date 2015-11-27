@@ -62,7 +62,7 @@ public:
     };
     Q_DECLARE_FLAGS(DialogParameterFlags, DialogParameterEnum)
 
-    explicit WizardDialogParameters(const QString &defaultPath, const QString &platform,
+    explicit WizardDialogParameters(const QString &defaultPath, Id platform,
                                     const QSet<Id> &requiredFeatures, DialogParameterFlags flags,
                                     QVariantMap extraValues)
         : m_defaultPath(defaultPath),
@@ -75,7 +75,7 @@ public:
     QString defaultPath() const
     { return m_defaultPath; }
 
-    QString selectedPlatform() const
+    Id selectedPlatform() const
     { return m_selectedPlatform; }
 
     QSet<Id> requiredFeatures() const
@@ -89,7 +89,7 @@ public:
 
 private:
     QString m_defaultPath;
-    QString m_selectedPlatform;
+    Id m_selectedPlatform;
     QSet<Id> m_requiredFeatures;
     DialogParameterFlags m_parameterFlags;
     QVariantMap m_extraValues;
@@ -123,7 +123,7 @@ protected:
 
 private:
     // IWizard
-    Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, const QString &platform,
+    Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, Id platform,
                                  const QVariantMap &extraValues) override;
 };
 

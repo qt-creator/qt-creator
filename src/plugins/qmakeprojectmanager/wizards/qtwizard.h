@@ -131,7 +131,7 @@ public:
 
     bool writeUserFile(const QString &proFileName) const;
     bool setupProject(QmakeProject *project) const;
-    bool isQtPlatformSelected(const QString &platform) const;
+    bool isQtPlatformSelected(Core::Id platform) const;
     QList<Core::Id> selectedKits() const;
 
     void addExtensionPages(const QList<QWizardPage *> &wizardPageList);

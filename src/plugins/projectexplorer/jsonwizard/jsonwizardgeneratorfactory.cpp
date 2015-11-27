@@ -312,7 +312,7 @@ FileGeneratorFactory::FileGeneratorFactory()
 }
 
 JsonWizardGenerator *FileGeneratorFactory::create(Id typeId, const QVariant &data,
-                                                  const QString &path, const QString &platform,
+                                                  const QString &path, Id platform,
                                                   const QVariantMap &variables)
 {
     Q_UNUSED(path);
@@ -352,7 +352,7 @@ ScannerGeneratorFactory::ScannerGeneratorFactory()
 }
 
 JsonWizardGenerator *ScannerGeneratorFactory::create(Id typeId, const QVariant &data,
-                                                     const QString &path, const QString &platform,
+                                                     const QString &path, Id platform,
                                                      const QVariantMap &variables)
 {
     Q_UNUSED(path);

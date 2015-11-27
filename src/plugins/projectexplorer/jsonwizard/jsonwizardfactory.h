@@ -91,10 +91,10 @@ public:
 
     static QString localizedString(const QVariant &value);
 
-    bool isAvailable(const QString &platformName) const override;
+    bool isAvailable(Core::Id platformId) const override;
 
 private:
-    Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, const QString &platform,
+    Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, Core::Id platform,
                                  const QVariantMap &variables) override;
 
     // Create all wizards. As other plugins might register factories for derived

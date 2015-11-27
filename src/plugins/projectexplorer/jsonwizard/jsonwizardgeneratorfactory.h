@@ -79,7 +79,7 @@ public:
     QList<Core::Id> supportedIds() const { return m_typeIds; }
 
     virtual JsonWizardGenerator *create(Core::Id typeId, const QVariant &data,
-                                        const QString &path, const QString &platform,
+                                        const QString &path, Core::Id platform,
                                         const QVariantMap &variables) = 0;
 
     // Basic syntax check for the data taken from the wizard.json file:
@@ -104,7 +104,7 @@ public:
     FileGeneratorFactory();
 
     JsonWizardGenerator *create(Core::Id typeId, const QVariant &data,
-                                const QString &path, const QString &platform,
+                                const QString &path, Core::Id platform,
                                 const QVariantMap &variables);
     bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
 };
@@ -117,7 +117,7 @@ public:
     ScannerGeneratorFactory();
 
     JsonWizardGenerator *create(Core::Id typeId, const QVariant &data,
-                                const QString &path, const QString &platform,
+                                const QString &path, Core::Id platform,
                                 const QVariantMap &variables);
     bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
 };

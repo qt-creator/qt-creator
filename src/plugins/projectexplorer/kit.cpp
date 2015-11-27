@@ -613,22 +613,22 @@ bool Kit::isMutable(Id id) const
     return d->m_mutable.contains(id);
 }
 
-QSet<QString> Kit::availablePlatforms() const
+QSet<Id> Kit::availablePlatforms() const
 {
-    QSet<QString> platforms;
+    QSet<Id> platforms;
     foreach (const KitInformation *ki, KitManager::kitInformation())
         platforms.unite(ki->availablePlatforms(this));
     return platforms;
 }
 
-bool Kit::hasPlatform(const QString &platform) const
+bool Kit::hasPlatform(Id platform) const
 {
-    if (platform.isEmpty())
+    if (!platform.isValid())
         return true;
     return availablePlatforms().contains(platform);
 }
 
-QString Kit::displayNameForPlatform(const QString &platform) const
+QString Kit::displayNameForPlatform(Id platform) const
 {
     foreach (const KitInformation *ki, KitManager::kitInformation()) {
         const QString displayName = ki->displayNameForPlatform(this, platform);

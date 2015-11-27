@@ -121,9 +121,9 @@ public:
     void setMutable(Core::Id id, bool b);
     bool isMutable(Core::Id id) const;
 
-    QSet<QString> availablePlatforms() const;
-    bool hasPlatform(const QString &platform) const;
-    QString displayNameForPlatform(const QString &platform) const;
+    QSet<Core::Id> availablePlatforms() const;
+    bool hasPlatform(Core::Id platform) const;
+    QString displayNameForPlatform(Core::Id platform) const;
     QSet<Core::Id> availableFeatures() const;
     bool hasFeatures(const QSet<Core::Id> &features) const;
     Utils::MacroExpander *macroExpander() const;

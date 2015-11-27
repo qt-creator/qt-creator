@@ -220,11 +220,11 @@ void QtKitInformation::kitsWereLoaded()
             this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
 }
 
-KitMatcher QtKitInformation::platformMatcher(const QString &platform)
+KitMatcher QtKitInformation::platformMatcher(Core::Id platform)
 {
     return std::function<bool(const Kit *)>([platform](const Kit *kit) -> bool {
         BaseQtVersion *version = QtKitInformation::qtVersion(kit);
-        return version && version->platformName() == platform;
+        return version && Core::Id::fromString(version->platformName()) == platform;
     });
 }
 
@@ -244,22 +244,19 @@ KitMatcher QtKitInformation::qtVersionMatcher(const QSet<Core::Id> &required,
     });
 }
 
-QSet<QString> QtKitInformation::availablePlatforms(const Kit *k) const
+QSet<Core::Id> QtKitInformation::availablePlatforms(const Kit *k) const
 {
-    QSet<QString> result;
     BaseQtVersion *version = QtKitInformation::qtVersion(k);
-    if (version) {
-        QString platform = version->platformName();
-        if (!platform.isEmpty())
-            result.insert(version->platformName());
-    }
-    return result;
+    const QString platform = version ? version->platformName() : QString();
+    if (!platform.isEmpty())
+        return { Core::Id::fromString(platform) };
+    return QSet<Core::Id>();
 }
 
-QString QtKitInformation::displayNameForPlatform(const Kit *k, const QString &platform) const
+QString QtKitInformation::displayNameForPlatform(const Kit *k, Core::Id platform) const
 {
     BaseQtVersion *version = QtKitInformation::qtVersion(k);
-    if (version && version->platformName() == platform)
+    if (version && Core::Id::fromString(version->platformName()) == platform)
         return version->platformDisplayName();
     return QString();
 }

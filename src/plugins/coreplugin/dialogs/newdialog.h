@@ -65,7 +65,7 @@ public:
     void setWizardFactories(QList<IWizardFactory*> factories, const QString &defaultLocation, const QVariantMap &extraVariables);
 
     void showDialog();
-    QString selectedPlatform() const;
+    Id selectedPlatform() const;
 
     static bool isRunning();
 

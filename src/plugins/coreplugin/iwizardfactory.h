@@ -89,11 +89,11 @@ public:
     QString runPath(const QString &defaultPath);
 
     // Does bookkeeping and the calls runWizardImpl. Please implement that.
-    virtual Utils::Wizard *runWizard(const QString &path, QWidget *parent, const QString &platform,
+    virtual Utils::Wizard *runWizard(const QString &path, QWidget *parent, Id platform,
                                      const QVariantMap &variables);
 
-    virtual bool isAvailable(const QString &platformName) const;
-    QStringList supportedPlatforms() const;
+    virtual bool isAvailable(Id platformId) const;
+    QSet<Id> supportedPlatforms() const;
 
     typedef std::function<QList<IWizardFactory *>()> FactoryCreator;
     static void registerFactoryCreator(const FactoryCreator &creator);
@@ -102,8 +102,8 @@ public:
     static QList<IWizardFactory*> allWizardFactories();
     // Utility to find all registered wizards of a certain kind
     static QList<IWizardFactory*> wizardFactoriesOfKind(WizardKind kind);
-    static QStringList allAvailablePlatforms();
-    static QString displayNameForPlatform(const QString &string);
+    static QSet<Id> allAvailablePlatforms();
+    static QString displayNameForPlatform(Id i);
 
     static void registerFeatureProvider(IFeatureProvider *provider);
 
@@ -116,9 +116,9 @@ public:
 
 protected:
     QSet<Id> pluginFeatures() const;
-    QSet<Id> availableFeatures(const QString &platformName) const;
+    QSet<Id> availableFeatures(Id platformId) const;
 
-    virtual Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, const QString &platform,
+    virtual Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, Id platform,
                                          const QVariantMap &variables) = 0;
 
 private:

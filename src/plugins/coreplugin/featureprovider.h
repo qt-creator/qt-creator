@@ -47,9 +47,9 @@ class CORE_EXPORT IFeatureProvider
 public:
     virtual ~IFeatureProvider() = default;
 
-    virtual QSet<Id> availableFeatures(const QString &platform) const = 0;
-    virtual QStringList availablePlatforms() const = 0;
-    virtual QString displayNameForPlatform(const QString &string) const = 0;
+    virtual QSet<Id> availableFeatures(Id id) const = 0;
+    virtual QSet<Id> availablePlatforms() const = 0;
+    virtual QString displayNameForPlatform(Id id) const = 0;
 };
 
 } // namespace Core

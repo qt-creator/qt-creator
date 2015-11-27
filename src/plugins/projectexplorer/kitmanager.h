@@ -95,8 +95,8 @@ public:
 
     virtual QString displayNamePostfix(const Kit *k) const;
 
-    virtual QSet<QString> availablePlatforms(const Kit *k) const;
-    virtual QString displayNameForPlatform(const Kit *k, const QString &platform) const;
+    virtual QSet<Core::Id> availablePlatforms(const Kit *k) const;
+    virtual QString displayNameForPlatform(const Kit *k, Core::Id platform) const;
     virtual QSet<Core::Id> availableFeatures(const Kit *k) const;
 
     virtual void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const;
@@ -152,9 +152,9 @@ public:
     static void registerKitInformation(KitInformation *ki);
     static void deregisterKitInformation(KitInformation *ki);
 
-    static QSet<QString> availablePlatforms();
-    static QString displayNameForPlatform(const QString &platform);
-    static QSet<Core::Id> availableFeatures(const QString &platform);
+    static QSet<Core::Id> availablePlatforms();
+    static QString displayNameForPlatform(Core::Id platform);
+    static QSet<Core::Id> availableFeatures(Core::Id platform);
 
     static QList<Kit *> sortKits(const QList<Kit *> kits); // Avoid sorting whenever possible!
 

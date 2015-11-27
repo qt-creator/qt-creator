@@ -34,6 +34,7 @@
 #include <coreplugin/coreicons.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QAbstractProxyModel>
@@ -76,7 +77,7 @@ class PlatformFilterProxyModel : public QSortFilterProxyModel
 public:
     PlatformFilterProxyModel(QObject *parent = 0): QSortFilterProxyModel(parent) {}
 
-    void setPlatform(const QString& platform)
+    void setPlatform(Core::Id platform)
     {
         m_platform = platform;
         invalidateFilter();
@@ -95,7 +96,7 @@ public:
         return true;
     }
 private:
-    QString m_platform;
+    Core::Id m_platform;
 };
 
 class TwoLevelProxyModel : public QAbstractProxyModel
@@ -270,12 +271,12 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
     if (m_dummyIcon.isNull())
         m_dummyIcon = Core::Icons::NEWFILE.icon();
 
-    QStringList availablePlatforms = IWizardFactory::allAvailablePlatforms();
-    m_ui->comboBox->addItem(tr("All Templates"), QString());
+    QSet<Id> availablePlatforms = IWizardFactory::allAvailablePlatforms();
+    m_ui->comboBox->addItem(tr("All Templates"), Id().toSetting());
 
-    foreach (const QString &platform, availablePlatforms) {
+    foreach (Id platform, availablePlatforms) {
         const QString displayNameForPlatform = IWizardFactory::displayNameForPlatform(platform);
-        m_ui->comboBox->addItem(tr("%1 Templates").arg(displayNameForPlatform), platform);
+        m_ui->comboBox->addItem(tr("%1 Templates").arg(displayNameForPlatform), platform.toSetting());
     }
 
     m_ui->comboBox->setCurrentIndex(0); // "All templates"
@@ -334,11 +335,10 @@ void NewDialog::showDialog()
     show();
 }
 
-QString NewDialog::selectedPlatform() const
+Id NewDialog::selectedPlatform() const
 {
-    int index = m_ui->comboBox->currentIndex();
-
-    return m_ui->comboBox->itemData(index).toString();
+    const int index = m_ui->comboBox->currentIndex();
+    return Id::fromSetting(m_ui->comboBox->itemData(index));
 }
 
 bool NewDialog::isRunning()
@@ -422,8 +422,9 @@ void NewDialog::currentItemChanged(const QModelIndex &index)
     if (const IWizardFactory *wizard = factoryOfItem(cat)) {
         QString desciption = wizard->description();
         QStringList displayNamesForSupportedPlatforms;
-        foreach (const QString &platform, wizard->supportedPlatforms())
+        foreach (Id platform, wizard->supportedPlatforms())
             displayNamesForSupportedPlatforms << IWizardFactory::displayNameForPlatform(platform);
+        Utils::sort(displayNamesForSupportedPlatforms);
         if (!Qt::mightBeRichText(desciption))
             desciption.replace(QLatin1Char('\n'), QLatin1String("<br>"));
         desciption += QLatin1String("<br><br><b>");
