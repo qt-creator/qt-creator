@@ -54,9 +54,7 @@ QString QnxDeviceConfigurationFactory::displayNameForId(Core::Id type) const
 
 QList<Core::Id> QnxDeviceConfigurationFactory::availableCreationIds() const
 {
-    QList<Core::Id> result;
-    result << Core::Id(Constants::QNX_QNX_OS_TYPE);
-    return result;
+    return { Constants::QNX_QNX_OS_TYPE };
 }
 
 bool QnxDeviceConfigurationFactory::canCreate() const

@@ -31,15 +31,14 @@
 #include "winrtphoneqtversion.h"
 
 #include "winrtconstants.h"
+
+#include <coreplugin/id.h>
 #include <qtsupport/qtsupportconstants.h>
+
+#include <QSet>
 
 namespace WinRt {
 namespace Internal {
-
-WinRtPhoneQtVersion::WinRtPhoneQtVersion()
-    : WinRtQtVersion()
-{
-}
 
 WinRtPhoneQtVersion::WinRtPhoneQtVersion(const Utils::FileName &path, bool isAutodetected,
                                          const QString &autodetectionSource)
@@ -70,6 +69,11 @@ QString WinRtPhoneQtVersion::platformName() const
 QString WinRtPhoneQtVersion::platformDisplayName() const
 {
     return QLatin1String(QtSupport::Constants::WINDOWS_PHONE_PLATFORM_TR);
+}
+
+QSet<Core::Id> WinRtPhoneQtVersion::targetDeviceTypes() const
+{
+    return { Constants::WINRT_DEVICE_TYPE_PHONE, Constants::WINRT_DEVICE_TYPE_EMULATOR };
 }
 
 } // Internal

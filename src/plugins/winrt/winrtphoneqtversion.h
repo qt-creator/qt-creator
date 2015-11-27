@@ -40,7 +40,7 @@ class WinRtPhoneQtVersion : public WinRtQtVersion
 {
     Q_DECLARE_TR_FUNCTIONS(WinRt::Internal::WinRtQtVersion)
 public:
-    WinRtPhoneQtVersion();
+    WinRtPhoneQtVersion() = default;
     WinRtPhoneQtVersion(const Utils::FileName &path, bool isAutodetected,
                         const QString &autodetectionSource);
 
@@ -49,6 +49,7 @@ public:
     QString type() const;
     QString platformName() const;
     QString platformDisplayName() const;
+    QSet<Core::Id> targetDeviceTypes() const;
 };
 
 } // Internal

@@ -484,6 +484,15 @@ QList<Task> BaseQtVersion::validateKit(const Kit *k)
     if (qtAbis.isEmpty()) // No need to test if Qt does not know anyway...
         return result;
 
+    const Id dt = DeviceTypeKitInformation::deviceTypeId(k);
+    const QSet<Id> tdt = targetDeviceTypes();
+    if (!tdt.isEmpty() && !tdt.contains(dt)) {
+        result << Task(Task::Warning,
+                       QCoreApplication::translate("BaseQtVersion",
+                                                   "Device type is not supported by Qt version."),
+                       FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+    }
+
     ToolChain *tc = ToolChainKitInformation::toolChain(k);
     if (tc) {
         Abi targetAbi = tc->targetAbi();

@@ -40,7 +40,7 @@ class WinRtQtVersion : public QtSupport::BaseQtVersion
 {
     Q_DECLARE_TR_FUNCTIONS(WinRt::Internal::WinRtQtVersion)
 public:
-    WinRtQtVersion();
+    WinRtQtVersion() = default;
     WinRtQtVersion(const Utils::FileName &path, bool isAutodetected,
                    const QString &autodetectionSource);
 
@@ -51,6 +51,8 @@ public:
     QString platformName() const;
     QString platformDisplayName() const;
     QList<ProjectExplorer::Abi> detectQtAbis() const;
+
+    QSet<Core::Id> targetDeviceTypes() const;
 };
 
 } // Internal

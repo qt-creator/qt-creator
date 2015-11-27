@@ -35,6 +35,9 @@
 #include "qtversionmanager.h"
 #include "qtparser.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/task.h>
+
 #include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/macroexpander.h>
@@ -51,8 +54,8 @@ QtKitInformation::QtKitInformation()
     setId(QtKitInformation::id());
     setPriority(26000);
 
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
-            this, SLOT(kitsWereLoaded()));
+    connect(KitManager::instance(), &KitManager::kitsLoaded,
+            this, &QtKitInformation::kitsWereLoaded);
 }
 
 QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
@@ -85,11 +88,11 @@ QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
 
 QList<ProjectExplorer::Task> QtKitInformation::validate(const ProjectExplorer::Kit *k) const
 {
-    QList<ProjectExplorer::Task> result;
-    QTC_ASSERT(QtVersionManager::isLoaded(), return result);
+    QTC_ASSERT(QtVersionManager::isLoaded(), return { });
     BaseQtVersion *version = qtVersion(k);
     if (!version)
-        return result;
+    return { };
+
     return version->validateKit(k);
 }
 

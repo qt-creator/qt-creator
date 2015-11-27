@@ -38,10 +38,6 @@
 namespace WinRt {
 namespace Internal {
 
-WinRtQtVersion::WinRtQtVersion()
-{
-}
-
 WinRtQtVersion::WinRtQtVersion(const Utils::FileName &path, bool isAutodetected,
         const QString &autodetectionSource)
     : BaseQtVersion(path, isAutodetected, autodetectionSource)
@@ -87,6 +83,11 @@ QString WinRtQtVersion::platformDisplayName() const
 QList<ProjectExplorer::Abi> WinRtQtVersion::detectQtAbis() const
 {
     return qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
+}
+
+QSet<Core::Id> WinRtQtVersion::targetDeviceTypes() const
+{
+    return { Constants::WINRT_DEVICE_TYPE_LOCAL, Constants::WINRT_DEVICE_TYPE_EMULATOR };
 }
 
 } // Internal

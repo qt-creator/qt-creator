@@ -39,9 +39,9 @@ namespace Internal {
 class EmbeddedLinuxQtVersion : public QtSupport::BaseQtVersion
 {
 public:
-    EmbeddedLinuxQtVersion();
+    EmbeddedLinuxQtVersion() = default;
     EmbeddedLinuxQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
-    ~EmbeddedLinuxQtVersion();
+    ~EmbeddedLinuxQtVersion() = default;
     EmbeddedLinuxQtVersion *clone() const;
 
     QString type() const;
@@ -50,6 +50,7 @@ public:
 
     QString description() const;
 
+    QSet<Core::Id> targetDeviceTypes() const;
     QString platformName() const;
     QString platformDisplayName() const;
 };

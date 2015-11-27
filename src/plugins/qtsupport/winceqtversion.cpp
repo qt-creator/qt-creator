@@ -31,17 +31,13 @@
 #include "winceqtversion.h"
 #include "qtsupportconstants.h"
 
+#include <coreplugin/id.h>
+
 #include <QCoreApplication>
 #include <QStringList>
 
 using namespace QtSupport;
 using namespace QtSupport::Internal;
-
-WinCeQtVersion::WinCeQtVersion()
-    : BaseQtVersion(),
-      m_archType(ProjectExplorer::Abi::ArmArchitecture)
-{
-}
 
 WinCeQtVersion::WinCeQtVersion(const Utils::FileName &path, const QString &archType,
                                bool isAutodetected, const QString &autodetectionSource)
@@ -53,10 +49,6 @@ WinCeQtVersion::WinCeQtVersion(const Utils::FileName &path, const QString &archT
     else if (0 == archType.compare(QLatin1String("mipsii"), Qt::CaseInsensitive))
         m_archType = ProjectExplorer::Abi::MipsArchitecture;
     setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
-}
-
-WinCeQtVersion::~WinCeQtVersion()
-{
 }
 
 WinCeQtVersion *WinCeQtVersion::clone() const
@@ -112,4 +104,9 @@ QString WinCeQtVersion::platformName() const
 QString WinCeQtVersion::platformDisplayName() const
 {
     return QLatin1String(Constants::WINDOWS_CE_PLATFORM_TR);
+}
+
+QSet<Core::Id> WinCeQtVersion::targetDeviceTypes() const
+{
+    return QSet<Core::Id>();
 }

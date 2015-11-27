@@ -31,7 +31,13 @@
 #include "desktopqtversion.h"
 #include "qtsupportconstants.h"
 
+#include <projectexplorer/abi.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <remotelinux/remotelinux_constants.h>
 #include <coreplugin/featureprovider.h>
+
+#include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
 
 #include <QCoreApplication>
 
@@ -88,6 +94,14 @@ QSet<Core::Id> DesktopQtVersion::availableFeatures() const
     features.insert(Constants::FEATURE_DESKTOP);
     features.insert(Constants::FEATURE_QMLPROJECT);
     return features;
+}
+
+QSet<Core::Id> DesktopQtVersion::targetDeviceTypes() const
+{
+    QSet<Core::Id> result = { ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE };
+    if (Utils::contains(qtAbis(), [](const ProjectExplorer::Abi a) { return a.os() == ProjectExplorer::Abi::LinuxOS; }))
+        result.insert(RemoteLinux::Constants::GenericLinuxOsType);
+    return result;
 }
 
 QString DesktopQtVersion::platformName() const

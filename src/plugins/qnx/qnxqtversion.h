@@ -57,6 +57,7 @@ public:
     QString description() const override;
 
     QSet<Core::Id> availableFeatures() const override;
+    QSet<Core::Id> targetDeviceTypes() const override;
     QString platformName() const override;
     QString platformDisplayName() const override;
 

@@ -38,6 +38,7 @@
 
 #include <projectexplorer/abi.h>
 
+#include <QSet>
 #include <QStringList>
 #include <QVariantMap>
 
@@ -206,6 +207,7 @@ public:
                                       bool fromPath = false);
 
     virtual QSet<Core::Id> availableFeatures() const;
+    virtual QSet<Core::Id> targetDeviceTypes() const = 0;
     virtual QString platformName() const;
     virtual QString platformDisplayName() const;
     virtual bool supportsPlatform(const QString &platformName) const;

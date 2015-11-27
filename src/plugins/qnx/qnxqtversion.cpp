@@ -85,6 +85,11 @@ QSet<Core::Id> QnxQtVersion::availableFeatures() const
     return features;
 }
 
+QSet<Core::Id> QnxQtVersion::targetDeviceTypes() const
+{
+    return { Constants::QNX_QNX_OS_TYPE };
+}
+
 QString QnxQtVersion::platformName() const
 {
     return QString::fromLatin1(Constants::QNX_QNX_PLATFORM_NAME);

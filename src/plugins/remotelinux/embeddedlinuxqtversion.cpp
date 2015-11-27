@@ -32,6 +32,7 @@
 
 #include "remotelinux_constants.h"
 
+#include <coreplugin/id.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <QCoreApplication>
@@ -39,18 +40,11 @@
 namespace RemoteLinux {
 namespace Internal {
 
-EmbeddedLinuxQtVersion::EmbeddedLinuxQtVersion()
-    : BaseQtVersion()
-{ }
-
 EmbeddedLinuxQtVersion::EmbeddedLinuxQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
     : BaseQtVersion(path, isAutodetected, autodetectionSource)
 {
     setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }
-
-EmbeddedLinuxQtVersion::~EmbeddedLinuxQtVersion()
-{ }
 
 EmbeddedLinuxQtVersion *EmbeddedLinuxQtVersion::clone() const
 {
@@ -70,6 +64,11 @@ QList<ProjectExplorer::Abi> EmbeddedLinuxQtVersion::detectQtAbis() const
 QString EmbeddedLinuxQtVersion::description() const
 {
     return QCoreApplication::translate("QtVersion", "Embedded Linux", "Qt Version is used for embedded Linux development");
+}
+
+QSet<Core::Id> EmbeddedLinuxQtVersion::targetDeviceTypes() const
+{
+    return { Constants::GenericLinuxOsType };
 }
 
 QString EmbeddedLinuxQtVersion::platformName() const

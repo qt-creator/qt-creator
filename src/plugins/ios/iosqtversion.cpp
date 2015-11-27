@@ -119,6 +119,11 @@ QSet<Core::Id> IosQtVersion::availableFeatures() const
     return features;
 }
 
+QSet<Core::Id> IosQtVersion::targetDeviceTypes() const
+{
+    return { Constants::IOS_DEVICE_TYPE };
+}
+
 QString IosQtVersion::platformName() const
 {
     return QLatin1String(QtSupport::Constants::IOS_PLATFORM);

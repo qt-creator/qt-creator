@@ -39,10 +39,10 @@ namespace Internal {
 class WinCeQtVersion : public BaseQtVersion
 {
 public:
-    WinCeQtVersion();
+    WinCeQtVersion() = default;
     WinCeQtVersion(const Utils::FileName &path, const QString &archType,
                    bool isAutodetected = false, const QString &autodetectionSource = QString());
-    ~WinCeQtVersion();
+    ~WinCeQtVersion() = default;
     WinCeQtVersion *clone() const;
 
     QString type() const;
@@ -55,9 +55,10 @@ public:
 
     QString platformName() const;
     QString platformDisplayName() const;
+    QSet<Core::Id> targetDeviceTypes() const;
 
 private:
-    ProjectExplorer::Abi::Architecture m_archType;
+    ProjectExplorer::Abi::Architecture m_archType = ProjectExplorer::Abi::ArmArchitecture;
 };
 
 } // Internal
