@@ -68,6 +68,6 @@ HEADERS += \
     spydummy.h \
     matcher-diagnosticcontainer.h \
     chunksreportedmonitor.h \
-    mocksendeditorupdatescallback.h
+    mocksenddocumentannotationscallback.h
 
 OTHER_FILES += $$files(data/*)

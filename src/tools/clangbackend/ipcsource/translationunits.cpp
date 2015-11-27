@@ -166,73 +166,73 @@ void TranslationUnits::updateTranslationUnitsWithChangedDependencies(const QVect
         updateTranslationUnitsWithChangedDependency(fileContainer.filePath());
 }
 
-EditorUpdatesSendState TranslationUnits::sendDelayedEditorUpdates()
+DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotations()
 {
-    auto editorUpdatesSendState = sendDelayedEditorUpdatesForCurrentEditor();
-    if (editorUpdatesSendState == EditorUpdatesSendState::NoEditorUpdatesSend)
-        editorUpdatesSendState = sendDelayedEditorUpdatesForVisibleEditors();
-    if (editorUpdatesSendState == EditorUpdatesSendState::NoEditorUpdatesSend)
-        editorUpdatesSendState = sendDelayedEditorUpdatesForAll();
+    auto documentAnnotationsSendState = sendDocumentAnnotationsForCurrentEditor();
+    if (documentAnnotationsSendState == DocumentAnnotationsSendState::NoDocumentAnnotationsSent)
+        documentAnnotationsSendState = sendDocumentAnnotationsForVisibleEditors();
+    if (documentAnnotationsSendState == DocumentAnnotationsSendState::NoDocumentAnnotationsSent)
+        documentAnnotationsSendState = sendDocumentAnnotationsForAll();
 
-    return editorUpdatesSendState;
+    return documentAnnotationsSendState;
 }
 
 template<class Predicate>
-EditorUpdatesSendState TranslationUnits::sendDelayedEditorUpdates(Predicate predicate)
+DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotations(Predicate predicate)
 {
     auto foundTranslationUnit = std::find_if(translationUnits_.begin(),
                                              translationUnits_.end(),
                                              predicate);
 
     if (foundTranslationUnit != translationUnits().end()) {
-        sendDelayedEditorUpdates(*foundTranslationUnit);
-        return EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates;
+        sendDocumentAnnotations(*foundTranslationUnit);
+        return DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations;
     }
 
-    return EditorUpdatesSendState::NoEditorUpdatesSend;
+    return DocumentAnnotationsSendState::NoDocumentAnnotationsSent;
 }
 
 namespace {
 
-bool translationUnitHasEditorDocumentUpdates(const TranslationUnit &translationUnit)
+bool translationUnitHasNewDocumentAnnotations(const TranslationUnit &translationUnit)
 {
     return translationUnit.hasNewDiagnostics() || translationUnit.hasNewHighlightingInformations();
 }
 
 }
 
-EditorUpdatesSendState TranslationUnits::sendDelayedEditorUpdatesForCurrentEditor()
+DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotationsForCurrentEditor()
 {
-    auto hasEditorUpdatesForCurrentEditor = [] (const TranslationUnit &translationUnit) {
+    auto hasDocumentAnnotationsForCurrentEditor = [] (const TranslationUnit &translationUnit) {
         return translationUnit.isUsedByCurrentEditor()
-            && translationUnitHasEditorDocumentUpdates(translationUnit);
+            && translationUnitHasNewDocumentAnnotations(translationUnit);
     };
 
-    return sendDelayedEditorUpdates(hasEditorUpdatesForCurrentEditor);
+    return sendDocumentAnnotations(hasDocumentAnnotationsForCurrentEditor);
 }
 
-EditorUpdatesSendState TranslationUnits::sendDelayedEditorUpdatesForVisibleEditors()
+DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotationsForVisibleEditors()
 {
-    auto hasEditorUpdatesForVisibleEditor = [] (const TranslationUnit &translationUnit) {
+    auto hasDocumentAnnotationsForVisibleEditor = [] (const TranslationUnit &translationUnit) {
         return translationUnit.isVisibleInEditor()
-            && translationUnitHasEditorDocumentUpdates(translationUnit);
+            && translationUnitHasNewDocumentAnnotations(translationUnit);
     };
 
-    return sendDelayedEditorUpdates(hasEditorUpdatesForVisibleEditor);
+    return sendDocumentAnnotations(hasDocumentAnnotationsForVisibleEditor);
 }
 
-EditorUpdatesSendState TranslationUnits::sendDelayedEditorUpdatesForAll()
+DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotationsForAll()
 {
-    auto hasEditorUpdates = [] (const TranslationUnit &translationUnit) {
-        return translationUnitHasEditorDocumentUpdates(translationUnit);
+    auto hasDocumentAnnotations = [] (const TranslationUnit &translationUnit) {
+        return translationUnitHasNewDocumentAnnotations(translationUnit);
     };
 
-    return sendDelayedEditorUpdates(hasEditorUpdates);
+    return sendDocumentAnnotations(hasDocumentAnnotations);
 }
 
-void TranslationUnits::setSendDelayedEditorUpdatesCallback(DelayedEditorUpdatesCallback &&callback)
+void TranslationUnits::setSendDocumentAnnotationsCallback(SendDocumentAnnotationsCallback &&callback)
 {
-    sendDelayedEditorUpdatesCallback = std::move(callback);
+    sendDocumentAnnotationsCallback = std::move(callback);
 }
 
 QVector<FileContainer> TranslationUnits::newerFileContainers(const QVector<FileContainer> &fileContainers) const
@@ -354,9 +354,9 @@ void TranslationUnits::checkIfTranslationUnitsForFilePathsDoesExists(const QVect
     }
 }
 
-void TranslationUnits::sendDelayedEditorUpdates(const TranslationUnit &translationUnit)
+void TranslationUnits::sendDocumentAnnotations(const TranslationUnit &translationUnit)
 {
-    if (sendDelayedEditorUpdatesCallback) {
+    if (sendDocumentAnnotationsCallback) {
         const auto fileContainer = translationUnit.fileContainer();
         DiagnosticsChangedMessage diagnosticsMessage(fileContainer,
                                                      translationUnit.mainFileDiagnostics());
@@ -364,8 +364,8 @@ void TranslationUnits::sendDelayedEditorUpdates(const TranslationUnit &translati
                                                         translationUnit.highlightingInformations().toHighlightingMarksContainers(),
                                                         translationUnit.skippedSourceRanges().toSourceRangeContainers());
 
-        sendDelayedEditorUpdatesCallback(std::move(diagnosticsMessage),
-                                         std::move(highlightingsMessage));
+        sendDocumentAnnotationsCallback(std::move(diagnosticsMessage),
+                                               std::move(highlightingsMessage));
     }
 }
 

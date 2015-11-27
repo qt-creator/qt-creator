@@ -47,7 +47,7 @@
 
 #include <clang-c/Index.h>
 
-#include "mocksendeditorupdatescallback.h"
+#include "mocksenddocumentannotationscallback.h"
 
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
@@ -59,7 +59,7 @@ using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::DiagnosticsChangedMessage;
 using ClangBackEnd::HighlightingChangedMessage;
-using ClangBackEnd::EditorUpdatesSendState;
+using ClangBackEnd::DocumentAnnotationsSendState;
 
 using testing::IsNull;
 using testing::NotNull;
@@ -87,15 +87,15 @@ class TranslationUnits : public ::testing::Test
 {
 protected:
     void SetUp() override;
-    void sendAllEditorUpdates();
-    void sendAllEditorUpdatesForCurrentEditor();
-    void sendAllEditorUpdatesForVisibleEditors();
+    void sendAllDocumentAnnotations();
+    void sendAllDocumentAnnotationsForCurrentEditor();
+    void sendAllDocumentAnnotationsForVisibleEditors();
 
 protected:
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    MockSendEditorUpdatesCallback mockSendEditorUpdatesCallback;
+    MockSendDocumentAnnotationsCallback mockSendDocumentAnnotationsCallback;
     const Utf8String filePath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp");
     const Utf8String headerPath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.h");
     const Utf8String nonExistingFilePath = Utf8StringLiteral("foo.cpp");
@@ -374,55 +374,55 @@ TEST_F(TranslationUnits, IsNotVisibleEditorAfterBeingVisible)
     ASSERT_FALSE(translationUnit.isVisibleInEditor());
 }
 
-TEST_F(TranslationUnits, DoNotSendEditorUpdatesIfThereIsNothingToSend)
+TEST_F(TranslationUnits, DoNotSendDocumentAnnotationsIfThereIsNothingToSend)
 {
-    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(0);
+    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(0);
 
-    sendAllEditorUpdates();
+    sendAllDocumentAnnotations();
 }
 
-TEST_F(TranslationUnits, SendEditorUpdatessAfterTranslationUnitCreation)
+TEST_F(TranslationUnits, SendDocumentAnnotationsAfterTranslationUnitCreation)
 {
     translationUnits.create({fileContainer, headerContainer});
 
-    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(2);
+    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(2);
 
-    sendAllEditorUpdates();
+    sendAllDocumentAnnotations();
 }
 
-TEST_F(TranslationUnits, DoNotSendEditorUpdatesAfterGettingEditorUpdates)
+TEST_F(TranslationUnits, DoNotSendDocumentAnnotationsAfterGettingDocumentAnnotations)
 {
     translationUnits.create({fileContainer, headerContainer});
     auto translationUnit = translationUnits.translationUnit(fileContainer);
     translationUnit.diagnostics(); // Reset
     translationUnit.highlightingInformations(); // Reset
 
-    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(1);
+    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(1);
 
-    sendAllEditorUpdates();
+    sendAllDocumentAnnotations();
 }
 
-TEST_F(TranslationUnits, SendEditorUpdatesForCurrentEditor)
+TEST_F(TranslationUnits, SendDocumentAnnotationsForCurrentEditor)
 {
     translationUnits.create({fileContainer, headerContainer});
     auto translationUnit = translationUnits.translationUnit(fileContainer);
     translationUnit.setIsUsedByCurrentEditor(true);
 
-    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(1);
+    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(1);
 
-    sendAllEditorUpdatesForCurrentEditor();
+    sendAllDocumentAnnotationsForCurrentEditor();
 }
 
-TEST_F(TranslationUnits, DoNotSendEditorUpdatesForCurrentEditorIfThereIsNoCurrentEditor)
+TEST_F(TranslationUnits, DoNotSendDocumentAnnotationsForCurrentEditorIfThereIsNoCurrentEditor)
 {
     translationUnits.create({fileContainer, headerContainer});
 
-    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(0);
+    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(0);
 
-    sendAllEditorUpdatesForCurrentEditor();
+    sendAllDocumentAnnotationsForCurrentEditor();
 }
 
-TEST_F(TranslationUnits, DoNotSendEditorUpdatesForCurrentEditorAfterGettingEditorUpdates)
+TEST_F(TranslationUnits, DoNotSendDocumentAnnotationsForCurrentEditorAfterGettingDocumentAnnotations)
 {
     translationUnits.create({fileContainer, headerContainer});
     auto translationUnit = translationUnits.translationUnit(fileContainer);
@@ -430,21 +430,21 @@ TEST_F(TranslationUnits, DoNotSendEditorUpdatesForCurrentEditorAfterGettingEdito
     translationUnit.diagnostics(); // Reset
     translationUnit.highlightingInformations(); // Reset
 
-    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(0);
+    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(0);
 
-    sendAllEditorUpdatesForCurrentEditor();
+    sendAllDocumentAnnotationsForCurrentEditor();
 }
 
-TEST_F(TranslationUnits, DoNotSendEditorUpdatesForVisibleEditorIfThereAreNoVisibleEditors)
+TEST_F(TranslationUnits, DoNotSendDocumentAnnotationsForVisibleEditorIfThereAreNoVisibleEditors)
 {
     translationUnits.create({fileContainer, headerContainer});
 
-    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(0);
+    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(0);
 
-    translationUnits.sendDelayedEditorUpdatesForVisibleEditors();
+    translationUnits.sendDocumentAnnotationsForVisibleEditors();
 }
 
-TEST_F(TranslationUnits, SendEditorUpdatesForVisibleEditors)
+TEST_F(TranslationUnits, SendDocumentAnnotationsForVisibleEditors)
 {
     translationUnits.create({fileContainer, headerContainer});
     auto fileTranslationUnit = translationUnits.translationUnit(fileContainer);
@@ -452,12 +452,12 @@ TEST_F(TranslationUnits, SendEditorUpdatesForVisibleEditors)
     auto headerTranslationUnit = translationUnits.translationUnit(headerContainer);
     headerTranslationUnit.setIsVisibleInEditor(true);
 
-    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(2);
+    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(2);
 
-    sendAllEditorUpdatesForVisibleEditors();
+    sendAllDocumentAnnotationsForVisibleEditors();
 }
 
-TEST_F(TranslationUnits, SendOnlyOneEditorUpdateForVisibleEditor)
+TEST_F(TranslationUnits, SendDocumentAnnotationsOnlyOnceForVisibleEditor)
 {
     translationUnits.create({fileContainer, headerContainer});
     auto fileTranslationUnit = translationUnits.translationUnit(fileContainer);
@@ -467,9 +467,9 @@ TEST_F(TranslationUnits, SendOnlyOneEditorUpdateForVisibleEditor)
     headerTranslationUnit.diagnostics(); // Reset
     headerTranslationUnit.highlightingInformations(); // Reset
 
-    EXPECT_CALL(mockSendEditorUpdatesCallback, sendEditorUpdates()).Times(1);
+    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(1);
 
-    sendAllEditorUpdatesForVisibleEditors();
+    sendAllDocumentAnnotationsForVisibleEditors();
 }
 
 void TranslationUnits::SetUp()
@@ -477,33 +477,33 @@ void TranslationUnits::SetUp()
     projects.createOrUpdate({ClangBackEnd::ProjectPartContainer(projectPartId)});
 
     auto callback = [&] (const DiagnosticsChangedMessage &, const HighlightingChangedMessage &) {
-        mockSendEditorUpdatesCallback.sendEditorUpdates();
+        mockSendDocumentAnnotationsCallback.sendDocumentAnnotations();
     };
-    translationUnits.setSendDelayedEditorUpdatesCallback(callback);
+    translationUnits.setSendDocumentAnnotationsCallback(callback);
 }
 
-void TranslationUnits::sendAllEditorUpdates()
+void TranslationUnits::sendAllDocumentAnnotations()
 {
-    auto editorUpdatesSendState = EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates;
+    auto sendState = DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations;
 
-    while (editorUpdatesSendState == EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates)
-        editorUpdatesSendState = translationUnits.sendDelayedEditorUpdates();
+    while (sendState == DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations)
+        sendState = translationUnits.sendDocumentAnnotations();
 }
 
-void TranslationUnits::sendAllEditorUpdatesForCurrentEditor()
+void TranslationUnits::sendAllDocumentAnnotationsForCurrentEditor()
 {
-    auto editorUpdatesSendState = EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates;
+    auto sendState = DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations;
 
-    while (editorUpdatesSendState == EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates)
-        editorUpdatesSendState = translationUnits.sendDelayedEditorUpdatesForCurrentEditor();
+    while (sendState == DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations)
+        sendState = translationUnits.sendDocumentAnnotationsForCurrentEditor();
 }
 
-void TranslationUnits::sendAllEditorUpdatesForVisibleEditors()
+void TranslationUnits::sendAllDocumentAnnotationsForVisibleEditors()
 {
-    auto editorUpdatesSendState = EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates;
+    auto sendState = DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations;
 
-    while (editorUpdatesSendState == EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates)
-        editorUpdatesSendState = translationUnits.sendDelayedEditorUpdatesForVisibleEditors();
+    while (sendState == DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations)
+        sendState = translationUnits.sendDocumentAnnotationsForVisibleEditors();
 }
 
 }

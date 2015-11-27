@@ -66,40 +66,40 @@
 namespace ClangBackEnd {
 
 namespace {
-const int delayedEditorUpdatesTimerInterval = 300;
+const int delayedDocumentAnnotationsTimerInterval = 300;
 }
 
 ClangIpcServer::ClangIpcServer()
     : translationUnits(projects, unsavedFiles)
 {
-    const auto sendEditorUpdates
+    const auto sendDocumentAnnotations
         = [this] (const DiagnosticsChangedMessage &diagnosticsMessage,
                   const HighlightingChangedMessage &highlightingsMessage) {
         client()->diagnosticsChanged(diagnosticsMessage);
         client()->highlightingChanged(highlightingsMessage);
     };
 
-    const auto sendDelayedEditorUpdates = [this] () {
+    const auto sendDelayedDocumentAnnotations = [this] () {
         try {
-            auto editorUpdatesSendState = translationUnits.sendDelayedEditorUpdates();
-            if (editorUpdatesSendState == EditorUpdatesSendState::MaybeThereAreMoreEditorUpdates)
-                sendDelayedEditorUpdatesTimer.setInterval(0);
+            auto sendState = translationUnits.sendDocumentAnnotations();
+            if (sendState == DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations)
+                sendDocumentAnnotationsTimer.setInterval(0);
             else
-                sendDelayedEditorUpdatesTimer.stop();
+                sendDocumentAnnotationsTimer.stop();
         } catch (const std::exception &exception) {
-            qWarning() << "Error in ClangIpcServer::sendDelayedEditorUpdatesTimer:" << exception.what();
+            qWarning() << "Error in ClangIpcServer::sendDelayedDocumentAnnotationsTimer:" << exception.what();
         }
     };
 
     const auto onFileChanged = [this] (const Utf8String &filePath) {
-        startSendDelayedEditorUpdatesTimerIfFileIsNotATranslationUnit(filePath);
+        startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(filePath);
     };
 
-    translationUnits.setSendDelayedEditorUpdatesCallback(sendEditorUpdates);
+    translationUnits.setSendDocumentAnnotationsCallback(sendDocumentAnnotations);
 
-    QObject::connect(&sendDelayedEditorUpdatesTimer,
+    QObject::connect(&sendDocumentAnnotationsTimer,
                      &QTimer::timeout,
-                     sendDelayedEditorUpdates);
+                     sendDelayedDocumentAnnotations);
 
     QObject::connect(translationUnits.clangFileSystemWatcher(),
                      &ClangFileSystemWatcher::fileChanged,
@@ -118,7 +118,7 @@ void ClangIpcServer::registerTranslationUnitsForEditor(const ClangBackEnd::Regis
     try {
         translationUnits.create(message.fileContainers());
         unsavedFiles.createOrUpdate(message.fileContainers());
-        sendDelayedEditorUpdatesTimer.start(0);
+        sendDocumentAnnotationsTimer.start(0);
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
@@ -135,7 +135,7 @@ void ClangIpcServer::updateTranslationUnitsForEditor(const UpdateTranslationUnit
         if (newerFileContainers.size() > 0) {
             translationUnits.update(newerFileContainers);
             unsavedFiles.createOrUpdate(newerFileContainers);
-            sendDelayedEditorUpdatesTimer.start(delayedEditorUpdatesTimerInterval);
+            sendDocumentAnnotationsTimer.start(delayedDocumentAnnotationsTimerInterval);
         }
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
@@ -193,7 +193,7 @@ void ClangIpcServer::registerUnsavedFilesForEditor(const RegisterUnsavedFilesFor
     try {
         unsavedFiles.createOrUpdate(message.fileContainers());
         translationUnits.updateTranslationUnitsWithChangedDependencies(message.fileContainers());
-        sendDelayedEditorUpdatesTimer.start(delayedEditorUpdatesTimerInterval);
+        sendDocumentAnnotationsTimer.start(delayedDocumentAnnotationsTimerInterval);
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
@@ -292,10 +292,10 @@ const TranslationUnits &ClangIpcServer::translationUnitsForTestOnly() const
     return translationUnits;
 }
 
-void ClangIpcServer::startSendDelayedEditorUpdatesTimerIfFileIsNotATranslationUnit(const Utf8String &filePath)
+void ClangIpcServer::startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(const Utf8String &filePath)
 {
     if (!translationUnits.hasTranslationUnit(filePath))
-        sendDelayedEditorUpdatesTimer.start(0);
+        sendDocumentAnnotationsTimer.start(0);
 }
 
 }

@@ -67,13 +67,13 @@ public:
     const TranslationUnits &translationUnitsForTestOnly() const;
 
 private:
-    void startSendDelayedEditorUpdatesTimerIfFileIsNotATranslationUnit(const Utf8String &filePath);
+    void startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(const Utf8String &filePath);
 
 private:
     ProjectParts projects;
     UnsavedFiles unsavedFiles;
     TranslationUnits translationUnits;
-    QTimer sendDelayedEditorUpdatesTimer;
+    QTimer sendDocumentAnnotationsTimer;
 };
 
 } // namespace ClangBackEnd

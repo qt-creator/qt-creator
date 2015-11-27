@@ -48,17 +48,18 @@ class UnsavedFiles;
 class DiagnosticsChangedMessage;
 class HighlightingChangedMessage;
 
-enum class EditorUpdatesSendState
+enum class DocumentAnnotationsSendState
 {
-    NoEditorUpdatesSend,
-    MaybeThereAreMoreEditorUpdates,
+    NoDocumentAnnotationsSent,
+    MaybeThereAreDocumentAnnotations,
 };
 
 class TranslationUnits
 {
 public:
-    using DelayedEditorUpdatesCallback = std::function<void (const DiagnosticsChangedMessage &,
-                                                             const HighlightingChangedMessage &)>;
+    using SendDocumentAnnotationsCallback
+        = std::function<void (const DiagnosticsChangedMessage &,
+                              const HighlightingChangedMessage &)>;
 
 public:
     TranslationUnits(ProjectParts &projectParts, UnsavedFiles &unsavedFiles);
@@ -83,13 +84,12 @@ public:
     void updateTranslationUnitsWithChangedDependency(const Utf8String &filePath);
     void updateTranslationUnitsWithChangedDependencies(const QVector<FileContainer> &fileContainers);
 
-    EditorUpdatesSendState sendDelayedEditorUpdatesForCurrentEditor();
-    EditorUpdatesSendState sendDelayedEditorUpdatesForVisibleEditors();
-    EditorUpdatesSendState sendDelayedEditorUpdatesForAll();
+    DocumentAnnotationsSendState sendDocumentAnnotationsForCurrentEditor();
+    DocumentAnnotationsSendState sendDocumentAnnotationsForVisibleEditors();
+    DocumentAnnotationsSendState sendDocumentAnnotationsForAll();
+    DocumentAnnotationsSendState sendDocumentAnnotations();
 
-    EditorUpdatesSendState sendDelayedEditorUpdates();
-
-    void setSendDelayedEditorUpdatesCallback(DelayedEditorUpdatesCallback &&callback);
+    void setSendDocumentAnnotationsCallback(SendDocumentAnnotationsCallback &&callback);
 
     QVector<FileContainer> newerFileContainers(const QVector<FileContainer> &fileContainers) const;
 
@@ -108,15 +108,15 @@ private:
     void checkIfTranslationUnitsDoesNotExists(const QVector<FileContainer> &fileContainers) const;
     void checkIfTranslationUnitsForFilePathsDoesExists(const QVector<FileContainer> &fileContainers) const;
 
-    void sendDelayedEditorUpdates(const TranslationUnit &translationUnit);
     void removeTranslationUnits(const QVector<FileContainer> &fileContainers);
 
     template<class Predicate>
-    EditorUpdatesSendState sendDelayedEditorUpdates(Predicate predicate);
+    DocumentAnnotationsSendState sendDocumentAnnotations(Predicate predicate);
+    void sendDocumentAnnotations(const TranslationUnit &translationUnit);
 
 private:
     ClangFileSystemWatcher fileSystemWatcher;
-    DelayedEditorUpdatesCallback sendDelayedEditorUpdatesCallback;
+    SendDocumentAnnotationsCallback sendDocumentAnnotationsCallback;
     std::vector<TranslationUnit> translationUnits_;
     ProjectParts &projectParts;
     UnsavedFiles &unsavedFiles_;
