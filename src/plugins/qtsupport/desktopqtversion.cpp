@@ -103,13 +103,3 @@ QSet<Core::Id> DesktopQtVersion::targetDeviceTypes() const
         result.insert(RemoteLinux::Constants::GenericLinuxOsType);
     return result;
 }
-
-QString DesktopQtVersion::platformName() const
-{
-    return QLatin1String(Constants::DESKTOP_PLATFORM);
-}
-
-QString DesktopQtVersion::platformDisplayName() const
-{
-    return QLatin1String(Constants::DESKTOP_PLATFORM_TR);
-}

@@ -30,6 +30,7 @@
 
 #include "kitmanager.h"
 
+#include "devicesupport/idevicefactory.h"
 #include "kit.h"
 #include "kitfeatureprovider.h"
 #include "kitmanagerconfigwidget.h"
@@ -302,31 +303,21 @@ void KitManager::deregisterKitInformation(KitInformation *ki)
     delete ki;
 }
 
-QSet<Id> KitManager::availablePlatforms()
+QSet<Id> KitManager::supportedPlatforms()
 {
     QSet<Id> platforms;
     foreach (const Kit *k, kits())
-        platforms.unite(k->availablePlatforms());
+        platforms.unite(k->supportedPlatforms());
     return platforms;
 }
 
-QString KitManager::displayNameForPlatform(Id platform)
-{
-    foreach (const Kit *k, kits()) {
-        const QString displayName = k->displayNameForPlatform(platform);
-        if (!displayName.isEmpty())
-            return displayName;
-    }
-    return QString();
-}
-
-QSet<Id> KitManager::availableFeatures(Id platform)
+QSet<Id> KitManager::availableFeatures(Core::Id platformId)
 {
     QSet<Id> features;
     foreach (const Kit *k, kits()) {
-        QSet<Id> kitPlatforms = k->availablePlatforms();
-        if (kitPlatforms.isEmpty() || kitPlatforms.contains(platform) || !platform.isValid())
-            features.unite(k->availableFeatures());
+        if (!k->supportedPlatforms().contains(platformId))
+            continue;
+        features.unite(k->availableFeatures());
     }
     return features;
 }
@@ -553,17 +544,10 @@ QString KitInformation::displayNamePostfix(const Kit *k) const
     return QString();
 }
 
-QSet<Id> KitInformation::availablePlatforms(const Kit *k) const
+QSet<Id> KitInformation::supportedPlatforms(const Kit *k) const
 {
     Q_UNUSED(k);
     return QSet<Id>();
-}
-
-QString KitInformation::displayNameForPlatform(const Kit *k, Id platform) const
-{
-    Q_UNUSED(k);
-    Q_UNUSED(platform);
-    return QString();
 }
 
 QSet<Id> KitInformation::availableFeatures(const Kit *k) const
@@ -588,6 +572,8 @@ void KitInformation::notifyAboutUpdate(Kit *k)
 // KitFeatureProvider:
 // --------------------------------------------------------------------
 
+// This FeatureProvider maps the platforms onto the device types.
+
 QSet<Id> KitFeatureProvider::availableFeatures(Id id) const
 {
     return KitManager::availableFeatures(id);
@@ -595,12 +581,17 @@ QSet<Id> KitFeatureProvider::availableFeatures(Id id) const
 
 QSet<Id> KitFeatureProvider::availablePlatforms() const
 {
-    return KitManager::availablePlatforms();
+    return KitManager::supportedPlatforms();
 }
 
 QString KitFeatureProvider::displayNameForPlatform(Id id) const
 {
-    return KitManager::displayNameForPlatform(id);
+    foreach (const IDeviceFactory *f, ExtensionSystem::PluginManager::getObjects<IDeviceFactory>()) {
+        const QString dn = f->displayNameForId(id);
+        if (!dn.isEmpty())
+            return dn;
+    }
+    return QString();
 }
 
 } // namespace ProjectExplorer

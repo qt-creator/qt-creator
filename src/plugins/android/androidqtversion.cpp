@@ -147,13 +147,3 @@ QSet<Core::Id> AndroidQtVersion::targetDeviceTypes() const
 {
     return { Constants::ANDROID_DEVICE_TYPE };
 }
-
-QString AndroidQtVersion::platformName() const
-{
-    return QLatin1String(QtSupport::Constants::ANDROID_PLATFORM);
-}
-
-QString AndroidQtVersion::platformDisplayName() const
-{
-    return QLatin1String(QtSupport::Constants::ANDROID_PLATFORM_TR);
-}

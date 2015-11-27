@@ -53,8 +53,6 @@ public:
 
     QSet<Core::Id> availableFeatures() const;
     QSet<Core::Id> targetDeviceTypes() const;
-    QString platformName() const;
-    QString platformDisplayName() const;
 };
 
 } // Internal

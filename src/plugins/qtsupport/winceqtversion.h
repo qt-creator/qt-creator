@@ -53,8 +53,6 @@ public:
 
     void fromMap(const QVariantMap &data);
 
-    QString platformName() const;
-    QString platformDisplayName() const;
     QSet<Core::Id> targetDeviceTypes() const;
 
 private:

@@ -32,8 +32,6 @@
 
 #include "filespage.h"
 
-#include <qtsupport/qtsupportconstants.h>
-
 #include <projectexplorer/projectexplorerconstants.h>
 
 namespace QmakeProjectManager {
@@ -109,8 +107,8 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
     rc.headerFileName = m_filesPage->headerFileName();
     rc.formFileName = m_filesPage->formFileName();
     rc.designerForm =  m_filesPage->formInputChecked();
-    rc.isMobileApplication = true;
-    if (isQtPlatformSelected(QtSupport::Constants::ANDROID_PLATFORM)) {
+    if (isQtPlatformSelected("Android.Device.Type")) { // FIXME: Is this really necessary?
+        rc.isMobileApplication = true;
         rc.widgetWidth = 800;
         rc.widgetHeight = 480;
     } else {

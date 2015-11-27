@@ -90,16 +90,6 @@ QSet<Core::Id> QnxQtVersion::targetDeviceTypes() const
     return { Constants::QNX_QNX_OS_TYPE };
 }
 
-QString QnxQtVersion::platformName() const
-{
-    return QString::fromLatin1(Constants::QNX_QNX_PLATFORM_NAME);
-}
-
-QString QnxQtVersion::platformDisplayName() const
-{
-    return QCoreApplication::translate("Qnx::Internal::QnxQtVersion", "QNX");
-}
-
 QString QnxQtVersion::qnxHost() const
 {
     if (!m_environmentUpToDate)

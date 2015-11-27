@@ -106,7 +106,7 @@ static QString loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType
 bool AndroidManager::supportsAndroid(const ProjectExplorer::Kit *kit)
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
-    return version && version->platformName() == QLatin1String(QtSupport::Constants::ANDROID_PLATFORM);
+    return version && version->targetDeviceTypes().contains(Constants::ANDROID_DEVICE_TYPE);
 }
 
 bool AndroidManager::supportsAndroid(const ProjectExplorer::Target *target)

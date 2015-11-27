@@ -70,16 +70,6 @@ QSet<Core::Id> WinRtQtVersion::availableFeatures() const
     return features;
 }
 
-QString WinRtQtVersion::platformName() const
-{
-    return QLatin1String(QtSupport::Constants::WINDOWS_RT_PLATFORM);
-}
-
-QString WinRtQtVersion::platformDisplayName() const
-{
-    return QLatin1String(QtSupport::Constants::WINDOWS_RT_PLATFORM_TR);
-}
-
 QList<ProjectExplorer::Abi> WinRtQtVersion::detectQtAbis() const
 {
     return qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));

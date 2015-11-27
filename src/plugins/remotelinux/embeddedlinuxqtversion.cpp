@@ -71,15 +71,5 @@ QSet<Core::Id> EmbeddedLinuxQtVersion::targetDeviceTypes() const
     return { Constants::GenericLinuxOsType };
 }
 
-QString EmbeddedLinuxQtVersion::platformName() const
-{
-    return QLatin1String(QtSupport::Constants::EMBEDDED_LINUX_PLATFORM);
-}
-
-QString EmbeddedLinuxQtVersion::platformDisplayName() const
-{
-    return QLatin1String(QtSupport::Constants::EMBEDDED_LINUX_PLATFORM_TR);
-}
-
 } // namespace Internal
 } // namespace RemoteLinux

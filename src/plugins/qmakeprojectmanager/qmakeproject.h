@@ -125,7 +125,7 @@ public:
 
     bool needsConfiguration() const;
 
-    void configureAsExampleProject(const QStringList &platforms);
+    void configureAsExampleProject(const QSet<Core::Id> &platforms);
 
     bool requiresTargetPanel() const;
 

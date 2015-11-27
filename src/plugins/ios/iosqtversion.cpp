@@ -123,13 +123,3 @@ QSet<Core::Id> IosQtVersion::targetDeviceTypes() const
 {
     return { Constants::IOS_DEVICE_TYPE };
 }
-
-QString IosQtVersion::platformName() const
-{
-    return QLatin1String(QtSupport::Constants::IOS_PLATFORM);
-}
-
-QString IosQtVersion::platformDisplayName() const
-{
-    return QLatin1String(QtSupport::Constants::IOS_PLATFORM_TR);
-}

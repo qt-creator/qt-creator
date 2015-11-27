@@ -58,8 +58,6 @@ const char QNX_QNX_RUNCONFIGURATION_PREFIX[] = "Qt4ProjectManager.QNX.QNXRunConf
 
 const char QNX_QNX_OS_TYPE[] = "QnxOsType";
 
-const char QNX_QNX_PLATFORM_NAME[] = "QNX";
-
 const char QNX_DEBUG_EXECUTABLE[] = "pdebug";
 
 const char QNX_TOOLCHAIN_ID[] = "Qnx.QccToolChain";

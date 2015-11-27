@@ -1339,15 +1339,15 @@ bool QmakeProject::needsConfiguration() const
     return targets().isEmpty();
 }
 
-void QmakeProject::configureAsExampleProject(const QStringList &platforms)
+void QmakeProject::configureAsExampleProject(const QSet<Core::Id> &platforms)
 {
     QList<const BuildInfo *> infoList;
     QList<Kit *> kits = KitManager::kits();
     foreach (Kit *k, kits) {
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-        if (!version)
+        if (!version || platforms.isEmpty())
             continue;
-        if (!platforms.isEmpty() && !platforms.contains(version->platformName()))
+        if (!Utils::contains(version->targetDeviceTypes(), [platforms](Core::Id i) { return platforms.contains(i); }))
             continue;
 
         IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(k, projectFilePath().toString());

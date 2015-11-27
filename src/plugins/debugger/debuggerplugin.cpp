@@ -3244,7 +3244,7 @@ void DebuggerPluginPrivate::testProjectLoaded(Project *project)
     }
     m_testProject = project;
     connect(project, SIGNAL(proFilesEvaluated()), SLOT(testProjectEvaluated()));
-    project->configureAsExampleProject(QStringList());
+    project->configureAsExampleProject({ });
 }
 
 void DebuggerPluginPrivate::testProjectEvaluated()

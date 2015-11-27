@@ -208,9 +208,6 @@ public:
 
     virtual QSet<Core::Id> availableFeatures() const;
     virtual QSet<Core::Id> targetDeviceTypes() const = 0;
-    virtual QString platformName() const;
-    virtual QString platformDisplayName() const;
-    virtual bool supportsPlatform(const QString &platformName) const;
 
     virtual QList<ProjectExplorer::Task> validateKit(const ProjectExplorer::Kit *k);
 

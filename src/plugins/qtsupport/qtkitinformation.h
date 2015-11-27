@@ -74,8 +74,7 @@ public:
                                  const QtVersionNumber &min = QtVersionNumber(0, 0, 0),
                                  const QtVersionNumber &max = QtVersionNumber(INT_MAX, INT_MAX, INT_MAX));
 
-    QSet<Core::Id> availablePlatforms(const ProjectExplorer::Kit *k) const;
-    QString displayNameForPlatform(const ProjectExplorer::Kit *k, Core::Id platform) const;
+    QSet<Core::Id> supportedPlatforms(const ProjectExplorer::Kit *k) const;
     QSet<Core::Id> availableFeatures(const ProjectExplorer::Kit *k) const;
 
 private slots:

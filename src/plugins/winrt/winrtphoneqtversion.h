@@ -47,8 +47,6 @@ public:
     QString description() const;
     BaseQtVersion *clone() const;
     QString type() const;
-    QString platformName() const;
-    QString platformDisplayName() const;
     QSet<Core::Id> targetDeviceTypes() const;
 };
 

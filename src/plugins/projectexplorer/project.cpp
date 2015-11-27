@@ -616,7 +616,7 @@ bool Project::needsConfiguration() const
     return false;
 }
 
-void Project::configureAsExampleProject(const QStringList &platforms)
+void Project::configureAsExampleProject(const QSet<Core::Id> &platforms)
 {
     Q_UNUSED(platforms);
 }

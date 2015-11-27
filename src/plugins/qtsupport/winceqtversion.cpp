@@ -96,16 +96,6 @@ void WinCeQtVersion::fromMap(const QVariantMap &map)
     }
 }
 
-QString WinCeQtVersion::platformName() const
-{
-    return QLatin1String(Constants::WINDOWS_CE_PLATFORM);
-}
-
-QString WinCeQtVersion::platformDisplayName() const
-{
-    return QLatin1String(Constants::WINDOWS_CE_PLATFORM_TR);
-}
-
 QSet<Core::Id> WinCeQtVersion::targetDeviceTypes() const
 {
     return QSet<Core::Id>();

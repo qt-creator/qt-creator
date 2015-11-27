@@ -341,13 +341,17 @@ KitMatcher DeviceTypeKitInformation::deviceTypeMatcher(Core::Id type)
     });
 }
 
+QSet<Core::Id> DeviceTypeKitInformation::supportedPlatforms(const Kit *k) const
+{
+    return { deviceTypeId(k) };
+}
+
 QSet<Core::Id> DeviceTypeKitInformation::availableFeatures(const Kit *k) const
 {
     Core::Id id = DeviceTypeKitInformation::deviceTypeId(k);
-    QSet<Core::Id> result;
     if (id.isValid())
-        result |= Core::Id::fromString(QString::fromLatin1("DeviceType.") + id.toString());
-    return result;
+        return { Core::Id::fromString(QString::fromLatin1("DeviceType.") + id.toString()) };
+    return QSet<Core::Id>();
 }
 
 // --------------------------------------------------------------------------

@@ -48,8 +48,6 @@ public:
     QString type() const;
     QString description() const;
     QSet<Core::Id> availableFeatures() const;
-    QString platformName() const;
-    QString platformDisplayName() const;
     QList<ProjectExplorer::Abi> detectQtAbis() const;
 
     QSet<Core::Id> targetDeviceTypes() const;

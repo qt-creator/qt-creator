@@ -133,6 +133,7 @@ public:
 
     static KitMatcher deviceTypeMatcher(Core::Id type);
 
+    QSet<Core::Id> supportedPlatforms(const Kit *k) const;
     QSet<Core::Id> availableFeatures(const Kit *k) const;
 };
 

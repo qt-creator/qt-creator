@@ -61,16 +61,6 @@ QString WinRtPhoneQtVersion::type() const
     return QLatin1String(Constants::WINRT_WINPHONEQT);
 }
 
-QString WinRtPhoneQtVersion::platformName() const
-{
-    return QLatin1String(QtSupport::Constants::WINDOWS_PHONE_PLATFORM);
-}
-
-QString WinRtPhoneQtVersion::platformDisplayName() const
-{
-    return QLatin1String(QtSupport::Constants::WINDOWS_PHONE_PLATFORM_TR);
-}
-
 QSet<Core::Id> WinRtPhoneQtVersion::targetDeviceTypes() const
 {
     return { Constants::WINRT_DEVICE_TYPE_PHONE, Constants::WINRT_DEVICE_TYPE_EMULATOR };

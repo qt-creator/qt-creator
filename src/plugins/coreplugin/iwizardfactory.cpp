@@ -354,7 +354,6 @@ void IWizardFactory::registerFactoryCreator(const IWizardFactory::FactoryCreator
 QSet<Id> IWizardFactory::allAvailablePlatforms()
 {
     QSet<Id> platforms;
-
     foreach (const IFeatureProvider *featureManager, s_providerList)
         platforms.unite(featureManager->availablePlatforms());
 
