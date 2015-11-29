@@ -441,9 +441,10 @@ void GdbServerProvidersSettingsPage::finish()
 {
     if (m_configWidget)
         disconnect(GdbServerProviderManager::instance(), &GdbServerProviderManager::providersChanged,
-                   m_configWidget.data(), &GdbServerProvidersSettingsWidget::providerSelectionChanged);
+                   m_configWidget, &GdbServerProvidersSettingsWidget::providerSelectionChanged);
 
-    delete m_configWidget.data();
+    delete m_configWidget;
+    m_configWidget = 0;
 }
 
 } // namespace Internal

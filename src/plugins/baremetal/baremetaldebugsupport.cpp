@@ -159,17 +159,17 @@ void BareMetalDebugSupport::startExecution()
     m_state = StartingRunner;
     showMessage(tr("Starting GDB server...") + QLatin1Char('\n'), Debugger::LogStatus);
 
-    connect(m_appRunner.data(), &ProjectExplorer::DeviceApplicationRunner::remoteStderr,
+    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::remoteStderr,
             this, &BareMetalDebugSupport::remoteErrorOutputMessage);
-    connect(m_appRunner.data(), &ProjectExplorer::DeviceApplicationRunner::remoteStdout,
+    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::remoteStdout,
             this, &BareMetalDebugSupport::remoteOutputMessage);
-    connect(m_appRunner.data(), &ProjectExplorer::DeviceApplicationRunner::remoteProcessStarted,
+    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::remoteProcessStarted,
             this, &BareMetalDebugSupport::remoteProcessStarted);
-    connect(m_appRunner.data(), &ProjectExplorer::DeviceApplicationRunner::finished,
+    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::finished,
             this, &BareMetalDebugSupport::appRunnerFinished);
-    connect(m_appRunner.data(), &ProjectExplorer::DeviceApplicationRunner::reportProgress,
+    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::reportProgress,
             this, &BareMetalDebugSupport::progressReport);
-    connect(m_appRunner.data(), &ProjectExplorer::DeviceApplicationRunner::reportError,
+    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::reportError,
             this, &BareMetalDebugSupport::appRunnerError);
 
     const QString cmd = p->executable();

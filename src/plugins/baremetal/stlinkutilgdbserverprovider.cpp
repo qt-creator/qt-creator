@@ -289,31 +289,31 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
     setFromProvider();
 
     auto chooser = new Core::VariableChooser(this);
-    chooser->addSupportedWidget(m_initCommandsTextEdit.data());
-    chooser->addSupportedWidget(m_resetCommandsTextEdit.data());
+    chooser->addSupportedWidget(m_initCommandsTextEdit);
+    chooser->addSupportedWidget(m_resetCommandsTextEdit);
 
-    connect(m_hostWidget.data(), &HostWidget::dataChanged,
+    connect(m_hostWidget, &HostWidget::dataChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_executableFileChooser.data(), &Utils::PathChooser::rawPathChanged,
+    connect(m_executableFileChooser, &Utils::PathChooser::rawPathChanged,
             this, &GdbServerProviderConfigWidget::dirty);
 
-    connect(m_verboseLevelSpinBox.data(),
+    connect(m_verboseLevelSpinBox,
             static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_extendedModeCheckBox.data(), &QAbstractButton::clicked,
+    connect(m_extendedModeCheckBox, &QAbstractButton::clicked,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_resetBoardCheckBox.data(), &QAbstractButton::clicked,
+    connect(m_resetBoardCheckBox, &QAbstractButton::clicked,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_transportLayerComboBox.data(),
+    connect(m_transportLayerComboBox,
             static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &GdbServerProviderConfigWidget::dirty);
 
-    connect(m_initCommandsTextEdit.data(), &QPlainTextEdit::textChanged,
+    connect(m_initCommandsTextEdit, &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_resetCommandsTextEdit.data(), &QPlainTextEdit::textChanged,
+    connect(m_resetCommandsTextEdit, &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
 
-    connect(m_startupModeComboBox.data(),
+    connect(m_startupModeComboBox,
             static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &StLinkUtilGdbServerProviderConfigWidget::startupModeChanged);
 }

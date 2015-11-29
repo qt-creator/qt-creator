@@ -32,8 +32,6 @@
 #ifndef BAREMETALDEVICECONFIGURATIONWIZARDPAGES_H
 #define BAREMETALDEVICECONFIGURATIONWIZARDPAGES_H
 
-#include <QPointer>
-
 #include <QWizardPage>
 
 QT_BEGIN_NAMESPACE
@@ -60,8 +58,8 @@ public:
     virtual QString defaultConfigurationName() const;
 
 private:
-    QPointer<QLineEdit> m_nameLineEdit;
-    QPointer<GdbServerProviderChooser> m_gdbServerProviderChooser;
+    QLineEdit *m_nameLineEdit;
+    GdbServerProviderChooser *m_gdbServerProviderChooser;
 };
 
 } // namespace Internal

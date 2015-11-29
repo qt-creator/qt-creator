@@ -32,7 +32,6 @@
 #define GDBSERVERPROVIDER_H
 
 #include <QObject>
-#include <QPointer>
 #include <QVariantMap>
 
 #include <QWidget>
@@ -170,15 +169,15 @@ protected:
     static QString defaultInitCommandsTooltip();
     static QString defaultResetCommandsTooltip();
 
-    QPointer<QFormLayout> m_mainLayout;
-    QPointer<QLineEdit> m_nameLineEdit;
-    QPointer<QComboBox> m_startupModeComboBox;
+    QFormLayout *m_mainLayout;
+    QLineEdit *m_nameLineEdit;
+    QComboBox *m_startupModeComboBox;
 
 private:
     void setFromProvider();
 
     GdbServerProvider *m_provider;
-    QPointer<QLabel> m_errorLabel;
+    QLabel *m_errorLabel = 0;
 };
 
 class HostWidget : public QWidget
@@ -197,8 +196,8 @@ signals:
     void dataChanged();
 
 private:
-    QPointer<QLineEdit> m_hostLineEdit;
-    QPointer<QSpinBox> m_portSpinBox;
+    QLineEdit *m_hostLineEdit;
+    QSpinBox *m_portSpinBox;
 };
 
 } // namespace Internal

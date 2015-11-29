@@ -31,8 +31,6 @@
 #ifndef GDBSERVERPROVIDERCHOOSER_H
 #define GDBSERVERPROVIDERCHOOSER_H
 
-#include <QPointer>
-
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -73,8 +71,8 @@ protected:
     QString providerText(const GdbServerProvider *) const;
 
 private:
-    QPointer<QComboBox> m_chooser;
-    QPointer<QPushButton> m_manageButton;
+    QComboBox *m_chooser;
+    QPushButton *m_manageButton;
 };
 
 } // namespace Internal

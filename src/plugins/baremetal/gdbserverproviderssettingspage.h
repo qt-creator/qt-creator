@@ -35,8 +35,6 @@
 
 #include <utils/treemodel.h>
 
-#include <QPointer>
-
 QT_BEGIN_NAMESPACE
 class QItemSelectionModel;
 class QPushButton;
@@ -97,7 +95,7 @@ private:
     void apply();
     void finish();
 
-    QPointer<GdbServerProvidersSettingsWidget> m_configWidget;
+    GdbServerProvidersSettingsWidget *m_configWidget = 0;
 };
 
 } // namespace Internal

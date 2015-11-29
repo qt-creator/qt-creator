@@ -190,14 +190,14 @@ DefaultGdbServerProviderConfigWidget::DefaultGdbServerProviderConfigWidget(
     setFromProvider();
 
     auto chooser = new Core::VariableChooser(this);
-    chooser->addSupportedWidget(m_initCommandsTextEdit.data());
-    chooser->addSupportedWidget(m_resetCommandsTextEdit.data());
+    chooser->addSupportedWidget(m_initCommandsTextEdit);
+    chooser->addSupportedWidget(m_resetCommandsTextEdit);
 
-    connect(m_hostWidget.data(), &HostWidget::dataChanged,
+    connect(m_hostWidget, &HostWidget::dataChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_initCommandsTextEdit.data(), &QPlainTextEdit::textChanged,
+    connect(m_initCommandsTextEdit, &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_resetCommandsTextEdit.data(), &QPlainTextEdit::textChanged,
+    connect(m_resetCommandsTextEdit, &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
 }
 

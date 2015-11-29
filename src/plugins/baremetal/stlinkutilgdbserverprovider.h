@@ -121,14 +121,14 @@ private:
     void populateTransportLayers();
     void setFromProvider();
 
-    QPointer<HostWidget> m_hostWidget;
-    QPointer<Utils::PathChooser> m_executableFileChooser;
-    QPointer<QSpinBox> m_verboseLevelSpinBox;
-    QPointer<QCheckBox> m_extendedModeCheckBox;
-    QPointer<QCheckBox> m_resetBoardCheckBox;
-    QPointer<QComboBox> m_transportLayerComboBox;
-    QPointer<QPlainTextEdit> m_initCommandsTextEdit;
-    QPointer<QPlainTextEdit> m_resetCommandsTextEdit;
+    HostWidget *m_hostWidget;
+    Utils::PathChooser *m_executableFileChooser;
+    QSpinBox *m_verboseLevelSpinBox;
+    QCheckBox *m_extendedModeCheckBox;
+    QCheckBox *m_resetBoardCheckBox;
+    QComboBox *m_transportLayerComboBox;
+    QPlainTextEdit *m_initCommandsTextEdit;
+    QPlainTextEdit *m_resetCommandsTextEdit;
 };
 
 } // namespace Internal

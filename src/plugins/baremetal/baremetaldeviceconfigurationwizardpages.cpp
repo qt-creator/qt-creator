@@ -59,7 +59,7 @@ BareMetalDeviceConfigurationWizardSetupPage::BareMetalDeviceConfigurationWizardS
 
     connect(m_nameLineEdit, SIGNAL(textChanged(QString)),
             SIGNAL(completeChanged()));
-    connect(m_gdbServerProviderChooser.data(), &GdbServerProviderChooser::providerChanged,
+    connect(m_gdbServerProviderChooser, &GdbServerProviderChooser::providerChanged,
             this, &QWizardPage::completeChanged);
 }
 

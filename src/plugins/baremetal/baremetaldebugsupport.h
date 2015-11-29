@@ -79,7 +79,7 @@ private:
     void reset();
     void showMessage(const QString &msg, int channel);
 
-    QPointer<ProjectExplorer::DeviceApplicationRunner> m_appRunner;
+    ProjectExplorer::DeviceApplicationRunner *m_appRunner;
     const QPointer<Debugger::DebuggerRunControl> m_runControl;
     const ProjectExplorer::IDevice::ConstPtr m_device;
     BareMetalDebugSupport::State m_state;

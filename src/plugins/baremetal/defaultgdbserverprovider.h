@@ -102,9 +102,9 @@ private:
 
     void setFromProvider();
 
-    QPointer<HostWidget> m_hostWidget;
-    QPointer<QPlainTextEdit> m_initCommandsTextEdit;
-    QPointer<QPlainTextEdit> m_resetCommandsTextEdit;
+    HostWidget *m_hostWidget;
+    QPlainTextEdit *m_initCommandsTextEdit;
+    QPlainTextEdit *m_resetCommandsTextEdit;
 };
 
 } // namespace Internal

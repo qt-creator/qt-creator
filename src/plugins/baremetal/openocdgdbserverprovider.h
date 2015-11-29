@@ -110,13 +110,13 @@ private:
 
     void setFromProvider();
 
-    QPointer<HostWidget> m_hostWidget;
-    QPointer<Utils::PathChooser> m_executableFileChooser;
-    QPointer<Utils::PathChooser> m_rootScriptsDirChooser;
-    QPointer<Utils::PathChooser> m_configurationFileChooser;
-    QPointer<QLineEdit> m_additionalArgumentsLineEdit;
-    QPointer<QPlainTextEdit> m_initCommandsTextEdit;
-    QPointer<QPlainTextEdit> m_resetCommandsTextEdit;
+    HostWidget *m_hostWidget;
+    Utils::PathChooser *m_executableFileChooser;
+    Utils::PathChooser *m_rootScriptsDirChooser;
+    Utils::PathChooser *m_configurationFileChooser;
+    QLineEdit *m_additionalArgumentsLineEdit;
+    QPlainTextEdit *m_initCommandsTextEdit;
+    QPlainTextEdit *m_resetCommandsTextEdit;
 };
 
 } // namespace Internal

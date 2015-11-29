@@ -34,8 +34,6 @@
 
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
-#include <QPointer>
-
 namespace BareMetal {
 namespace Internal {
 
@@ -56,7 +54,7 @@ private slots:
 private:
     void updateDeviceFromUi();
 
-    QPointer<GdbServerProviderChooser> m_gdbServerProviderChooser;
+    GdbServerProviderChooser *m_gdbServerProviderChooser;
 };
 
 } // namespace Internal
