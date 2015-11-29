@@ -244,8 +244,11 @@ GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(
     populateStartupModes();
     setFromProvider();
 
-    connect(m_nameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(dirty()));
-    connect(m_startupModeComboBox, SIGNAL(currentIndexChanged(int)), SIGNAL(dirty()));
+    connect(m_nameLineEdit, &QLineEdit::textChanged,
+            this, &GdbServerProviderConfigWidget::dirty);
+    connect(m_startupModeComboBox,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &GdbServerProviderConfigWidget::dirty);
 }
 
 void GdbServerProviderConfigWidget::apply()
@@ -375,8 +378,10 @@ HostWidget::HostWidget(QWidget *parent)
     layout->addWidget(m_hostLineEdit);
     layout->addWidget(m_portSpinBox);
 
-    connect(m_hostLineEdit, SIGNAL(textChanged(QString)), SIGNAL(dataChanged()));
-    connect(m_portSpinBox, SIGNAL(valueChanged(int)), SIGNAL(dataChanged()));
+    connect(m_hostLineEdit, &QLineEdit::textChanged,
+            this, &HostWidget::dataChanged);
+    connect(m_portSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &HostWidget::dataChanged);
 }
 
 void HostWidget::setHost(const QString &host)

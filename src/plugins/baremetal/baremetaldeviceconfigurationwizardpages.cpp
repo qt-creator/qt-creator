@@ -57,8 +57,8 @@ BareMetalDeviceConfigurationWizardSetupPage::BareMetalDeviceConfigurationWizardS
     m_gdbServerProviderChooser->populate();
     formLayout->addRow(tr("GDB server provider:"), m_gdbServerProviderChooser);
 
-    connect(m_nameLineEdit, SIGNAL(textChanged(QString)),
-            SIGNAL(completeChanged()));
+    connect(m_nameLineEdit, &QLineEdit::textChanged,
+            this, &BareMetalDeviceConfigurationWizardSetupPage::completeChanged);
     connect(m_gdbServerProviderChooser, &GdbServerProviderChooser::providerChanged,
             this, &QWizardPage::completeChanged);
 }

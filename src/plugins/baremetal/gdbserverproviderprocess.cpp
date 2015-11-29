@@ -47,9 +47,12 @@ GdbServerProviderProcess::GdbServerProviderProcess(
     : ProjectExplorer::DeviceProcess(device, parent)
     , m_process(new QProcess(this))
 {
-    connect(m_process, SIGNAL(error(QProcess::ProcessError)),
-            SIGNAL(error(QProcess::ProcessError)));
-    connect(m_process, SIGNAL(finished(int)), SIGNAL(finished()));
+    connect(m_process,
+            static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+            this, &GdbServerProviderProcess::error);
+    connect(m_process,
+            static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+            this, &GdbServerProviderProcess::finished);
 
     connect(m_process, &QProcess::readyReadStandardOutput,
             this, &ProjectExplorer::DeviceProcess::readyReadStandardOutput);
