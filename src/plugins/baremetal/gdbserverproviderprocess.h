@@ -33,6 +33,8 @@
 
 #include <projectexplorer/devicesupport/deviceprocess.h>
 
+namespace Utils { class QtcProcess; }
+
 namespace BareMetal {
 namespace Internal {
 
@@ -64,7 +66,7 @@ public:
     qint64 write(const QByteArray &data);
 
 private:
-    QProcess * const m_process;
+    Utils::QtcProcess *m_process;
 };
 
 } // namespace Internal
