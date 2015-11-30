@@ -93,7 +93,7 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
 
 void ClangEditorDocumentProcessor::run()
 {
-    requestDiagnosticsAndHighlighting();
+    updateTranslationUnitIfProjectPartExists();
 
     // Run clang parser
     disconnect(&m_parserWatcher, &QFutureWatcher<void>::finished,
@@ -121,7 +121,9 @@ void ClangEditorDocumentProcessor::recalculateSemanticInfoDetached(bool force)
 void ClangEditorDocumentProcessor::semanticRehighlight()
 {
     m_semanticHighlighter.updateFormatMapFromFontSettings();
-    requestDiagnosticsAndHighlighting(DocumentChangedCheck::NoCheck);
+
+    if (m_projectPart)
+        requestDocumentAnnotations(m_projectPart->id());
 }
 
 CppTools::SemanticInfo ClangEditorDocumentProcessor::recalculateSemanticInfo()
@@ -217,9 +219,9 @@ TextEditor::QuickFixOperations ClangEditorDocumentProcessor::extraRefactoringOpe
     return extractor.extract(assistInterface.fileName(), currentLine(assistInterface));
 }
 
-ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainer() const
+ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithArguments() const
 {
-    return fileContainer(m_projectPart.data());
+    return fileContainerWithArguments(m_projectPart.data());
 }
 
 void ClangEditorDocumentProcessor::clearDiagnosticsWithFixIts()
@@ -243,8 +245,7 @@ void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor(
     const CppTools::ProjectPart::Ptr projectPart = m_parser->projectPart();
 
     if (isProjectPartLoadedOrIsFallback(projectPart)) {
-        updateTranslationUnitForEditor(projectPart.data());
-        requestDiagnosticsAndHighlighting(projectPart.data());
+        registerTranslationUnitForEditor(projectPart.data());
 
         m_projectPart = projectPart;
     }
@@ -258,54 +259,39 @@ void ClangEditorDocumentProcessor::onParserFinished()
     updateProjectPartAndTranslationUnitForEditor();
 }
 
-void ClangEditorDocumentProcessor::updateTranslationUnitForEditor(CppTools::ProjectPart *projectPart)
+void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(CppTools::ProjectPart *projectPart)
 {
     QTC_ASSERT(m_modelManagerSupport, return);
     IpcCommunicator &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
 
     if (m_projectPart) {
         if (projectPart->id() != m_projectPart->id()) {
-            ipcCommunicator.unregisterTranslationUnitsForEditor({fileContainer()});
-            ipcCommunicator.registerTranslationUnitsForEditor({fileContainer(projectPart)});
+            ipcCommunicator.unregisterTranslationUnitsForEditor({fileContainerWithArguments()});
+            ipcCommunicator.registerTranslationUnitsForEditor({fileContainerWithArguments(projectPart)});
+            requestDocumentAnnotations(projectPart->id());
         }
     } else {
-        ipcCommunicator.registerTranslationUnitsForEditor({{fileContainer(projectPart)}});
+        ipcCommunicator.registerTranslationUnitsForEditor({{fileContainerWithArguments(projectPart)}});
+        requestDocumentAnnotations(projectPart->id());
     }
 }
 
-void ClangEditorDocumentProcessor::requestDiagnosticsAndHighlighting(CppTools::ProjectPart *projectPart)
-{
-    if (!m_projectPart || projectPart->id() != m_projectPart->id()) {
-        IpcCommunicator &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
-
-        const ClangBackEnd::FileContainer fileContainer_ = fileContainer(projectPart);
-        ipcCommunicator.requestDiagnosticsAndHighlighting(fileContainer_);
-    }
-}
-
-IpcCommunicator::DocumentChangedCheck
-toIpcCommunicatorDocumentChangedCheck(ClangEditorDocumentProcessor::DocumentChangedCheck condition)
-{
-    return condition == ClangEditorDocumentProcessor::DocumentChangedCheck::RevisionCheck
-            ? IpcCommunicator::DocumentChangedCheck::RevisionCheck
-            : IpcCommunicator::DocumentChangedCheck::NoCheck;
-}
-
-void ClangEditorDocumentProcessor::requestDiagnosticsAndHighlighting(DocumentChangedCheck documentChangedCheck)
+void ClangEditorDocumentProcessor::updateTranslationUnitIfProjectPartExists()
 {
     if (m_projectPart) {
-        auto  &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
+        const ClangBackEnd::FileContainer fileContainer = fileContainerWithDocumentContent(m_projectPart->id());
 
-        const ClangBackEnd::FileContainer fileContainer(filePath(),
-                                                        m_projectPart->id(),
-                                                        baseTextDocument()->plainText(),
-                                                        true,
-                                                        revision());
-
-        const auto documentCheck = toIpcCommunicatorDocumentChangedCheck(documentChangedCheck);
-
-        ipcCommunicator.requestDiagnosticsAndHighlighting(fileContainer, documentCheck);
+        m_modelManagerSupport->ipcCommunicator().updateTranslationUnitWithRevisionCheck(fileContainer);
     }
+}
+
+void ClangEditorDocumentProcessor::requestDocumentAnnotations(const QString &projectpartId)
+{
+    const auto fileContainer = fileContainerWithDocumentContent(projectpartId);
+
+    auto &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
+    ipcCommunicator.requestDiagnostics(fileContainer);
+    ipcCommunicator.requestHighlighting(fileContainer);
 }
 
 static CppTools::ProjectPart projectPartForLanguageOption(CppTools::ProjectPart *projectPart)
@@ -331,7 +317,7 @@ static QStringList fileArguments(const QString &filePath, CppTools::ProjectPart 
 }
 
 ClangBackEnd::FileContainer
-ClangEditorDocumentProcessor::fileContainer(CppTools::ProjectPart *projectPart) const
+ClangEditorDocumentProcessor::fileContainerWithArguments(CppTools::ProjectPart *projectPart) const
 {
     const auto projectPartId = projectPart
             ? Utf8String::fromString(projectPart->id())
@@ -339,6 +325,16 @@ ClangEditorDocumentProcessor::fileContainer(CppTools::ProjectPart *projectPart) 
     const QStringList theFileArguments = fileArguments(filePath(), projectPart);
 
     return {filePath(), projectPartId, Utf8StringVector(theFileArguments), revision()};
+}
+
+ClangBackEnd::FileContainer
+ClangEditorDocumentProcessor::fileContainerWithDocumentContent(const QString &projectpartId) const
+{
+    return ClangBackEnd::FileContainer(filePath(),
+                                       projectpartId,
+                                       baseTextDocument()->plainText(),
+                                       true,
+                                       revision());
 }
 
 } // namespace Internal

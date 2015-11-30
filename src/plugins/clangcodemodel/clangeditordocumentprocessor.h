@@ -83,12 +83,11 @@ public:
     TextEditor::QuickFixOperations
     extraRefactoringOperations(const TextEditor::AssistInterface &assistInterface) override;
 
-    ClangBackEnd::FileContainer fileContainer() const;
+    ClangBackEnd::FileContainer fileContainerWithArguments() const;
 
     void clearDiagnosticsWithFixIts();
 
 public:
-    enum class DocumentChangedCheck { NoCheck, RevisionCheck };
     static ClangEditorDocumentProcessor *get(const QString &filePath);
 
 private slots:
@@ -96,10 +95,11 @@ private slots:
 
 private:
     void updateProjectPartAndTranslationUnitForEditor();
-    void updateTranslationUnitForEditor(CppTools::ProjectPart *projectPart);
-    void requestDiagnosticsAndHighlighting(CppTools::ProjectPart *projectPart);
-    void requestDiagnosticsAndHighlighting(DocumentChangedCheck documentChangedCheck = DocumentChangedCheck::RevisionCheck);
-    ClangBackEnd::FileContainer fileContainer(CppTools::ProjectPart *projectPart) const;
+    void registerTranslationUnitForEditor(CppTools::ProjectPart *projectPart);
+    void updateTranslationUnitIfProjectPartExists();
+    void requestDocumentAnnotations(const QString &projectpartId);
+    ClangBackEnd::FileContainer fileContainerWithArguments(CppTools::ProjectPart *projectPart) const;
+    ClangBackEnd::FileContainer fileContainerWithDocumentContent(const QString &projectpartId) const;
 
 private:
     ClangDiagnosticManager m_diagnosticManager;

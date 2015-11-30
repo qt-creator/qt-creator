@@ -193,7 +193,7 @@ void ModelManagerSupportClang::onCppDocumentReloadFinishedOnTranslationUnit(bool
     if (success) {
         TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
         connectToTextDocumentContentsChangedForTranslationUnit(textDocument);
-        m_ipcCommunicator.requestDiagnosticsAndHighlighting(textDocument);
+        m_ipcCommunicator.updateTranslationUnitWithRevisionCheck(textDocument);
     }
 }
 
@@ -342,7 +342,7 @@ void ModelManagerSupportClang::unregisterTranslationUnitsWithProjectParts(
 {
     const auto processors = clangProcessorsWithProjectParts(projectPartIds);
     foreach (ClangEditorDocumentProcessor *processor, processors) {
-        m_ipcCommunicator.unregisterTranslationUnitsForEditor({processor->fileContainer()});
+        m_ipcCommunicator.unregisterTranslationUnitsForEditor({processor->fileContainerWithArguments()});
         processor->clearProjectPart();
         processor->run();
     }

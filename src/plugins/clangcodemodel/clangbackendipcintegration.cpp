@@ -470,23 +470,15 @@ void IpcCommunicator::updateUnsavedFile(const QString &filePath, const QByteArra
                                     documentRevision}});
 }
 
-void IpcCommunicator::requestDiagnosticsAndHighlighting(const FileContainer &fileContainer,
-                                                        DocumentChangedCheck documentChangedCheck)
+void IpcCommunicator::updateTranslationUnitWithRevisionCheck(const FileContainer &fileContainer)
 {
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    if (documentChangedCheck == DocumentChangedCheck::RevisionCheck) {
-        if (documentHasChanged(fileContainer.filePath())) {
-            updateTranslationUnitsForEditor({fileContainer});
-            requestDiagnostics(fileContainer);
-            requestHighlighting(fileContainer);
-            setLastSentDocumentRevision(fileContainer.filePath(),
-                                        fileContainer.documentRevision());
-        }
-    } else {
-        requestDiagnostics(fileContainer);
-        requestHighlighting(fileContainer);
+    if (documentHasChanged(fileContainer.filePath())) {
+        updateTranslationUnitsForEditor({fileContainer});
+        setLastSentDocumentRevision(fileContainer.filePath(),
+                                    fileContainer.documentRevision());
     }
 }
 
@@ -504,16 +496,16 @@ void IpcCommunicator::requestHighlighting(const FileContainer &fileContainer)
     m_ipcSender->requestHighlighting(message);
 }
 
-void IpcCommunicator::requestDiagnosticsAndHighlighting(Core::IDocument *document)
+void IpcCommunicator::updateTranslationUnitWithRevisionCheck(Core::IDocument *document)
 {
     const auto textDocument = qobject_cast<TextDocument*>(document);
     const auto filePath = textDocument->filePath().toString();
     const QString projectPartId = Utils::projectPartIdForFile(filePath);
 
-    requestDiagnosticsAndHighlighting(FileContainer(filePath,
-                                      projectPartId,
-                                      Utf8StringVector(),
-                                      textDocument->document()->revision()));
+    updateTranslationUnitWithRevisionCheck(FileContainer(filePath,
+                                                         projectPartId,
+                                                         Utf8StringVector(),
+                                                         textDocument->document()->revision()));
 }
 
 void IpcCommunicator::updateChangeContentStartPosition(const QString &filePath, int position)

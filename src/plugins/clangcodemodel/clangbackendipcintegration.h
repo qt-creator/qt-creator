@@ -118,8 +118,6 @@ public:
     using FileContainers = QVector<ClangBackEnd::FileContainer>;
     using ProjectPartContainers = QVector<ClangBackEnd::ProjectPartContainer>;
 
-    enum class DocumentChangedCheck { NoCheck, RevisionCheck };
-
 public:
     IpcCommunicator();
 
@@ -130,6 +128,8 @@ public:
     void unregisterProjectPartsForEditor(const QStringList &projectPartIds);
     void registerUnsavedFilesForEditor(const FileContainers &fileContainers);
     void unregisterUnsavedFilesForEditor(const FileContainers &fileContainers);
+    void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer);
+    void requestHighlighting(const ClangBackEnd::FileContainer &fileContainer);
     void completeCode(ClangCompletionAssistProcessor *assistProcessor, const QString &filePath,
                       quint32 line,
                       quint32 column,
@@ -144,9 +144,8 @@ public:
     void updateUnsavedFileFromCppEditorDocument(const QString &filePath);
     void updateTranslationUnit(const QString &filePath, const QByteArray &contents, uint documentRevision);
     void updateUnsavedFile(const QString &filePath, const QByteArray &contents, uint documentRevision);
-    void requestDiagnosticsAndHighlighting(const ClangBackEnd::FileContainer &fileContainer,
-                                           DocumentChangedCheck documentChangedCheck = DocumentChangedCheck::RevisionCheck);
-    void requestDiagnosticsAndHighlighting(Core::IDocument *document);
+    void updateTranslationUnitWithRevisionCheck(const ClangBackEnd::FileContainer &fileContainer);
+    void updateTranslationUnitWithRevisionCheck(Core::IDocument *document);
     void updateChangeContentStartPosition(const QString &filePath, int position);
 
     void registerFallbackProjectPart();
@@ -167,8 +166,6 @@ private:
     void registerCurrentCppEditorDocuments();
     void registerCurrentCodeModelUiHeaders();
 
-    void requestHighlighting(const ClangBackEnd::FileContainer &fileContainer);
-    void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer);
 
     void onBackendRestarted();
     void onEditorAboutToClose(Core::IEditor *editor);
