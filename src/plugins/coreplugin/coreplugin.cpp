@@ -61,6 +61,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QMenu>
+#include <QUuid>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -204,6 +205,8 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
                              [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
     expander->registerPrefix("CurrentTime:", tr("The current time (QTime formatstring)."),
                              [](const QString &fmt) { return QTime::currentTime().toString(fmt); });
+    expander->registerVariable("UUID", tr("Generate a new UUID."),
+                               []() { return QUuid::createUuid().toString(); });
 
     expander->registerPrefix("#:", tr("A comment."), [](const QString &) { return QStringLiteral(""); });
 
