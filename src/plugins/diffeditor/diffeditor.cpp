@@ -287,7 +287,7 @@ DiffEditor::DiffEditor()
     m_toggleDescriptionAction = m_toolBar->addAction(Icons::TOP_BAR.icon(), QString());
     m_toggleDescriptionAction->setCheckable(true);
 
-    m_reloadAction = m_toolBar->addAction(Core::Icons::RELOAD_GRAY.icon(), tr("Reload Diff"));
+    m_reloadAction = m_toolBar->addAction(Core::Icons::RELOAD.icon(), tr("Reload Diff"));
     m_reloadAction->setToolTip(tr("Reload Diff"));
 
     m_toggleSyncAction = m_toolBar->addAction(Core::Icons::LINK.icon(), QString());

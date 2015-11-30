@@ -152,7 +152,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_editorList->setContextMenuPolicy(Qt::CustomContextMenu);
 
     d->m_closeEditorButton->setAutoRaise(true);
-    d->m_closeEditorButton->setIcon(Icons::BUTTON_CLOSE.icon());
+    d->m_closeEditorButton->setIcon(Icons::CLOSE_TOOLBAR.icon());
     d->m_closeEditorButton->setEnabled(false);
     d->m_closeEditorButton->setProperty("showborder", true);
 

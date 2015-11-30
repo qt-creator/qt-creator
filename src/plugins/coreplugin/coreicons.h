@@ -54,14 +54,8 @@ const Utils::Icon CUT(
         QLatin1String(":/core/images/editcut.png"));
 const Utils::Icon DIR(
         QLatin1String(":/core/images/dir.png"));
-const Utils::Icon CLEAR(
-        QLatin1String(":/core/images/clear.png"));
 const Utils::Icon RESET(
         QLatin1String(":/core/images/reset.png"));
-const Utils::Icon CLOSE_BUTTON(
-        QLatin1String(":/core/images/closebutton.png"));
-const Utils::Icon DARK_CLOSE_BUTTON(
-        QLatin1String(":/core/images/darkclosebutton.png"));
 const Utils::Icon DARK_CLOSE(
         QLatin1String(":/core/images/darkclose.png"));
 const Utils::Icon LOCKED(
@@ -99,12 +93,16 @@ const Utils::Icon MAGNIFIER({
         {QLatin1String(":/core/images/magnifier.png"), Utils::Theme::BackgroundColorHover}}, Utils::Icon::Style::Tinted);
 const Utils::Icon CLEAN_PANE({
         {QLatin1String(":/core/images/clean_pane_small.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon RELOAD_GRAY({
+const Utils::Icon RELOAD({
         {QLatin1String(":/core/images/reload_gray.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon TOGGLE_SIDEBAR({
         {QLatin1String(":/core/images/sidebaricon.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon BUTTON_CLOSE({
-        {QLatin1String(":/core/images/button_close.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon CLOSE_TOOLBAR({
+        {QLatin1String(":/core/images/close.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon CLOSE_FOREGROUND({
+        {QLatin1String(":/core/images/close.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Style::Tinted);
+const Utils::Icon CLOSE_BACKGROUND({
+        {QLatin1String(":/core/images/close.png"), Utils::Theme::PanelTextColorLight}}, Utils::Icon::Style::Tinted);
 const Utils::Icon SPLIT_HORIZONTAL({
         {QLatin1String(":/core/images/splitbutton_horizontal.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon SPLIT_VERTICAL({

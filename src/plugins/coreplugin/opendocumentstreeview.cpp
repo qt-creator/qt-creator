@@ -88,8 +88,8 @@ void OpenDocumentsDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 
     if (closeButtonVisible && index.column() == 1 && option.state & QStyle::State_MouseOver) {
         const QIcon icon = (option.state & QStyle::State_Selected) ?
-                    Icons::CLOSE_BUTTON.icon()
-                  : Icons::DARK_CLOSE_BUTTON.icon();
+                    Icons::CLOSE_BACKGROUND.icon()
+                  : Icons::CLOSE_FOREGROUND.icon();
 
         QRect iconRect(option.rect.right() - option.rect.height(),
                        option.rect.top(),

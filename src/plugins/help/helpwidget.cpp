@@ -250,7 +250,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     }
 
     if (style != ExternalWindow) {
-        m_closeAction = new QAction(Core::Icons::BUTTON_CLOSE.icon(), QString(), toolBar);
+        m_closeAction = new QAction(Core::Icons::CLOSE_TOOLBAR.icon(), QString(), toolBar);
         connect(m_closeAction, SIGNAL(triggered()), this, SIGNAL(closeButtonClicked()));
         button = new QToolButton;
         button->setDefaultAction(m_closeAction);

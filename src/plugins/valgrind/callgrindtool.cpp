@@ -675,7 +675,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     // reset action
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::CLEAR.icon());
+    action->setIcon(Core::Icons::RELOAD.icon());
     //action->setText(tr("Reset"));
     action->setToolTip(tr("Reset all event counters."));
     connect(action, &QAction::triggered, this, &CallgrindToolPrivate::resetRequested);

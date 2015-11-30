@@ -139,7 +139,7 @@ ManhattanStylePrivate::ManhattanStylePrivate() :
     lineeditImage(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/inputfield.png"))),
     lineeditImage_disabled(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/inputfield_disabled.png"))),
     extButtonPixmap(Core::Icons::TOOLBAR_EXTENSION.pixmap()),
-    closeButtonPixmap(Core::Icons::CLOSE_BUTTON.pixmap())
+    closeButtonPixmap(Core::Icons::CLOSE_FOREGROUND.pixmap())
 {
 }
 

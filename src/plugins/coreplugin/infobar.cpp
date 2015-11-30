@@ -251,7 +251,7 @@ void InfoBarDisplay::update()
 
         if (info.cancelButtonText.isEmpty()) {
             infoWidgetCloseButton->setAutoRaise(true);
-            infoWidgetCloseButton->setIcon(Icons::CLEAR.icon());
+            infoWidgetCloseButton->setIcon(Icons::CLOSE_FOREGROUND.icon());
             infoWidgetCloseButton->setToolTip(tr("Close"));
             if (infoWidgetSuppressButton)
                 hbox->addWidget(infoWidgetSuppressButton);

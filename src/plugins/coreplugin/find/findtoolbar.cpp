@@ -967,13 +967,13 @@ void FindToolBar::setLightColoredIcon(bool lightColored)
         m_ui.findNextButton->setArrowType(Qt::RightArrow);
         m_ui.findPreviousButton->setIcon(QIcon());
         m_ui.findPreviousButton->setArrowType(Qt::LeftArrow);
-        m_ui.close->setIcon(Icons::DARK_CLOSE.icon());
+        m_ui.close->setIcon(Icons::CLOSE_FOREGROUND.icon());
     } else {
         m_ui.findNextButton->setIcon(Icons::NEXT.icon());
         m_ui.findNextButton->setArrowType(Qt::NoArrow);
         m_ui.findPreviousButton->setIcon(Icons::PREV.icon());
         m_ui.findPreviousButton->setArrowType(Qt::NoArrow);
-        m_ui.close->setIcon(Icons::BUTTON_CLOSE.icon());
+        m_ui.close->setIcon(Icons::CLOSE_TOOLBAR.icon());
     }
 }
 

@@ -889,75 +889,6 @@
      id="layer1"
      style="display:inline">
     <g
-       id="src/plugins/coreplugin/images/clear">
-      <rect
-         id="rect3855-7"
-         width="12"
-         height="12"
-         x="48"
-         y="588"
-         style="fill:none" />
-      <path
-         style="fill:none;stroke:#4e4e4e;stroke-width:2.82999992;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-         d="m 49,589 10,10"
-         id="path3979"
-         inkscape:connector-curvature="0" />
-      <path
-         style="fill:#4e4e4e;fill-opacity:1;stroke:#4e4e4e;stroke-width:2.82999992;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-         d="M 59,589 49,599"
-         id="path3981"
-         inkscape:connector-curvature="0" />
-    </g>
-    <rect
-       style="fill:#4e4e4e;fill-opacity:0.95074218;stroke:none"
-       id="rect3956"
-       width="16"
-       height="16"
-       x="60"
-       y="584" />
-    <g
-       id="src/plugins/coreplugin/images/closebutton"
-       style="opacity:0.8">
-      <path
-         inkscape:connector-curvature="0"
-         id="path3998"
-         d="m 63,588 9,9"
-         style="fill:none;stroke:#ffffff;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-      <path
-         inkscape:connector-curvature="0"
-         id="path4000"
-         d="m 63,597 9,-9"
-         style="fill:none;stroke:#ffffff;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-      <rect
-         y="584"
-         x="60"
-         height="16"
-         width="16"
-         id="rect4006"
-         style="fill:none;stroke:none" />
-    </g>
-    <g
-       id="src/plugins/coreplugin/images/darkclosebutton"
-       style="opacity:0.60100002;fill:#ffffff;fill-opacity:0">
-      <path
-         inkscape:connector-curvature="0"
-         id="path4171"
-         d="m 143,588 9,9"
-         style="fill:#ffffff;fill-opacity:0;stroke:#505050;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-      <path
-         inkscape:connector-curvature="0"
-         id="path4173"
-         d="m 152,588 -9,9"
-         style="fill:#000000;fill-opacity:0.8;stroke:#505050;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-      <rect
-         y="584"
-         x="140"
-         height="16"
-         width="16"
-         id="rect3817-2-9-1-9"
-         style="fill:#ffffff;fill-opacity:0" />
-    </g>
-    <g
        id="src/plugins/coreplugin/images/dir">
       <path
          sodipodi:nodetypes="ccccccccc"
@@ -1577,7 +1508,7 @@
      style="display:inline">
     <g
        style="display:inline"
-       id="src/plugins/coreplugin/images/button_close"
+       id="src/plugins/coreplugin/images/close"
        inkscape:export-filename="c:\Users\aportale\dev\qt-creator\src\plugins\coreplugin\images\button_close.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
