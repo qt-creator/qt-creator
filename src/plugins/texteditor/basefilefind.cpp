@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "basefilefind.h"
-#include "basefilefind_p.h"
 #include "textdocument.h"
 
 #include <aggregation/aggregate.h>
@@ -58,6 +57,13 @@ using namespace Core;
 
 namespace TextEditor {
 namespace Internal {
+
+class CountingLabel : public QLabel
+{
+public:
+    CountingLabel();
+    void updateCount(int count);
+};
 
 class BaseFileFindPrivate
 {
@@ -168,17 +174,7 @@ void BaseFileFind::runSearch(SearchResult *search)
     watcher->setPendingResultsLimit(1);
     connect(watcher, &QFutureWatcherBase::resultReadyAt, this, &BaseFileFind::displayResult);
     connect(watcher, &QFutureWatcherBase::finished, this, &BaseFileFind::searchFinished);
-    if (parameters.flags & FindRegularExpression) {
-        watcher->setFuture(Utils::findInFilesRegExp(parameters.text,
-            files(parameters.nameFilters, parameters.additionalParameters),
-            textDocumentFlagsForFindFlags(parameters.flags),
-            TextDocument::openedTextDocumentContents()));
-    } else {
-        watcher->setFuture(Utils::findInFiles(parameters.text,
-            files(parameters.nameFilters, parameters.additionalParameters),
-            textDocumentFlagsForFindFlags(parameters.flags),
-            TextDocument::openedTextDocumentContents()));
-    }
+    watcher->setFuture(executeSearch(parameters));
     FutureProgress *progress =
         ProgressManager::addTask(watcher->future(), tr("Searching"), Constants::TASK_SEARCH);
     progress->setWidget(label);
@@ -427,6 +423,20 @@ QVariant BaseFileFind::getAdditionalParameters(SearchResult *search)
     return search->userData().value<FileFindParameters>().additionalParameters;
 }
 
+QFuture<FileSearchResultList> BaseFileFind::executeSearch(const FileFindParameters &parameters)
+{
+    auto func = parameters.flags & FindRegularExpression
+            ? Utils::findInFilesRegExp
+            : Utils::findInFiles;
+
+    return func(parameters.text,
+                files(parameters.nameFilters, parameters.additionalParameters),
+                textDocumentFlagsForFindFlags(parameters.flags),
+                TextDocument::openedTextDocumentContents());
+}
+
+namespace Internal {
+
 CountingLabel::CountingLabel()
 {
     setAlignment(Qt::AlignCenter);
@@ -444,4 +454,5 @@ void CountingLabel::updateCount(int count)
     setText(tr("%1 found").arg(count));
 }
 
+} // namespace Internal
 } // namespace TextEditor

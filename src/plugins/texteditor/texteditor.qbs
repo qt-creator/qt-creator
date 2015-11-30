@@ -16,7 +16,6 @@ QtcPlugin {
         "autocompleter.h",
         "basefilefind.cpp",
         "basefilefind.h",
-        "basefilefind_p.h",
         "basehoverhandler.cpp",
         "basehoverhandler.h",
         "behaviorsettings.cpp",

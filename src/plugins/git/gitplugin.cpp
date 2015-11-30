@@ -39,6 +39,7 @@
 #include "logchangedialog.h"
 #include "mergetool.h"
 #include "gitutils.h"
+#include "gitgrep.h"
 
 #include "gerrit/gerritplugin.h"
 
@@ -283,6 +284,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     // Create the settings Page
     addAutoReleasedObject(new SettingsPage(versionControl()));
+    addAutoReleasedObject(new GitGrep);
 
     static const char *describeSlot = SLOT(show(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);

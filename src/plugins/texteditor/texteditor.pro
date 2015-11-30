@@ -206,7 +206,6 @@ HEADERS += texteditorplugin.h \
     icodestylepreferences.h \
     codestylepool.h \
     codestyleeditor.h \
-    basefilefind_p.h \
     circularclipboard.h \
     circularclipboardassist.h \
     textmark.h \

@@ -27,9 +27,12 @@
 #define BASEFILEFIND_H
 
 #include "texteditor_global.h"
+#include "utils/filesearch.h"
 
 #include <coreplugin/find/ifindfilter.h>
 #include <coreplugin/find/searchresultwindow.h>
+
+#include <QFuture>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -44,7 +47,17 @@ class IFindSupport;
 } // namespace Core
 
 namespace TextEditor {
+
 namespace Internal { class BaseFileFindPrivate; }
+
+class TEXTEDITOR_EXPORT FileFindParameters
+{
+public:
+    QString text;
+    Core::FindFlags flags;
+    QStringList nameFilters;
+    QVariant additionalParameters;
+};
 
 class TEXTEDITOR_EXPORT BaseFileFind : public Core::IFindFilter
 {
@@ -72,6 +85,8 @@ protected:
     virtual QString label() const = 0; // see Core::SearchResultWindow::startNewSearch
     virtual QString toolTip() const = 0; // see Core::SearchResultWindow::startNewSearch,
                                          // add %1 placeholder where the find flags should be put
+    virtual QFuture<Utils::FileSearchResultList> executeSearch(
+            const FileFindParameters &parameters);
 
     void writeCommonSettings(QSettings *settings);
     void readCommonSettings(QSettings *settings, const QString &defaultFilter);
@@ -101,5 +116,7 @@ private:
 };
 
 } // namespace TextEditor
+
+Q_DECLARE_METATYPE(TextEditor::FileFindParameters)
 
 #endif // BASEFILEFIND_H
