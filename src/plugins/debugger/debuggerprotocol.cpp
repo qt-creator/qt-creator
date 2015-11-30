@@ -853,14 +853,37 @@ void DebuggerCommand::arg(const char *name, const QJsonValue &value)
     args = addToJsonObject(args, name, value);
 }
 
+static QJsonValue translateJsonToPython(const QJsonValue &value)
+{
+    // TODO: Verify that this covers all incompatibilities between python and json.
+    switch (value.type()) {
+    case QJsonValue::Bool:
+        // Python doesn't understand lowercase "true" or "false"
+        return QJsonValue(value.toBool() ? 1 : 0);
+    case QJsonValue::Object: {
+        QJsonObject object = value.toObject();
+        for (QJsonObject::iterator i = object.begin(); i != object.end(); ++i)
+            i.value() = translateJsonToPython(i.value());
+        return object;
+    }
+    case QJsonValue::Array: {
+        QJsonArray array = value.toArray();
+        for (QJsonArray::iterator i = array.begin(); i != array.end(); ++i)
+            *i = translateJsonToPython(*i);
+        return array;
+    }
+    default:
+        return value;
+    }
+}
+
 QByteArray DebuggerCommand::argsToPython() const
 {
-    // TODO: Verify that this is really Python.
-
-    if (args.isArray())
-        return QJsonDocument(args.toArray()).toJson(QJsonDocument::Compact);
+    QJsonValue pythonCompatible(translateJsonToPython(args));
+    if (pythonCompatible.isArray())
+        return QJsonDocument(pythonCompatible.toArray()).toJson(QJsonDocument::Compact);
     else
-        return QJsonDocument(args.toObject()).toJson(QJsonDocument::Compact);
+        return QJsonDocument(pythonCompatible.toObject()).toJson(QJsonDocument::Compact);
 }
 
 QByteArray DebuggerCommand::argsToString() const
