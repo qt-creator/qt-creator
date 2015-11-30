@@ -69,6 +69,7 @@
 #include <utils/fancymainwindow.h>
 #include <utils/styledbar.h>
 
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
@@ -684,7 +685,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     // pause action
     action = new QAction(this);
     action->setCheckable(true);
-    action->setIcon(Core::Icons::PAUSE.icon());
+    action->setIcon(ProjectExplorer::Icons::INTERRUPT_SMALL.icon());
     //action->setText(tr("Ignore"));
     action->setToolTip(tr("Pause event logging. No events are counted which will speed up program execution during profiling."));
     connect(action, &QAction::toggled, this, &CallgrindToolPrivate::pauseToggled);

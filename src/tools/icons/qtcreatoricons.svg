@@ -2083,7 +2083,7 @@
        width="100%"
        height="100%" />
     <g
-       transform="translate(485,418)"
+       transform="translate(501,418)"
        id="src/plugins/coreplugin/find/images/expand">
       <rect
          id="rect4760-6"
@@ -2133,8 +2133,33 @@
          style="fill:#000000;fill-opacity:1;stroke:none" />
     </g>
     <g
+       transform="translate(128,0)"
+       id="src/plugins/projectexplorer/images/interrupt_small">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:none"
+         x="265"
+         y="568"
+         width="16"
+         height="16"
+         id="rect4810" />
+      <rect
+         style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect4815"
+         width="4"
+         height="12"
+         x="267"
+         y="570" />
+      <rect
+         style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect4817"
+         width="4"
+         height="12"
+         x="274"
+         y="570" />
+    </g>
+    <g
        id="src/plugins/coreplugin/images/run_overlay_small"
-       transform="translate(-32,0)">
+       transform="translate(-16,0)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
          x="425"
@@ -2145,12 +2170,12 @@
       <polygon
          style="fill:#000000;fill-opacity:1;stroke:none"
          id="polygon4953-0-5"
-         points="616,262 610,258 610,266 "
+         points="610,266 616,262 610,258 "
          transform="matrix(1.3333333,0,0,1.125,-381.33331,283.75)" />
     </g>
     <g
        id="src/plugins/coreplugin/images/stop_overlay_small"
-       transform="translate(-32,0)">
+       transform="translate(-16,0)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
          x="441"
@@ -2168,7 +2193,7 @@
     </g>
     <g
        id="src/plugins/coreplugin/images/interrupt_overlay_small"
-       transform="translate(-32,0)">
+       transform="translate(-16,0)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
          x="457"
@@ -2192,7 +2217,8 @@
          y="575" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/continue_overlay_small">
+       id="src/plugins/coreplugin/images/continue_overlay_small"
+       transform="translate(16,0)">
       <rect
          id="rect4959-4-0-0-6-5"
          height="16"
@@ -2220,7 +2246,8 @@
          sodipodi:nodetypes="cccc" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/debugger_overlay_small">
+       id="src/plugins/coreplugin/images/debugger_overlay_small"
+       transform="translate(16,0)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
          x="457"
@@ -2250,7 +2277,8 @@
       </g>
     </g>
     <g
-       id="src/plugins/analyzerbase/images/analyzer_overlay_small">
+       id="src/plugins/analyzerbase/images/analyzer_overlay_small"
+       transform="translate(16,0)">
       <rect
          id="rect4959-4-5"
          height="16"
@@ -2265,7 +2293,7 @@
          style="fill:#000000;fill-opacity:1;stroke:none" />
     </g>
     <g
-       transform="translate(169,368)"
+       transform="translate(185,368)"
        style="display:inline"
        id="src/plugins/coreplugin/images/zoom">
       <rect
@@ -2362,7 +2390,7 @@
     <g
        id="src/plugins/coreplugin/images/sidebaricon"
        clip-path="none"
-       transform="translate(383,0)">
+       transform="translate(399,0)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
          id="rect3216"
@@ -2378,9 +2406,7 @@
          sodipodi:nodetypes="cccccccccc" />
     </g>
     <g
-       id="g6019" />
-    <g
-       transform="translate(-83,318)"
+       transform="translate(-67,318)"
        id="src/plugins/qmldesigner/components/navigator/arrowup"
        style="fill:none;stroke:none">
       <rect
@@ -2395,7 +2421,7 @@
          style="fill:#000000;fill-opacity:1;stroke:none">
         <polygon
            style="fill:#000000;fill-opacity:1;stroke:none"
-           points="702.146,257.146 707.5,251.793 712.854,257.146 712.146,257.854 707.5,253.207 702.854,257.854 "
+           points="712.854,257.146 712.146,257.854 707.5,253.207 702.854,257.854 702.146,257.146 707.5,251.793 "
            id="polygon6590-1" />
         <rect
            style="fill:#000000;fill-opacity:1;stroke:none"
@@ -2419,7 +2445,7 @@
        y="0"
        xlink:href="#src/plugins/qmldesigner/components/navigator/arrowup"
        id="src/plugins/qmldesigner/components/navigator/arrowleft"
-       transform="matrix(0,1,1,0,81,-49)"
+       transform="matrix(0,1,1,0,97,-65)"
        width="100%"
        height="100%" />
     <use
@@ -2427,11 +2453,11 @@
        y="0"
        xlink:href="#src/plugins/qmldesigner/components/navigator/arrowleft"
        id="src/plugins/qmldesigner/components/navigator/arrowright"
-       transform="matrix(-1,0,0,1,1330,0)"
+       transform="matrix(-1,0,0,1,1362,0)"
        width="100%"
        height="100%" />
     <g
-       transform="translate(281,268)"
+       transform="translate(297,268)"
        style="display:inline"
        id="src/plugins/qmldesigner/components/navigator/eye_open">
       <rect
@@ -2454,7 +2480,7 @@
          style="fill:#000000;fill-opacity:1" />
     </g>
     <g
-       transform="translate(247,268)"
+       transform="translate(263,268)"
        id="src/plugins/qmldesigner/components/navigator/eye_closed">
       <rect
          id="rect6790-1"
@@ -2470,7 +2496,7 @@
          id="path6788-2" />
     </g>
     <g
-       transform="translate(362,268)"
+       transform="translate(378,268)"
        style="display:inline"
        id="src/plugins/qmldesigner/components/navigator/export_checked">
       <rect
@@ -2489,7 +2515,7 @@
     </g>
     <g
        id="src/plugins/qmldesigner/components/navigator/export_unchecked"
-       transform="translate(378,268)">
+       transform="translate(394,268)">
       <rect
          style="fill:#ffffff;fill-opacity:1"
          x="350"
@@ -2509,7 +2535,7 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       transform="translate(694,268)"
+       transform="translate(710,268)"
        style="display:inline"
        id="src/plugins/qmldesigner/components/formeditor/no_snapping">
       <rect
@@ -2542,7 +2568,7 @@
          style="fill:#000000;fill-opacity:1" />
     </g>
     <g
-       transform="translate(660,268)"
+       transform="translate(676,268)"
        style="display:inline"
        id="src/plugins/qmldesigner/components/formeditor/snapping_and_anchoring">
       <rect
@@ -2565,7 +2591,7 @@
          sodipodi:nodetypes="ccscccc" />
     </g>
     <g
-       transform="translate(695.36962,268.17679)"
+       transform="translate(711.36962,268.17679)"
        style="display:inline"
        id="src/plugins/qmldesigner/components/formeditor/snapping">
       <rect
@@ -2590,7 +2616,7 @@
          style="opacity:0.7;fill:#000000;fill-opacity:1" />
     </g>
     <g
-       transform="translate(592,268)"
+       transform="translate(608,268)"
        style="display:inline"
        id="src/plugins/qmldesigner/components/formeditor/boundingrect">
       <rect
@@ -2607,7 +2633,7 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       transform="translate(558,268)"
+       transform="translate(574,268)"
        style="display:inline"
        id="src/plugins/qmldesigner/components/formeditor/reset">
       <rect
@@ -2622,7 +2648,7 @@
          style="fill:#000000;fill-opacity:1">
         <polygon
            id="polygon6696-3"
-           points="261,304.5 258,302 258,307 "
+           points="258,307 261,304.5 258,302 "
            style="fill:#000000;fill-opacity:1" />
         <path
            id="path6698-5"
@@ -2633,7 +2659,7 @@
     </g>
     <g
        id="src/plugins/debugger/images/debugger_stepover_small"
-       transform="translate(16,0)">
+       transform="translate(32,0)">
       <rect
          id="rect4959-4-5-4"
          height="16"
@@ -2663,7 +2689,7 @@
     <g
        style="display:inline"
        id="src/plugins/debugger/images/debugger_stepinto_small"
-       transform="translate(32,0)">
+       transform="translate(48,0)">
       <rect
          id="rect4959-4-5-4-2"
          height="16"
@@ -2698,7 +2724,7 @@
     <g
        style="display:inline"
        id="src/plugins/debugger/images/debugger_stepout_small"
-       transform="translate(48,0)">
+       transform="translate(64,0)">
       <rect
          id="rect4959-4-5-4-4"
          height="16"
@@ -2733,7 +2759,7 @@
     <g
        style="display:inline"
        id="src/plugins/debugger/images/debugger_restart_small"
-       transform="translate(64,0)">
+       transform="translate(80,0)">
       <rect
          id="rect4959-4-5-4-4-7-0"
          height="16"
@@ -2781,7 +2807,8 @@
     </g>
     <g
        id="src/plugins/debugger/images/debugger_singleinstructionmode"
-       style="display:inline">
+       style="display:inline"
+       transform="translate(16,0)">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none"
          x="553"
@@ -2803,7 +2830,8 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       id="src/leafsort">
+       id="src/leafsort"
+       transform="translate(16,0)">
       <rect
          y="568"
          x="824"
@@ -2827,7 +2855,7 @@
     <g
        style="display:inline"
        id="src/sort"
-       transform="translate(16,0)">
+       transform="translate(32,0)">
       <rect
          y="568"
          x="824"
@@ -2863,7 +2891,7 @@
     <g
        style="display:inline"
        id="src/expand"
-       transform="translate(32,0)">
+       transform="translate(48,0)">
       <rect
          y="568"
          x="824"
@@ -2891,7 +2919,8 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       id="src/collapse">
+       id="src/collapse"
+       transform="translate(16,0)">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none"
          id="rect4660-6-5-9"
@@ -2915,7 +2944,8 @@
          sodipodi:nodetypes="cc" />
     </g>
     <g
-       id="src/runselected_overlay">
+       id="src/runselected_overlay"
+       transform="translate(16,0)">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none"
          width="16"

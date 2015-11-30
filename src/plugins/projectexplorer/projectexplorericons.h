@@ -73,6 +73,8 @@ const Utils::Icon MODE_PROJECT_FLAT({
         {QLatin1String(":/projectexplorer/images/mode_project_mask.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon MODE_PROJECT_FLAT_ACTIVE({
         {QLatin1String(":/projectexplorer/images/mode_project_mask.png"), Utils::Theme::IconsModeProjetcsActiveColor}});
+const Utils::Icon INTERRUPT_SMALL({
+        {QLatin1String(":/projectexplorer/images/interrupt_small.png"), Utils::Theme::IconsInterruptColor}});
 
 } // namespace Icons
 } // namespace ProjectExplorer

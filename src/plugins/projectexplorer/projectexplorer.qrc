@@ -52,6 +52,8 @@
         <file>images/window.png</file>
         <file>images/stop_small.png</file>
         <file>images/stop_small@2x.png</file>
+        <file>images/interrupt_small.png</file>
+        <file>images/interrupt_small@2x.png</file>
         <file>images/disabledbuildstep.png</file>
         <file>images/disabledbuildstep@2x.png</file>
         <file>images/lightdisabledbuildstep.png</file>

@@ -121,8 +121,6 @@ const Utils::Icon FILTER({
         {QLatin1String(":/core/images/filtericon.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon LINK({
         {QLatin1String(":/core/images/linkicon.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon PAUSE({
-        {QLatin1String(":/core/images/pause.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon WARNING({
         {QLatin1String(":/core/images/warning.png"), Utils::Theme::IconsWarningColor}});
 const Utils::Icon ERROR({
