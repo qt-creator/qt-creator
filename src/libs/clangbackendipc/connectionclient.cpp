@@ -37,11 +37,19 @@
 
 #include <QCoreApplication>
 #include <QProcess>
+#include <QTemporaryDir>
 #include <QThread>
 
 namespace ClangBackEnd {
 
 namespace {
+const QTemporaryDir &temporaryDirectory()
+{
+    static QTemporaryDir temporaryDirectory(QDir::tempPath() + QStringLiteral("/qtc-clang-XXXXXX"));
+
+    return temporaryDirectory;
+}
+
 QString currentProcessId()
 {
     return QString::number(QCoreApplication::applicationPid());
@@ -49,7 +57,7 @@ QString currentProcessId()
 
 QString connectionName()
 {
-    return QStringLiteral("ClangBackEnd-") + currentProcessId();
+    return temporaryDirectory().path() + QStringLiteral("/ClangBackEnd-") + currentProcessId();
 }
 }
 
@@ -128,6 +136,20 @@ void ConnectionClient::setProcessAliveTimerInterval(int processTimerInterval)
     processAliveTimer.setInterval(processTimerInterval);
 }
 
+QProcessEnvironment ConnectionClient::processEnvironment() const
+{
+    auto processEnvironment = QProcessEnvironment::systemEnvironment();
+
+    if (temporaryDirectory().isValid()) {
+        const QString temporaryDirectoryPath = temporaryDirectory().path();
+        processEnvironment.insert(QStringLiteral("TMPDIR"), temporaryDirectoryPath);
+        processEnvironment.insert(QStringLiteral("TMP"), temporaryDirectoryPath);
+        processEnvironment.insert(QStringLiteral("TEMP"), temporaryDirectoryPath);
+    }
+
+    return processEnvironment;
+}
+
 void ConnectionClient::startProcess()
 {
     TIME_SCOPE_DURATION("ConnectionClient::startProcess");
@@ -135,6 +157,7 @@ void ConnectionClient::startProcess()
     if (!isProcessIsRunning()) {
         connectProcessFinished();
         connectStandardOutputAndError();
+        process()->setProcessEnvironment(processEnvironment());
         process()->start(processPath(), {connectionName()});
         process()->waitForStarted();
         resetProcessAliveTimer();

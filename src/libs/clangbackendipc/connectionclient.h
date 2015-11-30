@@ -35,6 +35,7 @@
 #include "lineprefixer.h"
 
 #include <QLocalSocket>
+#include <QProcessEnvironment>
 
 #include <memory>
 
@@ -99,6 +100,8 @@ private:
     void connectStandardOutputAndError() const;
 
     void ensureMessageIsWritten();
+
+    QProcessEnvironment processEnvironment() const;
 
 private:
     mutable std::unique_ptr<QProcess> process_;
