@@ -30,7 +30,7 @@
 
 #include "clangassistproposalitem.h"
 
-#include "activationsequenceprocessor.h"
+#include "clangactivationsequenceprocessor.h"
 #include "clangassistproposal.h"
 #include "clangassistproposalmodel.h"
 #include "clangcompletionassistprocessor.h"
@@ -38,7 +38,7 @@
 #include "clangeditordocumentprocessor.h"
 #include "clangfunctionhintmodel.h"
 #include "clangutils.h"
-#include "completionchunkstotextconverter.h"
+#include "clangcompletionchunkstotextconverter.h"
 
 #include <utils/qtcassert.h>
 

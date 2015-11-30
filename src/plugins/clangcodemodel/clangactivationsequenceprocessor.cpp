@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "activationsequenceprocessor.h"
+#include "clangactivationsequenceprocessor.h"
 
 namespace ClangCodeModel {
 namespace Internal {

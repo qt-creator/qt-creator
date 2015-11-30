@@ -32,9 +32,9 @@
 
 #include "clangfixitoperation.h"
 #include "clangfixitoperationsextractor.h"
+#include "clanghighlightingmarksreporter.h"
 #include "clangmodelmanagersupport.h"
 #include "clangutils.h"
-#include "highlightingmarksreporter.h"
 
 #include <diagnosticcontainer.h>
 #include <sourcelocationcontainer.h>

@@ -30,8 +30,8 @@
 
 #include "clangcodemodelplugin.h"
 
+#include "clangconstants.h"
 #include "clangprojectsettingspropertiespage.h"
-#include "constants.h"
 
 #ifdef WITH_TESTS
 #  include "test/clangcodecompletion_test.h"

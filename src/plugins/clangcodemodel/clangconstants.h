@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#ifndef CLANGCONSTANTS_H
+#define CLANGCONSTANTS_H
 
 namespace ClangCodeModel {
 namespace Constants {
@@ -41,4 +41,4 @@ const char CLANG_WARNING[] = "Clang.Warning";
 } // namespace Constants
 } // namespace ClangCodeModel
 
-#endif // CONSTANTS_H
+#endif // CLANGCONSTANTS_H

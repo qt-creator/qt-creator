@@ -31,8 +31,8 @@
 
 #include "clangcompletioncontextanalyzer.h"
 
-#include "activationsequenceprocessor.h"
-#include "activationsequencecontextprocessor.h"
+#include "clangactivationsequencecontextprocessor.h"
+#include "clangactivationsequenceprocessor.h"
 
 #include <texteditor/codeassist/assistinterface.h>
 

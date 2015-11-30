@@ -31,7 +31,7 @@
 #include <chunksreportedmonitor.h>
 #include <clangtranslationunit.h>
 #include <highlightingmarkcontainer.h>
-#include <highlightingmarksreporter.h>
+#include <clanghighlightingmarksreporter.h>
 #include <projectpart.h>
 #include <projects.h>
 #include <translationunits.h>

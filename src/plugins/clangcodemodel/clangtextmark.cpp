@@ -30,7 +30,7 @@
 
 #include "clangtextmark.h"
 
-#include "constants.h"
+#include "clangconstants.h"
 
 #include <coreplugin/coreconstants.h>
 

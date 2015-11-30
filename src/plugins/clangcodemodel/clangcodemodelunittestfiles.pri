@@ -1,17 +1,19 @@
 INCLUDEPATH += $$PWD
 
-SOURCES += $$PWD/completionchunkstotextconverter.cpp \
-           $$PWD/activationsequenceprocessor.cpp \
-           $$PWD/activationsequencecontextprocessor.cpp \
-           $$PWD/clangcompletioncontextanalyzer.cpp \
-           $$PWD/clangdiagnosticfilter.cpp \
-           $$PWD/clangfixitoperation.cpp \
-           $$PWD/highlightingmarksreporter.cpp
+SOURCES += \
+    $$PWD/clangactivationsequencecontextprocessor.cpp \
+    $$PWD/clangactivationsequenceprocessor.cpp \
+    $$PWD/clangcompletionchunkstotextconverter.cpp \
+    $$PWD/clangcompletioncontextanalyzer.cpp \
+    $$PWD/clangdiagnosticfilter.cpp \
+    $$PWD/clangfixitoperation.cpp \
+    $$PWD/clanghighlightingmarksreporter.cpp
 
-HEADERS += $$PWD/completionchunkstotextconverter.h \
-           $$PWD/activationsequenceprocessor.h \
-           $$PWD/activationsequencecontextprocessor.h \
-           $$PWD/clangcompletioncontextanalyzer.h \
-           $$PWD/clangdiagnosticfilter.h \
-           $$PWD/clangfixitoperation.h \
-           $$PWD/highlightingmarksreporter.h
+HEADERS += \
+    $$PWD/clangactivationsequencecontextprocessor.h \
+    $$PWD/clangactivationsequenceprocessor.h \
+    $$PWD/clangcompletionchunkstotextconverter.h \
+    $$PWD/clangcompletioncontextanalyzer.h \
+    $$PWD/clangdiagnosticfilter.h \
+    $$PWD/clangfixitoperation.h \
+    $$PWD/clanghighlightingmarksreporter.h

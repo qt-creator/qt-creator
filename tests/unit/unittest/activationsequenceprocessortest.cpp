@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include <activationsequenceprocessor.h>
+#include <clangactivationsequenceprocessor.h>
 
 #include <cplusplus/Token.h>
 

@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "completionchunkstotextconverter.h"
+#include "clangcompletionchunkstotextconverter.h"
 
 #include <algorithm>
 #include <functional>

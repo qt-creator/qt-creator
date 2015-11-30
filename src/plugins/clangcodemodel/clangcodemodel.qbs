@@ -36,10 +36,10 @@ QtcPlugin {
     }
 
     files: [
-        "activationsequencecontextprocessor.cpp",
-        "activationsequencecontextprocessor.h",
-        "activationsequenceprocessor.cpp",
-        "activationsequenceprocessor.h",
+        "clangactivationsequencecontextprocessor.cpp",
+        "clangactivationsequencecontextprocessor.h",
+        "clangactivationsequenceprocessor.cpp",
+        "clangactivationsequenceprocessor.h",
         "clangassistproposal.cpp",
         "clangassistproposal.h",
         "clangassistproposalitem.cpp",
@@ -56,8 +56,11 @@ QtcPlugin {
         "clangcompletionassistprocessor.h",
         "clangcompletionassistprovider.cpp",
         "clangcompletionassistprovider.h",
+        "clangcompletionchunkstotextconverter.cpp",
+        "clangcompletionchunkstotextconverter.h",
         "clangcompletioncontextanalyzer.cpp",
         "clangcompletioncontextanalyzer.h",
+        "clangconstants.h",
         "clangdiagnosticfilter.cpp",
         "clangdiagnosticfilter.h",
         "clangdiagnosticmanager.cpp",
@@ -72,6 +75,8 @@ QtcPlugin {
         "clangfixitoperationsextractor.h",
         "clangfunctionhintmodel.cpp",
         "clangfunctionhintmodel.h",
+        "clanghighlightingmarksreporter.cpp",
+        "clanghighlightingmarksreporter.h",
         "clangmodelmanagersupport.cpp",
         "clangmodelmanagersupport.h",
         "clangprojectsettings.cpp",
@@ -83,11 +88,6 @@ QtcPlugin {
         "clangtextmark.h",
         "clangutils.cpp",
         "clangutils.h",
-        "completionchunkstotextconverter.cpp",
-        "completionchunkstotextconverter.h",
-        "constants.h",
-        "highlightingmarksreporter.cpp",
-        "highlightingmarksreporter.h",
     ]
 
     Group {

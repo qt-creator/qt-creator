@@ -30,7 +30,7 @@
 
 #include "clangfunctionhintmodel.h"
 
-#include "completionchunkstotextconverter.h"
+#include "clangcompletionchunkstotextconverter.h"
 
 #include <cplusplus/SimpleLexer.h>
 

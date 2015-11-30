@@ -6,8 +6,8 @@ DEFINES += CLANG_VERSION=\\\"$${LLVM_VERSION}\\\"
 DEFINES += "\"CLANG_RESOURCE_DIR=\\\"$${LLVM_LIBDIR}/clang/$${LLVM_VERSION}/include\\\"\""
 
 SOURCES += \
-    activationsequencecontextprocessor.cpp \
-    activationsequenceprocessor.cpp \
+    clangactivationsequencecontextprocessor.cpp \
+    clangactivationsequenceprocessor.cpp \
     clangassistproposal.cpp \
     clangassistproposalitem.cpp \
     clangassistproposalmodel.cpp \
@@ -16,6 +16,7 @@ SOURCES += \
     clangcompletionassistinterface.cpp \
     clangcompletionassistprocessor.cpp \
     clangcompletionassistprovider.cpp \
+    clangcompletionchunkstotextconverter.cpp \
     clangcompletioncontextanalyzer.cpp \
     clangdiagnosticfilter.cpp \
     clangdiagnosticmanager.cpp \
@@ -24,17 +25,16 @@ SOURCES += \
     clangfixitoperation.cpp \
     clangfixitoperationsextractor.cpp \
     clangfunctionhintmodel.cpp \
+    clanghighlightingmarksreporter.cpp \
     clangmodelmanagersupport.cpp \
     clangprojectsettings.cpp \
     clangprojectsettingspropertiespage.cpp \
     clangtextmark.cpp \
-    clangutils.cpp \
-    completionchunkstotextconverter.cpp \
-    highlightingmarksreporter.cpp
+    clangutils.cpp
 
 HEADERS += \
-    activationsequencecontextprocessor.h \
-    activationsequenceprocessor.h \
+    clangactivationsequencecontextprocessor.h \
+    clangactivationsequenceprocessor.h \
     clangassistproposal.h \
     clangassistproposalitem.h \
     clangassistproposalmodel.h \
@@ -43,7 +43,9 @@ HEADERS += \
     clangcompletionassistinterface.h \
     clangcompletionassistprocessor.h \
     clangcompletionassistprovider.h \
+    clangcompletionchunkstotextconverter.h \
     clangcompletioncontextanalyzer.h \
+    clangconstants.h \
     clangdiagnosticfilter.h \
     clangdiagnosticmanager.h \
     clangeditordocumentparser.h \
@@ -51,14 +53,12 @@ HEADERS += \
     clangfixitoperation.h \
     clangfixitoperationsextractor.h \
     clangfunctionhintmodel.h \
+    clanghighlightingmarksreporter.h \
     clangmodelmanagersupport.h \
     clangprojectsettings.h \
     clangprojectsettingspropertiespage.h \
     clangtextmark.h \
     clangutils.h \
-    completionchunkstotextconverter.h \
-    constants.h \
-    highlightingmarksreporter.h
 
 FORMS += clangprojectsettingspropertiespage.ui
 

@@ -29,7 +29,7 @@
 ****************************************************************************/
 
 #include <codecompletionchunk.h>
-#include <completionchunkstotextconverter.h>
+#include <clangcompletionchunkstotextconverter.h>
 
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>

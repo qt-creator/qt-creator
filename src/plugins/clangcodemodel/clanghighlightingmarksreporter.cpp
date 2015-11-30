@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "highlightingmarksreporter.h"
+#include "clanghighlightingmarksreporter.h"
 
 #include <cpptools/semantichighlighter.h>
 

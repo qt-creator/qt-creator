@@ -30,7 +30,7 @@
 
 #include "clangmodelmanagersupport.h"
 
-#include "constants.h"
+#include "clangconstants.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangutils.h"
 
