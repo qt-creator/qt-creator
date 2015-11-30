@@ -84,8 +84,8 @@ public:
         }
     }
     int n;
-    const char *str;
     uint h;
+    const char *str;
 };
 
 static bool operator==(const StringHolder &sh1, const StringHolder &sh2)
