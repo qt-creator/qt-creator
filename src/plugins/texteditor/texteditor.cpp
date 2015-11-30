@@ -5476,26 +5476,25 @@ void TextEditorWidget::wheelEvent(QWheelEvent *e)
             return;
         }
 
-        const int delta = e->delta();
-        if (delta < 0)
-            zoomOut();
-        else if (delta > 0)
-            zoomIn();
+        const float delta = e->angleDelta().y() / 120.f;
+        if (delta != 0)
+            zoomF(delta);
         return;
     }
     QPlainTextEdit::wheelEvent(e);
 }
 
-void TextEditorWidget::zoomIn()
+void TextEditorWidget::zoomF(float delta)
 {
     d->clearVisibleFoldedBlock();
-    emit requestFontZoom(10);
-}
+    float step = 10.f * delta;
+    // Ensure we always zoom a minimal step in-case the resolution is more than 16x
+    if (step > 0 && step < 1)
+        step = 1;
+    else if (step < 0 && step > -1)
+        step = -1;
 
-void TextEditorWidget::zoomOut()
-{
-    d->clearVisibleFoldedBlock();
-    emit requestFontZoom(-10);
+    emit requestFontZoom(step);
 }
 
 void TextEditorWidget::zoomReset()
