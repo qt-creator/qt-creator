@@ -182,6 +182,7 @@ private slots:
     void annotateVersion(const QString &workingDirectory, const QString &file, const QString &revision, int lineNumber);
     void describe(const QString &source, const QString &changeNr);
     void syncSlot();
+    void updateStatusActions();
 
 #ifdef WITH_TESTS
     void initTestCase();
@@ -227,7 +228,6 @@ private:
     void projectChanged(ProjectExplorer::Project *project);
     void tasksFinished(Core::Id type);
     void closing();
-    void updateStatusActions();
 
     inline bool isCheckInEditorOpen() const;
     QStringList getVobList() const;
