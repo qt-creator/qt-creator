@@ -43,8 +43,6 @@ QtcPlugin {
         "modeleditor.cpp",
         "modeleditorfactory.cpp",
         "modeleditorfactory.h",
-        "modeleditor_file_wizard.cpp",
-        "modeleditor_file_wizard.h",
         "modeleditor_global.h",
         "modeleditor.h",
         "modeleditor_plugin.cpp",

@@ -39,7 +39,6 @@ SOURCES += \
     modeldocument.cpp \
     modeleditor.cpp \
     modeleditorfactory.cpp \
-    modeleditor_file_wizard.cpp \
     modeleditor_plugin.cpp \
     modelindexer.cpp \
     modelsmanager.cpp \
@@ -62,7 +61,6 @@ HEADERS += \
     modeldocument.h \
     modeleditor_constants.h \
     modeleditorfactory.h \
-    modeleditor_file_wizard.h \
     modeleditor_global.h \
     modeleditor.h \
     modeleditor_plugin.h \

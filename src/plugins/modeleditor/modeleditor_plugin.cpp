@@ -34,7 +34,6 @@
 #include "modelsmanager.h"
 #include "settingscontroller.h"
 #include "modeleditor_constants.h"
-#include "modeleditor_file_wizard.h"
 #include "uicontroller.h"
 #include "jsextension.h"
 
@@ -102,10 +101,6 @@ bool ModelEditorPlugin::initialize(const QStringList &arguments, QString *errorS
 
     d->uiController = new UiController(this);
     addAutoReleasedObject(d->uiController);
-
-    Core::IWizardFactory::registerFactoryCreator([]() {
-        return QList<Core::IWizardFactory *>() << new FileWizardFactory;
-    });
 
     d->modelFactory = new ModelEditorFactory(d->uiController, this);
     addAutoReleasedObject(d->modelFactory);
