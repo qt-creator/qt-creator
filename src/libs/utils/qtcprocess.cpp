@@ -693,6 +693,8 @@ void QtcProcess::start()
             qWarning("QtcProcess::start: Empty environment set when running '%s'.", qPrintable(m_command));
         env = m_environment;
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 5, 0)
+        // QTBUG-49694
         // If the process environment has no libraryPath,
         // Qt will copy creator's libraryPath into the process environment.
         // That's brain dead, and we work around it
@@ -702,6 +704,7 @@ void QtcProcess::start()
             if (env.constFind(libraryPath) == env.constEnd())
                 env.set(libraryPath, QString());
         }
+#endif
         QProcess::setEnvironment(env.toStringList());
     } else {
         env = Environment::systemEnvironment();
