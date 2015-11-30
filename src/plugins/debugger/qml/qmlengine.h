@@ -130,7 +130,6 @@ private:
     void expandItem(const QByteArray &iname) override;
     void selectWatchData(const QByteArray &iname) override;
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
-    bool evaluateScript(const QString &expression) override;
 
     bool hasCapability(unsigned) const override;
     void quitDebugger() override;

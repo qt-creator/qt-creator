@@ -1743,12 +1743,6 @@ void DebuggerEngine::executeDebuggerCommand(const QString &, DebuggerLanguages)
     showStatusMessage(tr("This debugger cannot handle user input."));
 }
 
-bool DebuggerEngine::evaluateScript(const QString &)
-{
-    showStatusMessage(tr("This debugger cannot handle user scripts."));
-    return false;
-}
-
 BreakHandler *DebuggerEngine::breakHandler() const
 {
     return Internal::breakHandler();

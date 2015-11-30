@@ -49,7 +49,7 @@ namespace Utils { class SavedAction; }
 namespace Debugger {
 namespace Internal {
 
-typedef std::function<bool(QString)> ScriptEvaluator;
+typedef std::function<void(QString)> ScriptEvaluator;
 
 class ConsoleItemModel;
 class ConsoleView;

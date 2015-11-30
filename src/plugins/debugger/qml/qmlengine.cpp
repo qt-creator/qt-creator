@@ -213,6 +213,7 @@ public:
     QList<quint32> queryIds;
     bool retryOnConnectFail = false;
     bool automaticConnect = false;
+    bool unpausedEvaluate = false;
 
     QTimer connectionTimer;
     QmlDebug::QmlDebugConnection *connection;
@@ -282,8 +283,8 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
         d->automaticConnect = true;
     }
 
-    debuggerConsole()->setScriptEvaluator([this](const QString &expr) -> bool {
-        return evaluateScript(expr);
+    debuggerConsole()->setScriptEvaluator([this](const QString &expr) {
+        executeDebuggerCommand(expr, QmlLanguage);
     });
 
     d->connectionTimer.setInterval(4000);
@@ -1116,35 +1117,21 @@ void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
     if (!(languages & QmlLanguage))
         return;
 
-    StackHandler *handler = stackHandler();
-    if (handler->isContentsValid() && handler->currentFrame().isUsable()) {
+    if (state() == InferiorStopOk) {
+        StackHandler *handler = stackHandler();
+        if (handler->isContentsValid() && handler->currentFrame().isUsable()) {
+            d->evaluate(command, CB(d->handleExecuteDebuggerCommand));
+        } else {
+            // Paused but no stack? Something is wrong
+            d->engine->showMessage(_("Cannot evaluate %1. The stack trace is broken.").arg(command),
+                                   ConsoleOutput);
+        }
+    } else if (d->unpausedEvaluate) {
         d->evaluate(command, CB(d->handleExecuteDebuggerCommand));
     } else {
-        //Currently cannot evaluate if not in a javascript break
-        d->engine->showMessage(QString(_("Cannot evaluate %1 in current stack frame")).arg(
-                                   command), ConsoleOutput);
+        d->engine->showMessage(_("The application has to be paused in order to evaluate "
+                                 "expressions").arg(command), ConsoleOutput);
     }
-}
-
-bool QmlEngine::evaluateScript(const QString &expression)
-{
-    bool didEvaluate = true;
-    // Evaluate expression based on engine state
-    // When engine->state() == InferiorStopOk, the expression is sent to debuggerClient.
-    if (state() != InferiorStopOk) {
-        QModelIndex currentIndex = inspectorView()->currentIndex();
-        quint32 queryId = d->inspectorAgent.queryExpressionResult
-                (watchHandler()->watchItem(currentIndex)->id, expression);
-        if (queryId) {
-            d->queryIds.append(queryId);
-        } else {
-            didEvaluate = false;
-            debuggerConsole()->printItem(ConsoleItem::ErrorType, _("Error evaluating expression."));
-        }
-    } else {
-        executeDebuggerCommand(expression, QmlLanguage);
-    }
-    return didEvaluate;
 }
 
 void QmlEnginePrivate::updateScriptSource(const QString &fileName, int lineOffset, int columnOffset,
@@ -1330,12 +1317,14 @@ void QmlEnginePrivate::evaluate(const QString expr, const QmlCallback &cb)
 
     // The Qt side Q_ASSERTs otherwise. So ignore the request and hope
     // it will be repeated soon enough (which it will, e.g. in updateLocals)
-    QTC_ASSERT(engine->state() == InferiorStopOk, return);
+    QTC_ASSERT(unpausedEvaluate || engine->state() == InferiorStopOk, return);
 
     DebuggerCommand cmd(EVALUATE);
 
     cmd.arg(EXPRESSION, expr);
-    cmd.arg(FRAME, engine->stackHandler()->currentIndex());
+    StackHandler *handler = engine->stackHandler();
+    if (handler->currentFrame().isUsable())
+        cmd.arg(FRAME, handler->currentIndex());
 
     runCommand(cmd, cb);
 }
@@ -2497,15 +2486,13 @@ void QmlEnginePrivate::stateChanged(State state)
         /// Start session.
         flushSendBuffer();
         runDirectCommand(CONNECT);
-        runCommand({VERSION}); // Only used for logging.
+        runCommand({VERSION}, CB(handleVersion));
     }
 }
 
 void QmlEnginePrivate::handleVersion(const QVariantMap &response)
 {
-    engine->showMessage(QString(_("Using V8 Version: %1")).arg(
-                                response.value(_(BODY)).toMap().
-                                value(_("V8Version")).toString()), LogOutput);
+    unpausedEvaluate = response.value(_(BODY)).toMap().value(_("UnpausedEvaluate"), false).toBool();
 }
 
 void QmlEnginePrivate::flushSendBuffer()
