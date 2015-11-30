@@ -1,8 +1,6 @@
 include(../../qtcreatorplugin.pri)
 include(../../shared/clang/clang_installation.pri)
 
-DEFINES += CLANGCODEMODEL_LIBRARY
-
 # The following defines are used to determine the clang include path for intrinsics.
 DEFINES += CLANG_VERSION=\\\"$${LLVM_VERSION}\\\"
 DEFINES += "\"CLANG_RESOURCE_DIR=\\\"$${LLVM_LIBDIR}/clang/$${LLVM_VERSION}/include\\\"\""
@@ -53,7 +51,6 @@ HEADERS += \
     clangfixitoperation.h \
     clangfixitoperationsextractor.h \
     clangfunctionhintmodel.h \
-    clang_global.h \
     clangmodelmanagersupport.h \
     clangprojectsettings.h \
     clangprojectsettingspropertiespage.h \

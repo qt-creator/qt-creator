@@ -31,8 +31,6 @@
 #ifndef CPPTOOLS_CLANGUTILS_H
 #define CPPTOOLS_CLANGUTILS_H
 
-#include "clang_global.h"
-
 #include <cpptools/cppprojects.h>
 
 #include <QLoggingCategory>

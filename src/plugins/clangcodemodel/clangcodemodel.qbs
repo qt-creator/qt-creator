@@ -72,7 +72,6 @@ QtcPlugin {
         "clangfixitoperationsextractor.h",
         "clangfunctionhintmodel.cpp",
         "clangfunctionhintmodel.h",
-        "clang_global.h",
         "clangmodelmanagersupport.cpp",
         "clangmodelmanagersupport.h",
         "clangprojectsettings.cpp",

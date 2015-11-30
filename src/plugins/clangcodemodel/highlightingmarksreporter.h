@@ -31,8 +31,6 @@
 #ifndef CLANGCODEMODEL_HIGHLIGHTINGMARKSREPORTER_H
 #define CLANGCODEMODEL_HIGHLIGHTINGMARKSREPORTER_H
 
-#include "clang_global.h"
-
 #include <QFutureInterface>
 #include <QObject>
 #include <QRunnable>
