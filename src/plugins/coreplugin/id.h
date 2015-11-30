@@ -74,6 +74,12 @@ public:
     static Id fromName(const QByteArray &ba); // FIXME: avoid.
     static Id fromSetting(const QVariant &variant); // Good to use.
 
+    static Id versionedId(const QByteArray &prefix, int major, int minor);
+    static QSet<Id> versionedIds(const QByteArray &prefix, int major, int minor);
+
+    static QSet<Id> fromStringList(const QStringList &list);
+    static QStringList toStringList(const QSet<Id> &ids);
+
 private:
     // Intentionally unimplemented
     Id(const QLatin1String &);

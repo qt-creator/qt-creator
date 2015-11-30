@@ -30,6 +30,7 @@
 
 #include "id.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QByteArray>
@@ -243,6 +244,29 @@ Id Id::fromSetting(const QVariant &variant)
     if (ba.isEmpty())
         return Id();
     return Id(theId(ba));
+}
+
+Id Id::versionedId(const QByteArray &prefix, int major, int minor)
+{
+    if (major < 0)
+        return fromName(prefix);
+
+    QByteArray result = prefix + '.';
+    result += QString::number(major).toLatin1();
+
+    if (minor < 0)
+        return fromName(result);
+    return fromName(result + '.' + QString::number(minor).toLatin1());
+}
+
+QSet<Id> Id::fromStringList(const QStringList &list)
+{
+    return QSet<Id>::fromList(Utils::transform(list, [](const QString &s) { return Id::fromString(s); }));
+}
+
+QStringList Id::toStringList(const QSet<Id> &ids)
+{
+    return Utils::transform(ids.toList(), [](Id i) { return i.toString(); });
 }
 
 /*!

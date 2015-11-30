@@ -76,6 +76,30 @@ static const char QTVERSIONQMAKEPATH[] = "QMakePath";
 static const char MKSPEC_VALUE_LIBINFIX[] = "QT_LIBINFIX";
 static const char MKSPEC_VALUE_NAMESPACE[] = "QT_NAMESPACE";
 
+QSet<Id> static versionedIds(const QByteArray &prefix, int major, int minor)
+{
+    QSet<Id> result;
+    result.insert(Id::fromName(prefix));
+
+    if (major < 0)
+        return result;
+
+    const QByteArray majorStr = QString::number(major).toLatin1();
+    const QByteArray featureMajor = prefix + majorStr;
+    const QByteArray featureDotMajor = prefix + '.' + majorStr;
+
+    result.insert(Id::fromName(featureMajor));
+    result.insert(Id::fromName(featureDotMajor));
+
+    for (int i = 0; i <= minor; ++i) {
+        const QByteArray minorStr = QString::number(i).toLatin1();
+        result.insert(Id::fromName(featureMajor + '.' + minorStr));
+        result.insert(Id::fromName(featureDotMajor + '.' + minorStr));
+    }
+
+    return result;
+}
+
 ///////////////
 // QtVersionNumber
 ///////////////
