@@ -51,7 +51,7 @@ class CMakeKitConfigWidget : public ProjectExplorer::KitConfigWidget
     Q_OBJECT
 public:
     CMakeKitConfigWidget(ProjectExplorer::Kit *kit, const ProjectExplorer::KitInformation *ki);
-    virtual ~CMakeKitConfigWidget();
+    ~CMakeKitConfigWidget() override;
 
     // KitConfigWidget interface
     QString displayName() const override;

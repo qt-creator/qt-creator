@@ -48,16 +48,16 @@ class AndroidGdbServerKitInformationWidget : public ProjectExplorer::KitConfigWi
 public:
     AndroidGdbServerKitInformationWidget(ProjectExplorer::Kit *kit,
                                          const ProjectExplorer::KitInformation *ki);
-    ~AndroidGdbServerKitInformationWidget();
+    ~AndroidGdbServerKitInformationWidget() override;
 
-    QString displayName() const;
-    QString toolTip() const;
-    void makeReadOnly();
-    void refresh();
-    bool visibleInKit();
+    QString displayName() const override;
+    QString toolTip() const override;
+    void makeReadOnly() override;
+    void refresh() override;
+    bool visibleInKit() override;
 
-    QWidget *mainWidget() const;
-    QWidget *buttonWidget() const;
+    QWidget *mainWidget() const override;
+    QWidget *buttonWidget() const override;
 
 private slots:
     void autoDetectDebugger();

@@ -46,14 +46,14 @@ class QmakeKitConfigWidget : public ProjectExplorer::KitConfigWidget
 
 public:
     QmakeKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki);
-    ~QmakeKitConfigWidget();
+    ~QmakeKitConfigWidget() override;
 
-    QWidget *mainWidget() const;
-    QString displayName() const;
-    QString toolTip() const;
+    QWidget *mainWidget() const override;
+    QString displayName() const override;
+    QString toolTip() const override;
 
-    void makeReadOnly();
-    void refresh();
+    void makeReadOnly() override;
+    void refresh() override;
 
 private slots:
     void mkspecWasChanged(const QString &text);

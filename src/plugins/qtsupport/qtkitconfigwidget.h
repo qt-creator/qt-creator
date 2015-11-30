@@ -47,16 +47,16 @@ class QtKitConfigWidget : public ProjectExplorer::KitConfigWidget
 
 public:
     QtKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki);
-    ~QtKitConfigWidget();
+    ~QtKitConfigWidget() override;
 
-    QString displayName() const;
+    QString displayName() const override;
 
-    void makeReadOnly();
+    void makeReadOnly() override;
 
-    void refresh();
-    QWidget *mainWidget() const;
-    QWidget *buttonWidget() const;
-    QString toolTip() const;
+    void refresh() override;
+    QWidget *mainWidget() const override;
+    QWidget *buttonWidget() const override;
+    QString toolTip() const override;
 
 private slots:
     void versionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed);

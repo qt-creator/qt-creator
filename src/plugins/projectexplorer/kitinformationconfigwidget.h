@@ -63,16 +63,16 @@ class SysRootInformationConfigWidget : public KitConfigWidget
 
 public:
     SysRootInformationConfigWidget(Kit *k, const KitInformation *ki);
-    ~SysRootInformationConfigWidget();
+    ~SysRootInformationConfigWidget() override;
 
-    QString displayName() const;
-    void refresh();
-    void makeReadOnly();
-    QWidget *buttonWidget() const;
-    QWidget *mainWidget() const;
-    QString toolTip() const;
+    QString displayName() const override;
+    void refresh() override;
+    void makeReadOnly() override;
+    QWidget *buttonWidget() const override;
+    QWidget *mainWidget() const override;
+    QString toolTip() const override;
 
-    void setPalette(const QPalette &p);
+    void setPalette(const QPalette &p) override;
 
 private:
     void pathWasChanged();
@@ -91,14 +91,14 @@ class ToolChainInformationConfigWidget : public KitConfigWidget
 
 public:
     ToolChainInformationConfigWidget(Kit *k, const KitInformation *ki);
-    ~ToolChainInformationConfigWidget();
+    ~ToolChainInformationConfigWidget() override;
 
-    QString displayName() const;
-    void refresh();
-    void makeReadOnly();
-    QWidget *mainWidget() const;
-    QWidget *buttonWidget() const;
-    QString toolTip() const;
+    QString displayName() const override;
+    void refresh() override;
+    void makeReadOnly() override;
+    QWidget *mainWidget() const override;
+    QWidget *buttonWidget() const override;
+    QString toolTip() const override;
 
 private:
     void manageToolChains();
@@ -122,13 +122,13 @@ class DeviceTypeInformationConfigWidget : public KitConfigWidget
 
 public:
     DeviceTypeInformationConfigWidget(Kit *workingCopy, const KitInformation *ki);
-    ~DeviceTypeInformationConfigWidget();
+    ~DeviceTypeInformationConfigWidget() override;
 
-    QWidget *mainWidget() const;
-    QString displayName() const;
-    QString toolTip() const;
-    void refresh();
-    void makeReadOnly();
+    QWidget *mainWidget() const override;
+    QString displayName() const override;
+    QString toolTip() const override;
+    void refresh() override;
+    void makeReadOnly() override;
 
 private:
     void currentTypeChanged(int idx);
@@ -146,14 +146,14 @@ class DeviceInformationConfigWidget : public KitConfigWidget
 
 public:
     DeviceInformationConfigWidget(Kit *workingCopy, const KitInformation *ki);
-    ~DeviceInformationConfigWidget();
+    ~DeviceInformationConfigWidget() override;
 
-    QWidget *mainWidget() const;
-    QWidget *buttonWidget() const;
-    QString displayName() const;
-    QString toolTip() const;
-    void refresh();
-    void makeReadOnly();
+    QWidget *mainWidget() const override;
+    QWidget *buttonWidget() const override;
+    QString displayName() const override;
+    QString toolTip() const override;
+    void refresh() override;
+    void makeReadOnly() override;
 
 private:
     void manageDevices();
@@ -176,12 +176,12 @@ class KitEnvironmentConfigWidget : public KitConfigWidget
 public:
     KitEnvironmentConfigWidget(Kit *workingCopy, const KitInformation *ki);
 
-    QWidget *mainWidget() const;
-    QWidget *buttonWidget() const;
-    QString displayName() const;
-    QString toolTip() const;
-    void refresh();
-    void makeReadOnly();
+    QWidget *mainWidget() const override;
+    QWidget *buttonWidget() const override;
+    QString displayName() const override;
+    QString toolTip() const override;
+    void refresh() override;
+    void makeReadOnly() override;
 
 private:
     void editEnvironmentChanges();

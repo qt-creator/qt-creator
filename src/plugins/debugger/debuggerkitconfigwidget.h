@@ -61,14 +61,14 @@ class DebuggerKitConfigWidget : public ProjectExplorer::KitConfigWidget
 public:
     DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCopy,
                             const ProjectExplorer::KitInformation *ki);
-    ~DebuggerKitConfigWidget();
+    ~DebuggerKitConfigWidget() override;
 
-    QString displayName() const;
-    QString toolTip() const;
-    void makeReadOnly();
-    void refresh();
-    QWidget *buttonWidget() const;
-    QWidget *mainWidget() const;
+    QString displayName() const override;
+    QString toolTip() const override;
+    void makeReadOnly() override;
+    void refresh() override;
+    QWidget *buttonWidget() const override;
+    QWidget *mainWidget() const override;
 
 private:
     void manageDebuggers();
