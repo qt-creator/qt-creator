@@ -855,8 +855,14 @@ void DebuggerCommand::arg(const char *name, const QJsonValue &value)
 
 static QJsonValue translateJsonToPython(const QJsonValue &value)
 {
-    // TODO: Verify that this covers all incompatibilities between python and json.
+    // TODO: Verify that this covers all incompatibilities between python and json,
+    //       e.g. number format and precision
+
     switch (value.type()) {
+    // Undefined is not a problem as the JSON generator ignores that.
+    case QJsonValue::Null:
+        // Python doesn't understand "null"
+        return QJsonValue(0);
     case QJsonValue::Bool:
         // Python doesn't understand lowercase "true" or "false"
         return QJsonValue(value.toBool() ? 1 : 0);
