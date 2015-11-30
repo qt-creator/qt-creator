@@ -174,11 +174,18 @@ CXIndex TranslationUnit::index() const
 
 CXTranslationUnit TranslationUnit::cxTranslationUnit() const
 {
+    cxTranslationUnitWithoutReparsing();
+    reparseTranslationUnitIfFilesAreChanged();
+
+    return d->translationUnit;
+}
+
+CXTranslationUnit TranslationUnit::cxTranslationUnitWithoutReparsing() const
+{
     checkIfNull();
     checkIfFileExists();
     removeTranslationUnitIfProjectPartWasChanged();
     createTranslationUnitIfNeeded();
-    reparseTranslationUnitIfFilesAreChanged();
 
     return d->translationUnit;
 }

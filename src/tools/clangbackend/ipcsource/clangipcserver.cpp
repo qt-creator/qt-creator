@@ -66,7 +66,7 @@
 namespace ClangBackEnd {
 
 namespace {
-const int delayedDocumentAnnotationsTimerInterval = 300;
+const int delayedDocumentAnnotationsTimerInterval = 500;
 }
 
 ClangIpcServer::ClangIpcServer()

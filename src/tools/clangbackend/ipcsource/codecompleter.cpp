@@ -49,7 +49,7 @@ CodeCompleter::CodeCompleter(TranslationUnit translationUnit)
 
 CodeCompletions CodeCompleter::complete(uint line, uint column)
 {
-    ClangCodeCompleteResults completeResults(clang_codeCompleteAt(translationUnit.cxTranslationUnit(),
+    ClangCodeCompleteResults completeResults(clang_codeCompleteAt(translationUnit.cxTranslationUnitWithoutReparsing(),
                                                                   translationUnit.filePath().constData(),
                                                                   line,
                                                                   column,

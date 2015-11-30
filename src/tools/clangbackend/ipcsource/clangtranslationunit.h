@@ -97,6 +97,7 @@ public:
 
     CXIndex index() const;
     CXTranslationUnit cxTranslationUnit() const;
+    CXTranslationUnit cxTranslationUnitWithoutReparsing() const;
     CXUnsavedFile * cxUnsavedFiles() const;
     uint unsavedFilesCount() const;
 
