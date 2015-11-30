@@ -1635,6 +1635,8 @@ void VcsBase::VcsBaseEditorWidget::testDiffFileResolving(const char *id)
     QFETCH(QByteArray, fileName);
     QTextDocument doc(QString::fromLatin1(header));
     QTextBlock block = doc.lastBlock();
+    // set source root for shadow builds
+    widget->setSource(QString::fromLatin1(SRC_DIR));
     QVERIFY(widget->fileNameFromDiffSpecification(block).endsWith(QString::fromLatin1(fileName)));
 
     delete editor;

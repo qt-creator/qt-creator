@@ -62,3 +62,5 @@ FORMS += commonsettingspage.ui \
     nicknamedialog.ui \
     cleandialog.ui \
     submiteditorwidget.ui
+
+equals(TEST, 1): DEFINES += "SRC_DIR=\\\"$$IDE_SOURCE_TREE\\\""
