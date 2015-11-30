@@ -248,8 +248,7 @@ Id Id::fromSetting(const QVariant &variant)
 
 Id Id::versionedId(const QByteArray &prefix, int major, int minor)
 {
-    if (major < 0)
-        return fromName(prefix);
+    QTC_ASSERT(major >= 0, return fromName(prefix));
 
     QByteArray result = prefix + '.';
     result += QString::number(major).toLatin1();
